@@ -1,11 +1,1229 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    hello world!!!
+    <title>Aayam Shrestha - Engineering Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP & KaTeX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Clean Minimal Panels */
+        .card-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+        }
+
+        .dark .card-panel {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Interactive Interest Cards */
+        .interest-card {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .interest-card:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* NotebookLM Mind Map Canvas Styling */
+        .notebooklm-canvas-bg {
+            background-image: radial-gradient(circle, rgba(148, 163, 184, 0.25) 1px, transparent 1px);
+            background-size: 18px 18px;
+        }
+        .dark .notebooklm-canvas-bg {
+            background-image: radial-gradient(circle, rgba(51, 65, 85, 0.4) 1px, transparent 1px);
+            background-size: 18px 18px;
+        }
+    </style>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col justify-between p-3 sm:p-6 md:p-8 antialiased selection:bg-sky-500 selection:text-white overflow-x-hidden">
+
+    <!-- ================= MAIN LANDING VIEW ================= -->
+    <div id="main-landing" class="max-w-[1400px] mx-auto w-full my-auto transition-all duration-500">
+        <div id="main-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
+            
+            <!-- LEFT PROFILE CARD -->
+            <div class="lg:col-span-4 flex flex-col">
+                <div class="card-panel rounded-3xl p-5 sm:p-8 flex-1 flex flex-col justify-between relative overflow-hidden">
+
+                    <div class="space-y-5 sm:space-y-6 relative z-10">
+                        <!-- Profile Image & Header -->
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-sky-500/40 shadow-xl mb-3 sm:mb-4 flex-shrink-0">
+                                <img id="profile-img-preview" src="https://media.licdn.com/dms/image/v2/D4E03AQERDW2P0VWRtg/profile-displayphoto-crop_800_800/B4EaGMtZB6KEAM-/0/1793362073619?e=1795651200&v=beta&t=Sedo-TSj4atxeXDL_vxj6dQ8EmCXkT5Jz95lrQfBDzk" alt="Aayam Shrestha" class="w-full h-full object-cover">
+                            </div>
+                            
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Aayam Shrestha</h1>
+                            <p class="text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mt-1">Mechanical Engineering Student</p>
+                            
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[11px] font-mono border border-emerald-200 dark:border-emerald-800 mt-2.5 shadow-sm">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Thapathali Campus, IOE
+                            </div>
+                        </div>
+
+                        <!-- Bio Statement -->
+                    <p class="text-xs font-sans text-slate-600 dark:text-slate-400 text-center leading-relaxed">
+                        Bridging physical principles and computational modeling to design intelligent mechanical systems.
+                    </p>
+                </div>
+
+                <!-- External Links -->
+                <div class="pt-4 sm:pt-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 mt-5 sm:mt-6">
+                    <a href="https://www.linkedin.com/in/aayam-shrestha-824186448" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-sky-600/20 cursor-pointer">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-1.3.7-1.78 1.4-1.78.85 0 1.35.6 1.35 1.78v4.93h2.79M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.7a1.63 1.63 0 1 0 0 3.26 1.63 1.63 0 0 0 0-3.26Z"/></svg>
+                        LinkedIn Network
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: HERO ACTION CARDS -->
+            <div class="lg:col-span-8 flex flex-col justify-center">
+                <div class="card-panel rounded-3xl p-5 sm:p-8 md:p-12 w-full h-full min-h-[380px] sm:min-h-[450px] flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 relative overflow-hidden">
+                    
+                    <!-- 1. ABOUT ME BUTTON -->
+                    <button onclick="openAboutMeExperience()" class="group relative w-full sm:w-1/2 min-h-[220px] h-64 sm:h-80 rounded-2xl bg-slate-50 dark:bg-slate-900/60 hover:bg-sky-50/60 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-sky-400/60 p-5 sm:p-8 flex flex-col justify-between items-start transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-sky-500/10 hover:-translate-y-1 text-left">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
+                            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-[10px] sm:text-[11px] font-mono font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest block mb-1">PROFILE</span>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-sky-600 transition-colors">About Me</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+                                Thapathali Campus IOE studies & engineering interests.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-sky-600 dark:text-sky-400 group-hover:translate-x-1.5 transition-transform">
+                            <span>View Profile</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </div>
+                    </button>
+
+                    <!-- 2. PROJECTS BUTTON -->
+                    <button onclick="openProjectsModal()" class="group relative w-full sm:w-1/2 min-h-[220px] h-64 sm:h-80 rounded-2xl sm:rounded-3xl bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100/60 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-slate-400/60 p-5 sm:p-8 flex flex-col justify-between items-start transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-slate-500/10 hover:-translate-y-1 text-left">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
+                            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-[10px] sm:text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">DIRECTORY</span>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-slate-700 transition-colors">Projects</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+                                CFD flow analysis, FEA stress & 3D parametric CAD models.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 group-hover:translate-x-1.5 transition-transform">
+                            <span>Browse Showcase</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= FULL-PAGE ABOUT ME VIEW OVERLAY ================= -->
+    <div id="about-me-overlay" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+        <div class="max-w-[1500px] mx-auto px-3 sm:px-8 py-3 sm:py-6 min-h-screen flex flex-col justify-between space-y-4">
+            
+            <!-- Top Back Navigation -->
+            <div class="flex items-center justify-end pb-2 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <button onclick="closeAboutMeExperience()" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-mono text-xs font-bold transition-all shadow-md shadow-sky-600/20 flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span class="hidden sm:inline">Back to Home</span>
+                    <span class="sm:hidden">Back</span>
+                </button>
+            </div>
+
+            <!-- UNIFIED SINGLE PANEL CONTAINER -->
+            <div class="card-panel p-4 sm:p-6 md:p-8 rounded-3xl flex-1 flex flex-col justify-between shadow-lg">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-stretch flex-1">
+                    
+                    <!-- LEFT SECTION: WHERE, WHAT I STUDY & INTERESTS -->
+                    <div class="lg:col-span-12 flex flex-col space-y-5">
+                        
+                        <div class="flex items-center justify-center text-center w-full">
+                            <h3 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-900 dark:text-white text-center">
+                                <span class="text-emerald-600 dark:text-emerald-400 font-black">WHERE</span> &amp; <span class="text-sky-600 dark:text-sky-400 font-black">WHAT</span> I STUDY &amp; <span class="text-violet-600 dark:text-violet-400 font-black">INTERESTS</span>
+                            </h3>
+                        </div>
+
+                        <!-- 3 RESPONSIVE COLOR-CODED CARDS GRID -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+
+                            <!-- 1. GREENISH CARD: THAPATHALI CAMPUS TIMELINE -->
+                            <button onclick="openThapathaliTimeline()" class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-950/80 via-slate-900 to-emerald-900/80 border-2 border-emerald-500/60 p-4 sm:p-5 shadow-md hover:shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-400 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between min-h-[220px]">
+                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-emerald-500/20 blur-xl group-hover:scale-150 transition-transform"></div>
+                                
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/40">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            Campus
+                                        </span>
+                                        <span class="text-xs font-mono font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
+                                            Explore 🏛️ →
+                                        </span>
+                                    </div>
+
+                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-emerald-300 transition-colors">
+                                        Thapathali Campus timeline
+                                    </h2>
+                                    <p class="text-xs text-emerald-200/80 font-sans mt-1">
+                                        Institute of Engineering • Tribhuvan University
+                                    </p>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-emerald-800/60 flex items-center justify-between text-[11px] font-mono text-emerald-300 font-semibold flex-wrap gap-1">
+                                    <span>Est. 1966 AD (2023 B.S.)</span>
+                                    <span class="underline decoration-emerald-400 underline-offset-4 font-bold group-hover:text-emerald-300">Thapathali Campus timeline →</span>
+                                </div>
+                            </button>
+
+                            <!-- 2. BLUISH CARD: B.E. MECHANICAL ENGINEERING -->
+                            <div class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-950/80 via-slate-900 to-blue-900/80 border-2 border-sky-500/60 p-4 sm:p-5 shadow-md hover:shadow-xl hover:shadow-sky-500/20 hover:border-sky-400 transition-all duration-300 flex flex-col justify-between min-h-[220px]">
+                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-sky-500/20 blur-xl group-hover:scale-150 transition-transform"></div>
+                                
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-sky-500/40">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+                                            Degree Program
+                                        </span>
+                                        <span class="text-xs font-mono font-bold text-sky-400">
+                                            Mechanical ⚙️
+                                        </span>
+                                    </div>
+
+                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-sky-300 transition-colors">
+                                        B.E. Mechanical Engineering
+                                    </h2>
+                                    <p class="text-xs text-sky-200/80 font-sans mt-1">
+                                        Department of Mechanical Engineering
+                                    </p>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-sky-800/60 flex items-center justify-between text-[11px] font-mono text-sky-300 font-semibold flex-wrap gap-1">
+                                    <span>Undergraduate Studies</span>
+                                    <span class="font-bold text-sky-300">IOE Thapathali Campus</span>
+                                </div>
+                            </div>
+
+                            <!-- 3. DEEP VIOLET/INDIGO CARD: THINGS I AM INTERESTED IN (FULLPAGE MIND MAP TRIGGER) -->
+                            <button onclick="openMindMapOverlay()" class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-950/80 via-slate-900 to-indigo-900/80 border-2 border-violet-500/60 p-4 sm:p-5 shadow-md hover:shadow-xl hover:shadow-violet-500/20 hover:border-violet-400 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between min-h-[220px]">
+                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-violet-500/20 blur-xl group-hover:scale-150 transition-transform"></div>
+                                
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-violet-500/40">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                                            Interactive Graph
+                                        </span>
+                                        <span class="text-xs font-mono font-bold text-violet-400 group-hover:translate-x-1 transition-transform">
+                                            Explore 🧠 →
+                                        </span>
+                                    </div>
+
+                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-violet-300 transition-colors">
+                                        Things I Am Interested In
+                                    </h2>
+                                    <p class="text-xs text-violet-200/80 font-sans mt-1">
+                                        Physics • Mathematics • Engineering
+                                    </p>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-violet-800/60 flex items-center justify-between text-[11px] font-mono text-violet-300 font-semibold flex-wrap gap-1">
+                                    <span>Knowledge Tree Graph</span>
+                                    <span class="underline decoration-violet-400 underline-offset-4 font-bold group-hover:text-violet-300">Open Mind Map →</span>
+                                </div>
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FULLPAGE DEEP VIOLET / INDIGO MIND MAP OVERLAY ================= -->
+    <div id="mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-violet-50 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-950 via-slate-950 to-indigo-950">
+        
+        <!-- Top Navigation Floating Back Button -->
+        <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
+            <button onclick="closeMindMapOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-violet-500/25 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>Back</span>
+            </button>
+        </div>
+
+        <!-- FULL SCREEN PURE MIND MAP CANVAS CONTAINER WITH EXPANDABLE BRANCHES -->
+        <div id="notebooklm-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-violet-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(139,92,246,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px]">
+            <svg id="mm-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+            
+            <div id="mm-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
+                    <!-- Pillar Column (L1: Initial 3 Nodes) -->
+                    <div id="nb-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <!-- L2 Nodes Column (Expands smoothly on Pillar click) -->
+                    <div id="nb-l2-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <!-- L3 Subnodes Column (Expands smoothly on L2 click) -->
+                    <div id="nb-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= THAPATHALI CAMPUS HISTORICAL TIMELINE OVERLAY ================= -->
+    <div id="thapathali-timeline-overlay" class="fixed inset-0 z-[100] bg-slate-950 text-emerald-50 hidden opacity-0 transition-all duration-500 overflow-y-auto p-3 sm:p-6 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-emerald-900">
+        <div class="max-w-[1250px] mx-auto space-y-6 sm:space-y-8 pb-12">
+            
+            <!-- Top Navigation & Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-emerald-800/50 flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
+                    <div>
+                        <h1 class="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            Thapathali Campus timeline
+                        </h1>
+                    </div>
+                </div>
+
+                <button onclick="closeThapathaliTimeline()" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Return to Profile</span>
+                </button>
+            </div>
+
+            <!-- Greenish Campus Stats Banner -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Established</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-white">1966 AD</span>
+                    <span class="text-[10px] font-mono text-emerald-300/80 block">2023 B.S.</span>
+                </div>
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Parent Body</span>
+                    <span class="text-base sm:text-lg font-extrabold text-white">IOE, TU</span>
+                    <span class="text-[10px] font-mono text-emerald-300/80 block">Constituent Campus</span>
+                </div>
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Undergrad Programs</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-emerald-400">6 B.E.</span>
+                    <span class="text-[10px] font-mono text-emerald-300/80 block">Degree Courses</span>
+                </div>
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Location</span>
+                    <span class="text-base sm:text-lg font-extrabold text-emerald-200">Kathmandu</span>
+                    <span class="text-[10px] font-mono text-emerald-300/80 block">Thapathali, Nepal</span>
+                </div>
+            </div>
+
+            <!-- Campus Google Maps & Satellite Interactive Card -->
+            <div class="rounded-2xl border border-emerald-500/30 bg-emerald-900/30 backdrop-blur-md overflow-hidden shadow-lg space-y-2 p-3">
+                <div class="flex items-center justify-between px-2 pt-1 flex-wrap gap-1">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Thapathali Campus Map & Satellite View
+                    </span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="switchCampusMapMode('map')" id="campus-map-btn-map" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs">
+                            🗺️ Location
+                        </button>
+                        <button onclick="switchCampusMapMode('street')" id="campus-map-btn-street" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all">
+                            📷 Satellite / Map
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="relative w-full h-48 sm:h-56 rounded-xl overflow-hidden border border-emerald-500/30 bg-slate-950">
+                    <iframe id="thapathali-map-iframe" 
+                            class="w-full h-full border-0 rounded-xl"
+                            src="https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <div class="flex items-center justify-between px-2 pb-1 text-[10px] font-mono text-emerald-300/80">
+                    <span>Thapathali, Kathmandu, Nepal</span>
+                    <a href="https://maps.google.com/?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal" target="_blank" class="text-emerald-400 hover:underline flex items-center gap-1 font-bold">
+                        Open in Google Maps ↗
+                    </a>
+                </div>
+            </div>
+
+            <!-- HOVER INFORMATIONAL INSPECTOR HEADER -->
+            <div id="timeline-hover-inspector" class="p-4 rounded-2xl bg-emerald-900/40 border border-emerald-400/50 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono text-lg font-bold flex-shrink-0">
+                        🔍
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-widest block">Interactive Explorer</span>
+                        <h4 id="inspector-title" class="text-xs sm:text-sm font-bold text-white">Hover over any milestone along the green snake path below</h4>
+                    </div>
+                </div>
+                <p id="inspector-subtitle" class="text-xs font-mono text-emerald-300/80 max-w-md">
+                    Hover over a milestone node to unlock detailed historical records, founding figures, and academic evolution.
+                </p>
+            </div>
+
+            <!-- ANIMATED GREEN SNAKE LINE TIMELINE CONTAINER -->
+            <div id="snake-timeline-container" class="relative p-4 sm:p-8 md:p-12 rounded-3xl bg-emerald-950/60 border border-emerald-800/60 overflow-hidden space-y-12 backdrop-blur-md">
+                
+                <!-- SVG SNAKE PATH LAYER -->
+                <svg id="snake-path-svg" class="absolute inset-0 w-full h-full pointer-events-none z-0" style="overflow: visible;">
+                    <defs>
+                        <linearGradient id="emerald-snake-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#34d399" />
+                            <stop offset="50%" stop-color="#10b981" />
+                            <stop offset="100%" stop-color="#059669" />
+                        </linearGradient>
+                        <filter id="emerald-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path id="snake-animated-path" d="" fill="none" stroke="url(#emerald-snake-grad)" stroke-width="4" filter="url(#emerald-glow)" stroke-linecap="round" />
+                </svg>
+
+                <!-- SNAKE TIMELINE NODES (ALTERNATING SNAKE LAYOUT) -->
+                <div class="relative z-10 space-y-12 sm:space-y-16">
+                    
+                    <!-- MILESTONE 1 (LEFT) -->
+                    <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(0)" onmouseleave="resetSnakeNode()">
+                        <div class="md:col-span-6 space-y-2">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-900/40 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                        1966 AD (2023 B.S.)
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">FOUNDATION ERA</span>
+                                </div>
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Technical Training Institute (TTI)</h3>
+                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                    Inaugurated on 29th Falgun 2023 B.S. in the presence of Late King Mahendra Bir Bikram Shah Dev & Dr. Heinrich Lübke (President of West Germany).
+                                </p>
+                                <!-- HIDDEN EXPANDED HOVER CONTENT -->
+                                <div class="timeline-hover-details max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 border-t border-emerald-500/30 pt-3">
+                                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">💡 Extended Historical Detail:</span>
+                                    <p class="text-[11px] font-mono text-emerald-200 leading-relaxed">
+                                        Established under official German Technical Assistance to build Nepal's first industrial trade workforce in mechanical tooling, automotive repairs, and electrical wiring.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-6 flex justify-center items-center">
+                            <div id="snake-dot-0" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                01
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MILESTONE 2 (RIGHT) -->
+                    <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(1)" onmouseleave="resetSnakeNode()">
+                        <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
+                            <div id="snake-dot-1" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                02
+                            </div>
+                        </div>
+                        <div class="md:col-span-6 space-y-2 order-1 md:order-2">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-900/40 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                        1972 AD (2029 B.S.)
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">TU INTEGRATION</span>
+                                </div>
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Integration into IOE Tribhuvan University</h3>
+                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                    Renamed to **Thapathali Campus** and integrated as a constituent campus under the newly established Institute of Engineering (IOE).
+                                </p>
+                                <!-- HIDDEN EXPANDED HOVER CONTENT -->
+                                <div class="timeline-hover-details max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 border-t border-emerald-500/30 pt-3">
+                                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">💡 Extended Historical Detail:</span>
+                                    <p class="text-[11px] font-mono text-emerald-200 leading-relaxed">
+                                        Unified technical curricula across Nepal, transitioning trade apprenticeships into standardized engineering certificates under Tribhuvan University guidelines.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MILESTONE 3 (LEFT) -->
+                    <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(2)" onmouseleave="resetSnakeNode()">
+                        <div class="md:col-span-6 space-y-2">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-900/40 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                        1987 AD (2044 B.S.)
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">DIPLOMA ERA</span>
+                                </div>
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">3-Year Mechanical & Automobile Diplomas</h3>
+                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                    Introduced 3-Year Diploma in Mechanical Engineering and Automobile Engineering to power Nepal's transportation and manufacturing infrastructure.
+                                </p>
+                                <!-- HIDDEN EXPANDED HOVER CONTENT -->
+                                <div class="timeline-hover-details max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 border-t border-emerald-500/30 pt-3">
+                                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">💡 Extended Historical Detail:</span>
+                                    <p class="text-[11px] font-mono text-emerald-200 leading-relaxed">
+                                        Thapathali Campus established Nepal's first specialized automobile diagnostic laboratories and foundry workshops during this expansion phase.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-6 flex justify-center items-center">
+                            <div id="snake-dot-2" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                03
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MILESTONE 4 (RIGHT) -->
+                    <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(3)" onmouseleave="resetSnakeNode()">
+                        <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
+                            <div id="snake-dot-3" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                04
+                            </div>
+                        </div>
+                        <div class="md:col-span-6 space-y-2 order-1 md:order-2">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-900/40 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                        2011 – 2015 AD
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">DEGREE TRANSITION</span>
+                                </div>
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Transition to Full Bachelor (B.E.) Degrees</h3>
+                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                    Phased out diploma programs to launch 4-year B.E. degrees in Mechanical, Civil, Electronics, Computer, Automobile, and B.Arch.
+                                </p>
+                                <!-- HIDDEN EXPANDED HOVER CONTENT -->
+                                <div class="timeline-hover-details max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 border-t border-emerald-500/30 pt-3">
+                                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">💡 Extended Historical Detail:</span>
+                                    <p class="text-[11px] font-mono text-emerald-200 leading-relaxed">
+                                        Marked the evolution into a high-level research campus, establishing computer numerical control (CNC) labs and high-performance computing centers.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MILESTONE 5 (LEFT / PRESENT ERA - CURRENT TIME PHOTO WITH LOGO) -->
+                    <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(4)" onmouseleave="resetSnakeNode()">
+                        <div class="md:col-span-6 space-y-2">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-900/40 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                                
+                                <!-- CURRENT TIME CAMPUS PHOTO WITH LOGO -->
+                                <div class="w-full h-44 sm:h-56 rounded-xl overflow-hidden mb-4 border-2 border-emerald-400/60 bg-emerald-950/60 relative group-hover:shadow-2xl group-hover:shadow-emerald-500/20 transition-all">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Thapathali_Campus.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original" 
+                                         onerror="this.src='https://placehold.co/800x450/064e3b/a7f3d0?text=IOE+Thapathali+Campus+Present+Day'" 
+                                         alt="Thapathali Campus Current Photo" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-95 group-hover:brightness-100">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30"></div>
+                                    
+                                    <!-- Official IOE Logo Badge Overlay -->
+                                    <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-400/60 flex items-center gap-2 shadow-lg">
+                                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden border border-emerald-400/80 bg-white flex-shrink-0">
+                                            <img src="https://scontent.fktm1-1.fna.fbcdn.net/v/t39.30808-6/333152921_2431443020336588_2047922386020842394_n.jpg?stp=dst-jpg_tt6&cstp=mx2000x2000&ctp=s2000x2000&_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=fc-uhUxAPVIQ7kNvwEqHVja&_nc_oc=AdrZjN_ISTeDLxbnee98ooQRTCyDYjpffAbTFIAYjr77USqJMFEYDPZmo7l58Q4BX17Kivncz_h4oNhrdQo8Avk1&_nc_zt=23&_nc_ht=scontent.fktm1-1.fna&_nc_gid=Kchm2zuu5EXXR2NEUPLoag&_nc_ss=7b2a8&oh=00_AQSDaggP61zZgRSh_6E1b8Iu2L_Yxhz_OS8rlqU3NPDK0Q&oe=6AF0E6F2"
+                                                 onerror="this.src='https://placehold.co/100x100/064e3b/a7f3d0?text=IOE'"
+                                                 alt="Thapathali Campus Logo"
+                                                 class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="text-[8px] sm:text-[9px] font-mono font-bold text-emerald-400 block leading-tight">THAPATHALI CAMPUS</span>
+                                            <span class="text-[7px] sm:text-[8px] font-mono text-slate-300 block leading-tight">Tribhuvan University</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/90 text-slate-950 font-mono text-[9px] sm:text-[10px] font-bold shadow-md">
+                                        📍 Present Day Campus Building
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-300 font-mono font-bold text-xs border border-emerald-400/50">
+                                        2016 AD – Present (Current)
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">MASTERS & RESEARCH HUB</span>
+                                </div>
+                                <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Postgraduate M.Sc. & Modern Innovation</h3>
+                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                    Launched M.Sc. in Mechanical System Design & Manufacturing, Earthquake Engineering, and Informatics, hosting student clubs like AMESIN and RAC.
+                                </p>
+                                <!-- HIDDEN EXPANDED HOVER CONTENT -->
+                                <div class="timeline-hover-details max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 border-t border-emerald-500/30 pt-3">
+                                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">💡 Extended Historical Detail:</span>
+                                    <p class="text-[11px] font-mono text-emerald-200 leading-relaxed">
+                                        Current home of competitive robotics teams, energetic mechanical research projects, and student-driven hardware development.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-6 flex justify-center items-center">
+                            <div id="snake-dot-4" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                05
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Back Button -->
+            <div class="text-center pt-4">
+                <button onclick="closeThapathaliTimeline()" class="px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-xl shadow-emerald-500/30">
+                    ← Return to Profile
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= PROJECTS SHOWCASE MODAL ================= -->
+    <div id="projects-modal" class="fixed inset-0 z-[90] bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="card-panel w-full max-w-3xl rounded-3xl p-5 sm:p-8 space-y-5 sm:space-y-6 relative overflow-hidden my-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-sky-500 uppercase tracking-widest block">ENGINEERING DIRECTORY</span>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Projects Showcase</h3>
+                </div>
+                <button onclick="closeProjectsModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors font-mono font-bold text-sm">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Project Selector Tabs -->
+            <div id="project-tabs-container" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="selectProjectTab(0)" class="project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-sky-500 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold whitespace-nowrap">
+                    Slider-Crank Kinematics
+                </button>
+            </div>
+
+            <!-- Project Content Panel -->
+            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h4 id="proj-title" class="text-lg font-bold text-slate-900 dark:text-white">Slider-Crank Kinematic Motion Solver</h4>
+                    <span id="proj-domain" class="px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-mono font-bold border border-sky-300 dark:border-sky-800">Kinematic Math Engine</span>
+                </div>
+                <p id="proj-description" class="text-xs text-slate-600 dark:text-slate-400 font-sans leading-relaxed">
+                    Mathematical physics engine solving exact position, velocity, and acceleration trajectories for reciprocating pistons.
+                </p>
+                <div class="p-3 rounded-xl bg-slate-200/50 dark:bg-slate-950 border border-slate-300/40 dark:border-slate-800 font-mono text-xs text-center overflow-x-auto">
+                    <span id="proj-formula"></span>
+                </div>
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2">Technical Highlights</span>
+                    <ul id="proj-highlights" class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-sans">
+                    </ul>
+                </div>
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2">Tools & Libraries</span>
+                    <div id="proj-tools" class="flex flex-wrap gap-1.5">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const PROJECTS = [
+            {
+                title: "Slider-Crank Kinematic Motion Solver",
+                domain: "Kinematic Math Engine",
+                formula: "x(\\theta) = r\\cos\\theta + \\sqrt{l^2 - r^2\\sin^2\\theta}",
+                description: "Mathematical physics engine solving exact position, velocity, and acceleration trajectories for reciprocating pistons.",
+                highlights: [
+                    "Derived closed-form analytical equations for non-linear piston acceleration.",
+                    "Rendered real-time dynamic force vector diagrams overlaid on geometry.",
+                    "Integrated Runge-Kutta numerical integration for transient response analysis."
+                ],
+                tools: ["MATLAB", "Python NumPy", "SymPy", "KaTeX"]
+            }
+        ];
+
+        // NotebookLM Mind Map Expandable Data Tree
+        const NOTEBOOK_MINDMAP_DATA = {
+            physics: {
+                name: "Physics",
+                icon: "⚛️",
+                nodes: [
+                    { name: "Electrodynamics", subnodes: ["Maxwell's Equations", "Electromagnetic Waves", "Vector Potentials"] },
+                    { name: "Classical Mechanics", subnodes: ["Lagrangian Formulation", "Hamiltonian Dynamics", "Rigid Body Motion"] },
+                    { name: "Thermal Physics", subnodes: ["Statistical Thermodynamics", "Heat Conduction & Radiation", "Entropy & Microstates"] }
+                ]
+            },
+            math: {
+                name: "Mathematics",
+                icon: "📐",
+                nodes: [
+                    { name: "Differential Equations", subnodes: ["Initial Value Problems", "Linear ODE Systems", "Runge-Kutta Methods"] },
+                    { name: "Multivariable Calculus", subnodes: ["Vector Fields", "Line & Surface Integrals", "Divergence Theorem"] },
+                    { name: "Linear Algebra", subnodes: ["Eigenvalues & Eigenvectors", "Matrix Decompositions", "Vector Spaces"] }
+                ]
+            },
+            engineering: {
+                name: "Engineering",
+                icon: "⚙️",
+                nodes: [
+                    { name: "Onshape CAD", subnodes: ["Parametric Modeling", "Assembly Constraints", "Cloud Design Workflow"] },
+                    { name: "Mechanics of Materials", subnodes: ["Stress & Strain Tensors", "Beam Deflection & Bending", "Failure Theories"] },
+                    { name: "Fluid Mechanics", subnodes: ["Navier-Stokes Equations", "Boundary Layer Theory", "Aerodynamic Drag"] }
+                ]
+            }
+        };
+
+        // Expansion & Zoom State Management
+        let expandedPillarKey = null;
+        let expandedL2Index = null;
+
+        function renderL1Nodes() {
+            const container = document.getElementById('nb-l1-nodes-col');
+            if (!container) return;
+
+            const pillars = [
+                { key: 'physics', ...NOTEBOOK_MINDMAP_DATA.physics },
+                { key: 'math', ...NOTEBOOK_MINDMAP_DATA.math },
+                { key: 'engineering', ...NOTEBOOK_MINDMAP_DATA.engineering }
+            ];
+
+            container.innerHTML = pillars.map(p => {
+                const isExpanded = expandedPillarKey === p.key;
+                const borderStyle = isExpanded 
+                    ? 'border-violet-400 bg-violet-600 text-slate-950 shadow-lg shadow-violet-500/40 scale-105 z-20' 
+                    : 'border-violet-600/80 bg-slate-900/90 text-white hover:border-violet-400 hover:scale-102';
+
+                return `
+                    <button onclick="togglePillar('${p.key}')" id="nb-pillar-${p.key}" class="notebooklm-pillar-btn group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md">
+                        <span class="flex items-center gap-2 truncate">
+                            <span class="text-base sm:text-lg">${p.icon}</span> 
+                            <span class="truncate tracking-wide">${p.name}</span>
+                        </span>
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-violet-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function togglePillar(key) {
+            if (expandedPillarKey === key) {
+                // Collapse everything back to 3 pillars
+                expandedPillarKey = null;
+                expandedL2Index = null;
+            } else {
+                // Expand pillar
+                expandedPillarKey = key;
+                expandedL2Index = null;
+            }
+
+            renderL1Nodes();
+            renderL2Nodes();
+            renderL3Nodes();
+            applyZoomEffect();
+            setTimeout(drawSVGConnections, 60);
+        }
+
+        function renderL2Nodes() {
+            const container = document.getElementById('nb-l2-nodes-col');
+            if (!container) return;
+
+            if (!expandedPillarKey) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const pillar = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = pillar.nodes.map((node, idx) => {
+                const isExpanded = idx === expandedL2Index;
+                const activeStyle = isExpanded 
+                    ? 'bg-violet-500 text-slate-950 border-violet-300 font-bold shadow-md shadow-violet-500/30 scale-105 z-20' 
+                    : 'bg-slate-900/90 text-violet-200 border-violet-800/80 hover:border-violet-400 hover:text-white z-10';
+                
+                return `
+                    <button onclick="toggleL2Node(${idx})" id="nb-l2-node-${idx}" class="notebooklm-l2-node px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm ${activeStyle}">
+                        <span class="truncate">${node.name}</span>
+                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleL2Node(idx) {
+            if (expandedL2Index === idx) {
+                expandedL2Index = null;
+            } else {
+                expandedL2Index = idx;
+            }
+
+            renderL2Nodes();
+            renderL3Nodes();
+            applyZoomEffect();
+            setTimeout(drawSVGConnections, 60);
+        }
+
+        function renderL3Nodes() {
+            const container = document.getElementById('nb-l3-nodes-col');
+            if (!container) return;
+
+            if (expandedPillarKey === null || expandedL2Index === null) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const pillar = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+            const activeNode = pillar.nodes[expandedL2Index];
+
+            if (!activeNode) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = activeNode.subnodes.map((sub, idx) => `
+                <div id="nb-l3-node-${idx}" class="notebooklm-l3-node px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-violet-500/40 text-violet-100 text-xs font-mono shadow-md truncate hover:border-violet-300 hover:text-white transition-all duration-300 hover:scale-102">
+                    ✨ ${sub}
+                </div>
+            `).join('');
+        }
+
+        // Smooth Zooming Adjustment based on Expansion Depth
+        function applyZoomEffect() {
+            const zoomWrapper = document.getElementById('mm-zoom-wrapper');
+            if (!zoomWrapper) return;
+
+            if (expandedPillarKey !== null && expandedL2Index !== null) {
+                // Depth 3: Slight scale adjustment to maintain full fit on screen
+                zoomWrapper.style.transform = 'scale(0.97)';
+            } else if (expandedPillarKey !== null) {
+                // Depth 2
+                zoomWrapper.style.transform = 'scale(1)';
+            } else {
+                // Depth 1: Focused initial view
+                zoomWrapper.style.transform = 'scale(1.02)';
+            }
+        }
+
+        // About Me Overlay Navigation
+        function openAboutMeExperience() {
+            const overlay = document.getElementById('about-me-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                });
+            }
+        }
+
+        function closeAboutMeExperience() {
+            const overlay = document.getElementById('about-me-overlay');
+            if (overlay) {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Fullpage Mind Map Overlay Navigation
+        function openMindMapOverlay() {
+            const overlay = document.getElementById('mindmap-overlay');
+            if (!overlay) return;
+
+            // Reset expansion to initial 3 nodes state on open
+            expandedPillarKey = null;
+            expandedL2Index = null;
+            renderL1Nodes();
+            renderL2Nodes();
+            renderL3Nodes();
+            applyZoomEffect();
+
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+            });
+            setTimeout(() => {
+                drawSVGConnections();
+            }, 100);
+        }
+
+        function closeMindMapOverlay() {
+            const overlay = document.getElementById('mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        // Dynamic Bezier SVG Path Connections for Expanded Nodes
+        function drawSVGConnections() {
+            const svg = document.getElementById('mm-svg-canvas');
+            const container = document.getElementById('notebooklm-mindmap-container');
+            if (!svg || !container) return;
+
+            const cRect = container.getBoundingClientRect();
+            svg.setAttribute('width', cRect.width);
+            svg.setAttribute('height', cRect.height);
+
+            if (!expandedPillarKey) {
+                svg.innerHTML = '';
+                return;
+            }
+
+            const activePillarBtn = document.getElementById(`nb-pillar-${expandedPillarKey}`);
+            if (!activePillarBtn) {
+                svg.innerHTML = '';
+                return;
+            }
+
+            const strokeColor = 'rgba(139, 92, 246, 0.7)';
+            let pathsHTML = '';
+
+            const pRect = activePillarBtn.getBoundingClientRect();
+            const pX = pRect.right - cRect.left;
+            const pY = pRect.top + pRect.height / 2 - cRect.top;
+
+            // Connect L1 Pillar to L2 expanded node
+            if (expandedL2Index !== null) {
+                const activeL2Btn = document.getElementById(`nb-l2-node-${expandedL2Index}`);
+                if (activeL2Btn) {
+                    const l2Rect = activeL2Btn.getBoundingClientRect();
+                    const l2LeftX = l2Rect.left - cRect.left;
+                    const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const cX1 = pX + (l2LeftX - pX) * 0.5;
+                    pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#8b5cf6" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#8b5cf6" />`;
+
+                    // Connect L2 node to L3 expanded subnodes
+                    const l2RightX = l2Rect.right - cRect.left;
+                    const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const pillarData = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+                    const activeNode = pillarData ? pillarData.nodes[expandedL2Index] : null;
+                    if (activeNode && activeNode.subnodes) {
+                        activeNode.subnodes.forEach((_, subIdx) => {
+                            const l3Node = document.getElementById(`nb-l3-node-${subIdx}`);
+                            if (l3Node) {
+                                const l3Rect = l3Node.getBoundingClientRect();
+                                const l3X = l3Rect.left - cRect.left;
+                                const l3Y = l3Rect.top + l3Rect.height / 2 - cRect.top;
+
+                                const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
+                                pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#c084fc" />`;
+                            }
+                        });
+                    }
+                }
+            } else {
+                // Connect L1 Pillar to all L2 nodes when L2 column is open
+                const pillarData = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+                if (pillarData && pillarData.nodes) {
+                    pillarData.nodes.forEach((_, idx) => {
+                        const l2Btn = document.getElementById(`nb-l2-node-${idx}`);
+                        if (l2Btn) {
+                            const l2Rect = l2Btn.getBoundingClientRect();
+                            const l2LeftX = l2Rect.left - cRect.left;
+                            const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                            const cX1 = pX + (l2LeftX - pX) * 0.5;
+                            pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#a855f7" />`;
+                        }
+                    });
+                }
+            }
+
+            svg.innerHTML = pathsHTML;
+        }
+
+        // Thapathali Campus Timeline Navigation & Green Snake Line Animation
+        const TIMELINE_INSPECTOR_INFO = [
+            {
+                title: "1966 AD: Technical Training Institute (TTI) Founded",
+                subtitle: "Jointly inaugurated by Late King Mahendra & President Heinrich Lübke with West German technical assistance."
+            },
+            {
+                title: "1972 AD: Integration into Tribhuvan University",
+                subtitle: "Formally named Thapathali Campus under the newly formed Institute of Engineering (IOE)."
+            },
+            {
+                title: "1987 AD: Launch of Specialized 3-Year Diplomas",
+                subtitle: "Pioneered mid-level technical manpower education for mechanical and automotive industries."
+            },
+            {
+                title: "2011–2015 AD: Undergraduate B.E. Degree Transition",
+                subtitle: "Expanded into full 4-year engineering degrees across Mechanical, Civil, Computer & Architecture."
+            },
+            {
+                title: "2016 AD – Present: Postgraduate M.Sc. & Research Innovation",
+                subtitle: "Leading research center for Mechanical System Design, Earthquake Engineering & robotics innovation."
+            }
+        ];
+
+        function hoverSnakeNode(idx) {
+            const info = TIMELINE_INSPECTOR_INFO[idx];
+            const titleEl = document.getElementById('inspector-title');
+            const subtitleEl = document.getElementById('inspector-subtitle');
+            if (info && titleEl && subtitleEl) {
+                titleEl.textContent = info.title;
+                subtitleEl.textContent = info.subtitle;
+            }
+        }
+
+        function resetSnakeNode() {
+            const titleEl = document.getElementById('inspector-title');
+            const subtitleEl = document.getElementById('inspector-subtitle');
+            if (titleEl && subtitleEl) {
+                titleEl.textContent = "Hover over any milestone along the green snake path below";
+                subtitleEl.textContent = "Hover over a milestone node to unlock detailed historical records, founding figures, and academic evolution.";
+            }
+        }
+
+        function drawSnakePath() {
+            const container = document.getElementById('snake-timeline-container');
+            const pathEl = document.getElementById('snake-animated-path');
+            if (!container || !pathEl) return;
+
+            const dots = [0, 1, 2, 3, 4].map(i => document.getElementById(`snake-dot-${i}`)).filter(Boolean);
+            if (dots.length === 0) return;
+
+            const cRect = container.getBoundingClientRect();
+            const coords = dots.map(dot => {
+                const r = dot.getBoundingClientRect();
+                return {
+                    x: r.left + r.width / 2 - cRect.left,
+                    y: r.top + r.height / 2 - cRect.top
+                };
+            });
+
+            if (coords.length < 2) return;
+
+            // Construct smooth S-curve / snake bezier path connecting dots
+            let d = `M ${coords[0].x} ${coords[0].y}`;
+            for (let i = 0; i < coords.length - 1; i++) {
+                const curr = coords[i];
+                const next = coords[i + 1];
+                const midY = (curr.y + next.y) / 2;
+                d += ` C ${curr.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`;
+            }
+
+            pathEl.setAttribute('d', d);
+
+            // Animate stroke draw from top to bottom
+            const length = pathEl.getTotalLength();
+            pathEl.style.strokeDasharray = length;
+            pathEl.style.strokeDashoffset = length;
+
+            if (window.gsap) {
+                gsap.to(pathEl, {
+                    strokeDashoffset: 0,
+                    duration: 1.6,
+                    ease: "power2.inOut",
+                    delay: 0.2
+                });
+            } else {
+                pathEl.style.transition = "stroke-dashoffset 1.5s ease-in-out";
+                setTimeout(() => { pathEl.style.strokeDashoffset = "0"; }, 50);
+            }
+        }
+
+        function openThapathaliTimeline() {
+            const timelineOverlay = document.getElementById('thapathali-timeline-overlay');
+            if (!timelineOverlay) return;
+
+            timelineOverlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                timelineOverlay.classList.remove('opacity-0');
+            });
+
+            setTimeout(() => {
+                drawSnakePath();
+            }, 100);
+
+            // GSAP Stagger Entrance Animation for Timeline Step Cards
+            if (window.gsap) {
+                gsap.fromTo('.timeline-snake-node', 
+                    { opacity: 0, y: 35 },
+                    { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power2.out', delay: 0.1 }
+                );
+            }
+        }
+
+        function closeThapathaliTimeline() {
+            const timelineOverlay = document.getElementById('thapathali-timeline-overlay');
+            if (!timelineOverlay) return;
+
+            timelineOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                timelineOverlay.classList.add('hidden');
+            }, 300);
+        }
+
+        // Projects Modal Logic
+        function openProjectsModal() {
+            const modal = document.getElementById('projects-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                selectProjectTab(0);
+            }
+        }
+
+        function closeProjectsModal() {
+            const modal = document.getElementById('projects-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function selectProjectTab(idx) {
+            const proj = PROJECTS[idx] || PROJECTS[0];
+            const titleEl = document.getElementById('proj-title');
+            const domainEl = document.getElementById('proj-domain');
+            const descEl = document.getElementById('proj-description');
+            const highlightsEl = document.getElementById('proj-highlights');
+            const toolsEl = document.getElementById('proj-tools');
+            const formulaEl = document.getElementById('proj-formula');
+
+            if (titleEl) titleEl.textContent = proj.title;
+            if (domainEl) domainEl.textContent = proj.domain;
+            if (descEl) descEl.textContent = proj.description;
+            
+            if (highlightsEl) {
+                highlightsEl.innerHTML = proj.highlights.map(h => `<li class="flex items-start gap-2"><span class="text-sky-500 font-bold">•</span><span>${h}</span></li>`).join('');
+            }
+            if (toolsEl) {
+                toolsEl.innerHTML = proj.tools.map(t => `<span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono border border-slate-200 dark:border-slate-700">${t}</span>`).join('');
+            }
+            if (formulaEl && window.katex) {
+                try {
+                    katex.render(proj.formula, formulaEl, { throwOnError: false });
+                } catch(e) {
+                    formulaEl.textContent = proj.formula;
+                }
+            }
+
+            document.querySelectorAll('.project-tab-btn').forEach((btn, i) => {
+                if (i === idx) {
+                    btn.className = 'project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-sky-500 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold whitespace-nowrap';
+                } else {
+                    btn.className = 'project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 whitespace-nowrap';
+                }
+            });
+        }
+
+        // Dark Theme Toggle
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            setTimeout(drawSVGConnections, 50);
+        }
+
+        // Campus Map Toggle Function
+        function switchCampusMapMode(mode) {
+            const iframe = document.getElementById('thapathali-map-iframe');
+            const btnMap = document.getElementById('campus-map-btn-map');
+            const btnStreet = document.getElementById('campus-map-btn-street');
+            if (!iframe) return;
+
+            if (mode === 'map') {
+                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed";
+                if (btnMap) btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
+                if (btnStreet) btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
+            } else {
+                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=k&z=19&ie=UTF8&iwloc=&output=embed";
+                if (btnMap) btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
+                if (btnStreet) btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
+            }
+        }
+
+        // Global Event Listeners & Orientation/Resize Handlers
+        window.addEventListener('load', () => {
+            renderL1Nodes();
+        });
+
+        window.addEventListener('resize', () => {
+            drawSVGConnections();
+            drawSnakePath();
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                drawSVGConnections();
+                drawSnakePath();
+            }, 200);
+        });
+    </script>
 </body>
 </html>

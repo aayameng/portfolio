@@ -164,142 +164,199 @@
     </div>
 
     <!-- ================= FULL-PAGE ABOUT ME VIEW OVERLAY ================= -->
-    <div id="about-me-overlay" class="fixed inset-0 z-50 bg-slate-50 text-slate-900 hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
-        <div class="max-w-[1500px] mx-auto px-3 sm:px-8 py-3 sm:py-6 min-h-screen flex flex-col justify-between space-y-4">
+    <div id="about-me-overlay" class="fixed inset-0 z-50 bg-slate-50 text-slate-900 hidden opacity-0 transition-opacity duration-500 overflow-y-auto p-4 sm:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100 via-slate-50 to-white">
+        <div class="max-w-[1300px] mx-auto min-h-screen flex flex-col justify-between space-y-6 sm:space-y-8 pb-8">
             
-            <!-- Top Back Navigation -->
-            <div class="flex items-center justify-end pb-2 border-b border-slate-200 flex-shrink-0">
-                <button onclick="closeAboutMeExperience()" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-mono text-xs font-bold transition-all shadow-md shadow-sky-600/20 flex items-center gap-1.5 sm:gap-2">
+            <!-- Top Header & Profile Status Bar -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 flex-wrap gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 border-2 border-sky-500/50 shadow-md flex-shrink-0">
+                        <img src="https://media.licdn.com/dms/image/v2/D5603AQGMKMHR2c6JCw/profile-displayphoto-crop_800_800/B56aGpbTKkGgAI-/0/1793843870547?e=1795651200&v=beta&t=5Z52-AQFDjJrHm0i_2vi1Ikti8jNiOmmdCPGpPZZ4mg" alt="Aayam Shrestha" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight">Aayam Shrestha</h2>
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold border border-emerald-300 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Active IOE Student
+                            </span>
+                        </div>
+                        <p class="text-xs font-mono text-slate-500 mt-0.5">Explore academics, knowledge graphs, campus history &amp; socials</p>
+                    </div>
+                </div>
+
+                <button onclick="closeAboutMeExperience()" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-mono text-xs font-bold transition-all border border-slate-300 shadow-xs flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span class="hidden sm:inline">Back to Home</span>
-                    <span class="sm:hidden">Back</span>
+                    <span>Back to Home</span>
                 </button>
             </div>
 
-            <!-- UNIFIED SINGLE PANEL CONTAINER -->
-            <div class="card-panel p-4 sm:p-6 md:p-8 rounded-3xl flex-1 flex flex-col justify-between shadow-sm bg-white border border-slate-200">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-stretch flex-1">
-                    
-                    <!-- LEFT SECTION: WHERE, WHAT I STUDY & INTERESTS -->
-                    <div class="lg:col-span-12 flex flex-col space-y-5">
-                        
-                        <div class="flex items-center justify-center text-center w-full">
-                            <h3 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-900 text-center">
-                                <span class="text-emerald-600 font-black">WHERE</span> &amp; <span class="text-sky-600 font-black">WHAT</span> I STUDY &amp; <span class="text-violet-600 font-black">INTERESTS</span>
-                            </h3>
+            <!-- MODERN ADVANCED BENTO GRID (4 SIGNATURE CARDS WITH DARK HOVER & DARK PAGES ON CLICK) -->
+            <div class="flex-1 flex flex-col justify-center my-auto py-4">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 max-w-[1200px] mx-auto w-full">
+
+                    <!-- CARD 1: THAPATHALI CAMPUS TIMELINE (DARK SHADE ON HOVER) -->
+                    <button onclick="openThapathaliTimeline()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/90 hover:from-slate-950 hover:via-emerald-950 hover:to-slate-900 border border-emerald-300/80 hover:border-emerald-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
+                        <!-- Ambient Color Glow Background -->
+                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-emerald-400/20 group-hover:bg-emerald-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
+
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex items-center justify-between">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 group-hover:bg-emerald-950/90 text-emerald-800 group-hover:text-emerald-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-emerald-300 group-hover:border-emerald-700 transition-colors duration-300">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Institution • Est. 1966 AD
+                                </span>
+                                <span class="w-10 h-10 rounded-2xl bg-emerald-100 group-hover:bg-emerald-500 text-emerald-700 group-hover:text-slate-950 flex items-center justify-center font-mono text-base border border-emerald-200 group-hover:border-emerald-400 group-hover:scale-110 transition-all duration-300 shadow-xs">
+                                    🏛️
+                                </span>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-white tracking-tight transition-colors duration-300">
+                                    Thapathali Campus timeline
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-300 font-sans mt-2 leading-relaxed transition-colors duration-300">
+                                    Constituent campus of IOE Tribhuvan University. Explore historical milestones from 1966 AD foundation to modern postgraduate engineering labs.
+                                </p>
+                            </div>
                         </div>
 
-                        <!-- 3 RESPONSIVE COLOR-CODED CARDS GRID (DARK THEMES) -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                        <div class="pt-5 border-t border-emerald-200 group-hover:border-emerald-800/80 flex items-center justify-between text-xs font-mono text-emerald-700 group-hover:text-emerald-400 font-bold relative z-10 transition-colors duration-300">
+                            <span class="text-slate-500 group-hover:text-slate-400 font-normal">Kathmandu, Nepal</span>
+                            <span class="flex items-center gap-1 group-hover:translate-x-1.5 transition-transform duration-300">
+                                Interactive Map Timeline →
+                            </span>
+                        </div>
+                    </button>
 
-                            <!-- 1. DARK GREENISH CARD: THAPATHALI CAMPUS TIMELINE -->
-                            <button onclick="openThapathaliTimeline()" class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900/90 border-2 border-emerald-500/60 p-4 sm:p-5 shadow-lg shadow-emerald-950/40 text-white hover:border-emerald-400 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between min-h-[220px] cursor-pointer">
-                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-emerald-500/10 blur-xl group-hover:scale-150 transition-transform"></div>
-                                
-                                <div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-900/80 text-emerald-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/40">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                            Campus
-                                        </span>
-                                        <span class="text-xs font-mono font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
-                                            Explore 🏛️ →
-                                        </span>
-                                    </div>
+                    <!-- CARD 2: B.E. MECHANICAL ENGINEERING (DARK SHADE ON HOVER) -->
+                    <button onclick="openMechSyllabusOverlay()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50/90 via-white to-blue-50/90 hover:from-slate-950 hover:via-sky-950 hover:to-slate-900 border border-sky-300/80 hover:border-sky-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-sky-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
+                        <!-- Ambient Color Glow Background -->
+                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-sky-400/20 group-hover:bg-sky-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
 
-                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-emerald-300 transition-colors">
-                                        Thapathali Campus timeline
-                                    </h2>
-                                    <p class="text-xs text-emerald-200/70 font-sans mt-1">
-                                        Institute of Engineering • Tribhuvan University
-                                    </p>
-                                </div>
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex items-center justify-between">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 group-hover:bg-sky-950/90 text-sky-800 group-hover:text-sky-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-sky-300 group-hover:border-sky-700 transition-colors duration-300">
+                                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                                    IOE Degree Program
+                                </span>
+                                <span class="w-10 h-10 rounded-2xl bg-sky-100 group-hover:bg-sky-500 text-sky-700 group-hover:text-slate-950 flex items-center justify-center font-mono text-base border border-sky-200 group-hover:border-sky-400 group-hover:scale-110 transition-all duration-300 shadow-xs">
+                                    ⚙️
+                                </span>
+                            </div>
 
-                                <div class="mt-4 pt-3 border-t border-emerald-800/80 flex items-center justify-between text-[11px] font-mono text-emerald-300 font-semibold flex-wrap gap-1">
-                                    <span>Est. 1966 AD (2023 B.S.)</span>
-                                    <span class="underline decoration-emerald-400 underline-offset-4 font-bold group-hover:text-white">Thapathali Campus timeline →</span>
-                                </div>
-                            </button>
-
-                            <!-- 2. DARK BLUISH CARD: B.E. MECHANICAL ENGINEERING -->
-                            <button onclick="openMechSyllabusOverlay()" class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-950 via-slate-900 to-blue-900/90 border-2 border-sky-500/60 p-4 sm:p-5 shadow-lg shadow-sky-950/40 text-white hover:border-sky-400 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between min-h-[220px] cursor-pointer">
-                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-sky-500/10 blur-xl group-hover:scale-150 transition-transform"></div>
-                                
-                                <div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-900/80 text-sky-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-sky-500/40">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
-                                            Degree Program
-                                        </span>
-                                        <span class="text-xs font-mono font-bold text-sky-400 group-hover:translate-x-1 transition-transform">
-                                            Syllabus Map ⚙️ →
-                                        </span>
-                                    </div>
-
-                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-sky-300 transition-colors">
-                                        B.E. Mechanical Engineering
-                                    </h2>
-                                    <p class="text-xs text-sky-200/70 font-sans mt-1">
-                                        Department of Mechanical Engineering • IOE
-                                    </p>
-                                </div>
-
-                                <div class="mt-4 pt-3 border-t border-sky-800/80 flex items-center justify-between text-[11px] font-mono text-sky-300 font-semibold flex-wrap gap-1">
-                                    <span>Semester Mind Map (Year I - IV)</span>
-                                    <span class="underline decoration-sky-400 underline-offset-4 font-bold group-hover:text-white">Open IOE Curriculum →</span>
-                                </div>
-                            </button>
-
-                            <!-- 3. DARK VIOLET CARD: THINGS I AM INTERESTED IN -->
-                            <button onclick="openMindMapOverlay()" class="group w-full text-left relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-950 via-slate-900 to-purple-900/90 border-2 border-violet-500/60 p-4 sm:p-5 shadow-lg shadow-violet-950/40 text-white hover:border-violet-400 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between min-h-[220px] cursor-pointer">
-                                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-violet-500/10 blur-xl group-hover:scale-150 transition-transform"></div>
-                                
-                                <div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-900/80 text-violet-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-violet-500/40">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
-                                            Interactive Graph
-                                        </span>
-                                        <span class="text-xs font-mono font-bold text-violet-400 group-hover:translate-x-1 transition-transform">
-                                            Explore 🧠 →
-                                        </span>
-                                    </div>
-
-                                    <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight group-hover:text-violet-300 transition-colors">
-                                        Things I Am Interested In
-                                    </h2>
-                                    <p class="text-xs text-violet-200/70 font-sans mt-1">
-                                        Physics • Mathematics • Engineering
-                                    </p>
-                                </div>
-
-                                <div class="mt-4 pt-3 border-t border-violet-800/80 flex items-center justify-between text-[11px] font-mono text-violet-300 font-semibold flex-wrap gap-1">
-                                    <span>Knowledge Tree Graph</span>
-                                    <span class="underline decoration-violet-400 underline-offset-4 font-bold group-hover:text-white">Open Mind Map →</span>
-                                </div>
-                            </button>
-
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-white tracking-tight transition-colors duration-300">
+                                    B.E. Mechanical Engineering
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-300 font-sans mt-2 leading-relaxed transition-colors duration-300">
+                                    Comprehensive semester-by-semester curriculum mind map (Year I to IV) linked directly to 18 official Tribhuvan University syllabus PDF documents.
+                                </p>
+                            </div>
                         </div>
 
-                    </div>
+                        <div class="pt-5 border-t border-sky-200 group-hover:border-sky-800/80 flex items-center justify-between text-xs font-mono text-sky-700 group-hover:text-sky-400 font-bold relative z-10 transition-colors duration-300">
+                            <span class="text-slate-500 group-hover:text-slate-400 font-normal">Years I - IV • IOE TU</span>
+                            <span class="flex items-center gap-1 group-hover:translate-x-1.5 transition-transform duration-300">
+                                Open Syllabus Mind Map →
+                            </span>
+                        </div>
+                    </button>
+
+                    <!-- CARD 3: THINGS I AM INTERESTED IN (DARK SHADE ON HOVER) -->
+                    <button onclick="openMindMapOverlay()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-violet-50/90 via-white to-purple-50/90 hover:from-slate-950 hover:via-violet-950 hover:to-slate-900 border border-violet-300/80 hover:border-violet-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
+                        <!-- Ambient Color Glow Background -->
+                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-violet-400/20 group-hover:bg-violet-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
+
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex items-center justify-between">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 group-hover:bg-violet-950/90 text-violet-800 group-hover:text-violet-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-violet-300 group-hover:border-violet-700 transition-colors duration-300">
+                                    <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
+                                    Interactive Knowledge Graph
+                                </span>
+                                <span class="w-10 h-10 rounded-2xl bg-violet-100 group-hover:bg-violet-500 text-violet-700 group-hover:text-slate-950 flex items-center justify-center font-mono text-base border border-violet-200 group-hover:border-violet-400 group-hover:scale-110 transition-all duration-300 shadow-xs">
+                                    🧠
+                                </span>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-white tracking-tight transition-colors duration-300">
+                                    Things I Am Interested In
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-300 font-sans mt-2 leading-relaxed transition-colors duration-300">
+                                    Interactive mind map canvas spanning Physics (Electrodynamics, Quantum), Mathematics (Calculus, Linear Algebra), and Engineering Mechanics.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-5 border-t border-violet-200 group-hover:border-violet-800/80 flex items-center justify-between text-xs font-mono text-violet-700 group-hover:text-violet-400 font-bold relative z-10 transition-colors duration-300">
+                            <span class="text-slate-500 group-hover:text-slate-400 font-normal">Physics • Math • Eng</span>
+                            <span class="flex items-center gap-1 group-hover:translate-x-1.5 transition-transform duration-300">
+                                Explore Knowledge Tree →
+                            </span>
+                        </div>
+                    </button>
+
+                    <!-- CARD 4: INSTAGRAM PROFILE (DARK SHADE ON HOVER) -->
+                    <a href="https://www.instagram.com/aayamfrommathscal" target="_blank" rel="noopener noreferrer" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-pink-50/90 via-white to-rose-50/90 hover:from-slate-950 hover:via-pink-950 hover:to-slate-900 border border-pink-300/80 hover:border-pink-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-pink-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
+                        <!-- Ambient Color Glow Background -->
+                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-pink-400/20 group-hover:bg-pink-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
+
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex items-center justify-between">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 group-hover:bg-pink-950/90 text-pink-800 group-hover:text-pink-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-pink-300 group-hover:border-pink-700 transition-colors duration-300">
+                                    <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+                                    Maths &amp; Physics Content
+                                </span>
+                                <span class="w-10 h-10 rounded-2xl bg-pink-100 group-hover:bg-pink-500 text-pink-700 group-hover:text-slate-950 flex items-center justify-center font-mono text-base border border-pink-200 group-hover:border-pink-400 group-hover:scale-110 transition-all duration-300 shadow-xs">
+                                    📸
+                                </span>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-white tracking-tight transition-colors duration-300">
+                                    Instagram Profile
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-300 font-sans mt-2 leading-relaxed transition-colors duration-300">
+                                    Follow <span class="font-bold text-pink-700 group-hover:text-pink-400">@aayamfrommathscal</span> for math calculus visualizer reels, engineering mechanics breakdowns, and science insights.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-5 border-t border-pink-200 group-hover:border-pink-800/80 flex items-center justify-between text-xs font-mono text-pink-700 group-hover:text-pink-400 font-bold relative z-10 transition-colors duration-300">
+                            <span class="text-slate-500 group-hover:text-slate-400 font-normal">@aayamfrommathscal</span>
+                            <span class="flex items-center gap-1 group-hover:translate-x-1.5 transition-transform duration-300">
+                                Open Instagram ↗
+                            </span>
+                        </div>
+                    </a>
+
                 </div>
+
             </div>
+
+            <!-- Sleek Light Footer Note -->
+            <div class="text-center pt-2 text-slate-500 font-mono text-xs border-t border-slate-200">
+                Aayam Shrestha Portfolio • Click any module above to open interactive canvas overlays
+            </div>
+
         </div>
     </div>
 
-    <!-- ================= FULLPAGE B.E. MECHANICAL ENGINEERING SYLLABUS MIND MAP OVERLAY (Sleek Dark Bluish Theme) ================= -->
-    <div id="mech-syllabus-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-sky-50 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-950 via-slate-950 to-blue-950">
+    <!-- ================= FULLPAGE B.E. MECHANICAL ENGINEERING SYLLABUS MIND MAP OVERLAY (DARK SKY THEME PAGE) ================= -->
+    <div id="mech-syllabus-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-950 via-slate-950 to-blue-950">
         
         <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
-            <button onclick="closeMechSyllabusOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-sky-500/25 flex items-center gap-2 cursor-pointer">
+            <button onclick="closeMechSyllabusOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 font-mono text-xs font-bold transition-all border border-sky-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back</span>
             </button>
         </div>
 
         <!-- FULL SCREEN MECHANICAL SYLLABUS MIND MAP CANVAS CONTAINER -->
-        <div id="mech-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-sky-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(14,165,233,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px]">
+        <div id="mech-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-sky-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(14,165,233,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="mech-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="mech-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
@@ -315,7 +372,7 @@
                     </div>
 
                     <!-- Subject Courses Column (L3: IOE Course Code & Title) -->
-                    <div id="mech-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none overflow-y-auto no-scrollbar">
+                    <div id="mech-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none overflow-y-auto no-scrollbar">
                         <!-- Populated dynamically via JS -->
                     </div>
                 </div>
@@ -323,19 +380,19 @@
         </div>
     </div>
 
-    <!-- ================= FULLPAGE DEEP VIOLET / INDIGO MIND MAP OVERLAY ================= -->
-    <div id="mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-violet-50 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-950 via-slate-950 to-purple-950">
+    <!-- ================= FULLPAGE DARK VIOLET / INDIGO MIND MAP OVERLAY (DARK VIOLET THEME PAGE) ================= -->
+    <div id="mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-950 via-slate-950 to-purple-950">
         
         <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
-            <button onclick="closeMindMapOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-violet-500/25 flex items-center gap-2 cursor-pointer">
+            <button onclick="closeMindMapOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-violet-400 font-mono text-xs font-bold transition-all border border-violet-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back</span>
             </button>
         </div>
 
         <!-- FULL SCREEN PURE MIND MAP CANVAS CONTAINER WITH EXPANDABLE BRANCHES -->
-        <div id="notebooklm-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-violet-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(139,92,246,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px]">
+        <div id="notebooklm-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-violet-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(139,92,246,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="mm-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="mm-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
@@ -359,12 +416,12 @@
         </div>
     </div>
 
-    <!-- ================= THAPATHALI CAMPUS HISTORICAL TIMELINE OVERLAY (GREENISH THEME) ================= -->
-    <div id="thapathali-timeline-overlay" class="fixed inset-0 z-[100] bg-slate-950 text-emerald-50 hidden opacity-0 transition-all duration-500 overflow-y-auto p-3 sm:p-6 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-teal-950">
+    <!-- ================= THAPATHALI CAMPUS HISTORICAL TIMELINE OVERLAY (DARK EMERALD THEME PAGE) ================= -->
+    <div id="thapathali-timeline-overlay" class="fixed inset-0 z-[100] bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-y-auto p-3 sm:p-6 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-teal-950">
         <div class="max-w-[1250px] mx-auto space-y-6 sm:space-y-8 pb-12">
             
             <!-- Top Navigation & Header -->
-            <div class="flex items-center justify-between pb-4 border-b border-emerald-800/50 flex-wrap gap-3">
+            <div class="flex items-center justify-between pb-4 border-b border-emerald-500/20 flex-wrap gap-3">
                 <div class="flex items-center gap-3">
                     <span class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
                     <div>
@@ -374,40 +431,40 @@
                     </div>
                 </div>
 
-                <button onclick="closeThapathaliTimeline()" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-2 cursor-pointer">
+                <button onclick="closeThapathaliTimeline()" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 font-mono text-xs font-bold transition-all border border-emerald-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Return to Profile</span>
                 </button>
             </div>
 
-            <!-- Greenish Campus Stats Banner -->
+            <!-- Dark Campus Stats Banner -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md text-center">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Established</span>
                     <span class="text-xl sm:text-2xl font-extrabold text-white">1966 AD</span>
-                    <span class="text-[10px] font-mono text-emerald-300/80 block">2023 B.S.</span>
+                    <span class="text-[10px] font-mono text-slate-400 block">2023 B.S.</span>
                 </div>
-                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md text-center">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Parent Body</span>
                     <span class="text-base sm:text-lg font-extrabold text-white">IOE, TU</span>
-                    <span class="text-[10px] font-mono text-emerald-300/80 block">Constituent Campus</span>
+                    <span class="text-[10px] font-mono text-slate-400 block">Constituent Campus</span>
                 </div>
-                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md text-center">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Undergrad Programs</span>
                     <span class="text-xl sm:text-2xl font-extrabold text-emerald-400">6 B.E.</span>
-                    <span class="text-[10px] font-mono text-emerald-300/80 block">Degree Courses</span>
+                    <span class="text-[10px] font-mono text-slate-400 block">Degree Courses</span>
                 </div>
-                <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-900/30 border border-emerald-500/30 backdrop-blur-md text-center">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md text-center">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Location</span>
-                    <span class="text-base sm:text-lg font-extrabold text-emerald-200">Kathmandu</span>
-                    <span class="text-[10px] font-mono text-emerald-300/80 block">Thapathali, Nepal</span>
+                    <span class="text-base sm:text-lg font-extrabold text-white">Kathmandu</span>
+                    <span class="text-[10px] font-mono text-slate-400 block">Thapathali, Nepal</span>
                 </div>
             </div>
 
-            <!-- Campus Google Maps & Satellite Interactive Card -->
-            <div class="rounded-2xl border border-emerald-500/30 bg-emerald-900/30 backdrop-blur-md overflow-hidden shadow-lg space-y-2 p-3">
+            <!-- Campus Google Maps & Satellite Interactive Card (Dark Styled) -->
+            <div class="rounded-2xl border border-emerald-500/30 bg-slate-900/90 shadow-lg space-y-2 p-3">
                 <div class="flex items-center justify-between px-2 pt-1 flex-wrap gap-1">
-                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Thapathali Campus Map & Satellite View
                     </span>
@@ -415,13 +472,13 @@
                         <button onclick="switchCampusMapMode('map')" id="campus-map-btn-map" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs">
                             🗺️ Location
                         </button>
-                        <button onclick="switchCampusMapMode('street')" id="campus-map-btn-street" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all">
+                        <button onclick="switchCampusMapMode('street')" id="campus-map-btn-street" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-slate-800 text-slate-300 hover:text-emerald-300 border border-slate-700 transition-all">
                             📷 Satellite / Map
                         </button>
                     </div>
                 </div>
                 
-                <div class="relative w-full h-48 sm:h-56 rounded-xl overflow-hidden border border-emerald-500/30 bg-slate-950">
+                <div class="relative w-full h-48 sm:h-56 rounded-xl overflow-hidden border border-emerald-500/20 bg-slate-950">
                     <iframe id="thapathali-map-iframe" 
                             class="w-full h-full border-0 rounded-xl"
                             src="https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed" 
@@ -430,7 +487,7 @@
                             referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
                 </div>
-                <div class="flex items-center justify-between px-2 pb-1 text-[10px] font-mono text-emerald-300/80">
+                <div class="flex items-center justify-between px-2 pb-1 text-[10px] font-mono text-slate-400">
                     <span>Thapathali, Kathmandu, Nepal</span>
                     <a href="https://maps.google.com/?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal" target="_blank" class="text-emerald-400 hover:underline flex items-center gap-1 font-bold">
                         Open in Google Maps ↗
@@ -438,10 +495,10 @@
                 </div>
             </div>
 
-            <!-- HOVER INFORMATIONAL INSPECTOR HEADER -->
-            <div id="timeline-hover-inspector" class="p-4 rounded-2xl bg-emerald-900/40 border border-emerald-400/50 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
+            <!-- HOVER INFORMATIONAL INSPECTOR HEADER (DARK MODE) -->
+            <div id="timeline-hover-inspector" class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono text-lg font-bold flex-shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-mono text-lg font-bold flex-shrink-0">
                         🔍
                     </div>
                     <div>
@@ -449,24 +506,24 @@
                         <h4 id="inspector-title" class="text-xs sm:text-sm font-bold text-white">Hover over any milestone along the path below</h4>
                     </div>
                 </div>
-                <p id="inspector-subtitle" class="text-xs font-mono text-emerald-300/80 max-w-md">
+                <p id="inspector-subtitle" class="text-xs font-mono text-slate-400 max-w-md">
                     Hover over a milestone node to unlock detailed historical records, founding figures, and academic evolution.
                 </p>
             </div>
 
-            <!-- ANIMATED SNAKE LINE TIMELINE CONTAINER -->
-            <div id="snake-timeline-container" class="relative p-4 sm:p-8 md:p-12 rounded-3xl bg-slate-900/80 border border-emerald-800/60 overflow-hidden space-y-12 backdrop-blur-md">
+            <!-- ANIMATED SNAKE LINE TIMELINE CONTAINER (DARK MODE) -->
+            <div id="snake-timeline-container" class="relative p-4 sm:p-8 md:p-12 rounded-3xl bg-slate-900/80 border border-emerald-500/30 overflow-hidden space-y-12 backdrop-blur-md shadow-2xl">
                 
                 <!-- SVG SNAKE PATH LAYER -->
                 <svg id="snake-path-svg" class="absolute inset-0 w-full h-full pointer-events-none z-0" style="overflow: visible;">
                     <defs>
                         <linearGradient id="emerald-snake-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#34d399" />
-                            <stop offset="50%" stop-color="#059669" />
-                            <stop offset="100%" stop-color="#047857" />
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="50%" stop-color="#34d399" />
+                            <stop offset="100%" stop-color="#059669" />
                         </linearGradient>
                         <filter id="emerald-glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feGaussianBlur stdDeviation="3" result="blur" />
                             <feComposite in="SourceGraphic" in2="blur" operator="over" />
                         </filter>
                     </defs>
@@ -479,21 +536,21 @@
                     <!-- MILESTONE 1 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(0)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
-                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-950/50 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
                                 <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono font-bold text-xs border border-emerald-800">
                                         1966 AD (2023 B.S.)
                                     </span>
                                     <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">FOUNDATION ERA</span>
                                 </div>
                                 <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Technical Training Institute (TTI)</h3>
-                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                <p class="text-xs text-slate-400 group-hover:text-slate-300 mt-2 leading-relaxed">
                                     Inaugurated on 29th Falgun 2023 B.S. in the presence of Late King Mahendra Bir Bikram Shah Dev & Dr. Heinrich Lübke (President of West Germany).
                                 </p>
                             </div>
                         </div>
                         <div class="md:col-span-6 flex justify-center items-center">
-                            <div id="snake-dot-0" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <div id="snake-dot-0" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                 01
                             </div>
                         </div>
@@ -502,20 +559,20 @@
                     <!-- MILESTONE 2 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(1)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
-                            <div id="snake-dot-1" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <div id="snake-dot-1" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                 02
                             </div>
                         </div>
                         <div class="md:col-span-6 space-y-2 order-1 md:order-2">
-                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-950/50 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
                                 <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono font-bold text-xs border border-emerald-800">
                                         1972 AD (2029 B.S.)
                                     </span>
                                     <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">TU INTEGRATION</span>
                                 </div>
                                 <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Integration into IOE Tribhuvan University</h3>
-                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                <p class="text-xs text-slate-400 group-hover:text-slate-300 mt-2 leading-relaxed">
                                     Renamed to **Thapathali Campus** and integrated as a constituent campus under the newly established Institute of Engineering (IOE).
                                 </p>
                             </div>
@@ -525,21 +582,21 @@
                     <!-- MILESTONE 3 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(2)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
-                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-950/50 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
                                 <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono font-bold text-xs border border-emerald-800">
                                         1987 AD (2044 B.S.)
                                     </span>
                                     <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">DIPLOMA ERA</span>
                                 </div>
                                 <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">3-Year Mechanical & Automobile Diplomas</h3>
-                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                <p class="text-xs text-slate-400 group-hover:text-slate-300 mt-2 leading-relaxed">
                                     Introduced 3-Year Diploma in Mechanical Engineering and Automobile Engineering to power Nepal's transportation and manufacturing infrastructure.
                                 </p>
                             </div>
                         </div>
                         <div class="md:col-span-6 flex justify-center items-center">
-                            <div id="snake-dot-2" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <div id="snake-dot-2" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                 03
                             </div>
                         </div>
@@ -548,20 +605,20 @@
                     <!-- MILESTONE 4 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(3)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
-                            <div id="snake-dot-3" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <div id="snake-dot-3" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                 04
                             </div>
                         </div>
                         <div class="md:col-span-6 space-y-2 order-1 md:order-2">
-                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-950/50 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
                                 <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono font-bold text-xs border border-emerald-800">
                                         2011 – 2015 AD
                                     </span>
                                     <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">DEGREE TRANSITION</span>
                                 </div>
                                 <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Transition to Full Bachelor (B.E.) Degrees</h3>
-                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                <p class="text-xs text-slate-400 group-hover:text-slate-300 mt-2 leading-relaxed">
                                     Phased out diploma programs to launch 4-year B.E. degrees in Mechanical, Civil, Electronics, Computer, Automobile, and B.Arch.
                                 </p>
                             </div>
@@ -571,47 +628,47 @@
                     <!-- MILESTONE 5 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(4)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
-                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/80 border-2 border-emerald-500/40 group-hover:border-emerald-400 group-hover:bg-emerald-950/50 transition-all duration-300 shadow-xl group-hover:-translate-y-1 overflow-hidden">
+                            <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
                                 
-                                <div class="w-full h-44 sm:h-56 rounded-xl overflow-hidden mb-4 border-2 border-emerald-400/60 bg-emerald-950/60 relative group-hover:shadow-2xl group-hover:shadow-emerald-500/20 transition-all">
+                                <div class="w-full h-44 sm:h-56 rounded-xl overflow-hidden mb-4 border-2 border-emerald-500/30 bg-slate-950 relative group-hover:shadow-lg transition-all">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Thapathali_Campus.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original" 
                                          onerror="this.src='https://placehold.co/800x450/047857/e0f2fe?text=IOE+Thapathali+Campus+Present+Day'" 
                                          alt="Thapathali Campus Current Photo" 
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-95 group-hover:brightness-100">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30"></div>
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
                                     
-                                    <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-400/60 flex items-center gap-2 shadow-lg">
-                                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden border border-emerald-400/80 bg-white flex-shrink-0">
+                                    <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-emerald-500/30 flex items-center gap-2 shadow-md">
+                                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden border border-emerald-400 bg-white flex-shrink-0">
                                             <img src="https://scontent.fktm1-1.fna.fbcdn.net/v/t39.30808-6/333152921_2431443020336588_2047922386020842394_n.jpg?stp=dst-jpg_tt6&cstp=mx2000x2000&ctp=s2000x2000&_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=fc-uhUxAPVIQ7kNvwEqHVja&_nc_oc=AdrZjN_ISTeDLxbnee98ooQRTCyDYjpffAbTFIAYjr77USqJMFEYDPZmo7l58Q4BX17Kivncz_h4oNhrdQo8Avk1&_nc_zt=23&_nc_ht=scontent.fktm1-1.fna&_nc_gid=Kchm2zuu5EXXR2NEUPLoag&_nc_ss=7b2a8&oh=00_AQSDaggP61zZgRSh_6E1b8Iu2L_Yxhz_OS8rlqU3NPDK0Q&oe=6AF0E6F2"
                                                  onerror="this.src='https://placehold.co/100x100/047857/e0f2fe?text=IOE'"
                                                  alt="Thapathali Campus Logo"
                                                  class="w-full h-full object-cover">
                                         </div>
                                         <div class="text-left">
-                                            <span class="text-[8px] sm:text-[9px] font-mono font-bold text-emerald-400 block leading-tight">THAPATHALI CAMPUS</span>
-                                            <span class="text-[7px] sm:text-[8px] font-mono text-slate-300 block leading-tight">Tribhuvan University</span>
+                                            <span class="text-[8px] sm:text-[9px] font-mono font-bold text-emerald-300 block leading-tight">THAPATHALI CAMPUS</span>
+                                            <span class="text-[7px] sm:text-[8px] font-mono text-slate-400 block leading-tight">Tribhuvan University</span>
                                         </div>
                                     </div>
                                     
-                                    <div class="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/90 text-slate-950 font-mono text-[9px] sm:text-[10px] font-bold shadow-md">
+                                    <div class="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-600 text-slate-950 font-mono text-[9px] sm:text-[10px] font-bold shadow-md">
                                         📍 Present Day Campus Building
                                     </div>
                                 </div>
 
                                 <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-300 font-mono font-bold text-xs border border-emerald-400/50">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono font-bold text-xs border border-emerald-800">
                                         2016 AD – Present (Current)
                                     </span>
                                     <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">RESEARCH & MASTERS HUB</span>
                                 </div>
                                 <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">Postgraduate M.Sc. & Modern Innovation</h3>
-                                <p class="text-xs text-emerald-200/70 mt-2 leading-relaxed">
+                                <p class="text-xs text-slate-400 group-hover:text-slate-300 mt-2 leading-relaxed">
                                     Launched M.Sc. in Mechanical System Design & Manufacturing, Earthquake Engineering, and Informatics, hosting active robotics teams and research projects.
                                 </p>
                             </div>
                         </div>
                         <div class="md:col-span-6 flex justify-center items-center">
-                            <div id="snake-dot-4" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-400 flex items-center justify-center font-mono text-xs font-bold text-emerald-300 shadow-lg shadow-emerald-500/50 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <div id="snake-dot-4" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                 05
                             </div>
                         </div>
@@ -622,7 +679,7 @@
 
             <!-- Bottom Back Button -->
             <div class="text-center pt-4">
-                <button onclick="closeThapathaliTimeline()" class="px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-xl shadow-emerald-500/30 cursor-pointer">
+                <button onclick="closeThapathaliTimeline()" class="px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 font-mono text-xs font-bold transition-all border border-emerald-500/30 shadow-xl cursor-pointer">
                     ← Return to Profile
                 </button>
             </div>
@@ -630,24 +687,24 @@
         </div>
     </div>
 
-    <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY (DARK AMBER THEME) ================= -->
-    <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-amber-50 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
+    <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY (DARK AMBER THEME PAGE) ================= -->
+    <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
         
         <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
-            <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-amber-500/25 flex items-center gap-2 cursor-pointer">
+            <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-mono text-xs font-bold transition-all border border-amber-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back</span>
             </button>
         </div>
 
         <!-- FULL SCREEN PROJECTS MIND MAP CANVAS CONTAINER -->
-        <div id="proj-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-amber-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px]">
+        <div id="proj-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-amber-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="proj-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="proj-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
-                    <!-- Project Category Column (L1: CAD, Animations, Simulations) -->
+                    <!-- Project Category Column (L1: CAD) -->
                     <div id="proj-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
                         <!-- Populated dynamically via JS -->
                     </div>
@@ -657,7 +714,7 @@
                         <!-- Populated dynamically via JS -->
                     </div>
 
-                    <!-- Deep Dive Subnodes Column (L3: CAD, Animations & Code Details) -->
+                    <!-- Deep Dive Subnodes Column (L3) -->
                     <div id="proj-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
                         <!-- Populated dynamically via JS -->
                     </div>
@@ -780,7 +837,7 @@
             svgPath.setAttribute('d', d);
         }
 
-        // ================= THINGS I AM INTERESTED IN MIND MAP =================
+        // ================= THINGS I AM INTERESTED IN MIND MAP DATA & CONTROLS =================
         const NOTEBOOKLM_MINDMAP_DATA = {
             physics: {
                 name: "Physics ⚛️",
@@ -811,6 +868,50 @@
         let expandedPillarKey = null;
         let expandedL2Index = null;
 
+        function openMindMapOverlay() {
+            const overlay = document.getElementById('mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            if (!expandedPillarKey) {
+                togglePillar('physics');
+            } else {
+                setTimeout(drawSVGConnections, 100);
+            }
+        }
+
+        function closeMindMapOverlay() {
+            const overlay = document.getElementById('mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        function togglePillar(key) {
+            if (expandedPillarKey === key) {
+                expandedPillarKey = null;
+                expandedL2Index = null;
+            } else {
+                expandedPillarKey = key;
+                expandedL2Index = null;
+            }
+            renderL1Nodes();
+            renderL2Nodes();
+            renderL3Nodes();
+            setTimeout(drawSVGConnections, 50);
+        }
+
+        function toggleL2Node(idx) {
+            if (expandedL2Index === idx) {
+                expandedL2Index = null;
+            } else {
+                expandedL2Index = idx;
+            }
+            renderL2Nodes();
+            renderL3Nodes();
+            setTimeout(drawSVGConnections, 50);
+        }
+
         function renderL1Nodes() {
             const container = document.getElementById('nb-l1-nodes-col');
             if (!container) return;
@@ -824,34 +925,18 @@
             container.innerHTML = pillars.map(p => {
                 const isExpanded = expandedPillarKey === p.key;
                 const borderStyle = isExpanded 
-                    ? 'border-violet-400 bg-violet-500 text-slate-950 shadow-lg shadow-violet-500/40 scale-105 z-20' 
-                    : 'border-violet-600/80 bg-slate-900/90 text-white hover:border-violet-400 hover:scale-102';
+                    ? 'border-violet-500 bg-violet-600 text-white shadow-lg shadow-violet-500/30 scale-105 z-20' 
+                    : 'border-violet-500/30 bg-slate-900 text-slate-100 hover:border-violet-400 hover:scale-102 shadow-sm';
 
                 return `
                     <button onclick="togglePillar('${p.key}')" id="nb-pillar-${p.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
                         <span class="truncate tracking-wide">${p.name}</span>
-                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-violet-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-violet-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
                             ${isExpanded ? '▼' : '→'}
                         </span>
                     </button>
                 `;
             }).join('');
-        }
-
-        function togglePillar(key) {
-            if (expandedPillarKey === key) {
-                expandedPillarKey = null;
-                expandedL2Index = null;
-            } else {
-                expandedPillarKey = key;
-                expandedL2Index = null;
-            }
-
-            renderL1Nodes();
-            renderL2Nodes();
-            renderL3Nodes();
-            applyZoomEffect();
-            setTimeout(drawSVGConnections, 60);
         }
 
         function renderL2Nodes() {
@@ -870,31 +955,18 @@
             container.innerHTML = pillar.nodes.map((node, idx) => {
                 const isExpanded = idx === expandedL2Index;
                 const activeStyle = isExpanded 
-                    ? 'bg-violet-500 text-slate-950 border-violet-300 font-bold shadow-md shadow-violet-500/30 scale-105 z-20' 
-                    : 'bg-slate-900/90 text-violet-200 border-violet-800/80 hover:border-violet-400 hover:text-white z-10';
+                    ? 'bg-violet-600 text-white border-violet-500 font-bold shadow-md shadow-violet-600/30 scale-105 z-20' 
+                    : 'bg-slate-900 text-slate-200 border-violet-500/30 hover:border-violet-400 hover:text-violet-300 shadow-sm z-10';
                 
                 return `
                     <button onclick="toggleL2Node(${idx})" id="nb-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
                         <span class="truncate">${node.name}</span>
-                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
+                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-white font-extrabold' : 'opacity-70'} transition-transform duration-300">
                             ${isExpanded ? '▼' : '→'}
                         </span>
                     </button>
                 `;
             }).join('');
-        }
-
-        function toggleL2Node(idx) {
-            if (expandedL2Index === idx) {
-                expandedL2Index = null;
-            } else {
-                expandedL2Index = idx;
-            }
-
-            renderL2Nodes();
-            renderL3Nodes();
-            applyZoomEffect();
-            setTimeout(drawSVGConnections, 60);
         }
 
         function renderL3Nodes() {
@@ -918,46 +990,10 @@
             container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = activeNode.subnodes.map((sub, idx) => `
-                <div id="nb-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-violet-500/40 text-violet-100 text-xs font-mono shadow-md truncate hover:border-violet-300 hover:text-white transition-all duration-300 hover:scale-102">
+                <div id="nb-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm truncate hover:border-violet-400 hover:text-violet-300 transition-all duration-300 hover:scale-102">
                     💡 ${sub}
                 </div>
             `).join('');
-        }
-
-        function applyZoomEffect() {
-            const zoomWrapper = document.getElementById('mm-zoom-wrapper');
-            if (!zoomWrapper) return;
-
-            if (expandedPillarKey !== null && expandedL2Index !== null) {
-                zoomWrapper.style.transform = 'scale(0.97)';
-            } else if (expandedPillarKey !== null) {
-                zoomWrapper.style.transform = 'scale(1)';
-            } else {
-                zoomWrapper.style.transform = 'scale(1.02)';
-            }
-        }
-
-        function openMindMapOverlay() {
-            const overlay = document.getElementById('mindmap-overlay');
-            if (!overlay) return;
-
-            expandedPillarKey = null;
-            expandedL2Index = null;
-            renderL1Nodes();
-            renderL2Nodes();
-            renderL3Nodes();
-            applyZoomEffect();
-
-            overlay.classList.remove('hidden');
-            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
-            setTimeout(drawSVGConnections, 100);
-        }
-
-        function closeMindMapOverlay() {
-            const overlay = document.getElementById('mindmap-overlay');
-            if (!overlay) return;
-            overlay.classList.add('opacity-0');
-            setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
         function drawSVGConnections() {
@@ -980,7 +1016,7 @@
                 return;
             }
 
-            const strokeColor = 'rgba(139, 92, 246, 0.75)';
+            const strokeColor = 'rgba(139, 92, 246, 0.8)';
             let pathsHTML = '';
 
             const pRect = activePillarBtn.getBoundingClientRect();
@@ -996,8 +1032,8 @@
 
                     const cX1 = pX + (l2LeftX - pX) * 0.5;
                     pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
-                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#8b5cf6" />`;
-                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#8b5cf6" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#a78bfa" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#a78bfa" />`;
 
                     const l2RightX = l2Rect.right - cRect.left;
                     const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
@@ -1014,7 +1050,7 @@
 
                                 const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
                                 pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#a78bfa" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#c084fc" />`;
                             }
                         });
                     }
@@ -1031,7 +1067,7 @@
 
                             const cX1 = pX + (l2LeftX - pX) * 0.5;
                             pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
-                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#8b5cf6" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#a78bfa" />`;
                         }
                     });
                 }
@@ -1040,148 +1076,161 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // ================= MECHANICAL ENGINEERING SYLLABUS MIND MAP =================
-        const MECH_SYLLABUS_DATA = {
+        // ================= MECHANICAL ENGINEERING SYLLABUS DATA & CONTROLS =================
+        let MECH_SYLLABUS_DATA = {
             year1: {
-                name: "Year I 🎓",
+                name: "Year I (Sem 1 & 2) 🔹",
                 parts: [
-                    {
-                        name: "Part I",
-                        courses: [
-                            { code: "ENSH 101", title: "Engineering Mathematics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf" },
-                            { code: "ENSH 103", title: "Engineering Chemistry", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf" },
-                            { code: "ENCT 101", title: "Computer Programming", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_17_14.pdf" },
-                            { code: "ENEX 101", title: "Fundamental of Electrical and Electronics Engineering", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_18_38.pdf" },
-                            { code: "ENME 101", title: "Engineering Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_09.pdf" },
-                            { code: "ENME 103", title: "Engineering Mechanics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_25.pdf" }
-                        ]
-                    },
-                    {
-                        name: "Part II",
-                        courses: [
-                            { code: "ENSH 151", title: "Engineering Mathematics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_04.pdf" },
-                            { code: "ENSH 152", title: "Engineering Physics", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_18.pdf" },
-                            { code: "ENME 151", title: "Engineering Thermodynamics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_18.pdf" },
-                            { code: "ENME 152", title: "Machine Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_36.pdf" },
-                            { code: "ENME 153", title: "Engineering Mechanics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_51.pdf" },
-                            { code: "ENME 155", title: "Workshop Technology", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_00_10.pdf" }
-                        ]
-                    }
+                    { name: "Part I (First Semester)", courses: [] },
+                    { name: "Part II (Second Semester)", courses: [] }
                 ]
             },
             year2: {
-                name: "Year II ⚙️",
+                name: "Year II (Sem 3 & 4) ⚙️",
                 parts: [
-                    {
-                        name: "Part I",
-                        courses: [
-                            { code: "ENSH 201", title: "Engineering Mathematics III", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_19_08_56.pdf" },
-                            { code: "ENME 201", title: "Material Science", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_08.pdf" },
-                            { code: "ENME 202", title: "Manufacturing and Production Processes", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_31.pdf" },
-                            { code: "ENME 203", title: "Engineering Thermodynamics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_51.pdf" },
-                            { code: "ENME 204", title: "Metrology", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_11.pdf" },
-                            { code: "ENME 205", title: "Strength of Materials", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_27.pdf" }
-                        ]
-                    },
-                    {
-                        name: "Part II",
-                        courses: [
-                            { code: "ENSH 253", title: "Probability and Statistics" },
-                            { code: "ENEE 254", title: "Electrical Machines" },
-                            { code: "ENME 251", title: "Mechanics of Solids" },
-                            { code: "ENME 252", title: "Instrumentation and Sensors" },
-                            { code: "ENME 253", title: "Computer Aided Design" },
-                            { code: "ENME 254", title: "Fluid Mechanics with Engineering Applications" }
-                        ]
-                    }
+                    { name: "Part I (Third Semester)", courses: [] },
+                    { name: "Part II (Fourth Semester)", courses: [] }
                 ]
             },
             year3: {
-                name: "Year III 🔬",
+                name: "Year III (Sem 5 & 6) 🚀",
                 parts: [
-                    {
-                        name: "Part I",
-                        courses: [
-                            { code: "ENEE 307", title: "Control System and Automation" },
-                            { code: "ENSH 301", title: "Numerical Methods" },
-                            { code: "ENME 301", title: "Automotive Technology" },
-                            { code: "ENME 302", title: "Fluid Machines" },
-                            { code: "ENME 303", title: "Theory of Machines and Mechanism" },
-                            { code: "ENME 304", title: "Organization and Management" },
-                            { code: "ENSH 303", title: "Technical English" }
-                        ]
-                    },
-                    {
-                        name: "Part II",
-                        courses: [
-                            { code: "ENME 356", title: "Professional Engineering Economics" },
-                            { code: "ENME 351", title: "Industrial Engineering and Management" },
-                            { code: "ENME 352", title: "Heat and Mass Transfer" },
-                            { code: "ENME 353", title: "Machine Design I" },
-                            { code: "ENME 354", title: "Machine Dynamics" },
-                            { code: "ENME 355", title: "Minor Project" },
-                            { code: "ENME 356-384", title: "Elective I" }
-                        ]
-                    }
+                    { name: "Part I (Fifth Semester)", courses: [] },
+                    { name: "Part II (Sixth Semester)", courses: [] }
                 ]
             },
             year4: {
-                name: "Year IV 🚀",
+                name: "Year IV (Sem 7 & 8) 🎓",
                 parts: [
-                    {
-                        name: "Part I",
-                        courses: [
-                            { code: "ENME 411", title: "Entrepreneurship Development" },
-                            { code: "ENME 412", title: "Finite Element Method" },
-                            { code: "ENME 413", title: "Applied Computational Fluid Dynamics" },
-                            { code: "ENME 414", title: "Energy Resources and Technology" },
-                            { code: "ENME 415", title: "Machine Design II" },
-                            { code: "ENME 425-444", title: "Elective II" },
-                            { code: "ENME 416", title: "Project I" }
-                        ]
-                    },
-                    {
-                        name: "Part II",
-                        courses: [
-                            { code: "ENME 463", title: "Project Management and Professional Practice" },
-                            { code: "ENME 465-474", title: "Elective III" },
-                            { code: "ENME 461", title: "Project II" },
-                            { code: "ENME 462", title: "Industrial Attachment" }
-                        ]
-                    }
+                    { name: "Part I (Seventh Semester)", courses: [] },
+                    { name: "Part II (Eighth Semester)", courses: [] }
                 ]
             }
         };
 
+        function getYearKeyAndName(yearVal) {
+            if (!yearVal) return { key: 'year1', name: 'Year I (Sem 1 & 2) 🔹' };
+            const str = String(yearVal).trim().toUpperCase();
+            let num = 1;
+            
+            if (str.includes('4') || str.includes('IV') || str.includes('FOUR')) num = 4;
+            else if (str.includes('3') || str.includes('III') || str.includes('THREE')) num = 3;
+            else if (str.includes('2') || str.includes('II') || str.includes('TWO')) num = 2;
+            else num = 1;
+
+            const roman = ['I', 'II', 'III', 'IV'][num - 1];
+            const icons = ['🔹', '⚙️', '🚀', '🎓'];
+            const semRanges = ['Sem 1 & 2', 'Sem 3 & 4', 'Sem 5 & 6', 'Sem 7 & 8'];
+            
+            return {
+                key: `year${num}`,
+                name: `Year ${roman} (${semRanges[num - 1]}) ${icons[num - 1]}`
+            };
+        }
+
+        function getPartIndexAndName(partVal) {
+            if (!partVal) return { idx: 0, name: "Part I (First Semester)" };
+            const str = String(partVal).trim().toUpperCase();
+            const isPart2 = (str.includes('2') || str.includes('II') || str.includes('SECOND') || str.includes('EVEN') || str === 'B');
+            return {
+                idx: isPart2 ? 1 : 0,
+                name: isPart2 ? "Part II (Second Semester)" : "Part I (First Semester)"
+            };
+        }
+
+        // Dynamically populate MECH_SYLLABUS_DATA from the JSON array
+        function populateMechSyllabusData(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) return;
+
+            // Reset syllabus structure
+            MECH_SYLLABUS_DATA = {
+                year1: { name: "Year I (Sem 1 & 2) 🔹", parts: [{ name: "Part I (First Semester)", courses: [] }, { name: "Part II (Second Semester)", courses: [] }] },
+                year2: { name: "Year II (Sem 3 & 4) ⚙️", parts: [{ name: "Part I (Third Semester)", courses: [] }, { name: "Part II (Fourth Semester)", courses: [] }] },
+                year3: { name: "Year III (Sem 5 & 6) 🚀", parts: [{ name: "Part I (Fifth Semester)", courses: [] }, { name: "Part II (Sixth Semester)", courses: [] }] },
+                year4: { name: "Year IV (Sem 7 & 8) 🎓", parts: [{ name: "Part I (Seventh Semester)", courses: [] }, { name: "Part II (Eighth Semester)", courses: [] }] }
+            };
+
+            const getVal = (obj, possibleKeys) => {
+                const keys = Object.keys(obj);
+                for (let k of possibleKeys) {
+                    const match = keys.find(key => key.toLowerCase() === k.toLowerCase());
+                    if (match) return obj[match];
+                }
+                return '';
+            };
+
+            dataArray.forEach(item => {
+                if (!item || typeof item !== 'object') return;
+                
+                // Case-insensitive key extraction mapping
+                const yearRaw = getVal(item, ['year', 'y', 'level']);
+                const partRaw = getVal(item, ['part', 'p', 'semester', 'sem']);
+                const codeRaw = getVal(item, ['subject_code', 'code', 'course_code', 'subjectCode']);
+                const titleRaw = getVal(item, ['subject_name', 'name', 'title', 'course_name', 'subjectName']);
+                const linkRaw = getVal(item, ['syllabus_link', 'link', 'pdf', 'url', 'syllabusLink']);
+
+                const yearInfo = getYearKeyAndName(yearRaw);
+                const partInfo = getPartIndexAndName(partRaw);
+
+                const targetYear = MECH_SYLLABUS_DATA[yearInfo.key];
+                if (targetYear && targetYear.parts && targetYear.parts[partInfo.idx]) {
+                    targetYear.parts[partInfo.idx].courses.push({
+                        code: codeRaw || 'COURSE',
+                        title: titleRaw || 'Unknown Subject Module',
+                        pdf: linkRaw || '#'
+                    });
+                }
+            });
+        }
+
+        // Fetch syllabus data dynamically from ./mechanical_engineering_syllabus.json
+        async function loadMechSyllabusData() {
+            try {
+                const response = await fetch('./mechanical_engineering_syllabus.json', { cache: 'no-store' });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        populateMechSyllabusData(data);
+                    } else if (data && typeof data === 'object') {
+                        const arrayKey = Object.keys(data).find(k => Array.isArray(data[k]));
+                        if (arrayKey) populateMechSyllabusData(data[arrayKey]);
+                    }
+                    console.log("✅ Successfully loaded syllabus from ./mechanical_engineering_syllabus.json");
+                }
+            } catch (error) {
+                console.warn("⚠️ Fetch error or CORS restriction on local file execution.", error);
+            }
+
+            renderMechL1Nodes();
+            renderMechL2Nodes();
+            renderMechL3Nodes();
+            drawMechSVGConnections();
+        }
+
         let expandedMechYearKey = null;
         let expandedMechPartIndex = null;
 
-        function renderMechL1Nodes() {
-            const container = document.getElementById('mech-l1-nodes-col');
-            if (!container) return;
+        async function openMechSyllabusOverlay() {
+            const overlay = document.getElementById('mech-syllabus-overlay');
+            if (!overlay) return;
+            await loadMechSyllabusData();
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            if (!expandedMechYearKey) {
+                toggleMechYear('year1');
+            } else {
+                renderMechL1Nodes();
+                renderMechL2Nodes();
+                renderMechL3Nodes();
+                setTimeout(drawMechSVGConnections, 100);
+            }
+        }
 
-            const years = [
-                { key: 'year1', ...MECH_SYLLABUS_DATA.year1 },
-                { key: 'year2', ...MECH_SYLLABUS_DATA.year2 },
-                { key: 'year3', ...MECH_SYLLABUS_DATA.year3 },
-                { key: 'year4', ...MECH_SYLLABUS_DATA.year4 }
-            ];
-
-            container.innerHTML = years.map(y => {
-                const isExpanded = expandedMechYearKey === y.key;
-                const borderStyle = isExpanded 
-                    ? 'border-sky-400 bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/40 scale-105 z-20' 
-                    : 'border-sky-600/80 bg-slate-900/90 text-white hover:border-sky-400 hover:scale-102';
-
-                return `
-                    <button onclick="toggleMechYear('${y.key}')" id="mech-year-${y.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
-                        <span class="truncate tracking-wide">${y.name}</span>
-                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-sky-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
-                            ${isExpanded ? '▼' : '→'}
-                        </span>
-                    </button>
-                `;
-            }).join('');
+        function closeMechSyllabusOverlay() {
+            const overlay = document.getElementById('mech-syllabus-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
         function toggleMechYear(key) {
@@ -1192,42 +1241,10 @@
                 expandedMechYearKey = key;
                 expandedMechPartIndex = null;
             }
-
             renderMechL1Nodes();
             renderMechL2Nodes();
             renderMechL3Nodes();
-            applyMechZoomEffect();
-            setTimeout(drawMechSVGConnections, 60);
-        }
-
-        function renderMechL2Nodes() {
-            const container = document.getElementById('mech-l2-nodes-col');
-            if (!container) return;
-
-            if (!expandedMechYearKey) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
-                container.innerHTML = '';
-                return;
-            }
-
-            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
-
-            container.innerHTML = yearData.parts.map((part, idx) => {
-                const isExpanded = idx === expandedMechPartIndex;
-                const activeStyle = isExpanded 
-                    ? 'bg-sky-500 text-slate-950 border-sky-300 font-bold shadow-md shadow-sky-500/30 scale-105 z-20' 
-                    : 'bg-slate-900/90 text-sky-200 border-sky-800/80 hover:border-sky-400 hover:text-white z-10';
-                
-                return `
-                    <button onclick="toggleMechPart(${idx})" id="mech-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
-                        <span class="truncate">${part.name}</span>
-                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
-                            ${isExpanded ? '▼' : '→'}
-                        </span>
-                    </button>
-                `;
-            }).join('');
+            setTimeout(drawMechSVGConnections, 50);
         }
 
         function toggleMechPart(idx) {
@@ -1236,82 +1253,107 @@
             } else {
                 expandedMechPartIndex = idx;
             }
-
             renderMechL2Nodes();
             renderMechL3Nodes();
-            applyMechZoomEffect();
-            setTimeout(drawMechSVGConnections, 60);
+            setTimeout(drawMechSVGConnections, 50);
         }
 
-        function renderMechL3Nodes() {
-            const container = document.getElementById('mech-l3-nodes-col');
+        function renderMechL1Nodes() {
+            const container = document.getElementById('mech-l1-nodes-col');
             if (!container) return;
 
-            if (expandedMechYearKey === null || expandedMechPartIndex === null) {
+            const years = [
+                { key: 'year1', ...(MECH_SYLLABUS_DATA.year1 || { name: 'Year I' }) },
+                { key: 'year2', ...(MECH_SYLLABUS_DATA.year2 || { name: 'Year II' }) },
+                { key: 'year3', ...(MECH_SYLLABUS_DATA.year3 || { name: 'Year III' }) },
+                { key: 'year4', ...(MECH_SYLLABUS_DATA.year4 || { name: 'Year IV' }) }
+            ];
+
+            container.innerHTML = years.map(y => {
+                const isExpanded = expandedMechYearKey === y.key;
+                const borderStyle = isExpanded 
+                    ? 'border-sky-500 bg-sky-600 text-white shadow-lg shadow-sky-500/30 scale-105 z-20' 
+                    : 'border-sky-500/30 bg-slate-900 text-slate-100 hover:border-sky-400 hover:scale-102 shadow-sm';
+
+                return `
+                    <button onclick="toggleMechYear('${y.key}')" id="mech-year-${y.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
+                        <span class="truncate tracking-wide">${y.name || ''}</span>
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-sky-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderMechL2Nodes() {
+            const container = document.getElementById('mech-l2-nodes-col');
+            if (!container) return;
+
+            if (!expandedMechYearKey || !MECH_SYLLABUS_DATA[expandedMechYearKey]) {
                 container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
                 container.innerHTML = '';
                 return;
             }
 
             const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-            const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
-
-            if (!activePart) {
+            if (!yearData || !Array.isArray(yearData.parts)) {
                 container.innerHTML = '';
                 return;
             }
 
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0 overflow-y-auto no-scrollbar';
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = yearData.parts.map((part, idx) => {
+                const isExpanded = idx === expandedMechPartIndex;
+                const activeStyle = isExpanded 
+                    ? 'bg-sky-600 text-white border-sky-500 font-bold shadow-md shadow-sky-600/30 scale-105 z-20' 
+                    : 'bg-slate-900 text-slate-200 border-sky-500/30 hover:border-sky-400 hover:text-sky-300 shadow-sm z-10';
+                
+                return `
+                    <button onclick="toggleMechPart(${idx})" id="mech-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                        <span class="truncate">${part.name}</span>
+                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-white font-extrabold' : 'opacity-70'} transition-transform duration-300">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderMechL3Nodes() {
+            const container = document.getElementById('mech-l3-nodes-col');
+            if (!container) return;
+
+            if (expandedMechYearKey === null || expandedMechPartIndex === null || !MECH_SYLLABUS_DATA[expandedMechYearKey]) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none overflow-y-auto no-scrollbar translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
+            const activePart = yearData && Array.isArray(yearData.parts) ? yearData.parts[expandedMechPartIndex] : null;
+
+            if (!activePart || !Array.isArray(activePart.courses) || activePart.courses.length === 0) {
+                container.innerHTML = '<div class="text-xs text-slate-400 font-mono text-center my-auto">No subjects available</div>';
+                return;
+            }
+
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0 overflow-y-auto no-scrollbar';
 
             container.innerHTML = activePart.courses.map((c, idx) => `
-                <div id="mech-l3-node-${idx}" class="p-2.5 sm:p-3 rounded-xl bg-slate-900/90 border border-sky-500/40 text-sky-100 text-xs font-mono shadow-md flex flex-col gap-1 hover:border-sky-300 hover:text-white transition-all duration-300 hover:scale-102">
+                <div id="mech-l3-node-${idx}" class="p-2.5 sm:p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm flex flex-col gap-1 hover:border-sky-500 transition-all duration-300 hover:scale-102">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="font-extrabold text-sky-400 text-[11px]">${c.code}</span>
-                        ${c.pdf ? `
-                            <a href="${c.pdf}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 text-[10px] font-bold border border-sky-400/40 transition-colors flex items-center gap-1">
+                        <span class="font-extrabold text-sky-400 text-[11px]">${c.code || 'COURSE'}</span>
+                        ${c.pdf && c.pdf !== '#' ? `
+                            <a href="${c.pdf}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-600 hover:text-white text-sky-300 text-[10px] font-bold border border-sky-500/40 transition-colors flex items-center gap-1">
                                 📄 PDF
                             </a>
                         ` : ''}
                     </div>
-                    <span class="text-[11px] font-sans font-medium leading-tight text-slate-200">${c.title}</span>
+                    <span class="text-[11px] font-sans font-medium leading-tight text-slate-300">${c.title || 'Course Module'}</span>
                 </div>
             `).join('');
-        }
-
-        function applyMechZoomEffect() {
-            const zoomWrapper = document.getElementById('mech-zoom-wrapper');
-            if (!zoomWrapper) return;
-
-            if (expandedMechYearKey !== null && expandedMechPartIndex !== null) {
-                zoomWrapper.style.transform = 'scale(0.97)';
-            } else if (expandedMechYearKey !== null) {
-                zoomWrapper.style.transform = 'scale(1)';
-            } else {
-                zoomWrapper.style.transform = 'scale(1.02)';
-            }
-        }
-
-        function openMechSyllabusOverlay() {
-            const overlay = document.getElementById('mech-syllabus-overlay');
-            if (!overlay) return;
-
-            expandedMechYearKey = null;
-            expandedMechPartIndex = null;
-            renderMechL1Nodes();
-            renderMechL2Nodes();
-            renderMechL3Nodes();
-            applyMechZoomEffect();
-
-            overlay.classList.remove('hidden');
-            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
-            setTimeout(drawMechSVGConnections, 100);
-        }
-
-        function closeMechSyllabusOverlay() {
-            const overlay = document.getElementById('mech-syllabus-overlay');
-            if (!overlay) return;
-            overlay.classList.add('opacity-0');
-            setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
         function drawMechSVGConnections() {
@@ -1334,7 +1376,7 @@
                 return;
             }
 
-            const strokeColor = 'rgba(14, 165, 233, 0.75)';
+            const strokeColor = 'rgba(14, 165, 233, 0.8)';
             let pathsHTML = '';
 
             const pRect = activeYearBtn.getBoundingClientRect();
@@ -1350,15 +1392,15 @@
 
                     const cX1 = pX + (l2LeftX - pX) * 0.5;
                     pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
-                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#0ea5e9" />`;
-                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#0ea5e9" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#38bdf8" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#38bdf8" />`;
 
                     const l2RightX = l2Rect.right - cRect.left;
                     const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
 
                     const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-                    const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
-                    if (activePart && activePart.courses) {
+                    const activePart = yearData && Array.isArray(yearData.parts) ? yearData.parts[expandedMechPartIndex] : null;
+                    if (activePart && Array.isArray(activePart.courses)) {
                         activePart.courses.forEach((_, courseIdx) => {
                             const l3Node = document.getElementById(`mech-l3-node-${courseIdx}`);
                             if (l3Node) {
@@ -1368,14 +1410,14 @@
 
                                 const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
                                 pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#38bdf8" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#0284c7" />`;
                             }
                         });
                     }
                 }
             } else {
                 const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-                if (yearData && yearData.parts) {
+                if (yearData && Array.isArray(yearData.parts)) {
                     yearData.parts.forEach((_, idx) => {
                         const l2Btn = document.getElementById(`mech-l2-node-${idx}`);
                         if (l2Btn) {
@@ -1385,7 +1427,7 @@
 
                             const cX1 = pX + (l2LeftX - pX) * 0.5;
                             pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
-                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#0ea5e9" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#38bdf8" />`;
                         }
                     });
                 }
@@ -1394,19 +1436,71 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // Projects Interactive Mind Map Data (Single Root Node: CAD -> Boxer Engine)
+        // ================= PROJECTS CAD MIND MAP DATA & CONTROLS =================
         const PROJECTS_MINDMAP_DATA = {
             cad: {
                 name: "CAD 📐",
                 nodes: [
-                    { name: "Boxer Engine 🏎️", url: "boxer_engine_cad.html", subnodes: [] }
+                    { name: "Boxer Engine 🏎️", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] }
                 ]
             }
         };
 
-        // Projects Mind Map State Management
         let expandedProjCategoryKey = null;
         let expandedProjL2Index = null;
+
+        function openProjectsMindMap() {
+            const overlay = document.getElementById('projects-mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            if (!expandedProjCategoryKey) {
+                toggleProjCategory('cad');
+            } else {
+                setTimeout(drawProjSVGConnections, 100);
+            }
+        }
+
+        function closeProjectsMindMap() {
+            const overlay = document.getElementById('projects-mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        function toggleProjCategory(key) {
+            if (expandedProjCategoryKey === key) {
+                expandedProjCategoryKey = null;
+                expandedProjL2Index = null;
+            } else {
+                expandedProjCategoryKey = key;
+                expandedProjL2Index = null;
+            }
+            renderProjL1Nodes();
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            setTimeout(drawProjSVGConnections, 50);
+        }
+
+        function toggleProjL2Node(idx) {
+            if (expandedProjCategoryKey && PROJECTS_MINDMAP_DATA[expandedProjCategoryKey]) {
+                const node = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey].nodes[idx];
+                if (node && node.url) {
+                    console.log("Target Project File:", node.url);
+                    console.log(node.url);
+                    window.location.href = node.url;
+                    return;
+                }
+            }
+            if (expandedProjL2Index === idx) {
+                expandedProjL2Index = null;
+            } else {
+                expandedProjL2Index = idx;
+            }
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            setTimeout(drawProjSVGConnections, 50);
+        }
 
         function renderProjL1Nodes() {
             const container = document.getElementById('proj-l1-nodes-col');
@@ -1419,34 +1513,18 @@
             container.innerHTML = categories.map(c => {
                 const isExpanded = expandedProjCategoryKey === c.key;
                 const borderStyle = isExpanded 
-                    ? 'border-amber-400 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/40 scale-105 z-20' 
-                    : 'border-amber-600/80 bg-slate-900/90 text-white hover:border-amber-400 hover:scale-102';
+                    ? 'border-amber-500 bg-amber-600 text-white shadow-lg shadow-amber-500/30 scale-105 z-20' 
+                    : 'border-amber-500/30 bg-slate-900 text-slate-100 hover:border-amber-400 hover:scale-102 shadow-sm';
 
                 return `
                     <button onclick="toggleProjCategory('${c.key}')" id="proj-category-${c.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
                         <span class="truncate tracking-wide">${c.name}</span>
-                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
                             ${isExpanded ? '▼' : '→'}
                         </span>
                     </button>
                 `;
             }).join('');
-        }
-
-        function toggleProjCategory(key) {
-            if (expandedProjCategoryKey === key) {
-                expandedProjCategoryKey = null;
-                expandedProjL2Index = null;
-            } else {
-                expandedProjCategoryKey = key;
-                expandedProjL2Index = null;
-            }
-
-            renderProjL1Nodes();
-            renderProjL2Nodes();
-            renderProjL3Nodes();
-            applyProjZoomEffect();
-            setTimeout(drawProjSVGConnections, 60);
         }
 
         function renderProjL2Nodes() {
@@ -1465,37 +1543,15 @@
             container.innerHTML = category.nodes.map((node, idx) => {
                 const isExpanded = idx === expandedProjL2Index;
                 const activeStyle = isExpanded 
-                    ? 'bg-amber-500 text-slate-950 border-amber-300 font-bold shadow-md shadow-amber-500/30 scale-105 z-20' 
-                    : 'bg-slate-900/90 text-amber-200 border-amber-800/80 hover:border-amber-400 hover:text-white z-10';
+                    ? 'bg-amber-600 text-white border-amber-500 font-bold shadow-md shadow-amber-600/30 scale-105 z-20' 
+                    : 'bg-slate-900 text-slate-200 border-amber-500/30 hover:border-amber-400 hover:text-amber-300 shadow-sm z-10';
                 
                 return `
-                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
                         <span class="truncate">${node.name}</span>
                     </button>
                 `;
             }).join('');
-        }
-
-        function toggleProjL2Node(idx) {
-            const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-            const activeNode = category ? category.nodes[idx] : null;
-
-            // Direct link to dedicated Boxer Engine CAD page
-            if (activeNode && activeNode.url) {
-                window.location.href = activeNode.url;
-                return;
-            }
-
-            if (expandedProjL2Index === idx) {
-                expandedProjL2Index = null;
-            } else {
-                expandedProjL2Index = idx;
-            }
-
-            renderProjL2Nodes();
-            renderProjL3Nodes();
-            applyProjZoomEffect();
-            setTimeout(drawProjSVGConnections, 60);
         }
 
         function renderProjL3Nodes() {
@@ -1520,52 +1576,10 @@
             container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = activeNode.subnodes.map((sub, idx) => `
-                <div id="proj-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-amber-500/40 text-amber-100 text-xs font-mono shadow-md truncate hover:border-amber-300 hover:text-white transition-all duration-300 hover:scale-102">
+                <div id="proj-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm truncate hover:border-amber-400 hover:text-amber-300 transition-all duration-300 hover:scale-102">
                     🛠️ ${sub}
                 </div>
             `).join('');
-        }
-
-        function applyProjZoomEffect() {
-            const zoomWrapper = document.getElementById('proj-zoom-wrapper');
-            if (!zoomWrapper) return;
-
-            if (expandedProjCategoryKey !== null && expandedProjL2Index !== null) {
-                zoomWrapper.style.transform = 'scale(0.97)';
-            } else if (expandedProjCategoryKey !== null) {
-                zoomWrapper.style.transform = 'scale(1)';
-            } else {
-                zoomWrapper.style.transform = 'scale(1.02)';
-            }
-        }
-
-        function openProjectsMindMap() {
-            const overlay = document.getElementById('projects-mindmap-overlay');
-            if (!overlay) return;
-
-            expandedProjCategoryKey = null;
-            expandedProjL2Index = null;
-            renderProjL1Nodes();
-            renderProjL2Nodes();
-            renderProjL3Nodes();
-            applyProjZoomEffect();
-
-            overlay.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                overlay.classList.remove('opacity-0');
-            });
-            setTimeout(() => {
-                drawProjSVGConnections();
-            }, 100);
-        }
-
-        function closeProjectsMindMap() {
-            const overlay = document.getElementById('projects-mindmap-overlay');
-            if (!overlay) return;
-            overlay.classList.add('opacity-0');
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 300);
         }
 
         function drawProjSVGConnections() {
@@ -1588,7 +1602,7 @@
                 return;
             }
 
-            const strokeColor = 'rgba(245, 158, 11, 0.75)';
+            const strokeColor = 'rgba(245, 158, 11, 0.8)';
             let pathsHTML = '';
 
             const pRect = activeCategoryBtn.getBoundingClientRect();
@@ -1604,8 +1618,8 @@
 
                     const cX1 = pX + (l2LeftX - pX) * 0.5;
                     pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
-                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#f59e0b" />`;
-                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#f59e0b" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#fbbf24" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#fbbf24" />`;
 
                     const l2RightX = l2Rect.right - cRect.left;
                     const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
@@ -1622,7 +1636,7 @@
 
                                 const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
                                 pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#fbbf24" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#f59e0b" />`;
                             }
                         });
                     }
@@ -1639,7 +1653,7 @@
 
                             const cX1 = pX + (l2LeftX - pX) * 0.5;
                             pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
-                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#f59e0b" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#fbbf24" />`;
                         }
                     });
                 }
@@ -1650,6 +1664,7 @@
 
         // Global Event Listeners & Orientation/Resize Handlers
         window.addEventListener('load', () => {
+            loadMechSyllabusData();
             renderL1Nodes();
             renderMechL1Nodes();
             renderProjL1Nodes();

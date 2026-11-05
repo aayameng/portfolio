@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxer Engine - 3D Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #ffffff;
+            --grid-color: rgba(0, 0, 0, 0.05);
+            --accent-glow: radial-gradient(circle at 50% 0%, rgba(255, 136, 0, 0.08) 0%, transparent 60%);
+            --panel-bg: rgba(255, 255, 255, 0.8);
+            --panel-border: rgba(255, 170, 0, 0.3);
+            --primary-amber: #ffaa00;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0b0f19;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+        }
+
+        /* Top ambient glow matching the screenshot */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 170, 0, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Entrance Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-left { animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-right { animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 170, 0, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 170, 0, 0.6); }
+    </style>
+</head>
+<body class="relative w-full h-screen overflow-hidden text-gray-200 antialiased selection:bg-orange-500 selection:text-white flex flex-col">
+    
+    <div class="ambient-glow"></div>
+
+    <!-- Top Navigation Layer -->
+    <div class="absolute top-4 sm:top-6 right-4 sm:right-8 z-50 flex gap-4 items-center">
+        <button id="btn-back" class="bg-[#ffb03a] hover:bg-[#ffc164] transition-colors text-black font-semibold mono-font text-xs sm:text-sm py-2 px-4 sm:px-5 rounded-xl shadow-[0_0_15px_rgba(255,170,0,0.3)] flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+        </button>
+    </div>
+
+    <!-- Main Layout Content (Fully Responsive Grid/Flex arrangement) -->
+    <div class="relative z-10 w-full h-full flex flex-col md:flex-row p-4 sm:p-6 md:p-8 pt-16 sm:pt-20 md:pt-24 gap-4 sm:gap-6 box-border overflow-y-auto md:overflow-hidden">
+        
+        <!-- Left Panel: Information -->
+        <div class="animate-left flex-shrink-0 w-full md:w-[360px] lg:w-[420px] xl:w-[460px] max-h-[45vh] md:max-h-full flex flex-col bg-slate-900/85 backdrop-blur-md rounded-2xl border border-orange-500/30 shadow-2xl p-5 sm:p-6 lg:p-8 overflow-y-auto relative z-20 text-gray-200">
+            
+            <div class="flex items-center gap-3 mb-4 sm:mb-6">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/30 text-orange-400 flex-shrink-0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold mono-font tracking-wide text-white truncate">Boxer Engine</h1>
+            </div>
+
+            <p class="text-gray-300 leading-relaxed mb-6 text-xs sm:text-sm">
+                A flat engine, also known as a horizontally opposed engine, in which cylinders are located on either side of a central crankshaft for natural dynamic balancing.
+            </p>
+
+            <h3 class="text-orange-400 mono-font text-xs uppercase tracking-widest mb-3 sm:mb-4 font-bold">Specifications</h3>
+            
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                <div class="bg-slate-800/80 p-3 sm:p-4 rounded-xl border border-slate-700">
+                    <div class="text-[10px] sm:text-xs text-gray-400 mb-1">Configuration</div>
+                    <div class="font-semibold mono-font text-white text-xs sm:text-sm">Flat-4</div>
+                </div>
+                <div class="bg-slate-800/80 p-3 sm:p-4 rounded-xl border border-slate-700">
+                    <div class="text-[10px] sm:text-xs text-gray-400 mb-1">Cooling</div>
+                    <div class="font-semibold mono-font text-white text-xs sm:text-sm">Air / Liquid</div>
+                </div>
+                <div class="bg-slate-800/80 p-3 sm:p-4 rounded-xl border border-slate-700">
+                    <div class="text-[10px] sm:text-xs text-gray-400 mb-1">Valves</div>
+                    <div class="font-semibold mono-font text-white text-xs sm:text-sm">16 DOHC</div>
+                </div>
+                <div class="bg-slate-800/80 p-3 sm:p-4 rounded-xl border border-slate-700">
+                    <div class="text-[10px] sm:text-xs text-gray-400 mb-1">Source Path</div>
+                    <div class="font-semibold mono-font text-orange-400 text-[10px] sm:text-xs truncate">boxer_engine.glb</div>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <h3 class="text-orange-400 mono-font text-xs uppercase tracking-widest mb-3 font-bold">Controls</h3>
+                <ul class="text-xs sm:text-sm text-gray-300 space-y-1.5 sm:space-y-2 mb-2">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></span> Touch / Drag to Rotate</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></span> Pinch / Scroll to Zoom</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></span> Right Click / Two-finger Drag to Pan</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel: 3D Canvas Container -->
+        <div class="animate-right flex-grow min-h-[350px] md:min-h-0 h-full relative bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden group">
+            
+            <!-- File Input for Local File Fallback -->
+            <input type="file" id="local-file-input" accept=".glb,.gltf" class="hidden" />
+
+            <!-- Local File Warning Banner (Visible on file:// CORS failure) -->
+            <div id="cors-notice" class="hidden absolute top-4 left-4 right-4 z-30 bg-orange-950/90 backdrop-blur-md border border-orange-500/40 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-orange-200 shadow-lg">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Running via <code class="mono-font bg-orange-900/60 px-1.5 py-0.5 rounded text-orange-300">file://</code> protocol. Select local model or serve via web server.</span>
+                </div>
+                <button id="btn-browse-local" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold mono-font px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shadow">
+                    Select GLB File
+                </button>
+            </div>
+
+            <!-- Loading Spinner (Visible while GLB loads) -->
+            <div id="loader" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur transition-opacity duration-500">
+                <div id="spinner" class="w-10 h-10 sm:w-12 sm:h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+                <p id="loader-text" class="mono-font text-xs sm:text-sm text-orange-400 animate-pulse px-4 text-center">Loading boxer_engine.glb...</p>
+            </div>
+
+            <!-- 3D Canvas mounts here -->
+            <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+        </div>
+    </div>
+
+    <!-- Import Map to resolve bare module specifiers -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- ES Module Script for Three.js -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+        let scene, camera, renderer, controls;
+        let mixer; // For GLB animations if present
+        let engineWrapper = null;
+        let clock = new THREE.Clock();
+        let cadDisplacers = [];
+        let cadFlywheel = null;
+        let isProcedural = false;
+        let proceduralParts = {};
+
+        // Camera animation state
+        let isAutoOrbiting = true;
+        let cameraAnimProgress = 0;
+        let camTargetRadius = 3.5;
+        let camStartRadius = 15;
+        let camTargetY = 0.5;
+
+        init();
+        animate();
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // 1. Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b0f19);
+            scene.fog = new THREE.FogExp2(0x0b0f19, 0.015);
+
+            // 2. Camera Setup
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(12, 8, 15);
+
+            // 3. Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            container.appendChild(renderer.domElement);
+
+            // 3.5 Realistic Environment Map for Metal Reflections
+            const pmremGenerator = new THREE.PMREMGenerator(renderer);
+            pmremGenerator.compileEquirectangularShader();
+            scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+
+            // 4. Studio Lighting for Realistic Metal & Cast Shadows
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambientLight);
+
+            const hemiLight = new THREE.HemisphereLight(0xeef2f7, 0x0f172a, 0.6);
+            hemiLight.position.set(0, 50, 0);
+            scene.add(hemiLight);
+
+            // Key Light (Cast Soft Direct Shadows)
+            const dirLight = new THREE.DirectionalLight(0xfff5ea, 1.8);
+            dirLight.position.set(8, 14, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.near = 0.5;
+            dirLight.shadow.camera.far = 40;
+            dirLight.shadow.camera.left = -6;
+            dirLight.shadow.camera.right = 6;
+            dirLight.shadow.camera.top = 6;
+            dirLight.shadow.camera.bottom = -6;
+            dirLight.shadow.bias = -0.0001;
+            dirLight.shadow.radius = 3;
+            scene.add(dirLight);
+
+            // Cold Fill Light
+            const fillLight = new THREE.DirectionalLight(0x90b4ce, 0.6);
+            fillLight.position.set(-10, 8, -6);
+            scene.add(fillLight);
+
+            // Warm Rim Light
+            const rimLight = new THREE.DirectionalLight(0xffaa44, 0.8);
+            rimLight.position.set(-6, 10, -10);
+            scene.add(rimLight);
+
+            // Ground Bounce Light
+            const bottomLight = new THREE.DirectionalLight(0x334155, 0.35);
+            bottomLight.position.set(0, -10, 0);
+            scene.add(bottomLight);
+
+            // 5. Controls Setup
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            // Set user zoom constraints: zoom in up to 75x, zoom out up to 2x relative to model target bounds
+            controls.minDistance = 0.005;
+            controls.maxDistance = 15;
+            controls.target.set(0, 0, 0);
+
+            // Handover auto-orbit on user interaction
+            const stopAutoOrbit = () => {
+                if (isAutoOrbiting) {
+                    isAutoOrbiting = false;
+                    controls.enabled = true;
+                }
+            };
+
+            container.addEventListener('pointerdown', stopAutoOrbit);
+            container.addEventListener('wheel', stopAutoOrbit);
+            container.addEventListener('touchstart', stopAutoOrbit);
+
+            // 6. Grid Helper
+            const gridHelper = new THREE.GridHelper(20, 20, 0xffaa00, 0x334155);
+            gridHelper.material.opacity = 0.4;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = -1.5;
+            scene.add(gridHelper);
+
+            // Setup local file picker for file:// CORS bypass
+            setupLocalFileInput();
+
+            // Setup Back Button Navigation to absolute root home page
+            const btnBack = document.getElementById('btn-back');
+            if (btnBack) {
+                btnBack.addEventListener('click', () => {
+                    window.location.href = '/';
+                });
+            }
+
+            // Responsive Window & Orientation resize handler
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Directly load the GLB Boxer Engine model
+            loadGLBModel('../../CAD/boxer_engine.glb');
+        }
+
+        // Procedural Engine Construction (Fallback)
+        function createProceduralEngine() {
+            isProcedural = true;
+            engineWrapper = new THREE.Group();
+
+            // Procedural Grain & Roughness Texture
+            const createBrushedMetalTexture = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512; canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, 512, 512);
+                for (let i = 0; i < 5000; i++) {
+                    const x = Math.random() * 512; const y = Math.random() * 512;
+                    const len = Math.random() * 40 + 10;
+                    const val = Math.floor(Math.random() * 60 - 30);
+                    ctx.fillStyle = `rgba(${128 + val}, ${128 + val}, ${128 + val}, 0.15)`;
+                    ctx.fillRect(x, y, 1, len);
+                }
+                const roughTex = new THREE.CanvasTexture(canvas);
+                roughTex.wrapS = THREE.RepeatWrapping;
+                roughTex.wrapT = THREE.RepeatWrapping;
+                roughTex.repeat.set(2, 2);
+                return roughTex;
+            };
+
+            const brushedNoise = createBrushedMetalTexture();
+
+            // Stirling Engine Metallic Materials
+            const brassMat = new THREE.MeshStandardMaterial({ color: 0xd49b38, metalness: 0.85, roughness: 0.4, roughnessMap: brushedNoise });
+            const steelMat = new THREE.MeshStandardMaterial({ color: 0x9099a4, metalness: 0.9, roughness: 0.35, roughnessMap: brushedNoise });
+            const hotCylinderMat = new THREE.MeshStandardMaterial({ color: 0xaa3311, metalness: 0.7, roughness: 0.5 });
+            const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x66aaff, metalness: 0.1, roughness: 0.1, transmission: 0.85, transparent: true, opacity: 0.4 });
+            const flywheelMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.25, roughnessMap: brushedNoise });
+
+            // Engine Base Structure
+            const baseGeo = new THREE.BoxGeometry(4.5, 0.4, 2.0);
+            const baseMesh = new THREE.Mesh(baseGeo, steelMat);
+            baseMesh.position.y = -1.2;
+            baseMesh.castShadow = true;
+            baseMesh.receiveShadow = true;
+            engineWrapper.add(baseMesh);
+
+            // Hot & Power Cylinders
+            const hotCylGeo = new THREE.CylinderGeometry(0.5, 0.5, 2.2, 32);
+            hotCylGeo.rotateZ(Math.PI / 2);
+            const hotCylMesh = new THREE.Mesh(hotCylGeo, hotCylinderMat);
+            hotCylMesh.position.set(-1.2, 0, 0);
+            hotCylMesh.castShadow = true;
+            engineWrapper.add(hotCylMesh);
+
+            const glassCylGeo = new THREE.CylinderGeometry(0.52, 0.52, 1.2, 32, 1, true);
+            glassCylGeo.rotateZ(Math.PI / 2);
+            const glassCylMesh = new THREE.Mesh(glassCylGeo, glassMat);
+            glassCylMesh.position.set(-0.2, 0, 0);
+            engineWrapper.add(glassCylMesh);
+
+            // Internal Displacer Piston
+            const displacerGeo = new THREE.CylinderGeometry(0.44, 0.44, 1.0, 32);
+            displacerGeo.rotateZ(Math.PI / 2);
+            const displacerMesh = new THREE.Mesh(displacerGeo, brassMat);
+            displacerMesh.castShadow = true;
+            displacerMesh.position.set(-1.2, 0, 0);
+            engineWrapper.add(displacerMesh);
+
+            // Power Piston Assembly
+            const powerPistonGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.6, 32);
+            powerPistonGeo.rotateZ(Math.PI / 2);
+            const powerPistonMesh = new THREE.Mesh(powerPistonGeo, steelMat);
+            powerPistonMesh.castShadow = true;
+            powerPistonMesh.position.set(0.5, 0, 0);
+            engineWrapper.add(powerPistonMesh);
+
+            // Stirling Flywheel Assembly
+            const flywheelGroup = new THREE.Group();
+            const ringGeo = new THREE.TorusGeometry(1.1, 0.12, 16, 48);
+            const ringMesh = new THREE.Mesh(ringGeo, flywheelMat);
+            ringMesh.castShadow = true;
+            flywheelGroup.add(ringMesh);
+
+            // Flywheel Spokes
+            for (let i = 0; i < 4; i++) {
+                const spokeGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.1, 16);
+                const spoke = new THREE.Mesh(spokeGeo, steelMat);
+                spoke.rotation.z = (i * Math.PI) / 4;
+                flywheelGroup.add(spoke);
+            }
+            flywheelGroup.position.set(2.2, 0, 0);
+            engineWrapper.add(flywheelGroup);
+
+            // Linkage Rods
+            const rodGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 16);
+            rodGeo.rotateZ(Math.PI / 2);
+            const rodMesh = new THREE.Mesh(rodGeo, steelMat);
+            rodMesh.position.set(1.2, 0, 0.2);
+            engineWrapper.add(rodMesh);
+
+            proceduralParts = {
+                displacer: displacerMesh,
+                powerPiston: powerPistonMesh,
+                flywheel: flywheelGroup,
+                rod: rodMesh
+            };
+
+            scene.add(engineWrapper);
+
+            // Set dynamic bounding box parameters for auto intro
+            camTargetRadius = 3.6;
+            camStartRadius = camTargetRadius * 4.5;
+            hideLoader();
+        }
+
+        // GLB Model Loader
+        function loadGLBModel(path) {
+            const loader = new GLTFLoader();
+
+            if (window.location.protocol === 'file:') {
+                console.warn("Running via file:// protocol. Local fetch blocked by browser CORS.");
+                showCorsNotice();
+                createProceduralEngine();
+                return;
+            }
+
+            let resolvedUrl = path;
+            try {
+                let baseUrl = window.location.href;
+                if (baseUrl.startsWith('blob:') || !baseUrl.startsWith('http')) {
+                    baseUrl = document.documentURI || document.baseURI || window.location.origin || 'http://localhost/';
+                }
+                resolvedUrl = new URL(path, baseUrl).href;
+            } catch (err) {
+                console.warn("URL resolution failed, using fallback Stirling 3D model:", err);
+                showCorsNotice();
+                createProceduralEngine();
+                return;
+            }
+
+            try {
+                loader.load(
+                    resolvedUrl,
+                    (gltf) => {
+                        processAndSetupUploadedModel(gltf);
+                    },
+                    (xhr) => {
+                        const text = document.getElementById('loader-text');
+                        if (text && xhr.total > 0) {
+                            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                            text.textContent = `Loading boxer_engine.glb (${percent}%)...`;
+                        }
+                    },
+                    (error) => {
+                        console.warn("../../CAD/boxer_engine.glb model load failed. Falling back to procedural model.", error);
+                        showCorsNotice();
+                        createProceduralEngine();
+                    }
+                );
+            } catch (err) {
+                console.warn("Loader invocation failed:", err);
+                showCorsNotice();
+                createProceduralEngine();
+            }
+        }
+
+        function setupLocalFileInput() {
+            const fileInput = document.getElementById('local-file-input');
+            const btnBrowse = document.getElementById('btn-browse-local');
+
+            if (btnBrowse && fileInput) {
+                btnBrowse.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const loader = new GLTFLoader();
+                        loader.parse(event.target.result, '', (gltf) => {
+                            const notice = document.getElementById('cors-notice');
+                            if (notice) notice.classList.add('hidden');
+                            processAndSetupUploadedModel(gltf);
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+        }
+
+        function showCorsNotice() {
+            const notice = document.getElementById('cors-notice');
+            if (notice) notice.classList.remove('hidden');
+        }
+
+        function processAndSetupUploadedModel(gltf) {
+            if (engineWrapper) scene.remove(engineWrapper);
+
+            const model = gltf.scene;
+            engineWrapper = model;
+
+            model.position.set(0, 0, 0);
+            model.rotation.set(0, 0, 0);
+            model.scale.set(1, 1, 1);
+            model.updateMatrixWorld(true);
+
+            // Pitch the model 90 degrees around the X-axis to stand the engine vertically
+            model.rotation.x = -Math.PI / 2;
+            model.rotation.y = 0;
+            model.rotation.z = 0;
+            model.updateMatrixWorld(true);
+
+            // Center the model's bounding box around (0,0,0) and ground it
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+
+            model.position.x = -center.x;
+            model.position.y = -box.min.y - 1.5;
+            model.position.z = -center.z;
+            model.updateMatrixWorld(true);
+
+            // Generate procedural subtle brushed metal noise map
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, 512, 512);
+            for (let i = 0; i < 6000; i++) {
+                const x = Math.random() * 512; const y = Math.random() * 512;
+                const len = Math.random() * 30 + 5;
+                const val = Math.floor(Math.random() * 30 - 15);
+                ctx.fillStyle = `rgba(${128+val}, ${128+val}, ${128+val}, 0.1)`;
+                ctx.fillRect(x, y, len, 1);
+            }
+            const brushedMetalTex = new THREE.CanvasTexture(canvas);
+            brushedMetalTex.wrapS = THREE.RepeatWrapping;
+            brushedMetalTex.wrapT = THREE.RepeatWrapping;
+            brushedMetalTex.repeat.set(4, 4);
+
+            // Compute precise bounding sphere to calculate optimal camera framing
+            const postBox = new THREE.Box3().setFromObject(model);
+            const postCenter = postBox.getCenter(new THREE.Vector3());
+            const postSize = postBox.getSize(new THREE.Vector3());
+
+            const maxDim = Math.max(postSize.x, postSize.y, postSize.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraDistance = (maxDim / 2) / Math.tan(fov / 2);
+            
+            // Set front-facing framing target
+            camTargetRadius = cameraDistance * 1.5;
+            camStartRadius = camTargetRadius * 4.5;
+            camTargetY = postCenter.y;
+
+            controls.target.copy(postCenter);
+            controls.update();
+
+            // Traverse and apply physically accurate materials
+            cadDisplacers = [];
+            cadFlywheel = null;
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+
+                    const lowerName = child.name.toLowerCase();
+                    if (lowerName.includes('displacer') || lowerName.includes('piston')) {
+                        cadDisplacers.push(child);
+                    }
+                    if (lowerName.includes('flywheel') || lowerName.includes('wheel')) {
+                        cadFlywheel = child;
+                    }
+
+                    if (child.material) {
+                        child.material.envMapIntensity = 0.85; 
+
+                        if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
+                            child.material.roughnessMap = brushedMetalTex;
+                            child.material.metalness = Math.max(child.material.metalness, 0.7);
+                            child.material.roughness = Math.min(Math.max(child.material.roughness, 0.25), 0.5);
+                        } else {
+                            const prevColor = child.material.color ? child.material.color.clone() : new THREE.Color(0xd0d8e0);
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: prevColor,
+                                metalness: 0.8,
+                                roughness: 0.35,
+                                roughnessMap: brushedMetalTex,
+                                envMapIntensity: 0.85,
+                                side: THREE.DoubleSide
+                            });
+                        }
+                        
+                        child.material.needsUpdate = true;
+                    }
+                }
+            });
+
+            // Set up GLTF animations if available
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixer = new THREE.AnimationMixer(model);
+                gltf.animations.forEach((clip) => {
+                    mixer.clipAction(clip).play();
+                });
+            }
+
+            scene.add(engineWrapper);
+            hideLoader();
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            if (!container || !renderer || !camera) return;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // GLTF Mixer animation update
+            if (mixer) mixer.update(delta);
+
+            // Procedural component animation if fallback is active
+            if (isProcedural && proceduralParts.displacer) {
+                const speed = 4;
+                const stroke = 0.4;
+                proceduralParts.displacer.position.x = -1.2 + Math.sin(time * speed) * stroke;
+                if (proceduralParts.powerPiston) {
+                    proceduralParts.powerPiston.position.x = 0.5 + Math.sin(time * speed - Math.PI / 2) * stroke;
+                }
+                if (proceduralParts.flywheel) {
+                    proceduralParts.flywheel.rotation.z -= delta * speed;
+                }
+            }
+
+            // Fallback kinematic animation if GLB lacks baked animation tracks
+            if (!mixer && !isProcedural) {
+                if (cadFlywheel) {
+                    cadFlywheel.rotation.z += delta * 3;
+                }
+                if (cadDisplacers.length > 0) {
+                    cadDisplacers.forEach((disp, idx) => {
+                        disp.position.y += Math.sin(time * 3 + idx) * 0.001;
+                    });
+                }
+            }
+
+            // Smooth intro camera orbiting
+            if (isAutoOrbiting) {
+                cameraAnimProgress = Math.min(cameraAnimProgress + delta * 0.4, 1);
+                const easeProgress = 1 - Math.pow(1 - cameraAnimProgress, 3);
+                
+                const currentRadius = THREE.MathUtils.lerp(camStartRadius, camTargetRadius, easeProgress);
+                const angle = Math.PI / 4 + Math.sin(time * 0.15) * 0.15; // Isometric angle (~45°) with subtle dynamic rotation
+
+                // Isometric elevation offset
+                const isoHeight = currentRadius * 0.65;
+                const horizontalDist = currentRadius * 0.75;
+
+                camera.position.x = controls.target.x + horizontalDist * Math.sin(angle);
+                camera.position.z = controls.target.z + horizontalDist * Math.cos(angle);
+                camera.position.y = controls.target.y + isoHeight;
+
+                camera.lookAt(controls.target);
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

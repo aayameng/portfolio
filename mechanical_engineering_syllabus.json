@@ -1,0 +1,352 @@
+[
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENSH 101",
+        "subject_name": "Engineering Mathematics I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf"
+    },
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENSH 103",
+        "subject_name": "Engineering Chemistry",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf"
+    },
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENCT 101",
+        "subject_name": "Computer Programming",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_17_14.pdf"
+    },
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENEX 101",
+        "subject_name": "Fundamental of Electrical and Electronics Engineering",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_18_38.pdf"
+    },
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENME 101",
+        "subject_name": "Engineering Drawing",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_19_09.pdf"
+    },
+    {
+        "year": "I",
+        "part": "I",
+        "subject_code": "ENME 103",
+        "subject_name": "Engineering Mechanics I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_19_25.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENSH 151",
+        "subject_name": "Engineering Mathematics II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_01_04.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENSH 152",
+        "subject_name": "Engineering Physics",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_01_18.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENME 151",
+        "subject_name": "Engineering Thermodynamics I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_18.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENME 152",
+        "subject_name": "Machine Drawing",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_36.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENME 153",
+        "subject_name": "Engineering Mechanics II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_51.pdf"
+    },
+    {
+        "year": "I",
+        "part": "II",
+        "subject_code": "ENME 155",
+        "subject_name": "Workshop Technology",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_00_10.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENSH 201",
+        "subject_name": "Engineering Mathematics III",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_19_08_56.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENME 201",
+        "subject_name": "Material Science",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_08.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENME 202",
+        "subject_name": "Manufacturing and Production Processes",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_31.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENME 203",
+        "subject_name": "Engineering Thermodynamics II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_51.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENME 204",
+        "subject_name": "Metrology",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_37_11.pdf"
+    },
+    {
+        "year": "II",
+        "part": "I",
+        "subject_code": "ENME 205",
+        "subject_name": "Strength of Materials",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_37_27.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENSH 253",
+        "subject_name": "Probability and Statistics",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_19_10_39.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENEE 254",
+        "subject_name": "Electrical Machines",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_34_12.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENME 251",
+        "subject_name": "Mechanics of Solids",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_03.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENME 252",
+        "subject_name": "Instrumentation and Sensors",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_21.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENME 253",
+        "subject_name": "Computer Aided Design",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_38.pdf"
+    },
+    {
+        "year": "II",
+        "part": "II",
+        "subject_code": "ENME 254",
+        "subject_name": "Fluid Mechanics with Engineering Applications",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_55.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENEE 307",
+        "subject_name": "Control System and Automation",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_03.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENSH 301",
+        "subject_name": "Numerical Methods",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_10_10_46_39.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENME 301",
+        "subject_name": "Automotive Technology",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_24.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENME 302",
+        "subject_name": "Fluid Machines",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_45.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENME 303",
+        "subject_name": "Theory of Machines and Mechanism",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_58_03.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENME 304",
+        "subject_name": "Organization and Management",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_58_45.pdf"
+    },
+    {
+        "year": "III",
+        "part": "I",
+        "subject_code": "ENSH 303",
+        "subject_name": "Technical English",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_15_33_23.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 356",
+        "subject_name": "Professional Engineering Economics",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME356PROFESSIONALENGINEER_2026_04_21_12_05_22.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 351",
+        "subject_name": "Industrial Engineering and Management",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME351INDUSTRIALENGINEERIN_2026_04_21_12_06_56.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 352",
+        "subject_name": "Heat and Mass Transfer",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME352HEATANDMASSTRANSFE_2026_04_21_12_05_34.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 353",
+        "subject_name": "Machine Design I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME353MACHINEDESIGNI_2026_04_21_12_05_47.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 354",
+        "subject_name": "Machine Dynamics",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME354MACHINEDYNAMICS_2026_04_21_12_04_04.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 355",
+        "subject_name": "Minor Project",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME355MINORPROJECT_2026_04_21_12_06_00.pdf"
+    },
+    {
+        "year": "III",
+        "part": "II",
+        "subject_code": "ENME 365-384",
+        "subject_name": "Elective I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME365-384ElectiveI_2026_09_15_13_06_45.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 411",
+        "subject_name": "Entrepreneurship Development",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME411ENTREPRENEURSHIPDEVE_2026_06_30_10_37_45.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 412",
+        "subject_name": "Finite Element Method",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME412FINITEELEMENTMETHOD_2026_06_30_10_37_58.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 413",
+        "subject_name": "Applied Computational Fluid Dynamics",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME413APPLIEDCOMPUTATIONAL_2026_06_30_10_38_11.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 414",
+        "subject_name": "Energy Resources and Technology",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME414ENERGYRESOURCESAND_2026_06_30_10_38_25.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 415",
+        "subject_name": "Machine Design II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME415MACHINEDESIGNII_2026_06_30_10_38_38.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 425-444",
+        "subject_name": "Elective II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME425-444ElectiveII_2026_09_15_13_05_44.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "I",
+        "subject_code": "ENME 416",
+        "subject_name": "Project I",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME416PROJECTI_2026_06_30_10_38_51.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "II",
+        "subject_code": "ENME 463",
+        "subject_name": "Project Management and Professional Practice",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME463PROJECTMANAGEMENTAN_2026_06_30_10_40_56.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "II",
+        "subject_code": "ENME 465-474",
+        "subject_name": "Elective III",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME465-474ElectiveIII_2026_06_30_10_41_45.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "II",
+        "subject_code": "ENME 461",
+        "subject_name": "Project II",
+        "syllabus_link": "https://portal.tu.edu.np/downloads/ENME461PROJECTII_2026_06_30_10_40_37.pdf"
+    },
+    {
+        "year": "IV",
+        "part": "II",
+        "subject_code": "ENME 462",
+        "subject_name": "Industrial Attachment*",
+        "syllabus_link": null
+    },
+    {
+        "year": "IV",
+        "part": "II",
+        "subject_code": "14",
+        "subject_name": "6",
+        "syllabus_link": null
+    }
+]

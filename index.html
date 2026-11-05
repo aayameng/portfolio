@@ -371,8 +371,8 @@
                         <!-- Populated dynamically via JS -->
                     </div>
 
-                    <!-- Subject Courses Column (L3: IOE Course Code & Title - Fitted 2-Column Compact Grid) -->
-                    <div id="mech-l3-nodes-col" class="md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                    <!-- Subject Courses Column (L3: IOE Course Code & Title) -->
+                    <div id="mech-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none overflow-y-auto no-scrollbar">
                         <!-- Populated dynamically via JS -->
                     </div>
                 </div>
@@ -1077,85 +1077,33 @@
         }
 
         // ================= MECHANICAL ENGINEERING SYLLABUS DATA & CONTROLS =================
-        const RAW_SYLLABUS_DATA = [
-            { "year": "I", "part": "I", "subject_code": "ENSH 101", "subject_name": "Engineering Mathematics I", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf" },
-            { "year": "I", "part": "I", "subject_code": "ENSH 103", "subject_name": "Engineering Chemistry", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf" },
-            { "year": "I", "part": "I", "subject_code": "ENCT 101", "subject_name": "Computer Programming", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_17_14.pdf" },
-            { "year": "I", "part": "I", "subject_code": "ENEX 101", "subject_name": "Fundamental of Electrical and Electronics Engineering", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_18_38.pdf" },
-            { "year": "I", "part": "I", "subject_code": "ENME 101", "subject_name": "Engineering Drawing", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_19_09.pdf" },
-            { "year": "I", "part": "I", "subject_code": "ENME 103", "subject_name": "Engineering Mechanics I", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_19_25.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENSH 151", "subject_name": "Engineering Mathematics II", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_01_04.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENSH 152", "subject_name": "Engineering Physics", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_01_18.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENME 151", "subject_name": "Engineering Thermodynamics I", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_18.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENME 152", "subject_name": "Machine Drawing", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_36.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENME 153", "subject_name": "Engineering Mechanics II", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_08_59_51.pdf" },
-            { "year": "I", "part": "II", "subject_code": "ENME 155", "subject_name": "Workshop Technology", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_09_00_10.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENSH 201", "subject_name": "Engineering Mathematics III", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_19_08_56.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENME 201", "subject_name": "Material Science", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_08.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENME 202", "subject_name": "Manufacturing and Production Processes", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_31.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENME 203", "subject_name": "Engineering Thermodynamics II", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_36_51.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENME 204", "subject_name": "Metrology", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_37_11.pdf" },
-            { "year": "II", "part": "I", "subject_code": "ENME 205", "subject_name": "Strength of Materials", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_37_27.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENSH 253", "subject_name": "Probability and Statistics", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_09_19_10_39.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENEE 254", "subject_name": "Electrical Machines", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_34_12.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENME 251", "subject_name": "Mechanics of Solids", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_03.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENME 252", "subject_name": "Instrumentation and Sensors", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_21.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENME 253", "subject_name": "Computer Aided Design", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_38.pdf" },
-            { "year": "II", "part": "II", "subject_code": "ENME 254", "subject_name": "Fluid Mechanics with Engineering Applications", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_13_15_38_55.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENEE 307", "subject_name": "Control System and Automation", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_03.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENSH 301", "subject_name": "Numerical Methods", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_10_10_46_39.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENME 301", "subject_name": "Automotive Technology", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_24.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENME 302", "subject_name": "Fluid Machines", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_57_45.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENME 303", "subject_name": "Theory of Machines and Mechanism", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_58_03.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENME 304", "subject_name": "Organization and Management", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_12_58_45.pdf" },
-            { "year": "III", "part": "I", "subject_code": "ENSH 303", "subject_name": "Technical English", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_11_12_15_33_23.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 356", "subject_name": "Professional Engineering Economics", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME356PROFESSIONALENGINEER_2026_04_21_12_05_22.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 351", "subject_name": "Industrial Engineering and Management", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME351INDUSTRIALENGINEERIN_2026_04_21_12_06_56.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 352", "subject_name": "Heat and Mass Transfer", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME352HEATANDMASSTRANSFE_2026_04_21_12_05_34.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 353", "subject_name": "Machine Design I", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME353MACHINEDESIGNI_2026_04_21_12_05_47.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 354", "subject_name": "Machine Dynamics", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME354MACHINEDYNAMICS_2026_04_21_12_04_04.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 355", "subject_name": "Minor Project", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME355MINORPROJECT_2026_04_21_12_06_00.pdf" },
-            { "year": "III", "part": "II", "subject_code": "ENME 365-384", "subject_name": "Elective I", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME365-384ElectiveI_2026_09_15_13_06_45.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 411", "subject_name": "Entrepreneurship Development", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME411ENTREPRENEURSHIPDEVE_2026_06_30_10_37_45.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 412", "subject_name": "Finite Element Method", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME412FINITEELEMENTMETHOD_2026_06_30_10_37_58.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 413", "subject_name": "Applied Computational Fluid Dynamics", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME413APPLIEDCOMPUTATIONAL_2026_06_30_10_38_11.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 414", "subject_name": "Energy Resources and Technology", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME414ENERGYRESOURCESAND_2026_06_30_10_38_25.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 415", "subject_name": "Machine Design II", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME415MACHINEDESIGNII_2026_06_30_10_38_38.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 425-444", "subject_name": "Elective II", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME425-444ElectiveII_2026_09_15_13_05_44.pdf" },
-            { "year": "IV", "part": "I", "subject_code": "ENME 416", "subject_name": "Project I", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME416PROJECTI_2026_06_30_10_38_51.pdf" },
-            { "year": "IV", "part": "II", "subject_code": "ENME 463", "subject_name": "Project Management and Professional Practice", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME463PROJECTMANAGEMENTAN_2026_06_30_10_40_56.pdf" },
-            { "year": "IV", "part": "II", "subject_code": "ENME 465-474", "subject_name": "Elective III", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME465-474ElectiveIII_2026_06_30_10_41_45.pdf" },
-            { "year": "IV", "part": "II", "subject_code": "ENME 461", "subject_name": "Project II", "syllabus_link": "https://portal.tu.edu.np/downloads/ENME461PROJECTII_2026_06_30_10_40_37.pdf" },
-            { "year": "IV", "part": "II", "subject_code": "ENME 462", "subject_name": "Industrial Attachment*", "syllabus_link": null }
-        ];
-
         let MECH_SYLLABUS_DATA = {
             year1: {
                 name: "Year I (Sem 1 & 2) 🔹",
                 parts: [
-                    { title: "Part I", subtitle: "First Semester (Odd)", name: "Part I (Semester 1)", courses: [] },
-                    { title: "Part II", subtitle: "Second Semester (Even)", name: "Part II (Semester 2)", courses: [] }
+                    { name: "Part I (First Semester)", courses: [] },
+                    { name: "Part II (Second Semester)", courses: [] }
                 ]
             },
             year2: {
                 name: "Year II (Sem 3 & 4) ⚙️",
                 parts: [
-                    { title: "Part I", subtitle: "Third Semester (Odd)", name: "Part I (Semester 3)", courses: [] },
-                    { title: "Part II", subtitle: "Fourth Semester (Even)", name: "Part II (Semester 4)", courses: [] }
+                    { name: "Part I (Third Semester)", courses: [] },
+                    { name: "Part II (Fourth Semester)", courses: [] }
                 ]
             },
             year3: {
                 name: "Year III (Sem 5 & 6) 🚀",
                 parts: [
-                    { title: "Part I", subtitle: "Fifth Semester (Odd)", name: "Part I (Semester 5)", courses: [] },
-                    { title: "Part II", subtitle: "Sixth Semester (Even)", name: "Part II (Semester 6)", courses: [] }
+                    { name: "Part I (Fifth Semester)", courses: [] },
+                    { name: "Part II (Sixth Semester)", courses: [] }
                 ]
             },
             year4: {
                 name: "Year IV (Sem 7 & 8) 🎓",
                 parts: [
-                    { title: "Part I", subtitle: "Seventh Semester (Odd)", name: "Part I (Semester 7)", courses: [] },
-                    { title: "Part II", subtitle: "Eighth Semester (Even)", name: "Part II (Semester 8)", courses: [] }
+                    { name: "Part I (Seventh Semester)", courses: [] },
+                    { name: "Part II (Eighth Semester)", courses: [] }
                 ]
             }
         };
@@ -1196,10 +1144,10 @@
 
             // Reset syllabus structure
             MECH_SYLLABUS_DATA = {
-                year1: { name: "Year I (Sem 1 & 2) 🔹", parts: [{ title: "Part I", subtitle: "First Semester (Odd)", name: "Part I (Semester 1)", courses: [] }, { title: "Part II", subtitle: "Second Semester (Even)", name: "Part II (Semester 2)", courses: [] }] },
-                year2: { name: "Year II (Sem 3 & 4) ⚙️", parts: [{ title: "Part I", subtitle: "Third Semester (Odd)", name: "Part I (Semester 3)", courses: [] }, { title: "Part II", subtitle: "Fourth Semester (Even)", name: "Part II (Semester 4)", courses: [] }] },
-                year3: { name: "Year III (Sem 5 & 6) 🚀", parts: [{ title: "Part I", subtitle: "Fifth Semester (Odd)", name: "Part I (Semester 5)", courses: [] }, { title: "Part II", subtitle: "Sixth Semester (Even)", name: "Part II (Semester 6)", courses: [] }] },
-                year4: { name: "Year IV (Sem 7 & 8) 🎓", parts: [{ title: "Part I", subtitle: "Seventh Semester (Odd)", name: "Part I (Semester 7)", courses: [] }, { title: "Part II", subtitle: "Eighth Semester (Even)", name: "Part II (Semester 8)", courses: [] }] }
+                year1: { name: "Year I (Sem 1 & 2) 🔹", parts: [{ name: "Part I (First Semester)", courses: [] }, { name: "Part II (Second Semester)", courses: [] }] },
+                year2: { name: "Year II (Sem 3 & 4) ⚙️", parts: [{ name: "Part I (Third Semester)", courses: [] }, { name: "Part II (Fourth Semester)", courses: [] }] },
+                year3: { name: "Year III (Sem 5 & 6) 🚀", parts: [{ name: "Part I (Fifth Semester)", courses: [] }, { name: "Part II (Sixth Semester)", courses: [] }] },
+                year4: { name: "Year IV (Sem 7 & 8) 🎓", parts: [{ name: "Part I (Seventh Semester)", courses: [] }, { name: "Part II (Eighth Semester)", courses: [] }] }
             };
 
             const getVal = (obj, possibleKeys) => {
@@ -1214,14 +1162,12 @@
             dataArray.forEach(item => {
                 if (!item || typeof item !== 'object') return;
                 
+                // Case-insensitive key extraction mapping
                 const yearRaw = getVal(item, ['year', 'y', 'level']);
                 const partRaw = getVal(item, ['part', 'p', 'semester', 'sem']);
                 const codeRaw = getVal(item, ['subject_code', 'code', 'course_code', 'subjectCode']);
                 const titleRaw = getVal(item, ['subject_name', 'name', 'title', 'course_name', 'subjectName']);
                 const linkRaw = getVal(item, ['syllabus_link', 'link', 'pdf', 'url', 'syllabusLink']);
-
-                // Filter invalid dummy placeholders if present
-                if (!codeRaw || codeRaw.length < 2 || !isNaN(codeRaw)) return;
 
                 const yearInfo = getYearKeyAndName(yearRaw);
                 const partInfo = getPartIndexAndName(partRaw);
@@ -1237,21 +1183,22 @@
             });
         }
 
-        // Fetch syllabus data dynamically from ./mechanical_engineering_syllabus.json or use RAW_SYLLABUS_DATA
+        // Fetch syllabus data dynamically from ./mechanical_engineering_syllabus.json
         async function loadMechSyllabusData() {
-            // First populate with embedded dataset
-            populateMechSyllabusData(RAW_SYLLABUS_DATA);
-
             try {
                 const response = await fetch('./mechanical_engineering_syllabus.json', { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0) {
+                    if (Array.isArray(data)) {
                         populateMechSyllabusData(data);
+                    } else if (data && typeof data === 'object') {
+                        const arrayKey = Object.keys(data).find(k => Array.isArray(data[k]));
+                        if (arrayKey) populateMechSyllabusData(data[arrayKey]);
                     }
+                    console.log("✅ Successfully loaded syllabus from ./mechanical_engineering_syllabus.json");
                 }
             } catch (error) {
-                // Silently fallback to embedded dataset
+                console.warn("⚠️ Fetch error or CORS restriction on local file execution.", error);
             }
 
             renderMechL1Nodes();
@@ -1344,7 +1291,7 @@
             if (!container) return;
 
             if (!expandedMechYearKey || !MECH_SYLLABUS_DATA[expandedMechYearKey]) {
-                container.className = 'md:col-span-3 space-y-2.5 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
                 container.innerHTML = '';
                 return;
             }
@@ -1355,7 +1302,7 @@
                 return;
             }
 
-            container.className = 'md:col-span-3 space-y-2.5 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = yearData.parts.map((part, idx) => {
                 const isExpanded = idx === expandedMechPartIndex;
@@ -1363,16 +1310,10 @@
                     ? 'bg-sky-600 text-white border-sky-500 font-bold shadow-md shadow-sky-600/30 scale-105 z-20' 
                     : 'bg-slate-900 text-slate-200 border-sky-500/30 hover:border-sky-400 hover:text-sky-300 shadow-sm z-10';
                 
-                const displayTitle = part.title || (idx === 0 ? 'Part I' : 'Part II');
-                const displaySubtitle = part.subtitle || part.name || (idx === 0 ? 'Odd Semester' : 'Even Semester');
-
                 return `
-                    <button onclick="toggleMechPart(${idx})" id="mech-l2-node-${idx}" class="w-full px-3.5 sm:px-5 py-3 sm:py-4 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-3 shadow-sm cursor-pointer ${activeStyle}">
-                        <div class="flex flex-col min-w-0 leading-tight">
-                            <span class="font-extrabold text-sm sm:text-base tracking-wide ${isExpanded ? 'text-white' : 'text-sky-400'}">${displayTitle}</span>
-                            <span class="text-[10px] sm:text-[11px] font-sans ${isExpanded ? 'text-sky-100' : 'text-slate-400'} mt-0.5 truncate">${displaySubtitle}</span>
-                        </div>
-                        <span class="text-xs font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-white font-extrabold' : 'opacity-70'} transition-transform duration-300">
+                    <button onclick="toggleMechPart(${idx})" id="mech-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                        <span class="truncate">${part.name}</span>
+                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-white font-extrabold' : 'opacity-70'} transition-transform duration-300">
                             ${isExpanded ? '▼' : '→'}
                         </span>
                     </button>
@@ -1385,7 +1326,7 @@
             if (!container) return;
 
             if (expandedMechYearKey === null || expandedMechPartIndex === null || !MECH_SYLLABUS_DATA[expandedMechYearKey]) {
-                container.className = 'md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none overflow-y-auto no-scrollbar translate-x-[-10px]';
                 container.innerHTML = '';
                 return;
             }
@@ -1394,28 +1335,25 @@
             const activePart = yearData && Array.isArray(yearData.parts) ? yearData.parts[expandedMechPartIndex] : null;
 
             if (!activePart || !Array.isArray(activePart.courses) || activePart.courses.length === 0) {
-                container.className = 'md:col-span-6 flex flex-col justify-center items-center my-auto transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
                 container.innerHTML = '<div class="text-xs text-slate-400 font-mono text-center my-auto">No subjects available</div>';
                 return;
             }
 
-            container.className = 'md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-start py-4 sm:py-8 h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0 overflow-y-auto no-scrollbar';
 
             container.innerHTML = activePart.courses.map((c, idx) => `
-                <div id="mech-l3-node-${idx}" class="p-2 sm:p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm flex flex-col justify-between gap-1 hover:border-sky-500 transition-all duration-300 hover:scale-102">
-                    <div class="flex items-center justify-between gap-1.5">
-                        <span class="font-extrabold text-sky-400 text-[11px] truncate">${c.code || 'COURSE'}</span>
+                <div id="mech-l3-node-${idx}" class="p-2.5 sm:p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm flex flex-col gap-1 hover:border-sky-500 transition-all duration-300 hover:scale-102">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-extrabold text-sky-400 text-[11px]">${c.code || 'COURSE'}</span>
                         ${c.pdf && c.pdf !== '#' ? `
-                            <a href="${c.pdf}" target="_blank" rel="noopener noreferrer" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-600 hover:text-white text-sky-300 text-[9px] font-bold border border-sky-500/40 transition-colors flex items-center gap-1 flex-shrink-0">
+                            <a href="${c.pdf}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-600 hover:text-white text-sky-300 text-[10px] font-bold border border-sky-500/40 transition-colors flex items-center gap-1">
                                 📄 PDF
                             </a>
                         ` : ''}
                     </div>
-                    <span class="text-[10px] sm:text-[11px] font-sans font-medium leading-tight text-slate-300 line-clamp-2">${c.title || 'Course Module'}</span>
+                    <span class="text-[11px] font-sans font-medium leading-tight text-slate-300">${c.title || 'Course Module'}</span>
                 </div>
             `).join('');
-
-            requestAnimationFrame(drawMechSVGConnections);
         }
 
         function drawMechSVGConnections() {
@@ -1503,8 +1441,7 @@
             cad: {
                 name: "CAD 📐",
                 nodes: [
-                    { name: "Boxer Engine 🏎️", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] },
-                    { name: "Stirling Engine ♨️", url: "./projects/CAD/stirling_engine_cad.html", subnodes: [] }
+                    { name: "Boxer Engine 🏎️", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] }
                 ]
             }
         };

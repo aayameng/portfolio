@@ -90,7 +90,7 @@
                         <!-- Profile Image & Header -->
                         <div class="flex flex-col items-center text-center">
                             <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 border-2 border-sky-500/40 shadow-md mb-3 sm:mb-4 flex-shrink-0">
-                                <img id="profile-img-preview" src="https://media.licdn.com/dms/image/v2/D4E03AQERDW2P0VWRtg/profile-displayphoto-crop_800_800/B4EaGMtZB6KEAM-/0/1793362073619?e=1795651200&v=beta&t=Sedo-TSj4atxeXDL_vxj6dQ8EmCXkT5Jz95lrQfBDzk" alt="Aayam Shrestha" class="w-full h-full object-cover">
+                                <img id="profile-img-preview" src="https://media.licdn.com/dms/image/v2/D5603AQGMKMHR2c6JCw/profile-displayphoto-crop_800_800/B56aGpbTKkGgAI-/0/1793843870547?e=1795651200&v=beta&t=5Z52-AQFDjJrHm0i_2vi1Ikti8jNiOmmdCPGpPZZ4mg" alt="Aayam Shrestha" class="w-full h-full object-cover">
                             </div>
                             
                             <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Aayam Shrestha</h1>
@@ -141,20 +141,19 @@
                     </button>
 
                     <!-- 2. PROJECTS BUTTON -->
-                    <button onclick="openProjectsModal()" class="group relative w-full sm:w-1/2 min-h-[220px] h-64 sm:h-80 rounded-2xl sm:rounded-3xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-400 p-5 sm:p-8 flex flex-col justify-between items-start transition-all duration-300 shadow-xs hover:shadow-lg hover:shadow-slate-500/10 hover:-translate-y-1 text-left">
-                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-slate-200 text-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner border border-slate-300">
+                    <button onclick="openProjectsMindMap()" class="group relative w-full sm:w-1/2 min-h-[220px] h-64 sm:h-80 rounded-2xl sm:rounded-3xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-amber-400 p-5 sm:p-8 flex flex-col justify-between items-start transition-all duration-300 shadow-xs hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-1 text-left">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner border border-amber-200">
                             <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                         </div>
                         <div>
-                            <span class="text-[10px] sm:text-[11px] font-mono font-bold text-slate-500 uppercase tracking-widest block mb-1">DIRECTORY</span>
-                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-slate-700 transition-colors">Projects</h2>
+                            <span class="text-[10px] sm:text-[11px] font-mono font-bold text-amber-600 uppercase tracking-widest block mb-1">SHOWCASE MIND MAP</span>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-amber-600 transition-colors">Projects</h2>
                             <p class="text-xs text-slate-500 mt-1 font-sans">
-                                CFD flow analysis, FEA stress & 3D parametric CAD models.
+                                Boxer Engine CAD design showcase.
                             </p>
                         </div>
-                        <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 group-hover:translate-x-1.5 transition-transform">
-                            <span>Browse Showcase</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-600 group-hover:translate-x-1.5 transition-transform">
+                            <span>Explore CAD Mind Map 📐 →</span>
                         </div>
                     </button>
 
@@ -631,46 +630,36 @@
         </div>
     </div>
 
-    <!-- ================= PROJECTS SHOWCASE MODAL ================= -->
-    <div id="projects-modal" class="fixed inset-0 z-[90] bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div class="card-panel w-full max-w-3xl rounded-3xl p-5 sm:p-8 space-y-5 sm:space-y-6 relative overflow-hidden my-auto max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-4">
-                <div>
-                    <span class="text-[10px] font-mono font-bold text-sky-500 uppercase tracking-widest block">ENGINEERING DIRECTORY</span>
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Projects Showcase</h3>
-                </div>
-                <button onclick="closeProjectsModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors font-mono font-bold text-sm">
-                    ✕
-                </button>
-            </div>
+    <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY (DARK AMBER THEME) ================= -->
+    <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-amber-50 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
+        
+        <!-- Top Navigation Floating Back Button -->
+        <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
+            <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-amber-500/25 flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>Back</span>
+            </button>
+        </div>
 
-            <!-- Project Selector Tabs -->
-            <div id="project-tabs-container" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="selectProjectTab(0)" class="project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-sky-500 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold whitespace-nowrap">
-                    Slider-Crank Kinematics
-                </button>
-            </div>
+        <!-- FULL SCREEN PROJECTS MIND MAP CANVAS CONTAINER -->
+        <div id="proj-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-amber-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px]">
+            <svg id="proj-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+            
+            <div id="proj-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
+                    <!-- Project Category Column (L1: CAD, Animations, Simulations) -->
+                    <div id="proj-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
+                        <!-- Populated dynamically via JS -->
+                    </div>
 
-            <!-- Project Content Panel -->
-            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-4">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h4 id="proj-title" class="text-lg font-bold text-slate-900 dark:text-white">Slider-Crank Kinematic Motion Solver</h4>
-                    <span id="proj-domain" class="px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-mono font-bold border border-sky-300 dark:border-sky-800">Kinematic Math Engine</span>
-                </div>
-                <p id="proj-description" class="text-xs text-slate-600 dark:text-slate-400 font-sans leading-relaxed">
-                    Mathematical physics engine solving exact position, velocity, and acceleration trajectories for reciprocating pistons.
-                </p>
-                <div class="p-3 rounded-xl bg-slate-200/50 dark:bg-slate-950 border border-slate-300/40 dark:border-slate-800 font-mono text-xs text-center overflow-x-auto">
-                    <span id="proj-formula"></span>
-                </div>
-                <div>
-                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2">Technical Highlights</span>
-                    <ul id="proj-highlights" class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-sans">
-                    </ul>
-                </div>
-                <div>
-                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2">Tools & Libraries</span>
-                    <div id="proj-tools" class="flex flex-wrap gap-1.5">
+                    <!-- Project Type Column (L2) -->
+                    <div id="proj-l2-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <!-- Deep Dive Subnodes Column (L3: CAD, Animations & Code Details) -->
+                    <div id="proj-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </div>
@@ -679,422 +668,146 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const PROJECTS = [
-            {
-                title: "Slider-Crank Kinematic Motion Solver",
-                domain: "Kinematic Math Engine",
-                formula: "x(\\theta) = r\\cos\\theta + \\sqrt{l^2 - r^2\\sin^2\\theta}",
-                description: "Mathematical physics engine solving exact position, velocity, and acceleration trajectories for reciprocating pistons.",
-                highlights: [
-                    "Derived closed-form analytical equations for non-linear piston acceleration.",
-                    "Rendered real-time dynamic force vector diagrams overlaid on geometry.",
-                    "Integrated Runge-Kutta numerical integration for transient response analysis."
-                ],
-                tools: ["MATLAB", "Python NumPy", "SymPy", "KaTeX"]
+        // ================= ABOUT ME & OVERLAY CONTROLS =================
+        function openAboutMeExperience() {
+            const overlay = document.getElementById('about-me-overlay');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+        }
+
+        function closeAboutMeExperience() {
+            const overlay = document.getElementById('about-me-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        // ================= THAPATHALI CAMPUS TIMELINE =================
+        function openThapathaliTimeline() {
+            const overlay = document.getElementById('thapathali-timeline-overlay');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            setTimeout(drawSnakePath, 100);
+        }
+
+        function closeThapathaliTimeline() {
+            const overlay = document.getElementById('thapathali-timeline-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        function switchCampusMapMode(mode) {
+            const iframe = document.getElementById('thapathali-map-iframe');
+            const btnMap = document.getElementById('campus-map-btn-map');
+            const btnStreet = document.getElementById('campus-map-btn-street');
+            if (!iframe) return;
+
+            if (mode === 'street') {
+                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=k&z=17&ie=UTF8&iwloc=&output=embed";
+                if (btnMap && btnStreet) {
+                    btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
+                    btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
+                }
+            } else {
+                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed";
+                if (btnMap && btnStreet) {
+                    btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
+                    btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
+                }
             }
+        }
+
+        const SNAKE_INSPECTOR_DATA = [
+            { title: "Technical Training Institute (TTI) — Est. 1966 AD", text: "Founded on 29th Falgun 2023 B.S. with support from West Germany to train technicians." },
+            { title: "IOE Tribhuvan University Integration — 1972 AD", text: "Renamed to Thapathali Campus and integrated into the Institute of Engineering." },
+            { title: "3-Year Mechanical & Auto Diplomas — 1987 AD", text: "Expanded technical training into diploma-level engineering disciplines." },
+            { title: "Transition to B.E. Bachelor Degrees — 2011 AD", text: "Introduced 4-year undergraduate B.E. Mechanical Engineering & allied programs." },
+            { title: "M.Sc. Postgraduate & Research Hub — Present Day", text: "Offering M.Sc. degrees and active engineering design labs." }
         ];
 
-        // NotebookLM Mind Map Expandable Data Tree
-        const NOTEBOOK_MINDMAP_DATA = {
+        function hoverSnakeNode(idx) {
+            const titleEl = document.getElementById('inspector-title');
+            const subEl = document.getElementById('inspector-subtitle');
+            if (titleEl && subEl && SNAKE_INSPECTOR_DATA[idx]) {
+                titleEl.textContent = SNAKE_INSPECTOR_DATA[idx].title;
+                subEl.textContent = SNAKE_INSPECTOR_DATA[idx].text;
+            }
+        }
+
+        function resetSnakeNode() {
+            const titleEl = document.getElementById('inspector-title');
+            const subEl = document.getElementById('inspector-subtitle');
+            if (titleEl && subEl) {
+                titleEl.textContent = "Hover over any milestone along the path below";
+                subEl.textContent = "Hover over a milestone node to unlock detailed historical records, founding figures, and academic evolution.";
+            }
+        }
+
+        function drawSnakePath() {
+            const svgPath = document.getElementById('snake-animated-path');
+            const container = document.getElementById('snake-timeline-container');
+            if (!svgPath || !container) return;
+
+            const dots = [];
+            for (let i = 0; i < 5; i++) {
+                const dot = document.getElementById(`snake-dot-${i}`);
+                if (dot) dots.push(dot);
+            }
+            if (dots.length < 2) return;
+
+            const cRect = container.getBoundingClientRect();
+            let d = "";
+
+            dots.forEach((dot, idx) => {
+                const r = dot.getBoundingClientRect();
+                const x = r.left + r.width / 2 - cRect.left;
+                const y = r.top + r.height / 2 - cRect.top;
+
+                if (idx === 0) {
+                    d += `M ${x} ${y}`;
+                } else {
+                    const prevDot = dots[idx - 1].getBoundingClientRect();
+                    const prevX = prevDot.left + prevDot.width / 2 - cRect.left;
+                    const prevY = prevDot.top + prevDot.height / 2 - cRect.top;
+                    const midY = (prevY + y) / 2;
+                    d += ` C ${prevX} ${midY}, ${x} ${midY}, ${x} ${y}`;
+                }
+            });
+
+            svgPath.setAttribute('d', d);
+        }
+
+        // ================= THINGS I AM INTERESTED IN MIND MAP =================
+        const NOTEBOOKLM_MINDMAP_DATA = {
             physics: {
-                name: "Physics",
-                icon: "⚛️",
+                name: "Physics ⚛️",
                 nodes: [
-                    { name: "Electrodynamics", subnodes: ["Maxwell's Equations", "Electromagnetic Waves", "Vector Potentials"] },
-                    { name: "Classical Mechanics", subnodes: ["Lagrangian Formulation", "Hamiltonian Dynamics", "Rigid Body Motion"] },
-                    { name: "Thermal Physics", subnodes: ["Statistical Thermodynamics", "Heat Conduction & Radiation", "Entropy & Microstates"] }
+                    { name: "Classical Mechanics", subnodes: ["Newtonian Dynamics", "Lagrangian Formalism", "Hamiltonian Mechanics"] },
+                    { name: "Electrodynamics", subnodes: ["Maxwell Equations", "Electromagnetic Waves", "Vector Potentials"] },
+                    { name: "Quantum Physics", subnodes: ["Wave-Particle Duality", "Schrödinger Equation", "Quantum States"] }
                 ]
             },
-            math: {
-                name: "Mathematics",
-                icon: "📐",
+            mathematics: {
+                name: "Mathematics 📐",
                 nodes: [
-                    { name: "Differential Equations", subnodes: ["Initial Value Problems", "Linear ODE Systems", "Runge-Kutta Methods"] },
-                    { name: "Multivariable Calculus", subnodes: ["Vector Fields", "Line & Surface Integrals", "Divergence Theorem"] },
-                    { name: "Linear Algebra", subnodes: ["Eigenvalues & Eigenvectors", "Matrix Decompositions", "Vector Spaces"] }
+                    { name: "Calculus & Analysis", subnodes: ["Multivariable Calculus", "Differential Equations", "Vector Analysis"] },
+                    { name: "Linear Algebra", subnodes: ["Matrix Transformations", "Eigenvalues & Vectors", "Vector Spaces"] },
+                    { name: "Numerical Methods", subnodes: ["Root Finding Algorithms", "Numerical Integration", "Finite Difference"] }
                 ]
             },
             engineering: {
-                name: "Engineering",
-                icon: "⚙️",
+                name: "Engineering ⚙️",
                 nodes: [
-                    { name: "Onshape CAD", subnodes: ["Parametric Modeling", "Assembly Constraints", "Cloud Design Workflow"] },
-                    { name: "Mechanics of Materials", subnodes: ["Stress & Strain Tensors", "Beam Deflection & Bending", "Failure Theories"] },
-                    { name: "Fluid Mechanics", subnodes: ["Navier-Stokes Equations", "Boundary Layer Theory", "Aerodynamic Drag"] }
+                    { name: "Mechanics of Materials", subnodes: ["Stress & Strain Analysis", "Beam Deflection", "Torsion & Bending"] },
+                    { name: "Fluid Mechanics", subnodes: ["Navier-Stokes Equations", "Bernoulli Principle", "Viscous Flow"] },
+                    { name: "Thermodynamics", subnodes: ["First & Second Laws", "Entropy & Energy", "Power Cycles"] }
                 ]
             }
         };
 
-        // IOE B.E. Mechanical Engineering Syllabus Data (Semester Wise)
-        const MECH_SYLLABUS_DATA = {
-            year1: {
-                name: "Year I",
-                icon: "🎓",
-                parts: [
-                    {
-                        name: "Part I (Semester 1)",
-                        courses: [
-                            { name: "ENSH 101: Engineering Mathematics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf" },
-                            { name: "ENSH 103: Engineering Chemistry", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf" },
-                            { name: "ENCT 101: Computer Programming", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_17_14.pdf" },
-                            { name: "ENEX 101: Fundamental of Electrical and Electronics Engineering", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_18_38.pdf" },
-                            { name: "ENME 101: Engineering Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_09.pdf" },
-                            { name: "ENME 103: Engineering Mechanics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_25.pdf" }
-                        ]
-                    },
-                    {
-                        name: "Part II (Semester 2)",
-                        courses: [
-                            { name: "ENSH 151: Engineering Mathematics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_04.pdf" },
-                            { name: "ENSH 152: Engineering Physics", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_18.pdf" },
-                            { name: "ENME 151: Engineering Thermodynamics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_18.pdf" },
-                            { name: "ENME 152: Machine Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_36.pdf" },
-                            { name: "ENME 153: Engineering Mechanics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_51.pdf" },
-                            { name: "ENME 155: Workshop Technology", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_00_10.pdf" }
-                        ]
-                    }
-                ]
-            },
-            year2: {
-                name: "Year II",
-                icon: "⚙️",
-                parts: [
-                    {
-                        name: "Part I (Semester 3)",
-                        courses: [
-                            { name: "ENSH 201: Engineering Mathematics III", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_19_08_56.pdf" },
-                            { name: "ENME 201: Material Science", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_08.pdf" },
-                            { name: "ENME 202: Manufacturing and Production Processes", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_31.pdf" },
-                            { name: "ENME 203: Engineering Thermodynamics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_51.pdf" },
-                            { name: "ENME 204: Metrology", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_11.pdf" },
-                            { name: "ENME 205: Strength of Materials", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_27.pdf" }
-                        ]
-                    },
-                    {
-                        name: "Part II (Semester 4)",
-                        courses: [
-                            "ENSH 253: Probability and Statistics",
-                            "ENEE 254: Electrical Machines",
-                            "ENME 251: Mechanics of Solids",
-                            "ENME 252: Instrumentation and Sensors",
-                            "ENME 253: Computer Aided Design",
-                            "ENME 254: Fluid Mechanics with Engineering Applications"
-                        ]
-                    }
-                ]
-            },
-            year3: {
-                name: "Year III",
-                icon: "🔬",
-                parts: [
-                    {
-                        name: "Part I (Semester 5)",
-                        courses: [
-                            "ENEE 307: Control System and Automation",
-                            "ENSH 301: Numerical Methods",
-                            "ENME 301: Automotive Technology",
-                            "ENME 302: Fluid Machines",
-                            "ENME 303: Theory of Machines and Mechanism",
-                            "ENME 304: Organization and Management",
-                            "ENSH 303: Technical English"
-                        ]
-                    },
-                    {
-                        name: "Part II (Semester 6)",
-                        courses: [
-                            "ENME 356: Professional Engineering Economics",
-                            "ENME 351: Industrial Engineering and Management",
-                            "ENME 352: Heat and Mass Transfer",
-                            "ENME 353: Machine Design I",
-                            "ENME 354: Machine Dynamics",
-                            "ENME 355: Minor Project",
-                            "ENME 365-384: Elective I"
-                        ]
-                    }
-                ]
-            },
-            year4: {
-                name: "Year IV",
-                icon: "🚀",
-                parts: [
-                    {
-                        name: "Part I (Semester 7)",
-                        courses: [
-                            "ENME 411: Entrepreneurship Development",
-                            "ENME 412: Finite Element Method",
-                            "ENME 413: Applied Computational Fluid Dynamics",
-                            "ENME 414: Energy Resources and Technology",
-                            "ENME 415: Machine Design II",
-                            "ENME 425-444: Elective II",
-                            "ENME 416: Project I"
-                        ]
-                    },
-                    {
-                        name: "Part II (Semester 8)",
-                        courses: [
-                            "ENME 463: Project Management and Professional Practice",
-                            "ENME 465-474: Elective III",
-                            "ENME 461: Project II",
-                            "ENME 462: Industrial Attachment (9-Weeks)"
-                        ]
-                    }
-                ]
-            }
-        };
-
-        // Mechanical Mind Map Expansion State
-        let expandedMechYearKey = null;
-        let expandedMechPartIndex = null;
-
-        function toggleMechYear(key) {
-            if (expandedMechYearKey === key) {
-                expandedMechYearKey = null;
-                expandedMechPartIndex = null;
-            } else {
-                expandedMechYearKey = key;
-                expandedMechPartIndex = null;
-            }
-            renderMechL1Nodes();
-            renderMechL2Nodes();
-            renderMechL3Nodes();
-            applyMechZoomEffect();
-            setTimeout(drawMechSVGConnections, 60);
-        }
-
-        function toggleMechPart(idx) {
-            if (expandedMechPartIndex === idx) {
-                expandedMechPartIndex = null;
-            } else {
-                expandedMechPartIndex = idx;
-            }
-            renderMechL2Nodes();
-            renderMechL3Nodes();
-            applyMechZoomEffect();
-            setTimeout(drawMechSVGConnections, 60);
-        }
-
-        function renderMechL1Nodes() {
-            const container = document.getElementById('mech-l1-nodes-col');
-            if (!container) return;
-
-            const years = [
-                { key: 'year1', ...MECH_SYLLABUS_DATA.year1 },
-                { key: 'year2', ...MECH_SYLLABUS_DATA.year2 },
-                { key: 'year3', ...MECH_SYLLABUS_DATA.year3 },
-                { key: 'year4', ...MECH_SYLLABUS_DATA.year4 }
-            ];
-
-            container.innerHTML = years.map(y => {
-                const isExpanded = expandedMechYearKey === y.key;
-                const borderStyle = isExpanded 
-                    ? 'border-sky-400 bg-sky-600 text-slate-950 shadow-lg shadow-sky-500/40 scale-105 z-20' 
-                    : 'border-sky-500/80 bg-slate-900/90 text-white hover:border-sky-400 hover:scale-102';
-
-                return `
-                    <button onclick="toggleMechYear('${y.key}')" id="mech-year-${y.key}" class="px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-sm cursor-pointer">
-                        <span class="flex items-center gap-2 truncate">
-                            <span class="text-base sm:text-lg">${y.icon}</span> 
-                            <span class="truncate tracking-wide">${y.name}</span>
-                        </span>
-                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-sky-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
-                            ${isExpanded ? '▼' : '→'}
-                        </span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function renderMechL2Nodes() {
-            const container = document.getElementById('mech-l2-nodes-col');
-            if (!container) return;
-
-            if (!expandedMechYearKey) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
-                container.innerHTML = '';
-                return;
-            }
-
-            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
-
-            container.innerHTML = yearData.parts.map((part, idx) => {
-                const isExpanded = idx === expandedMechPartIndex;
-                const activeStyle = isExpanded 
-                    ? 'bg-sky-500 text-slate-950 border-sky-300 font-bold shadow-md shadow-sky-500/30 scale-105 z-20' 
-                    : 'bg-slate-900/90 text-sky-200 border-sky-800/80 hover:border-sky-400 hover:text-white z-10';
-                
-                return `
-                    <button onclick="toggleMechPart(${idx})" id="mech-part-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
-                        <span class="truncate">${part.name}</span>
-                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
-                            ${isExpanded ? '▼' : '→'}
-                        </span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function renderMechL3Nodes() {
-            const container = document.getElementById('mech-l3-nodes-col');
-            if (!container) return;
-
-            if (expandedMechYearKey === null || expandedMechPartIndex === null) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
-                container.innerHTML = '';
-                return;
-            }
-
-            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-            const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
-
-            if (!activePart) {
-                container.innerHTML = '';
-                return;
-            }
-
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0 overflow-y-auto no-scrollbar pr-1';
-
-            container.innerHTML = activePart.courses.map((course, idx) => {
-                const courseName = typeof course === 'string' ? course : course.name;
-                const coursePdf = (typeof course === 'object' && course.pdf) ? course.pdf : null;
-
-                return `
-                    <div id="mech-course-${idx}" class="p-2.5 sm:p-3 rounded-xl bg-slate-900/90 border border-sky-500/40 text-sky-100 text-[11px] sm:text-xs font-mono shadow-md flex items-center justify-between gap-2 hover:border-sky-300 hover:text-white transition-all duration-300 hover:scale-[1.02]">
-                        <span class="truncate">📘 ${courseName}</span>
-                        ${coursePdf ? `
-                            <a href="${coursePdf}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-slate-950 border border-sky-500/40 font-mono text-[10px] font-bold transition-all flex items-center gap-1 flex-shrink-0 shadow-xs" title="Download Official TU Syllabus PDF">
-                                <span>PDF</span>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </a>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function applyMechZoomEffect() {
-            const zoomWrapper = document.getElementById('mech-zoom-wrapper');
-            if (!zoomWrapper) return;
-
-            if (expandedMechYearKey !== null && expandedMechPartIndex !== null) {
-                zoomWrapper.style.transform = 'scale(0.97)';
-            } else if (expandedMechYearKey !== null) {
-                zoomWrapper.style.transform = 'scale(1)';
-            } else {
-                zoomWrapper.style.transform = 'scale(1.02)';
-            }
-        }
-
-        function openMechSyllabusOverlay() {
-            const overlay = document.getElementById('mech-syllabus-overlay');
-            if (!overlay) return;
-
-            expandedMechYearKey = null;
-            expandedMechPartIndex = null;
-            renderMechL1Nodes();
-            renderMechL2Nodes();
-            renderMechL3Nodes();
-            applyMechZoomEffect();
-
-            overlay.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                overlay.classList.remove('opacity-0');
-            });
-            setTimeout(() => {
-                drawMechSVGConnections();
-            }, 100);
-        }
-
-        function closeMechSyllabusOverlay() {
-            const overlay = document.getElementById('mech-syllabus-overlay');
-            if (!overlay) return;
-            overlay.classList.add('opacity-0');
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 300);
-        }
-
-        function drawMechSVGConnections() {
-            const svg = document.getElementById('mech-svg-canvas');
-            const container = document.getElementById('mech-mindmap-container');
-            if (!svg || !container) return;
-
-            const cRect = container.getBoundingClientRect();
-            svg.setAttribute('width', cRect.width);
-            svg.setAttribute('height', cRect.height);
-
-            if (!expandedMechYearKey) {
-                svg.innerHTML = '';
-                return;
-            }
-
-            const activeYearBtn = document.getElementById(`mech-year-${expandedMechYearKey}`);
-            if (!activeYearBtn) {
-                svg.innerHTML = '';
-                return;
-            }
-
-            const strokeColor = 'rgba(14, 165, 233, 0.7)';
-            let pathsHTML = '';
-
-            const yRect = activeYearBtn.getBoundingClientRect();
-            const yX = yRect.right - cRect.left;
-            const yY = yRect.top + yRect.height / 2 - cRect.top;
-
-            if (expandedMechPartIndex !== null) {
-                const activePartBtn = document.getElementById(`mech-part-${expandedMechPartIndex}`);
-                if (activePartBtn) {
-                    const pRect = activePartBtn.getBoundingClientRect();
-                    const pLeftX = pRect.left - cRect.left;
-                    const pLeftY = pRect.top + pRect.height / 2 - cRect.top;
-
-                    const cX1 = yX + (pLeftX - yX) * 0.5;
-                    pathsHTML += `<path d="M ${yX} ${yY} C ${cX1} ${yY}, ${cX1} ${pLeftY}, ${pLeftX} ${pLeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
-                    pathsHTML += `<circle cx="${yX}" cy="${yY}" r="4" fill="#0284c7" />`;
-                    pathsHTML += `<circle cx="${pLeftX}" cy="${pLeftY}" r="4" fill="#0284c7" />`;
-
-                    const pRightX = pRect.right - cRect.left;
-                    const pRightY = pRect.top + pRect.height / 2 - cRect.top;
-
-                    const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-                    const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
-                    if (activePart && activePart.courses) {
-                        activePart.courses.forEach((_, courseIdx) => {
-                            const courseNode = document.getElementById(`mech-course-${courseIdx}`);
-                            if (courseNode) {
-                                const cRect2 = courseNode.getBoundingClientRect();
-                                const cX = cRect2.left - cRect.left;
-                                const cY = cRect2.top + cRect2.height / 2 - cRect.top;
-
-                                const cX2 = pRightX + (cX - pRightX) * 0.5;
-                                pathsHTML += `<path d="M ${pRightX} ${pRightY} C ${cX2} ${pRightY}, ${cX2} ${cY}, ${cX} ${cY}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${cX}" cy="${cY}" r="3.5" fill="#38bdf8" />`;
-                            }
-                        });
-                    }
-                }
-            } else {
-                const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
-                if (yearData && yearData.parts) {
-                    yearData.parts.forEach((_, idx) => {
-                        const partBtn = document.getElementById(`mech-part-${idx}`);
-                        if (partBtn) {
-                            const pRect = partBtn.getBoundingClientRect();
-                            const pLeftX = pRect.left - cRect.left;
-                            const pLeftY = pRect.top + pRect.height / 2 - cRect.top;
-
-                            const cX1 = yX + (pLeftX - yX) * 0.5;
-                            pathsHTML += `<path d="M ${yX} ${yY} C ${cX1} ${yY}, ${cX1} ${pLeftY}, ${pLeftX} ${pLeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
-                            pathsHTML += `<circle cx="${pLeftX}" cy="${pLeftY}" r="3" fill="#0284c7" />`;
-                        }
-                    });
-                }
-            }
-
-            svg.innerHTML = pathsHTML;
-        }
-
-        // Expansion & Zoom State Management
         let expandedPillarKey = null;
         let expandedL2Index = null;
 
@@ -1103,9 +816,9 @@
             if (!container) return;
 
             const pillars = [
-                { key: 'physics', ...NOTEBOOK_MINDMAP_DATA.physics },
-                { key: 'math', ...NOTEBOOK_MINDMAP_DATA.math },
-                { key: 'engineering', ...NOTEBOOK_MINDMAP_DATA.engineering }
+                { key: 'physics', ...NOTEBOOKLM_MINDMAP_DATA.physics },
+                { key: 'mathematics', ...NOTEBOOKLM_MINDMAP_DATA.mathematics },
+                { key: 'engineering', ...NOTEBOOKLM_MINDMAP_DATA.engineering }
             ];
 
             container.innerHTML = pillars.map(p => {
@@ -1115,11 +828,8 @@
                     : 'border-violet-600/80 bg-slate-900/90 text-white hover:border-violet-400 hover:scale-102';
 
                 return `
-                    <button onclick="togglePillar('${p.key}')" id="nb-pillar-${p.key}" class="notebooklm-pillar-btn group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
-                        <span class="flex items-center gap-2 truncate">
-                            <span class="text-base sm:text-lg">${p.icon}</span> 
-                            <span class="truncate tracking-wide">${p.name}</span>
-                        </span>
+                    <button onclick="togglePillar('${p.key}')" id="nb-pillar-${p.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
+                        <span class="truncate tracking-wide">${p.name}</span>
                         <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-violet-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
                             ${isExpanded ? '▼' : '→'}
                         </span>
@@ -1130,11 +840,9 @@
 
         function togglePillar(key) {
             if (expandedPillarKey === key) {
-                // Collapse everything back to 3 pillars
                 expandedPillarKey = null;
                 expandedL2Index = null;
             } else {
-                // Expand pillar
                 expandedPillarKey = key;
                 expandedL2Index = null;
             }
@@ -1156,7 +864,7 @@
                 return;
             }
 
-            const pillar = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+            const pillar = NOTEBOOKLM_MINDMAP_DATA[expandedPillarKey];
             container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = pillar.nodes.map((node, idx) => {
@@ -1166,7 +874,7 @@
                     : 'bg-slate-900/90 text-violet-200 border-violet-800/80 hover:border-violet-400 hover:text-white z-10';
                 
                 return `
-                    <button onclick="toggleL2Node(${idx})" id="nb-l2-node-${idx}" class="notebooklm-l2-node px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                    <button onclick="toggleL2Node(${idx})" id="nb-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
                         <span class="truncate">${node.name}</span>
                         <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
                             ${isExpanded ? '▼' : '→'}
@@ -1199,7 +907,7 @@
                 return;
             }
 
-            const pillar = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+            const pillar = NOTEBOOKLM_MINDMAP_DATA[expandedPillarKey];
             const activeNode = pillar.nodes[expandedL2Index];
 
             if (!activeNode) {
@@ -1210,56 +918,29 @@
             container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = activeNode.subnodes.map((sub, idx) => `
-                <div id="nb-l3-node-${idx}" class="notebooklm-l3-node px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-violet-500/40 text-violet-100 text-xs font-mono shadow-md truncate hover:border-violet-300 hover:text-white transition-all duration-300 hover:scale-102">
-                    ✨ ${sub}
+                <div id="nb-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-violet-500/40 text-violet-100 text-xs font-mono shadow-md truncate hover:border-violet-300 hover:text-white transition-all duration-300 hover:scale-102">
+                    💡 ${sub}
                 </div>
             `).join('');
         }
 
-        // Smooth Zooming Adjustment based on Expansion Depth
         function applyZoomEffect() {
             const zoomWrapper = document.getElementById('mm-zoom-wrapper');
             if (!zoomWrapper) return;
 
             if (expandedPillarKey !== null && expandedL2Index !== null) {
-                // Depth 3: Slight scale adjustment to maintain full fit on screen
                 zoomWrapper.style.transform = 'scale(0.97)';
             } else if (expandedPillarKey !== null) {
-                // Depth 2
                 zoomWrapper.style.transform = 'scale(1)';
             } else {
-                // Depth 1: Focused initial view
                 zoomWrapper.style.transform = 'scale(1.02)';
             }
         }
 
-        // About Me Overlay Navigation
-        function openAboutMeExperience() {
-            const overlay = document.getElementById('about-me-overlay');
-            if (overlay) {
-                overlay.classList.remove('hidden');
-                requestAnimationFrame(() => {
-                    overlay.classList.remove('opacity-0');
-                });
-            }
-        }
-
-        function closeAboutMeExperience() {
-            const overlay = document.getElementById('about-me-overlay');
-            if (overlay) {
-                overlay.classList.add('opacity-0');
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                }, 300);
-            }
-        }
-
-        // Fullpage Mind Map Overlay Navigation
         function openMindMapOverlay() {
             const overlay = document.getElementById('mindmap-overlay');
             if (!overlay) return;
 
-            // Reset expansion to initial 3 nodes state on open
             expandedPillarKey = null;
             expandedL2Index = null;
             renderL1Nodes();
@@ -1268,24 +949,17 @@
             applyZoomEffect();
 
             overlay.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                overlay.classList.remove('opacity-0');
-            });
-            setTimeout(() => {
-                drawSVGConnections();
-            }, 100);
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            setTimeout(drawSVGConnections, 100);
         }
 
         function closeMindMapOverlay() {
             const overlay = document.getElementById('mindmap-overlay');
             if (!overlay) return;
             overlay.classList.add('opacity-0');
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 300);
+            setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
-        // Dynamic Bezier SVG Path Connections for Expanded Nodes
         function drawSVGConnections() {
             const svg = document.getElementById('mm-svg-canvas');
             const container = document.getElementById('notebooklm-mindmap-container');
@@ -1328,7 +1002,7 @@
                     const l2RightX = l2Rect.right - cRect.left;
                     const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
 
-                    const pillarData = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+                    const pillarData = NOTEBOOKLM_MINDMAP_DATA[expandedPillarKey];
                     const activeNode = pillarData ? pillarData.nodes[expandedL2Index] : null;
                     if (activeNode && activeNode.subnodes) {
                         activeNode.subnodes.forEach((_, subIdx) => {
@@ -1340,13 +1014,13 @@
 
                                 const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
                                 pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#c084fc" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#a78bfa" />`;
                             }
                         });
                     }
                 }
             } else {
-                const pillarData = NOTEBOOK_MINDMAP_DATA[expandedPillarKey];
+                const pillarData = NOTEBOOKLM_MINDMAP_DATA[expandedPillarKey];
                 if (pillarData && pillarData.nodes) {
                     pillarData.nodes.forEach((_, idx) => {
                         const l2Btn = document.getElementById(`nb-l2-node-${idx}`);
@@ -1366,212 +1040,625 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // Thapathali Campus Timeline Navigation & Green Snake Line Animation
-        const TIMELINE_INSPECTOR_INFO = [
-            {
-                title: "1966 AD: Technical Training Institute (TTI) Founded",
-                subtitle: "Jointly inaugurated by Late King Mahendra & President Heinrich Lübke with West German technical assistance."
+        // ================= MECHANICAL ENGINEERING SYLLABUS MIND MAP =================
+        const MECH_SYLLABUS_DATA = {
+            year1: {
+                name: "Year I 🎓",
+                parts: [
+                    {
+                        name: "Part I",
+                        courses: [
+                            { code: "ENSH 101", title: "Engineering Mathematics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf" },
+                            { code: "ENSH 103", title: "Engineering Chemistry", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf" },
+                            { code: "ENCT 101", title: "Computer Programming", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_17_14.pdf" },
+                            { code: "ENEX 101", title: "Fundamental of Electrical and Electronics Engineering", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_18_38.pdf" },
+                            { code: "ENME 101", title: "Engineering Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_09.pdf" },
+                            { code: "ENME 103", title: "Engineering Mechanics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_06_14_19_25.pdf" }
+                        ]
+                    },
+                    {
+                        name: "Part II",
+                        courses: [
+                            { code: "ENSH 151", title: "Engineering Mathematics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_04.pdf" },
+                            { code: "ENSH 152", title: "Engineering Physics", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_01_18.pdf" },
+                            { code: "ENME 151", title: "Engineering Thermodynamics I", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_18.pdf" },
+                            { code: "ENME 152", title: "Machine Drawing", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_36.pdf" },
+                            { code: "ENME 153", title: "Engineering Mechanics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_08_59_51.pdf" },
+                            { code: "ENME 155", title: "Workshop Technology", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_09_00_10.pdf" }
+                        ]
+                    }
+                ]
             },
-            {
-                title: "1972 AD: Integration into Tribhuvan University",
-                subtitle: "Formally named Thapathali Campus under the newly formed Institute of Engineering (IOE)."
+            year2: {
+                name: "Year II ⚙️",
+                parts: [
+                    {
+                        name: "Part I",
+                        courses: [
+                            { code: "ENSH 201", title: "Engineering Mathematics III", pdf: "https://portal.tu.edu.np/downloads/2025_10_09_19_08_56.pdf" },
+                            { code: "ENME 201", title: "Material Science", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_08.pdf" },
+                            { code: "ENME 202", title: "Manufacturing and Production Processes", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_31.pdf" },
+                            { code: "ENME 203", title: "Engineering Thermodynamics II", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_36_51.pdf" },
+                            { code: "ENME 204", title: "Metrology", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_11.pdf" },
+                            { code: "ENME 205", title: "Strength of Materials", pdf: "https://portal.tu.edu.np/downloads/2025_10_13_15_37_27.pdf" }
+                        ]
+                    },
+                    {
+                        name: "Part II",
+                        courses: [
+                            { code: "ENSH 253", title: "Probability and Statistics" },
+                            { code: "ENEE 254", title: "Electrical Machines" },
+                            { code: "ENME 251", title: "Mechanics of Solids" },
+                            { code: "ENME 252", title: "Instrumentation and Sensors" },
+                            { code: "ENME 253", title: "Computer Aided Design" },
+                            { code: "ENME 254", title: "Fluid Mechanics with Engineering Applications" }
+                        ]
+                    }
+                ]
             },
-            {
-                title: "1987 AD: Launch of Specialized 3-Year Diplomas",
-                subtitle: "Pioneered mid-level technical manpower education for mechanical and automotive industries."
+            year3: {
+                name: "Year III 🔬",
+                parts: [
+                    {
+                        name: "Part I",
+                        courses: [
+                            { code: "ENEE 307", title: "Control System and Automation" },
+                            { code: "ENSH 301", title: "Numerical Methods" },
+                            { code: "ENME 301", title: "Automotive Technology" },
+                            { code: "ENME 302", title: "Fluid Machines" },
+                            { code: "ENME 303", title: "Theory of Machines and Mechanism" },
+                            { code: "ENME 304", title: "Organization and Management" },
+                            { code: "ENSH 303", title: "Technical English" }
+                        ]
+                    },
+                    {
+                        name: "Part II",
+                        courses: [
+                            { code: "ENME 356", title: "Professional Engineering Economics" },
+                            { code: "ENME 351", title: "Industrial Engineering and Management" },
+                            { code: "ENME 352", title: "Heat and Mass Transfer" },
+                            { code: "ENME 353", title: "Machine Design I" },
+                            { code: "ENME 354", title: "Machine Dynamics" },
+                            { code: "ENME 355", title: "Minor Project" },
+                            { code: "ENME 356-384", title: "Elective I" }
+                        ]
+                    }
+                ]
             },
-            {
-                title: "2011–2015 AD: Undergraduate B.E. Degree Transition",
-                subtitle: "Expanded into full 4-year engineering degrees across Mechanical, Civil, Computer & Architecture."
-            },
-            {
-                title: "2016 AD – Present: Postgraduate M.Sc. & Research Innovation",
-                subtitle: "Leading research center for Mechanical System Design, Earthquake Engineering & robotics innovation."
+            year4: {
+                name: "Year IV 🚀",
+                parts: [
+                    {
+                        name: "Part I",
+                        courses: [
+                            { code: "ENME 411", title: "Entrepreneurship Development" },
+                            { code: "ENME 412", title: "Finite Element Method" },
+                            { code: "ENME 413", title: "Applied Computational Fluid Dynamics" },
+                            { code: "ENME 414", title: "Energy Resources and Technology" },
+                            { code: "ENME 415", title: "Machine Design II" },
+                            { code: "ENME 425-444", title: "Elective II" },
+                            { code: "ENME 416", title: "Project I" }
+                        ]
+                    },
+                    {
+                        name: "Part II",
+                        courses: [
+                            { code: "ENME 463", title: "Project Management and Professional Practice" },
+                            { code: "ENME 465-474", title: "Elective III" },
+                            { code: "ENME 461", title: "Project II" },
+                            { code: "ENME 462", title: "Industrial Attachment" }
+                        ]
+                    }
+                ]
             }
-        ];
+        };
 
-        function hoverSnakeNode(idx) {
-            const info = TIMELINE_INSPECTOR_INFO[idx];
-            const titleEl = document.getElementById('inspector-title');
-            const subtitleEl = document.getElementById('inspector-subtitle');
-            if (info && titleEl && subtitleEl) {
-                titleEl.textContent = info.title;
-                subtitleEl.textContent = info.subtitle;
+        let expandedMechYearKey = null;
+        let expandedMechPartIndex = null;
+
+        function renderMechL1Nodes() {
+            const container = document.getElementById('mech-l1-nodes-col');
+            if (!container) return;
+
+            const years = [
+                { key: 'year1', ...MECH_SYLLABUS_DATA.year1 },
+                { key: 'year2', ...MECH_SYLLABUS_DATA.year2 },
+                { key: 'year3', ...MECH_SYLLABUS_DATA.year3 },
+                { key: 'year4', ...MECH_SYLLABUS_DATA.year4 }
+            ];
+
+            container.innerHTML = years.map(y => {
+                const isExpanded = expandedMechYearKey === y.key;
+                const borderStyle = isExpanded 
+                    ? 'border-sky-400 bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/40 scale-105 z-20' 
+                    : 'border-sky-600/80 bg-slate-900/90 text-white hover:border-sky-400 hover:scale-102';
+
+                return `
+                    <button onclick="toggleMechYear('${y.key}')" id="mech-year-${y.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
+                        <span class="truncate tracking-wide">${y.name}</span>
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-sky-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleMechYear(key) {
+            if (expandedMechYearKey === key) {
+                expandedMechYearKey = null;
+                expandedMechPartIndex = null;
+            } else {
+                expandedMechYearKey = key;
+                expandedMechPartIndex = null;
+            }
+
+            renderMechL1Nodes();
+            renderMechL2Nodes();
+            renderMechL3Nodes();
+            applyMechZoomEffect();
+            setTimeout(drawMechSVGConnections, 60);
+        }
+
+        function renderMechL2Nodes() {
+            const container = document.getElementById('mech-l2-nodes-col');
+            if (!container) return;
+
+            if (!expandedMechYearKey) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = yearData.parts.map((part, idx) => {
+                const isExpanded = idx === expandedMechPartIndex;
+                const activeStyle = isExpanded 
+                    ? 'bg-sky-500 text-slate-950 border-sky-300 font-bold shadow-md shadow-sky-500/30 scale-105 z-20' 
+                    : 'bg-slate-900/90 text-sky-200 border-sky-800/80 hover:border-sky-400 hover:text-white z-10';
+                
+                return `
+                    <button onclick="toggleMechPart(${idx})" id="mech-l2-node-${idx}" class="px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                        <span class="truncate">${part.name}</span>
+                        <span class="text-[10px] font-mono flex-shrink-0 ${isExpanded ? 'rotate-90 text-slate-950 font-extrabold' : 'opacity-70'} transition-transform duration-300">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleMechPart(idx) {
+            if (expandedMechPartIndex === idx) {
+                expandedMechPartIndex = null;
+            } else {
+                expandedMechPartIndex = idx;
+            }
+
+            renderMechL2Nodes();
+            renderMechL3Nodes();
+            applyMechZoomEffect();
+            setTimeout(drawMechSVGConnections, 60);
+        }
+
+        function renderMechL3Nodes() {
+            const container = document.getElementById('mech-l3-nodes-col');
+            if (!container) return;
+
+            if (expandedMechYearKey === null || expandedMechPartIndex === null) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
+            const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
+
+            if (!activePart) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0 overflow-y-auto no-scrollbar';
+
+            container.innerHTML = activePart.courses.map((c, idx) => `
+                <div id="mech-l3-node-${idx}" class="p-2.5 sm:p-3 rounded-xl bg-slate-900/90 border border-sky-500/40 text-sky-100 text-xs font-mono shadow-md flex flex-col gap-1 hover:border-sky-300 hover:text-white transition-all duration-300 hover:scale-102">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-extrabold text-sky-400 text-[11px]">${c.code}</span>
+                        ${c.pdf ? `
+                            <a href="${c.pdf}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-sky-500/20 hover:bg-sky-500 hover:text-slate-950 text-sky-300 text-[10px] font-bold border border-sky-400/40 transition-colors flex items-center gap-1">
+                                📄 PDF
+                            </a>
+                        ` : ''}
+                    </div>
+                    <span class="text-[11px] font-sans font-medium leading-tight text-slate-200">${c.title}</span>
+                </div>
+            `).join('');
+        }
+
+        function applyMechZoomEffect() {
+            const zoomWrapper = document.getElementById('mech-zoom-wrapper');
+            if (!zoomWrapper) return;
+
+            if (expandedMechYearKey !== null && expandedMechPartIndex !== null) {
+                zoomWrapper.style.transform = 'scale(0.97)';
+            } else if (expandedMechYearKey !== null) {
+                zoomWrapper.style.transform = 'scale(1)';
+            } else {
+                zoomWrapper.style.transform = 'scale(1.02)';
             }
         }
 
-        function resetSnakeNode() {
-            const titleEl = document.getElementById('inspector-title');
-            const subtitleEl = document.getElementById('inspector-subtitle');
-            if (titleEl && subtitleEl) {
-                titleEl.textContent = "Hover over any milestone along the green snake path below";
-                subtitleEl.textContent = "Hover over a milestone node to unlock detailed historical records, founding figures, and academic evolution.";
-            }
+        function openMechSyllabusOverlay() {
+            const overlay = document.getElementById('mech-syllabus-overlay');
+            if (!overlay) return;
+
+            expandedMechYearKey = null;
+            expandedMechPartIndex = null;
+            renderMechL1Nodes();
+            renderMechL2Nodes();
+            renderMechL3Nodes();
+            applyMechZoomEffect();
+
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+            setTimeout(drawMechSVGConnections, 100);
         }
 
-        function drawSnakePath() {
-            const container = document.getElementById('snake-timeline-container');
-            const pathEl = document.getElementById('snake-animated-path');
-            if (!container || !pathEl) return;
+        function closeMechSyllabusOverlay() {
+            const overlay = document.getElementById('mech-syllabus-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
 
-            const dots = [0, 1, 2, 3, 4].map(i => document.getElementById(`snake-dot-${i}`)).filter(Boolean);
-            if (dots.length === 0) return;
+        function drawMechSVGConnections() {
+            const svg = document.getElementById('mech-svg-canvas');
+            const container = document.getElementById('mech-mindmap-container');
+            if (!svg || !container) return;
 
             const cRect = container.getBoundingClientRect();
-            const coords = dots.map(dot => {
-                const r = dot.getBoundingClientRect();
-                return {
-                    x: r.left + r.width / 2 - cRect.left,
-                    y: r.top + r.height / 2 - cRect.top
-                };
-            });
+            svg.setAttribute('width', cRect.width);
+            svg.setAttribute('height', cRect.height);
 
-            if (coords.length < 2) return;
-
-            // Construct smooth S-curve / snake bezier path connecting dots
-            let d = `M ${coords[0].x} ${coords[0].y}`;
-            for (let i = 0; i < coords.length - 1; i++) {
-                const curr = coords[i];
-                const next = coords[i + 1];
-                const midY = (curr.y + next.y) / 2;
-                d += ` C ${curr.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`;
+            if (!expandedMechYearKey) {
+                svg.innerHTML = '';
+                return;
             }
 
-            pathEl.setAttribute('d', d);
+            const activeYearBtn = document.getElementById(`mech-year-${expandedMechYearKey}`);
+            if (!activeYearBtn) {
+                svg.innerHTML = '';
+                return;
+            }
 
-            // Animate stroke draw from top to bottom
-            const length = pathEl.getTotalLength();
-            pathEl.style.strokeDasharray = length;
-            pathEl.style.strokeDashoffset = length;
+            const strokeColor = 'rgba(14, 165, 233, 0.75)';
+            let pathsHTML = '';
 
-            if (window.gsap) {
-                gsap.to(pathEl, {
-                    strokeDashoffset: 0,
-                    duration: 1.6,
-                    ease: "power2.inOut",
-                    delay: 0.2
-                });
+            const pRect = activeYearBtn.getBoundingClientRect();
+            const pX = pRect.right - cRect.left;
+            const pY = pRect.top + pRect.height / 2 - cRect.top;
+
+            if (expandedMechPartIndex !== null) {
+                const activeL2Btn = document.getElementById(`mech-l2-node-${expandedMechPartIndex}`);
+                if (activeL2Btn) {
+                    const l2Rect = activeL2Btn.getBoundingClientRect();
+                    const l2LeftX = l2Rect.left - cRect.left;
+                    const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const cX1 = pX + (l2LeftX - pX) * 0.5;
+                    pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#0ea5e9" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#0ea5e9" />`;
+
+                    const l2RightX = l2Rect.right - cRect.left;
+                    const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
+                    const activePart = yearData ? yearData.parts[expandedMechPartIndex] : null;
+                    if (activePart && activePart.courses) {
+                        activePart.courses.forEach((_, courseIdx) => {
+                            const l3Node = document.getElementById(`mech-l3-node-${courseIdx}`);
+                            if (l3Node) {
+                                const l3Rect = l3Node.getBoundingClientRect();
+                                const l3X = l3Rect.left - cRect.left;
+                                const l3Y = l3Rect.top + l3Rect.height / 2 - cRect.top;
+
+                                const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
+                                pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#38bdf8" />`;
+                            }
+                        });
+                    }
+                }
             } else {
-                pathEl.style.transition = "stroke-dashoffset 1.5s ease-in-out";
-                setTimeout(() => { pathEl.style.strokeDashoffset = "0"; }, 50);
+                const yearData = MECH_SYLLABUS_DATA[expandedMechYearKey];
+                if (yearData && yearData.parts) {
+                    yearData.parts.forEach((_, idx) => {
+                        const l2Btn = document.getElementById(`mech-l2-node-${idx}`);
+                        if (l2Btn) {
+                            const l2Rect = l2Btn.getBoundingClientRect();
+                            const l2LeftX = l2Rect.left - cRect.left;
+                            const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                            const cX1 = pX + (l2LeftX - pX) * 0.5;
+                            pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#0ea5e9" />`;
+                        }
+                    });
+                }
+            }
+
+            svg.innerHTML = pathsHTML;
+        }
+
+        // Projects Interactive Mind Map Data (Single Root Node: CAD -> Boxer Engine)
+        const PROJECTS_MINDMAP_DATA = {
+            cad: {
+                name: "CAD 📐",
+                nodes: [
+                    { name: "Boxer Engine 🏎️", url: "boxer_engine_cad.html", subnodes: [] }
+                ]
+            }
+        };
+
+        // Projects Mind Map State Management
+        let expandedProjCategoryKey = null;
+        let expandedProjL2Index = null;
+
+        function renderProjL1Nodes() {
+            const container = document.getElementById('proj-l1-nodes-col');
+            if (!container) return;
+
+            const categories = [
+                { key: 'cad', ...PROJECTS_MINDMAP_DATA.cad }
+            ];
+
+            container.innerHTML = categories.map(c => {
+                const isExpanded = expandedProjCategoryKey === c.key;
+                const borderStyle = isExpanded 
+                    ? 'border-amber-400 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/40 scale-105 z-20' 
+                    : 'border-amber-600/80 bg-slate-900/90 text-white hover:border-amber-400 hover:scale-102';
+
+                return `
+                    <button onclick="toggleProjCategory('${c.key}')" id="proj-category-${c.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
+                        <span class="truncate tracking-wide">${c.name}</span>
+                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-slate-950' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                            ${isExpanded ? '▼' : '→'}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleProjCategory(key) {
+            if (expandedProjCategoryKey === key) {
+                expandedProjCategoryKey = null;
+                expandedProjL2Index = null;
+            } else {
+                expandedProjCategoryKey = key;
+                expandedProjL2Index = null;
+            }
+
+            renderProjL1Nodes();
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            applyProjZoomEffect();
+            setTimeout(drawProjSVGConnections, 60);
+        }
+
+        function renderProjL2Nodes() {
+            const container = document.getElementById('proj-l2-nodes-col');
+            if (!container) return;
+
+            if (!expandedProjCategoryKey) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = category.nodes.map((node, idx) => {
+                const isExpanded = idx === expandedProjL2Index;
+                const activeStyle = isExpanded 
+                    ? 'bg-amber-500 text-slate-950 border-amber-300 font-bold shadow-md shadow-amber-500/30 scale-105 z-20' 
+                    : 'bg-slate-900/90 text-amber-200 border-amber-800/80 hover:border-amber-400 hover:text-white z-10';
+                
+                return `
+                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left truncate flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                        <span class="truncate">${node.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function toggleProjL2Node(idx) {
+            const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
+            const activeNode = category ? category.nodes[idx] : null;
+
+            // Direct link to dedicated Boxer Engine CAD page
+            if (activeNode && activeNode.url) {
+                window.location.href = activeNode.url;
+                return;
+            }
+
+            if (expandedProjL2Index === idx) {
+                expandedProjL2Index = null;
+            } else {
+                expandedProjL2Index = idx;
+            }
+
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            applyProjZoomEffect();
+            setTimeout(drawProjSVGConnections, 60);
+        }
+
+        function renderProjL3Nodes() {
+            const container = document.getElementById('proj-l3-nodes-col');
+            if (!container) return;
+
+            if (expandedProjCategoryKey === null || expandedProjL2Index === null) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
+            const activeNode = category.nodes[expandedProjL2Index];
+
+            if (!activeNode || !activeNode.subnodes || activeNode.subnodes.length === 0) {
+                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+
+            container.innerHTML = activeNode.subnodes.map((sub, idx) => `
+                <div id="proj-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900/90 border border-amber-500/40 text-amber-100 text-xs font-mono shadow-md truncate hover:border-amber-300 hover:text-white transition-all duration-300 hover:scale-102">
+                    🛠️ ${sub}
+                </div>
+            `).join('');
+        }
+
+        function applyProjZoomEffect() {
+            const zoomWrapper = document.getElementById('proj-zoom-wrapper');
+            if (!zoomWrapper) return;
+
+            if (expandedProjCategoryKey !== null && expandedProjL2Index !== null) {
+                zoomWrapper.style.transform = 'scale(0.97)';
+            } else if (expandedProjCategoryKey !== null) {
+                zoomWrapper.style.transform = 'scale(1)';
+            } else {
+                zoomWrapper.style.transform = 'scale(1.02)';
             }
         }
 
-        function openThapathaliTimeline() {
-            const timelineOverlay = document.getElementById('thapathali-timeline-overlay');
-            if (!timelineOverlay) return;
+        function openProjectsMindMap() {
+            const overlay = document.getElementById('projects-mindmap-overlay');
+            if (!overlay) return;
 
-            timelineOverlay.classList.remove('hidden');
+            expandedProjCategoryKey = null;
+            expandedProjL2Index = null;
+            renderProjL1Nodes();
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            applyProjZoomEffect();
+
+            overlay.classList.remove('hidden');
             requestAnimationFrame(() => {
-                timelineOverlay.classList.remove('opacity-0');
+                overlay.classList.remove('opacity-0');
             });
-
             setTimeout(() => {
-                drawSnakePath();
+                drawProjSVGConnections();
             }, 100);
-
-            // GSAP Stagger Entrance Animation for Timeline Step Cards
-            if (window.gsap) {
-                gsap.fromTo('.timeline-snake-node', 
-                    { opacity: 0, y: 35 },
-                    { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power2.out', delay: 0.1 }
-                );
-            }
         }
 
-        function closeThapathaliTimeline() {
-            const timelineOverlay = document.getElementById('thapathali-timeline-overlay');
-            if (!timelineOverlay) return;
-
-            timelineOverlay.classList.add('opacity-0');
+        function closeProjectsMindMap() {
+            const overlay = document.getElementById('projects-mindmap-overlay');
+            if (!overlay) return;
+            overlay.classList.add('opacity-0');
             setTimeout(() => {
-                timelineOverlay.classList.add('hidden');
+                overlay.classList.add('hidden');
             }, 300);
         }
 
-        // Projects Modal Logic
-        function openProjectsModal() {
-            const modal = document.getElementById('projects-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                selectProjectTab(0);
-            }
-        }
+        function drawProjSVGConnections() {
+            const svg = document.getElementById('proj-svg-canvas');
+            const container = document.getElementById('proj-mindmap-container');
+            if (!svg || !container) return;
 
-        function closeProjectsModal() {
-            const modal = document.getElementById('projects-modal');
-            if (modal) modal.classList.add('hidden');
-        }
+            const cRect = container.getBoundingClientRect();
+            svg.setAttribute('width', cRect.width);
+            svg.setAttribute('height', cRect.height);
 
-        function selectProjectTab(idx) {
-            const proj = PROJECTS[idx] || PROJECTS[0];
-            const titleEl = document.getElementById('proj-title');
-            const domainEl = document.getElementById('proj-domain');
-            const descEl = document.getElementById('proj-description');
-            const highlightsEl = document.getElementById('proj-highlights');
-            const toolsEl = document.getElementById('proj-tools');
-            const formulaEl = document.getElementById('proj-formula');
+            if (!expandedProjCategoryKey) {
+                svg.innerHTML = '';
+                return;
+            }
 
-            if (titleEl) titleEl.textContent = proj.title;
-            if (domainEl) domainEl.textContent = proj.domain;
-            if (descEl) descEl.textContent = proj.description;
-            
-            if (highlightsEl) {
-                highlightsEl.innerHTML = proj.highlights.map(h => `<li class="flex items-start gap-2"><span class="text-sky-500 font-bold">•</span><span>${h}</span></li>`).join('');
+            const activeCategoryBtn = document.getElementById(`proj-category-${expandedProjCategoryKey}`);
+            if (!activeCategoryBtn) {
+                svg.innerHTML = '';
+                return;
             }
-            if (toolsEl) {
-                toolsEl.innerHTML = proj.tools.map(t => `<span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono border border-slate-200 dark:border-slate-700">${t}</span>`).join('');
-            }
-            if (formulaEl && window.katex) {
-                try {
-                    katex.render(proj.formula, formulaEl, { throwOnError: false });
-                } catch(e) {
-                    formulaEl.textContent = proj.formula;
+
+            const strokeColor = 'rgba(245, 158, 11, 0.75)';
+            let pathsHTML = '';
+
+            const pRect = activeCategoryBtn.getBoundingClientRect();
+            const pX = pRect.right - cRect.left;
+            const pY = pRect.top + pRect.height / 2 - cRect.top;
+
+            if (expandedProjL2Index !== null) {
+                const activeL2Btn = document.getElementById(`proj-l2-node-${expandedProjL2Index}`);
+                if (activeL2Btn) {
+                    const l2Rect = activeL2Btn.getBoundingClientRect();
+                    const l2LeftX = l2Rect.left - cRect.left;
+                    const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const cX1 = pX + (l2LeftX - pX) * 0.5;
+                    pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
+                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#f59e0b" />`;
+                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#f59e0b" />`;
+
+                    const l2RightX = l2Rect.right - cRect.left;
+                    const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                    const categoryData = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
+                    const activeNode = categoryData ? categoryData.nodes[expandedProjL2Index] : null;
+                    if (activeNode && activeNode.subnodes) {
+                        activeNode.subnodes.forEach((_, subIdx) => {
+                            const l3Node = document.getElementById(`proj-l3-node-${subIdx}`);
+                            if (l3Node) {
+                                const l3Rect = l3Node.getBoundingClientRect();
+                                const l3X = l3Rect.left - cRect.left;
+                                const l3Y = l3Rect.top + l3Rect.height / 2 - cRect.top;
+
+                                const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
+                                pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
+                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#fbbf24" />`;
+                            }
+                        });
+                    }
                 }
-            }
-
-            document.querySelectorAll('.project-tab-btn').forEach((btn, i) => {
-                if (i === idx) {
-                    btn.className = 'project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-sky-500 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold whitespace-nowrap';
-                } else {
-                    btn.className = 'project-tab-btn px-3 py-1.5 rounded-xl text-xs font-mono border border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 whitespace-nowrap';
-                }
-            });
-        }
-
-        // Dark Theme Toggle
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-            setTimeout(drawSVGConnections, 50);
-        }
-
-        // Campus Map Toggle Function
-        function switchCampusMapMode(mode) {
-            const iframe = document.getElementById('thapathali-map-iframe');
-            const btnMap = document.getElementById('campus-map-btn-map');
-            const btnStreet = document.getElementById('campus-map-btn-street');
-            if (!iframe) return;
-
-            if (mode === 'map') {
-                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed";
-                if (btnMap) btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
-                if (btnStreet) btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
             } else {
-                iframe.src = "https://maps.google.com/maps?q=IOE+Thapathali+Campus,+Kathmandu,+Nepal&t=k&z=19&ie=UTF8&iwloc=&output=embed";
-                if (btnMap) btnMap.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-200 hover:text-emerald-400 border border-emerald-800 transition-all";
-                if (btnStreet) btnStreet.className = "px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500 text-slate-950 transition-all shadow-xs";
+                const categoryData = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
+                if (categoryData && categoryData.nodes) {
+                    categoryData.nodes.forEach((_, idx) => {
+                        const l2Btn = document.getElementById(`proj-l2-node-${idx}`);
+                        if (l2Btn) {
+                            const l2Rect = l2Btn.getBoundingClientRect();
+                            const l2LeftX = l2Rect.left - cRect.left;
+                            const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+
+                            const cX1 = pX + (l2LeftX - pX) * 0.5;
+                            pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
+                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#f59e0b" />`;
+                        }
+                    });
+                }
             }
+
+            svg.innerHTML = pathsHTML;
         }
 
         // Global Event Listeners & Orientation/Resize Handlers
         window.addEventListener('load', () => {
             renderL1Nodes();
             renderMechL1Nodes();
+            renderProjL1Nodes();
         });
 
         window.addEventListener('resize', () => {
             drawSVGConnections();
             drawMechSVGConnections();
+            drawProjSVGConnections();
             drawSnakePath();
         });
 
@@ -1579,9 +1666,10 @@
             setTimeout(() => {
                 drawSVGConnections();
                 drawMechSVGConnections();
+                drawProjSVGConnections();
                 drawSnakePath();
             }, 200);
         });
     </script>
 </body>
-    </html>
+</html>

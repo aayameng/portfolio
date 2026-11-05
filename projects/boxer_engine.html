@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxer Engine - 3D Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #0b0c10;
+            --grid-color: rgba(255, 255, 255, 0.03);
+            --accent-glow: radial-gradient(circle at 50% 0%, rgba(255, 136, 0, 0.15) 0%, transparent 60%);
+            --panel-bg: rgba(20, 22, 30, 0.6);
+            --panel-border: rgba(255, 170, 0, 0.3);
+            --primary-amber: #ffaa00;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+        }
+
+        /* Top ambient glow matching the screenshot */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Entrance Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-left { animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-right { animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
+
+        /* Custom scrollbar for left panel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 170, 0, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 170, 0, 0.5); }
+    </style>
+</head>
+<body class="relative w-full h-screen text-gray-200 antialiased selection:bg-orange-500 selection:text-white">
+    
+    <div class="ambient-glow"></div>
+
+    <!-- Top Navigation Layer -->
+    <div class="absolute top-6 right-8 z-50 flex gap-4 items-center">
+        <button class="bg-[#ffb03a] hover:bg-[#ffc164] transition-colors text-black font-semibold mono-font text-sm py-2 px-5 rounded-xl shadow-[0_0_15px_rgba(255,170,0,0.3)] flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+        </button>
+    </div>
+
+    <!-- Main Layout Content -->
+    <div class="relative z-10 w-full h-full flex flex-col md:flex-row p-6 md:p-8 pt-24 gap-6 box-border">
+        
+        <!-- Left Panel: Information -->
+        <div class="animate-left flex-shrink-0 w-full md:w-[400px] lg:w-[450px] flex flex-col bg-[#11131a]/80 backdrop-blur-md rounded-2xl border border-[#ffaa00]/30 shadow-2xl p-8 overflow-y-auto relative z-20">
+            
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center border border-orange-500/40 text-orange-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h1 class="text-2xl font-bold mono-font tracking-wide text-white">Boxer Engine</h1>
+            </div>
+
+            <p class="text-gray-400 leading-relaxed mb-8 text-sm">
+                A flat engine, also known as a horizontally opposed engine, in which the cylinders are located on either side of a central crankshaft. The animation demonstrates the opposing piston movement that provides excellent natural balance.
+            </p>
+
+            <h3 class="text-orange-400 mono-font text-xs uppercase tracking-widest mb-4">Specifications</h3>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-500 mb-1">Configuration</div>
+                    <div class="font-semibold mono-font">Flat-4</div>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-500 mb-1">Cooling</div>
+                    <div class="font-semibold mono-font">Air/Liquid</div>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-500 mb-1">Valves</div>
+                    <div class="font-semibold mono-font">16 DOHC</div>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="text-xs text-gray-500 mb-1">Format</div>
+                    <div class="font-semibold mono-font text-green-400">.GLB Loaded</div>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <h3 class="text-orange-400 mono-font text-xs uppercase tracking-widest mb-4">Controls</h3>
+                <ul class="text-sm text-gray-400 space-y-2">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span> Left Click + Drag to Rotate</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span> Scroll to Zoom</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span> Right Click + Drag to Pan</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel: 3D Canvas Container -->
+        <div class="animate-right flex-grow relative bg-black/40 backdrop-blur-sm rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+            
+            <!-- Overlay Info -->
+            <div class="absolute top-4 left-4 z-10 bg-black/50 backdrop-blur px-3 py-1.5 rounded-md border border-white/10 mono-font text-xs text-gray-300 flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Live Rendering
+            </div>
+
+            <!-- Loading Spinner (Visible while GLB loads) -->
+            <div id="loader" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur transition-opacity duration-500">
+                <div id="spinner" class="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mb-4 hidden"></div>
+                <p id="loader-text" class="mono-font text-sm text-orange-400">Please load your 3D model</p>
+                <div id="fallback-ui" class="mt-4 flex flex-col items-center gap-3">
+                    <p class="text-xs text-gray-400">Upload your exported .glb or .gltf file:</p>
+                    <label class="cursor-pointer bg-[#ffaa00]/20 hover:bg-[#ffaa00]/40 text-[#ffaa00] border border-[#ffaa00]/50 px-4 py-2 rounded-lg text-sm transition-colors">
+                        Browse for Model
+                        <input type="file" id="file-input" accept=".glb,.gltf" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Rigging UI (Appears after load) -->
+            <div id="rigging-ui" class="absolute right-4 top-4 z-40 bg-[#11131a]/90 backdrop-blur-md border border-[#ffaa00]/40 rounded-xl p-5 w-[360px] hidden flex-col gap-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+                <div>
+                    <h3 class="text-orange-400 mono-font text-sm uppercase tracking-widest mb-1 font-bold">Flat-4 Mapper</h3>
+                    <p class="text-xs text-gray-400 leading-tight">Map the 4 pistons from your Onshape assembly.</p>
+                </div>
+                
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] text-gray-300 font-semibold uppercase tracking-wider">Crankshaft (Spins)</label>
+                    <div class="flex gap-2">
+                        <select id="map-crank" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:border-orange-500 outline-none flex-grow"><option value="">-- None --</option></select>
+                        <select id="axis-crank" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:border-orange-500 outline-none w-16" title="Rotation Axis">
+                            <option value="x">X</option><option value="y" selected>Y</option><option value="z">Z</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider">Cyl 1 (Left Front)</label>
+                        <select id="map-p1" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:border-orange-500 outline-none w-full"><option value="">- Piston -</option></select>
+                        <select id="map-r1" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-400 focus:border-orange-500 outline-none w-full"><option value="">- Rod -</option></select>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider">Cyl 2 (Left Rear)</label>
+                        <select id="map-p2" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:border-orange-500 outline-none w-full"><option value="">- Piston -</option></select>
+                        <select id="map-r2" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-400 focus:border-orange-500 outline-none w-full"><option value="">- Rod -</option></select>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider">Cyl 3 (Right Front)</label>
+                        <select id="map-p3" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:border-orange-500 outline-none w-full"><option value="">- Piston -</option></select>
+                        <select id="map-r3" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-400 focus:border-orange-500 outline-none w-full"><option value="">- Rod -</option></select>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider">Cyl 4 (Right Rear)</label>
+                        <select id="map-p4" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:border-orange-500 outline-none w-full"><option value="">- Piston -</option></select>
+                        <select id="map-r4" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-400 focus:border-orange-500 outline-none w-full"><option value="">- Rod -</option></select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5 mt-1">
+                    <label class="text-[11px] text-gray-300 font-semibold uppercase tracking-wider">Main Linear Axis</label>
+                    <select id="axis-pistons" class="bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:border-orange-500 outline-none w-full">
+                        <option value="x" selected>X Axis (Left/Right)</option>
+                        <option value="y">Y Axis (Up/Down)</option>
+                        <option value="z">Z Axis (Forward/Back)</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-col gap-3 mt-2 border-t border-white/10 pt-3">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[11px] text-gray-300 font-semibold uppercase tracking-wider flex justify-between">
+                            Crank Radius (Stroke) <span id="val-radius" class="text-orange-400">1.5</span>
+                        </label>
+                        <input type="range" id="map-radius" min="0.1" max="15" step="0.1" value="1.5" class="w-full accent-orange-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[11px] text-gray-300 font-semibold uppercase tracking-wider flex justify-between">
+                            Rod Length <span id="val-length" class="text-orange-400">4.0</span>
+                        </label>
+                        <input type="range" id="map-length" min="1.0" max="20" step="0.1" value="4.0" class="w-full accent-orange-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[11px] text-gray-300 font-semibold uppercase tracking-wider flex justify-between">
+                            Engine Speed <span id="val-speed" class="text-orange-400">3.0</span>
+                        </label>
+                        <input type="range" id="map-speed" min="0" max="15" step="0.5" value="3.0" class="w-full accent-orange-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Canvas mounts here -->
+            <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+        </div>
+    </div>
+
+    <!-- Import Map to resolve bare module specifiers -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- ES Module Script for Three.js -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        let scene, camera, renderer, controls;
+        let mixer; // For GLB animations if present
+        let engineWrapper = null; // Wrapper to hold the engine
+        let modelParts = {}; // Store references to individual engine parts
+        let clock = new THREE.Clock();
+
+        // --- Interactive Rigging State for 4-Cylinder ---
+        let activeRig = {
+            crank: null,
+            pistons: [
+                { mesh: null, rod: null, phase: 0, dir: -1 },       // Left Front
+                { mesh: null, rod: null, phase: Math.PI, dir: -1 }, // Left Rear 
+                { mesh: null, rod: null, phase: 0, dir: 1 },        // Right Front 
+                { mesh: null, rod: null, phase: Math.PI, dir: 1 }   // Right Rear
+            ],
+            crankAxis: 'y', 
+            pistonAxis: 'x', 
+            crankRadius: 1.5,
+            rodLength: 4.0,
+            speed: 3.0
+        };
+
+        init();
+        animate();
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // 1. Scene Setup
+            scene = new THREE.Scene();
+            // Optional: Match background to theme exactly or leave transparent to see HTML background
+            // scene.background = new THREE.Color(0x0b0c10); 
+            scene.fog = new THREE.FogExp2(0x0b0c10, 0.05);
+
+            // 2. Camera Setup
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(8, 5, 8);
+
+            // 3. Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            // Tonemapping for better metallic/realistic looks
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            container.appendChild(renderer.domElement);
+
+            // 4. Lighting Setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffecc2, 2.5); // Warm light
+            dirLight.position.set(5, 10, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
+
+            const backLight = new THREE.DirectionalLight(0x7aa3ff, 1.5); // Cool rim light
+            backLight.position.set(-5, 5, -5);
+            scene.add(backLight);
+
+            // 5. Controls Setup
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 3;
+            controls.maxDistance = 20;
+            controls.target.set(0, 0, 0);
+
+            // 6. Grid Helper (Aesthetics)
+            const gridHelper = new THREE.GridHelper(20, 20, 0xffaa00, 0xffaa00);
+            gridHelper.material.opacity = 0.1;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = -2;
+            scene.add(gridHelper);
+
+            // 7. Setup File Input
+            setupFileInput();
+
+            // Window resize handler
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function setupModel(gltf) {
+            const model = gltf.scene;
+            
+            // 1. Fix CAD orientation: Rotate 90 degrees to lay horizontal
+            // (If it tilts the wrong way, change 'x' to 'z' or remove the negative sign)
+            model.rotation.x = -Math.PI / 2;
+
+            // 2. Center and scale model
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 5 / maxDim; // Normalize scale to fit nicely
+            model.scale.set(scale, scale, scale);
+            
+            model.position.sub(center.multiplyScalar(scale)); // Center it
+            
+            // Enable shadows for the loaded model and index parts for animation
+            model.traverse((node) => {
+                // Save parts by name so we can animate them procedurally
+                if (node.name) {
+                    modelParts[node.name] = node;
+                }
+
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+
+            // Log all available part names so the user can hook them up in the animate loop
+            console.log("=== CAD MODEL PARTS FOUND ===");
+            console.log("Check this list and update the animate() function with your actual part names:");
+            console.log(Object.keys(modelParts));
+            console.log("=============================");
+
+            // 3. Wrap in a group
+            engineWrapper = new THREE.Group();
+            engineWrapper.add(model);
+            scene.add(engineWrapper);
+
+            // Setup animations if your GLB has baked animations
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixer = new THREE.AnimationMixer(model);
+                gltf.animations.forEach((clip) => {
+                    mixer.clipAction(clip).play();
+                });
+            }
+
+            hideLoader();
+            initializeRiggingUI();
+        }
+
+        function initializeRiggingUI() {
+            const partNames = Object.keys(modelParts);
+            const crankSel = document.getElementById('map-crank');
+            
+            // Piston Selects
+            const p1Sel = document.getElementById('map-p1');
+            const p2Sel = document.getElementById('map-p2');
+            const p3Sel = document.getElementById('map-p3');
+            const p4Sel = document.getElementById('map-p4');
+            
+            // Rod Selects
+            const r1Sel = document.getElementById('map-r1');
+            const r2Sel = document.getElementById('map-r2');
+            const r3Sel = document.getElementById('map-r3');
+            const r4Sel = document.getElementById('map-r4');
+            
+            // Populate Selects
+            partNames.forEach(name => {
+                crankSel.add(new Option(name, name));
+                p1Sel.add(new Option(name, name)); p2Sel.add(new Option(name, name)); p3Sel.add(new Option(name, name)); p4Sel.add(new Option(name, name));
+                r1Sel.add(new Option(name, name)); r2Sel.add(new Option(name, name)); r3Sel.add(new Option(name, name)); r4Sel.add(new Option(name, name));
+            });
+
+            const getInitialPos = (part) => {
+                if(part && !part.userData.hasInitPos) {
+                    part.userData.initPos = part.position.clone();
+                    part.userData.initRot = part.rotation.clone();
+                    part.userData.hasInitPos = true;
+                }
+            };
+
+            // Event Listeners for Parts
+            crankSel.addEventListener('change', (e) => {
+                activeRig.crank = modelParts[e.target.value] || null;
+                getInitialPos(activeRig.crank);
+            });
+            
+            const setupListeners = (pSel, rSel, index) => {
+                pSel.addEventListener('change', (e) => {
+                    activeRig.pistons[index].mesh = modelParts[e.target.value] || null;
+                    getInitialPos(activeRig.pistons[index].mesh);
+                });
+                rSel.addEventListener('change', (e) => {
+                    activeRig.pistons[index].rod = modelParts[e.target.value] || null;
+                    getInitialPos(activeRig.pistons[index].rod);
+                });
+            };
+            
+            setupListeners(p1Sel, r1Sel, 0); setupListeners(p2Sel, r2Sel, 1);
+            setupListeners(p3Sel, r3Sel, 2); setupListeners(p4Sel, r4Sel, 3);
+
+            // Event Listeners for Axes and Sliders
+            document.getElementById('axis-crank').addEventListener('change', (e) => activeRig.crankAxis = e.target.value);
+            document.getElementById('axis-pistons').addEventListener('change', (e) => activeRig.pistonAxis = e.target.value);
+
+            document.getElementById('map-radius').addEventListener('input', (e) => {
+                activeRig.crankRadius = parseFloat(e.target.value);
+                document.getElementById('val-radius').textContent = activeRig.crankRadius.toFixed(1);
+            });
+            document.getElementById('map-length').addEventListener('input', (e) => {
+                activeRig.rodLength = parseFloat(e.target.value);
+                document.getElementById('val-length').textContent = activeRig.rodLength.toFixed(1);
+            });
+            document.getElementById('map-speed').addEventListener('input', (e) => {
+                activeRig.speed = parseFloat(e.target.value);
+                document.getElementById('val-speed').textContent = activeRig.speed.toFixed(1);
+            });
+
+            // Auto-Guess Parts by Name (Basic Heuristic)
+            let pLeft = [], pRight = [], rods = [];
+            partNames.forEach(name => {
+                let n = name.toLowerCase();
+                if(n.includes('crank') && !activeRig.crank) {
+                    crankSel.value = name; activeRig.crank = modelParts[name]; getInitialPos(activeRig.crank);
+                } else if(n.includes('piston')) {
+                     if (n.includes('left') || pLeft.length < 2) pLeft.push(name); else pRight.push(name);
+                } else if(n.includes('rod')) {
+                     rods.push(name);
+                }
+            });
+            
+            if(pLeft[0]) { p1Sel.value = pLeft[0]; activeRig.pistons[0].mesh = modelParts[pLeft[0]]; getInitialPos(activeRig.pistons[0].mesh); }
+            if(pLeft[1]) { p2Sel.value = pLeft[1]; activeRig.pistons[1].mesh = modelParts[pLeft[1]]; getInitialPos(activeRig.pistons[1].mesh); }
+            if(pRight[0]) { p3Sel.value = pRight[0]; activeRig.pistons[2].mesh = modelParts[pRight[0]]; getInitialPos(activeRig.pistons[2].mesh); }
+            if(pRight[1]) { p4Sel.value = pRight[1]; activeRig.pistons[3].mesh = modelParts[pRight[1]]; getInitialPos(activeRig.pistons[3].mesh); }
+            
+            if(rods[0]) { r1Sel.value = rods[0]; activeRig.pistons[0].rod = modelParts[rods[0]]; getInitialPos(activeRig.pistons[0].rod); }
+            if(rods[1]) { r2Sel.value = rods[1]; activeRig.pistons[1].rod = modelParts[rods[1]]; getInitialPos(activeRig.pistons[1].rod); }
+            if(rods[2]) { r3Sel.value = rods[2]; activeRig.pistons[2].rod = modelParts[rods[2]]; getInitialPos(activeRig.pistons[2].rod); }
+            if(rods[3]) { r4Sel.value = rods[3]; activeRig.pistons[3].rod = modelParts[rods[3]]; getInitialPos(activeRig.pistons[3].rod); }
+
+            // Show UI
+            const ui = document.getElementById('rigging-ui');
+            if(ui) {
+                ui.classList.remove('hidden');
+                ui.classList.add('flex');
+            }
+        }
+
+        function loadGLBModel(url) {
+            const loader = new GLTFLoader();
+            loader.load(
+                url,
+                setupModel,
+                function (xhr) {
+                    // Update loading UI if needed
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.error('An error happened loading the GLB', error);
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        const spinner = document.getElementById('spinner');
+                        const text = document.getElementById('loader-text');
+                        const fallbackUi = document.getElementById('fallback-ui');
+                        
+                        if (spinner) spinner.style.display = 'none';
+                        if (text) {
+                            text.textContent = 'Error: Could not load ' + url;
+                            text.className = 'mono-font text-sm text-red-500 font-bold';
+                            text.style.animation = 'none';
+                        }
+                        if (fallbackUi) {
+                            fallbackUi.classList.remove('hidden');
+                        }
+                    }
+                }
+            );
+        }
+
+        function setupFileInput() {
+            const fileInput = document.getElementById('file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const objectUrl = URL.createObjectURL(file);
+                        
+                        // Reset UI for loading
+                        const spinner = document.getElementById('spinner');
+                        const text = document.getElementById('loader-text');
+                        const fallbackUi = document.getElementById('fallback-ui');
+                        
+                        if (spinner) spinner.style.display = 'block';
+                        if (text) {
+                            text.textContent = 'Loading your custom model...';
+                            text.className = 'mono-font text-sm text-orange-400 animate-pulse';
+                            text.style.animation = '';
+                        }
+                        if (fallbackUi) fallbackUi.classList.add('hidden');
+                        
+                        // Attempt to load new file
+                        loadGLBModel(objectUrl);
+                    }
+                });
+            }
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500);
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            // 2. Drive 4 Pistons and Rods
+            const r = activeRig.crankRadius;
+            const l = activeRig.rodLength;
+            
+            activeRig.pistons.forEach(cylinder => {
+                const phaseTheta = theta + cylinder.phase;
+                
+                // --- PISTON KINEMATICS ---
+                // Calculate raw displacement using standard piston motion formula
+                const rawDisp = r * Math.cos(phaseTheta) + Math.sqrt(l*l - r*r * Math.pow(Math.sin(phaseTheta), 2));
+                const offset = rawDisp - l; // Normalize displacement to start at 0
+
+                if (cylinder.mesh && cylinder.mesh.userData.hasInitPos) {
+                    cylinder.mesh.position.copy(cylinder.mesh.userData.initPos);
+                    // Apply displacement along the chosen axis, considering left/right banks
+                    cylinder.mesh.position[activeRig.pistonAxis] = cylinder.mesh.userData.initPos[activeRig.pistonAxis] + (offset * cylinder.dir); 
+                }
+
+                // --- ROD KINEMATICS ---
+                if (cylinder.rod && cylinder.rod.userData.hasInitPos) {
+                    // For the rod, we apply the same linear displacement as the piston so it moves back and forth with it,
+                    // but we ALSO apply a "Wobble" rotation to simulate the big end following the crank.
+                    cylinder.rod.position.copy(cylinder.rod.userData.initPos);
+                    cylinder.rod.position[activeRig.pistonAxis] = cylinder.rod.userData.initPos[activeRig.pistonAxis] + (offset * cylinder.dir);
+                    
+                    // Calculate Rod Angle (phi)
+                    // The rod wiggles back and forth. The max angle depends on stroke vs rod length.
+                    const rodAngle = Math.asin((r/l) * Math.sin(phaseTheta));
+                    
+                    cylinder.rod.rotation.copy(cylinder.rod.userData.initRot);
+                    
+                    // We apply the rotation based on which axis the crank is spinning.
+                    // (Multiplying by cylinder.dir ensures the left and right banks wobble in mirrored sync)
+                    cylinder.rod.rotation[activeRig.crankAxis] += (rodAngle * cylinder.dir);
+                }
+            });
+
+            controls.update(); 
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

@@ -1506,6 +1506,12 @@
                     { name: "Boxer Engine 🏎️", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] },
                     { name: "Stirling Engine ♨️", url: "./projects/CAD/stirling_engine_cad.html", subnodes: [] }
                 ]
+            },
+            math: {
+                name: "Math 🧮",
+                nodes: [
+                    { name: "Direction Field Visualizer 📈", url: "./projects/Math/direction_field_visualizer.html", subnodes: [] }
+                ]
             }
         };
 
@@ -1569,9 +1575,10 @@
             const container = document.getElementById('proj-l1-nodes-col');
             if (!container) return;
 
-            const categories = [
-                { key: 'cad', ...PROJECTS_MINDMAP_DATA.cad }
-            ];
+            const categories = Object.keys(PROJECTS_MINDMAP_DATA).map(key => ({
+                key: key,
+                ...PROJECTS_MINDMAP_DATA[key]
+            }));
 
             container.innerHTML = categories.map(c => {
                 const isExpanded = expandedProjCategoryKey === c.key;

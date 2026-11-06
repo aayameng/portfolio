@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direction Fields Visualizer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Math.js for parsing mathematical functions safely -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #07090e;
+            color: #f1f5f9;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Dark space background with subtle ambient radial glow */
+        .bg-glow {
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 45%),
+                #06080e;
+        }
+
+        /* Mobile Viewport Fixes */
+        html, body {
+            overscroll-behavior: none;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Prevent canvas touch interference while allowing input focus */
+        canvas {
+            touch-action: none;
+        }
+
+        /* Hide scrollbars for preset slider on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="fixed inset-0 bg-glow flex flex-col select-none">
+
+    <!-- Canvas Viewport -->
+    <canvas id="fieldCanvas" class="absolute inset-0 w-full h-full cursor-crosshair z-0"></canvas>
+
+    <!-- Top Navigation Bar (Fixed top right) -->
+    <div class="absolute top-3 right-3 z-30 flex items-center gap-2">
+        <button id="resetViewBtn" class="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-amber-500/30 font-semibold px-3 py-2 rounded-xl shadow-lg transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm" title="Reset View">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span class="hidden xs:inline">Reset</span>
+        </button>
+        <a href="/" target="_self" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back</span>
+        </a>
+    </div>
+
+    <!-- Responsive Controls Panel (Floating Top-Left on Desktop / Bottom-Sheet on Mobile) -->
+    <div id="controlsPanel" class="absolute z-20 transition-all duration-300
+        bottom-3 left-3 right-3 sm:bottom-auto sm:right-auto sm:top-3 sm:left-3 sm:w-80 md:w-96
+        flex flex-col gap-2 max-h-[70vh] sm:max-h-[calc(100vh-2rem)] overflow-y-auto pr-0.5 touch-auto">
+        
+        <!-- Main Input Card -->
+        <div class="bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-3 sm:p-4 shadow-2xl shadow-black/80 text-slate-200">
+            
+            <!-- Header Pill style with Collapse Toggle -->
+            <div id="panelHeader" class="flex items-center justify-between pb-2 border-b border-slate-800/80 cursor-pointer select-none">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>
+                    <h1 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex-shrink-0">dy/dx =</h1>
+                    <span id="headerFormulaPreview" class="text-xs code-font text-amber-200 font-semibold truncate max-w-[120px] sm:max-w-none">x - y</span>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                    <button id="togglePanelBtn" class="text-slate-400 hover:text-amber-400 p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                        <i data-lucide="chevron-up" id="toggleIcon" class="w-4 h-4 transition-transform duration-300"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible Content Wrapper -->
+            <div id="panelContent" class="space-y-3 pt-2.5">
+                <div class="space-y-1">
+                    <label for="equationInput" class="text-xs font-medium text-slate-400 flex items-center justify-between">
+                        <span>Enter f(x, y)</span>
+                        <span class="text-[10px] text-slate-500">e.g. x - y</span>
+                    </label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-amber-500 font-bold code-font text-sm">f =</span>
+                        <input type="text" id="equationInput" value="x - y" 
+                            class="w-full pl-9 pr-2.5 py-2 bg-slate-950/90 border border-slate-700/80 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl code-font text-xs sm:text-sm text-amber-200 outline-none transition-all touch-auto"
+                            placeholder="x - y" spellcheck="false" autocomplete="off" />
+                    </div>
+                    <div id="errorMsg" class="hidden text-[11px] text-rose-400 bg-rose-950/40 border border-rose-800/40 rounded-lg p-2 code-font mt-1"></div>
+                </div>
+
+                <!-- Presets (Horizontal Scrollable Row) -->
+                <div>
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Presets</div>
+                    <div class="flex overflow-x-auto gap-1.5 pb-1 no-scrollbar touch-auto">
+                        <button onclick="window.setEquation('x - y')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">x - y</button>
+                        <button onclick="window.setEquation('x * y')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">x * y</button>
+                        <button onclick="window.setEquation('y / x')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">y / x</button>
+                        <button onclick="window.setEquation('sin(x) - y')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">sin(x) - y</button>
+                        <button onclick="window.setEquation('x^2 - y')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">x² - y</button>
+                        <button onclick="window.setEquation('-x / y')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800/80 text-slate-300 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/50 hover:border-amber-500/40 transition-all code-font whitespace-nowrap active:scale-95">-x / y</button>
+                    </div>
+                </div>
+
+                <!-- Initial Condition (x0, y0) Plotter -->
+                <div class="pt-2 border-t border-slate-800/80">
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>Solution Trajectory</span>
+                        <span class="text-amber-400/80 normal-case text-[10px]">or tap graph</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-2.5">
+                        <div>
+                            <label class="text-[11px] text-slate-400 code-font block mb-0.5">x₀</label>
+                            <input type="number" id="inputX0" value="0" step="0.5"
+                                class="w-full px-2.5 py-1 bg-slate-950/90 border border-slate-700/80 focus:border-amber-500 rounded-lg code-font text-xs text-slate-200 outline-none touch-auto" />
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 code-font block mb-0.5">y₀</label>
+                            <input type="number" id="inputY0" value="1" step="0.5"
+                                class="w-full px-2.5 py-1 bg-slate-950/90 border border-slate-700/80 focus:border-amber-500 rounded-lg code-font text-xs text-slate-200 outline-none touch-auto" />
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button id="plotBtn" class="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-amber-500/20 active:scale-95">
+                            <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
+                            Plot Curve
+                        </button>
+                        <button id="clearBtn" class="py-2 px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-700/50 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Clear all solutions">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Coordinates Display Helper -->
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-xl px-3 py-1.5 text-[11px] code-font text-slate-400 flex justify-between items-center">
+            <span>Cursor:</span>
+            <span id="cursorPos" class="text-amber-400 font-semibold">x: 0.00, y: 0.00</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Global State ---
+        const canvas = document.getElementById('fieldCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        // Viewport camera (World units)
+        let scale = 45; // Pixels per world unit
+        let centerX = 0;
+        let centerY = 0;
+
+        // Mouse & Touch drag state
+        let isDragging = false;
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startCenterX = 0;
+        let startCenterY = 0;
+        let hasMoved = false;
+
+        // Multi-touch Pinch Zoom state
+        let initialPinchDist = null;
+        let initialPinchScale = scale;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        // Solutions & Math compiled state
+        let compiledExpr = null;
+        let solutionCurves = []; // Array of [{x0, y0, path: [{x, y}]}]
+
+        // Setup Lucide icons safely
+        function initIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        // Global function for presets
+        window.setEquation = function(exprStr) {
+            const input = document.getElementById('equationInput');
+            if (input) {
+                input.value = exprStr;
+                updateEquation();
+            }
+        };
+
+        // Fallback mathematical evaluator if math.js is absent or fails
+        function fallbackEval(exprStr, x, y) {
+            try {
+                let jsStr = exprStr
+                    .replace(/\^/g, '**')
+                    .replace(/\bsin\b/gi, 'Math.sin')
+                    .replace(/\bcos\b/gi, 'Math.cos')
+                    .replace(/\btan\b/gi, 'Math.tan')
+                    .replace(/\bexp\b/gi, 'Math.exp')
+                    .replace(/\blog\b/gi, 'Math.log')
+                    .replace(/\bsqrt\b/gi, 'Math.sqrt')
+                    .replace(/\babs\b/gi, 'Math.abs')
+                    .replace(/\bpi\b/gi, 'Math.PI')
+                    .replace(/\be\b/gi, 'Math.E');
+                const fn = new Function('x', 'y', `return (${jsStr});`);
+                return fn(x, y);
+            } catch (e) {
+                return NaN;
+            }
+        }
+
+        function updateEquation() {
+            const input = document.getElementById('equationInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const headerPreview = document.getElementById('headerFormulaPreview');
+            const exprStr = input.value.trim();
+
+            if (headerPreview) {
+                headerPreview.textContent = exprStr || '0';
+            }
+
+            if (!exprStr) {
+                compiledExpr = null;
+                errorMsg.classList.add('hidden');
+                draw();
+                return;
+            }
+
+            try {
+                if (typeof math !== 'undefined' && math.compile) {
+                    compiledExpr = math.compile(exprStr);
+                    compiledExpr.evaluate({ x: 1, y: 1 });
+                } else {
+                    compiledExpr = {
+                        evaluate: (scope) => fallbackEval(exprStr, scope.x, scope.y)
+                    };
+                }
+                errorMsg.classList.add('hidden');
+            } catch (err) {
+                try {
+                    const testVal = fallbackEval(exprStr, 1, 1);
+                    if (!isNaN(testVal)) {
+                        compiledExpr = {
+                            evaluate: (scope) => fallbackEval(exprStr, scope.x, scope.y)
+                        };
+                        errorMsg.classList.add('hidden');
+                        draw();
+                        return;
+                    }
+                } catch(e) {}
+                
+                compiledExpr = null;
+                errorMsg.textContent = "Syntax Error: " + err.message;
+                errorMsg.classList.remove('hidden');
+            }
+            draw();
+        }
+
+        function evalSlope(x, y) {
+            if (!compiledExpr) return NaN;
+            try {
+                const res = compiledExpr.evaluate({ x: x, y: y });
+                if (typeof res === 'number' && !isNaN(res) && isFinite(res)) {
+                    return res;
+                }
+                return NaN;
+            } catch (e) {
+                return NaN;
+            }
+        }
+
+        // --- RK4 Integration for Solution Curves ---
+        function addSolutionCurve(x0, y0) {
+            const maxSteps = 400;
+            const h = 0.03;
+            const forward = [];
+            const backward = [];
+
+            let cx = x0;
+            let cy = y0;
+            forward.push({ x: cx, y: cy });
+
+            for (let i = 0; i < maxSteps; i++) {
+                let k1 = evalSlope(cx, cy);
+                if (isNaN(k1)) break;
+                let k2 = evalSlope(cx + 0.5 * h, cy + 0.5 * h * k1);
+                if (isNaN(k2)) break;
+                let k3 = evalSlope(cx + 0.5 * h, cy + 0.5 * h * k2);
+                if (isNaN(k3)) break;
+                let k4 = evalSlope(cx + h, cy + h * k3);
+                if (isNaN(k4)) break;
+
+                let dy = (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+                cx += h;
+                cy += dy;
+
+                if (Math.abs(cx) > 200 || Math.abs(cy) > 200) break;
+                forward.push({ x: cx, y: cy });
+            }
+
+            cx = x0;
+            cy = y0;
+            for (let i = 0; i < maxSteps; i++) {
+                let k1 = evalSlope(cx, cy);
+                if (isNaN(k1)) break;
+                let k2 = evalSlope(cx - 0.5 * h, cy - 0.5 * h * k1);
+                if (isNaN(k2)) break;
+                let k3 = evalSlope(cx - 0.5 * h, cy - 0.5 * h * k2);
+                if (isNaN(k3)) break;
+                let k4 = evalSlope(cx - h, cy - h * k3);
+                if (isNaN(k4)) break;
+
+                let dy = (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+                cx -= h;
+                cy -= dy;
+
+                if (Math.abs(cx) > 200 || Math.abs(cy) > 200) break;
+                backward.push({ x: cx, y: cy });
+            }
+
+            const fullPath = backward.reverse().concat(forward);
+            solutionCurves.push({ x0, y0, path: fullPath });
+            draw();
+        }
+
+        // --- Coordinate Conversions ---
+        function worldToScreen(wx, wy) {
+            const px = width / 2 + (wx - centerX) * scale;
+            const py = height / 2 - (wy - centerY) * scale;
+            return { px, py };
+        }
+
+        function screenToWorld(px, py) {
+            const wx = centerX + (px - width / 2) / scale;
+            const wy = centerY - (py - height / 2) / scale;
+            return { wx, wy };
+        }
+
+        // --- Canvas Rendering Loop ---
+        function draw() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+
+            ctx.fillStyle = '#06080e';
+            ctx.fillRect(0, 0, width, height);
+
+            const radial = ctx.createRadialGradient(width * 0.5, height * 0.5, 50, width * 0.5, height * 0.5, width * 0.7);
+            radial.addColorStop(0, 'rgba(245, 158, 11, 0.03)');
+            radial.addColorStop(1, 'rgba(6, 8, 14, 0)');
+            ctx.fillStyle = radial;
+            ctx.fillRect(0, 0, width, height);
+
+            let gridStepWorld = 1;
+            if (scale < 20) gridStepWorld = 5;
+            if (scale < 8) gridStepWorld = 10;
+            if (scale > 90) gridStepWorld = 0.5;
+            if (scale > 180) gridStepWorld = 0.2;
+
+            const topLeft = screenToWorld(0, 0);
+            const bottomRight = screenToWorld(width, height);
+
+            const startX = Math.floor(topLeft.wx / gridStepWorld) * gridStepWorld;
+            const endX = Math.ceil(bottomRight.wx / gridStepWorld) * gridStepWorld;
+            const startY = Math.floor(bottomRight.wy / gridStepWorld) * gridStepWorld;
+            const endY = Math.ceil(topLeft.wy / gridStepWorld) * gridStepWorld;
+
+            // 1. Grid Lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
+
+            for (let x = startX; x <= endX; x += gridStepWorld) {
+                const { px } = worldToScreen(x, 0);
+                ctx.beginPath();
+                ctx.moveTo(px, 0);
+                ctx.lineTo(px, height);
+                ctx.stroke();
+            }
+            for (let y = startY; y <= endY; y += gridStepWorld) {
+                const { py } = worldToScreen(0, y);
+                ctx.beginPath();
+                ctx.moveTo(0, py);
+                ctx.lineTo(width, py);
+                ctx.stroke();
+            }
+
+            // 2. Main Axes & Ticks
+            const origin = worldToScreen(0, 0);
+            const axisColor = '#f59e0b';
+
+            const axisY = Math.max(20, Math.min(height - 20, origin.py));
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, axisY);
+            ctx.lineTo(width, axisY);
+            ctx.stroke();
+
+            const axisX = Math.max(20, Math.min(width - 20, origin.px));
+            ctx.beginPath();
+            ctx.moveTo(axisX, 0);
+            ctx.lineTo(axisX, height);
+            ctx.stroke();
+
+            ctx.fillStyle = '#fbbf24';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            for (let x = startX; x <= endX; x += gridStepWorld) {
+                if (Math.abs(x) < 0.0001) continue;
+                const { px } = worldToScreen(x, 0);
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.8)';
+                ctx.moveTo(px, axisY - 4);
+                ctx.lineTo(px, axisY + 4);
+                ctx.stroke();
+
+                const label = Number(x.toFixed(2)).toString();
+                ctx.fillText(label, px, axisY + 6);
+            }
+
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+
+            for (let y = startY; y <= endY; y += gridStepWorld) {
+                if (Math.abs(y) < 0.0001) continue;
+                const { py } = worldToScreen(0, y);
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.8)';
+                ctx.moveTo(axisX - 4, py);
+                ctx.lineTo(axisX + 4, py);
+                ctx.stroke();
+
+                const label = Number(y.toFixed(2)).toString();
+                ctx.fillText(label, axisX - 7, py);
+            }
+
+            ctx.font = 'bold 12px "JetBrains Mono", monospace';
+            ctx.fillStyle = axisColor;
+            ctx.fillText('x', width - 15, axisY - 15);
+            ctx.fillText('y', axisX + 15, 15);
+
+            // 3. Vector Direction Field
+            if (compiledExpr) {
+                const stepPx = width < 640 ? 24 : 28; // Dynamic vector density for mobile
+                const segLen = width < 640 ? 10 : 14;
+
+                for (let px = stepPx / 2; px < width; px += stepPx) {
+                    for (let py = stepPx / 2; py < height; py += stepPx) {
+                        const { wx, wy } = screenToWorld(px, py);
+                        const slope = evalSlope(wx, wy);
+
+                        if (isNaN(slope)) continue;
+
+                        const angle = Math.atan(slope);
+                        const dx = (Math.cos(angle) * segLen) / 2;
+                        const dy = (Math.sin(angle) * segLen) / 2;
+
+                        const mag = Math.min(1, Math.abs(slope) / 5);
+                        const r = Math.round(245 - mag * 180);
+                        const g = Math.round(158 + mag * 20);
+                        const b = Math.round(11 + mag * 240);
+
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.75)`;
+                        ctx.lineWidth = 1.4;
+
+                        ctx.beginPath();
+                        ctx.moveTo(px - dx, py + dy);
+                        ctx.lineTo(px + dx, py - dy);
+                        ctx.stroke();
+
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+                        ctx.fillRect(px - 0.75, py - 0.75, 1.5, 1.5);
+                    }
+                }
+            }
+
+            // 4. Render Solution Curves
+            solutionCurves.forEach((curve, index) => {
+                if (!curve.path || curve.path.length < 2) return;
+
+                const colors = ['#f59e0b', '#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4'];
+                const curveColor = colors[index % colors.length];
+
+                ctx.strokeStyle = curveColor;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+
+                let started = false;
+                for (let i = 0; i < curve.path.length; i++) {
+                    const pt = curve.path[i];
+                    const { px, py } = worldToScreen(pt.x, pt.y);
+
+                    if (px < -100 || px > width + 100 || py < -100 || py > height + 100) {
+                        started = false;
+                        continue;
+                    }
+
+                    if (!started) {
+                        ctx.moveTo(px, py);
+                        started = true;
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+                ctx.stroke();
+
+                // Highlight initial condition point (x0, y0)
+                const p0 = worldToScreen(curve.x0, curve.y0);
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = curveColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(p0.px, p0.py, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            });
+        }
+
+        // Collapsible Panel Toggle logic
+        const panelHeader = document.getElementById('panelHeader');
+        const panelContent = document.getElementById('panelContent');
+        const toggleIcon = document.getElementById('toggleIcon');
+        let isPanelCollapsed = window.innerWidth < 640; // Auto-collapse on small mobile screens
+
+        function togglePanel(collapse) {
+            isPanelCollapsed = typeof collapse === 'boolean' ? collapse : !isPanelCollapsed;
+            if (isPanelCollapsed) {
+                panelContent.classList.add('hidden');
+                if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
+            } else {
+                panelContent.classList.remove('hidden');
+                if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        if (panelHeader) {
+            panelHeader.addEventListener('click', () => togglePanel());
+        }
+
+        // Apply initial panel collapse state for mobile
+        togglePanel(isPanelCollapsed);
+
+        // --- Touch Gestures & Mouse Interactions ---
+
+        function handleResize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            draw();
+        }
+
+        window.addEventListener('resize', handleResize);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDragging = true;
+            hasMoved = false;
+            startMouseX = e.clientX;
+            startMouseY = e.clientY;
+            startCenterX = centerX;
+            startCenterY = centerY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const coords = screenToWorld(e.clientX, e.clientY);
+            const cursorPos = document.getElementById('cursorPos');
+            if (cursorPos) {
+                cursorPos.textContent = `x: ${coords.wx.toFixed(2)}, y: ${coords.wy.toFixed(2)}`;
+            }
+
+            if (!isDragging) return;
+
+            const dx = e.clientX - startMouseX;
+            const dy = e.clientY - startMouseY;
+
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                hasMoved = true;
+            }
+
+            centerX = startCenterX - dx / scale;
+            centerY = startCenterY + dy / scale;
+            draw();
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            if (!hasMoved && e.target === canvas) {
+                const { wx, wy } = screenToWorld(e.clientX, e.clientY);
+                document.getElementById('inputX0').value = wx.toFixed(2);
+                document.getElementById('inputY0').value = wy.toFixed(2);
+                addSolutionCurve(wx, wy);
+
+                // Auto collapse control drawer on mobile when canvas is tapped
+                if (window.innerWidth < 640) {
+                    togglePanel(true);
+                }
+            }
+        });
+
+        // Wheel Zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
+            const mouseBefore = screenToWorld(e.clientX, e.clientY);
+
+            scale *= zoomFactor;
+            scale = Math.max(5, Math.min(500, scale));
+
+            const mouseAfter = screenToWorld(e.clientX, e.clientY);
+            centerX += (mouseBefore.wx - mouseAfter.wx);
+            centerY += (mouseBefore.wy - mouseAfter.wy);
+
+            draw();
+        }, { passive: false });
+
+        // Touch Gestures (Pinch & Touch Pan)
+        function getTouchDist(e) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.target !== canvas) return;
+            if (e.touches.length === 1) {
+                isDragging = true;
+                hasMoved = false;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                startMouseX = e.touches[0].clientX;
+                startMouseY = e.touches[0].clientY;
+                startCenterX = centerX;
+                startCenterY = centerY;
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                initialPinchDist = getTouchDist(e);
+                initialPinchScale = scale;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.target !== canvas) return;
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                const dx = e.touches[0].clientX - startMouseX;
+                const dy = e.touches[0].clientY - startMouseY;
+
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    hasMoved = true;
+                }
+
+                centerX = startCenterX - dx / scale;
+                centerY = startCenterY + dy / scale;
+
+                const coords = screenToWorld(e.touches[0].clientX, e.touches[0].clientY);
+                const cursorPos = document.getElementById('cursorPos');
+                if (cursorPos) {
+                    cursorPos.textContent = `x: ${coords.wx.toFixed(2)}, y: ${coords.wy.toFixed(2)}`;
+                }
+                draw();
+            } else if (e.touches.length === 2 && initialPinchDist) {
+                const currentDist = getTouchDist(e);
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                const mouseBefore = screenToWorld(midX, midY);
+
+                const factor = currentDist / initialPinchDist;
+                scale = Math.max(5, Math.min(500, initialPinchScale * factor));
+
+                const mouseAfter = screenToWorld(midX, midY);
+                centerX += (mouseBefore.wx - mouseAfter.wx);
+                centerY += (mouseBefore.wy - mouseAfter.wy);
+                draw();
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) {
+                if (isDragging && !hasMoved) {
+                    const { wx, wy } = screenToWorld(touchStartX, touchStartY);
+                    document.getElementById('inputX0').value = wx.toFixed(2);
+                    document.getElementById('inputY0').value = wy.toFixed(2);
+                    addSolutionCurve(wx, wy);
+
+                    if (window.innerWidth < 640) {
+                        togglePanel(true);
+                    }
+                }
+                isDragging = false;
+                initialPinchDist = null;
+            }
+        });
+
+        // Form listeners
+        document.getElementById('equationInput').addEventListener('input', updateEquation);
+
+        document.getElementById('plotBtn').addEventListener('click', () => {
+            const x0 = parseFloat(document.getElementById('inputX0').value) || 0;
+            const y0 = parseFloat(document.getElementById('inputY0').value) || 0;
+            addSolutionCurve(x0, y0);
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            solutionCurves = [];
+            draw();
+        });
+
+        document.getElementById('resetViewBtn').addEventListener('click', () => {
+            scale = 45;
+            centerX = 0;
+            centerY = 0;
+            draw();
+        });
+
+        // Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            initIcons();
+            handleResize();
+            updateEquation();
+            addSolutionCurve(0, 1);
+        });
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initIcons();
+            handleResize();
+            updateEquation();
+            if (solutionCurves.length === 0) {
+                addSolutionCurve(0, 1);
+            }
+        }
+    </script>
+</body>
+</html>

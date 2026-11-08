@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Platonic Solids - 3D Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            400: '#ffbf00',
+                            500: '#e6ac00',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- MathJax Configuration and Script -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+            background-image: radial-gradient(rgba(255, 191, 0, 0.05) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            font-family: 'Inter', monospace, sans-serif;
+            color: #ffffff;
+            touch-action: none;
+        }
+
+        #gl-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            display: block;
+        }
+
+        .quantum-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 191, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 191, 0, 0.1);
+            pointer-events: auto; 
+            touch-action: auto;
+        }
+
+        .glowing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ffbf00;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffbf00, 0 0 15px #ffbf00;
+        }
+
+        .solid-btn {
+            background: rgba(255, 191, 0, 0.05);
+            border: 1px solid rgba(255, 191, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .solid-btn:hover {
+            background: rgba(255, 191, 0, 0.15);
+            border-color: rgba(255, 191, 0, 0.5);
+        }
+
+        .solid-btn.active {
+            background: rgba(255, 191, 0, 0.2);
+            border-color: #ffbf00;
+            box-shadow: inset 0 0 10px rgba(255, 191, 0, 0.2);
+            color: #ffbf00;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            padding: 15px 0;
+            cursor: pointer;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 191, 0, 0.2);
+            border-radius: 3px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffbf00;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 0 15px rgba(255, 191, 0, 0.8);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        
+        #ui-content {
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            max-height: 600px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        #ui-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top-color: transparent;
+        }
+        
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.collapsed { transform: rotate(-180deg); }
+        
+        .error-log {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ef4444;
+            font-size: 10px;
+            z-index: 100;
+            pointer-events: none;
+            font-family: monospace;
+            max-width: 300px;
+        }
+
+        /* Proof Modal Styling */
+        #proof-modal {
+            transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
+        }
+        
+        /* MathJax adjustments for dark theme readability */
+        .MathJax {
+            color: #e6ac00 !important;
+            font-size: clamp(0.85em, 3.5vw, 1.15em) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Static Canvas injected safely to prevent Context Loss from detached DOM elements -->
+    <canvas id="gl-canvas"></canvas>
+    <div id="error-overlay" class="error-log"></div>
+
+    <!-- Face Hover Badge -->
+    <div id="face-badge" class="fixed top-6 left-1/2 -translate-x-1/2 px-4 py-2 quantum-card rounded-full text-xs font-bold text-amber-400 opacity-0 transition-opacity pointer-events-none z-20 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span id="face-badge-text">FACE 1</span>
+    </div>
+
+    <!-- Responsive Back Button (Solid Background) -->
+    <button onclick="window.location.href='/'" id="back-btn" class="fixed top-4 right-4 md:top-8 md:right-8 px-3 py-2 md:px-4 md:py-2 bg-amber-400 rounded-xl text-slate-900 font-bold text-xs md:text-sm flex items-center gap-2 transition-all hover:bg-amber-500 shadow-[0_8px_30px_rgba(255,191,0,0.3)] z-50 cursor-pointer">
+        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        <span class="hidden sm:inline tracking-widest uppercase">Back</span>
+    </button>
+
+    <div class="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-md quantum-card rounded-2xl z-10 flex flex-col">
+        <div id="ui-header" class="flex justify-between items-center p-4 border-b border-amber-400/20 cursor-pointer select-none">
+            <div class="flex items-center gap-3">
+                <div class="glowing-dot"></div>
+                <h1 class="text-amber-400 font-bold tracking-widest text-sm md:text-base uppercase">Platonic Solids</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="quick-fold-btn" class="text-[10px] md:text-xs px-3 py-1 bg-amber-400/20 hover:bg-amber-400/40 text-amber-400 rounded border border-amber-400/30 transition-colors uppercase tracking-wider font-bold">Fold</button>
+                <svg id="chevron-icon" class="chevron w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <div id="ui-content" class="p-4 flex flex-col gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs md:text-sm font-medium text-amber-400/80">
+                <button class="solid-btn py-2 rounded-lg" data-solid="tetrahedron">Tetrahedron</button>
+                <button class="solid-btn py-2 rounded-lg" data-solid="cube">Cube</button>
+                <button class="solid-btn py-2 rounded-lg" data-solid="octahedron">Octahedron</button>
+                <button class="solid-btn active py-2 rounded-lg" data-solid="dodecahedron">Dodecahedron</button>
+                <button class="solid-btn py-2 rounded-lg md:col-span-2" data-solid="icosahedron">Icosahedron</button>
+            </div>
+            
+            <div class="mt-1">
+                <div class="flex justify-between text-xs text-amber-400/70 mb-1 uppercase tracking-wide">
+                    <span>2D Net</span>
+                    <span id="fold-percentage" class="text-amber-400 font-bold">0%</span>
+                    <span>3D Solid</span>
+                </div>
+                <input type="range" id="fold-slider" min="0" max="100" value="0">
+            </div>
+
+            <div class="flex justify-between items-center pt-2 mt-1 border-t border-amber-400/20">
+                <span class="text-[10px] md:text-xs text-amber-400/70 uppercase tracking-wider">Auto-Rotate</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="auto-rotate" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-amber-400/10 border border-amber-400/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-amber-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-400/30"></div>
+                </label>
+            </div>
+            
+            <button id="open-proof-btn" class="w-full mt-1 solid-btn py-2.5 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-400/20 text-amber-400 border-amber-400/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                Mathematical Proof
+            </button>
+        </div>
+    </div>
+
+    <!-- Mathematical Proof Modal -->
+    <div id="proof-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[100] flex-col overflow-y-auto pt-16 px-4 pb-20 sm:px-10 pointer-events-none opacity-0" style="display: none;">
+        
+        <button id="close-proof-btn" class="fixed top-4 right-4 md:top-8 md:right-8 p-2 md:px-4 md:py-2 bg-amber-400/10 border border-amber-400/30 rounded-xl text-amber-400 font-bold text-xs md:text-sm flex items-center gap-2 transition-all hover:bg-amber-400 hover:text-slate-900 z-50 cursor-pointer pointer-events-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="hidden sm:inline tracking-widest uppercase">Close</span>
+        </button>
+
+        <div class="max-w-4xl mx-auto quantum-card p-6 md:p-12 rounded-2xl pointer-events-auto my-10 border-amber-400/40">
+            <div class="flex items-center gap-4 mb-8 border-b border-amber-400/20 pb-6">
+                <div class="glowing-dot scale-150"></div>
+                <h2 class="text-2xl md:text-3xl font-bold text-amber-400 tracking-wide">The Geometric Proof</h2>
+            </div>
+            
+            <p class="mb-6 text-slate-300 leading-relaxed text-sm md:text-base">
+                To prove that exactly and only five Platonic solids can exist, we analyze the geometric conditions required to form a closed, three-dimensional corner (a vertex).
+            </p>
+            
+            <h3 class="text-lg md:text-xl font-bold text-white mt-10 mb-4 border-l-4 border-amber-400 pl-3">Step 1: The Vertex Condition</h3>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                A Platonic solid is constructed from congruent regular polygons. Let $p$ be the number of edges of each face (the polygon type), and $q$ be the number of faces meeting at each vertex. For a valid 3D vertex to form and fold inward to create a solid, the sum of the interior angles around a single vertex must be strictly less than a full circle ($360^\circ$ or $2\pi$ radians).
+            </p>
+            
+            <h3 class="text-lg md:text-xl font-bold text-white mt-10 mb-4 border-l-4 border-amber-400 pl-3">Step 2: Interior Angles</h3>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                To find the interior angle of any regular $p$-sided polygon, we can divide it into $(p-2)$ triangles by drawing diagonals from a single vertex. Since every triangle contains $180^\circ$, the total sum of the polygon's interior angles is $(p-2) \times 180^\circ$.
+            </p>
+            
+            <!-- 2D Geometric Derivation Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
+                <!-- Triangle (p=3) -->
+                <div class="flex flex-col items-center p-4 bg-amber-400/5 rounded-xl border border-amber-400/20 shadow-[inset_0_0_15px_rgba(255,191,0,0.05)]">
+                    <svg viewBox="0 0 100 100" class="w-20 h-20 md:w-24 md:h-24 mb-4 overflow-visible drop-shadow-[0_0_8px_rgba(255,191,0,0.5)]">
+                        <polygon points="50,15 90,85 10,85" fill="rgba(255,191,0,0.1)" stroke="#ffbf00" stroke-width="2" stroke-linejoin="round"/>
+                        <!-- Angle Arc & Label -->
+                        <path d="M 22,64 Q 30,75 35,85" fill="none" stroke="#ffbf00" stroke-width="2"/>
+                        <text x="24" y="78" fill="#ffbf00" font-size="12" font-family="sans-serif" font-weight="bold">θ</text>
+                    </svg>
+                    <div class="text-xs text-center text-amber-200/70 leading-relaxed"><span class="font-bold text-amber-400 text-sm">p = 3</span><br>1 Triangle<br>$\theta = 60^\circ$</div>
+                </div>
+
+                <!-- Square (p=4) -->
+                <div class="flex flex-col items-center p-4 bg-amber-400/5 rounded-xl border border-amber-400/20 shadow-[inset_0_0_15px_rgba(255,191,0,0.05)]">
+                    <svg viewBox="0 0 100 100" class="w-20 h-20 md:w-24 md:h-24 mb-4 overflow-visible drop-shadow-[0_0_8px_rgba(255,191,0,0.5)]">
+                        <polygon points="15,15 85,15 85,85 15,85" fill="rgba(255,191,0,0.1)" stroke="#ffbf00" stroke-width="2" stroke-linejoin="round"/>
+                        <line x1="15" y1="15" x2="85" y2="85" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <!-- Angle Arc & Label -->
+                        <path d="M 15,35 Q 25,25 35,15" fill="none" stroke="#ffbf00" stroke-width="2"/>
+                        <text x="20" y="30" fill="#ffbf00" font-size="12" font-family="sans-serif" font-weight="bold">θ</text>
+                    </svg>
+                    <div class="text-xs text-center text-amber-200/70 leading-relaxed"><span class="font-bold text-amber-400 text-sm">p = 4</span><br>2 Triangles<br>$\theta = 90^\circ$</div>
+                </div>
+
+                <!-- Pentagon (p=5) -->
+                <div class="flex flex-col items-center p-4 bg-amber-400/5 rounded-xl border border-amber-400/20 shadow-[inset_0_0_15px_rgba(255,191,0,0.05)]">
+                    <svg viewBox="0 0 100 100" class="w-20 h-20 md:w-24 md:h-24 mb-4 overflow-visible drop-shadow-[0_0_8px_rgba(255,191,0,0.5)]">
+                        <polygon points="50,10 88,38 73,85 27,85 12,38" fill="rgba(255,191,0,0.1)" stroke="#ffbf00" stroke-width="2" stroke-linejoin="round"/>
+                        <!-- Diagonals from Vertex (12,38) to illustrate triangulation clearly -->
+                        <line x1="12" y1="38" x2="73" y2="85" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <line x1="12" y1="38" x2="88" y2="38" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <!-- Angle Arc & Label -->
+                        <path d="M 23,28 Q 30,40 21,55" fill="none" stroke="#ffbf00" stroke-width="2"/>
+                        <text x="26" y="44" fill="#ffbf00" font-size="12" font-family="sans-serif" font-weight="bold">θ</text>
+                    </svg>
+                    <div class="text-xs text-center text-amber-200/70 leading-relaxed"><span class="font-bold text-amber-400 text-sm">p = 5</span><br>3 Triangles<br>$\theta = 108^\circ$</div>
+                </div>
+
+                <!-- Hexagon (p=6) -->
+                <div class="flex flex-col items-center p-4 bg-amber-400/5 rounded-xl border border-amber-400/20 shadow-[inset_0_0_15px_rgba(255,191,0,0.05)]">
+                    <svg viewBox="0 0 100 100" class="w-20 h-20 md:w-24 md:h-24 mb-4 overflow-visible drop-shadow-[0_0_8px_rgba(255,191,0,0.5)]">
+                        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="rgba(255,191,0,0.1)" stroke="#ffbf00" stroke-width="2" stroke-linejoin="round"/>
+                        <!-- Diagonals from top left Vertex (15,30) -->
+                        <line x1="15" y1="30" x2="85" y2="30" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <line x1="15" y1="30" x2="85" y2="70" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <line x1="15" y1="30" x2="50" y2="90" stroke="rgba(255,191,0,0.4)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <!-- Angle Arc & Label -->
+                        <path d="M 31,21 Q 25,35 15,48" fill="none" stroke="#ffbf00" stroke-width="2"/>
+                        <text x="24" y="37" fill="#ffbf00" font-size="12" font-family="sans-serif" font-weight="bold">θ</text>
+                    </svg>
+                    <div class="text-xs text-center text-amber-200/70 leading-relaxed"><span class="font-bold text-amber-400 text-sm">p = 6</span><br>4 Triangles<br>$\theta = 120^\circ$</div>
+                </div>
+            </div>
+
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Dividing this total evenly among all $p$ vertices gives the interior angle $\theta$:
+            </p>
+            <div class="text-center my-6 py-2 w-full flex justify-center">
+                $$\theta = \frac{(p-2) \times 180^\circ}{p}$$
+            </div>
+            
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Since exactly $q$ faces meet at each vertex in a Platonic Solid, the sum of their angles is $q \times \theta$. For a corner to fold out of flat 2D space into 3D, this sum must be strictly less than a full circle ($360^\circ$):
+            </p>
+            <div class="text-center my-6 py-2 w-full flex justify-center">
+                $$q \times \frac{(p-2) \times 180^\circ}{p} < 360^\circ$$
+            </div>
+
+            <h3 class="text-lg md:text-xl font-bold text-white mt-10 mb-4 border-l-4 border-amber-400 pl-3">Step 3: Algebraic Reduction</h3>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Dividing both sides of our inequality by $180^\circ$ yields:
+            </p>
+            <div class="text-center my-4 py-2 w-full flex justify-center">
+                $$\frac{q(p-2)}{p} < 2$$
+            </div>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Multiplying by $p$ (since polygons must have positive edge counts):
+            </p>
+            <div class="text-center my-4 py-2 w-full flex justify-center">
+                $$qp - 2q < 2p$$
+            </div>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Rearranging all variables to the left side:
+            </p>
+            <div class="text-center my-4 py-2 w-full flex justify-center">
+                $$qp - 2q - 2p < 0$$
+            </div>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                Adding $4$ to both sides allows us to factor the polynomial elegantly:
+            </p>
+            <div class="text-center my-4 py-2 w-full flex justify-center">
+                $$qp - 2q - 2p + 4 < 4$$
+            </div>
+            <div class="flex justify-center w-full my-6">
+                <div class="text-center p-4 bg-slate-800/50 rounded-lg border border-slate-700/50 inline-block">
+                    $$(p-2)(q-2) < 4$$
+                </div>
+            </div>
+
+            <h3 class="text-lg md:text-xl font-bold text-white mt-10 mb-4 border-l-4 border-amber-400 pl-3">Step 4: Finding Integer Solutions</h3>
+            <p class="mb-4 text-slate-300 leading-relaxed text-sm md:text-base">
+                By geometric definition, a valid polygon must have at least 3 sides ($p \ge 3$), and a 3D corner requires at least 3 intersecting faces ($q \ge 3$). Therefore, $(p-2) \ge 1$ and $(q-2) \ge 1$. We evaluate all positive integer pairs where their product is strictly less than 4.
+            </p>
+            
+            <ul class="list-none space-y-6 mb-8 text-sm md:text-base">
+                <li class="bg-amber-400/5 p-4 rounded-lg border border-amber-400/10">
+                    <strong class="text-amber-400 block mb-2">If $p = 3$ (Triangles):</strong> 
+                    <div class="flex flex-col items-center justify-center pb-4 w-full">
+                        $$ \begin{aligned} (3-2)(q-2) &< 4 \\ \implies q - 2 &< 4 \\ \implies q &< 6 \end{aligned} $$
+                    </div>
+                    <span class="text-slate-300">The only valid integers $\ge 3$ are <strong>$q=3$</strong> (Tetrahedron), <strong>$q=4$</strong> (Octahedron), and <strong>$q=5$</strong> (Icosahedron).</span>
+                </li>
+                <li class="bg-amber-400/5 p-4 rounded-lg border border-amber-400/10">
+                    <strong class="text-amber-400 block mb-2">If $p = 4$ (Squares):</strong> 
+                    <div class="flex flex-col items-center justify-center pb-4 w-full">
+                        $$ \begin{aligned} (4-2)(q-2) &< 4 \\ \implies 2(q-2) &< 4 \\ \implies q - 2 &< 2 \\ \implies q &< 4 \end{aligned} $$
+                    </div>
+                    <span class="text-slate-300">The only valid integer $\ge 3$ is <strong>$q=3$</strong> (Cube).</span>
+                </li>
+                <li class="bg-amber-400/5 p-4 rounded-lg border border-amber-400/10">
+                    <strong class="text-amber-400 block mb-2">If $p = 5$ (Pentagons):</strong> 
+                    <div class="flex flex-col items-center justify-center pb-4 w-full">
+                        $$ \begin{aligned} (5-2)(q-2) &< 4 \\ \implies 3(q-2) &< 4 \\ \implies q - 2 &< 1.33 \\ \implies q &< 3.33 \end{aligned} $$
+                    </div>
+                    <span class="text-slate-300">The only valid integer $\ge 3$ is <strong>$q=3$</strong> (Dodecahedron).</span>
+                </li>
+                <li class="bg-amber-400/5 p-4 rounded-lg border border-amber-400/10">
+                    <strong class="text-amber-400 block mb-2">If $p \ge 6$ (Hexagons or greater):</strong> 
+                    <span class="text-slate-300">We know $(p-2) \ge 4$. Since $q \ge 3$, their product $(p-2)(q-2) \ge 4 \times 1 = 4$. This fundamentally violates the condition that the product must be strictly $< 4$. Thus, <strong>zero</strong> solutions exist for hexagons or higher-order polygons.</span>
+                </li>
+            </ul>
+
+            <div class="p-6 border-l-4 border-amber-400 bg-amber-400/10 rounded-r-lg mt-10 shadow-[inset_0_0_20px_rgba(255,191,0,0.05)]">
+                <p class="text-base md:text-lg italic text-amber-200">
+                    <strong>Conclusion:</strong> These absolute mathematical constraints dictate that exactly and only <strong>five</strong> regular, convex polyhedra can exist in our three-dimensional universe. Q.E.D.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // --- Error Overlay ---
+        function logError(msg) {
+            const errOverlay = document.getElementById('error-overlay');
+            errOverlay.innerHTML += msg + '<br>';
+            setTimeout(() => { errOverlay.innerHTML = ''; }, 5000);
+        }
+
+        // --- UI Interactions ---
+        const header = document.getElementById('ui-header');
+        const content = document.getElementById('ui-content');
+        const chevron = document.getElementById('chevron-icon');
+        const slider = document.getElementById('fold-slider');
+        const percentageText = document.getElementById('fold-percentage');
+        const solidButtons = document.querySelectorAll('.solid-btn[data-solid]');
+        const autoRotateToggle = document.getElementById('auto-rotate');
+        const quickFoldBtn = document.getElementById('quick-fold-btn');
+        const faceBadge = document.getElementById('face-badge');
+        const faceBadgeText = document.getElementById('face-badge-text');
+
+        // Modal Elements
+        const openProofBtn = document.getElementById('open-proof-btn');
+        const closeProofBtn = document.getElementById('close-proof-btn');
+        const proofModal = document.getElementById('proof-modal');
+
+        let isAutoRotating = true;
+        let hoveredMesh = null;
+
+        autoRotateToggle.addEventListener('change', (e) => {
+            isAutoRotating = e.target.checked;
+        });
+
+        header.addEventListener('click', (e) => {
+            if (e.target.closest('#quick-fold-btn')) return;
+            content.classList.toggle('collapsed');
+            chevron.classList.toggle('collapsed');
+        });
+
+        quickFoldBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            let current = parseFloat(slider.value);
+            let target = current >= 50 ? 0 : 100;
+            slider.value = target;
+            if (window.updateFold) window.updateFold();
+        });
+
+        solidButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                solidButtons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                if (window.buildSolid) {
+                    window.buildSolid(e.target.dataset.solid);
+                    slider.value = 0;
+                    window.updateFold();
+                }
+            });
+        });
+
+        // Modal Logic
+        openProofBtn.addEventListener('click', () => {
+            proofModal.style.display = 'flex';
+            // slight delay to allow display:flex to register before opacity transition
+            setTimeout(() => {
+                proofModal.classList.remove('opacity-0', 'pointer-events-none');
+                proofModal.classList.add('opacity-100');
+            }, 10);
+            
+            // Re-render MathJax just in case
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        });
+
+        closeProofBtn.addEventListener('click', () => {
+            proofModal.classList.remove('opacity-100');
+            proofModal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                proofModal.style.display = 'none';
+            }, 400); // match CSS transition duration
+        });
+
+        // --- Interaction & Zoom ---
+        let targetRotationX = Math.PI / 6;
+        let targetRotationY = -Math.PI / 4;
+        let targetCameraX = 0;
+        let targetCameraY = 0;
+        let previousMousePosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let isTouchingUI = false;
+        let isPinching = false;
+        let targetCameraZ = 22;
+        const raycaster = new THREE.Raycaster();
+        const mouseVector = new THREE.Vector2();
+
+        document.addEventListener('pointerdown', (event) => {
+            if (event.target.closest('.quantum-card') || event.target.closest('#proof-modal')) {
+                isTouchingUI = true;
+            } else {
+                isTouchingUI = false;
+                previousMousePosition = { x: event.clientX, y: event.clientY };
+            }
+        });
+        
+        document.addEventListener('pointerup', () => { isTouchingUI = false; });
+        
+        document.addEventListener('pointermove', (event) => {
+            if (proofModal.classList.contains('opacity-100')) return; // Ignore drag if modal open
+
+            // Update Raycaster for Face Interaction
+            mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            if (isTouchingUI || isPinching) return;
+            
+            if (!event.target.closest('.quantum-card')) {
+                if (slider.value === '0') {
+                    // Panning mode in 2D
+                    if (event.buttons > 0) {
+                        const deltaX = event.clientX - previousMousePosition.x;
+                        const deltaY = event.clientY - previousMousePosition.y;
+                        
+                        const panFactor = targetCameraZ * 0.0015;
+                        targetCameraX -= deltaX * panFactor;
+                        targetCameraY += deltaY * panFactor;
+                    }
+                } else {
+                    // Rotation mode in 3D
+                    if (event.pointerType === 'mouse' && event.buttons === 0) {
+                        const mouseX = (event.clientX / window.innerWidth) - 0.5;
+                        const mouseY = (event.clientY / window.innerHeight) - 0.5;
+                        
+                        targetRotationY = mouseX * Math.PI * 2.5;
+                        targetRotationX = mouseY * Math.PI * 1.5;
+                        
+                        if (isAutoRotating) {
+                            isAutoRotating = false;
+                            autoRotateToggle.checked = false;
+                        }
+                    } else if (event.buttons > 0) {
+                        const deltaX = event.clientX - previousMousePosition.x;
+                        const deltaY = event.clientY - previousMousePosition.y;
+                        
+                        targetRotationY += deltaX * 0.008;
+                        targetRotationX += deltaY * 0.008;
+
+                        if (isAutoRotating) {
+                            isAutoRotating = false;
+                            autoRotateToggle.checked = false;
+                        }
+                    }
+                }
+                previousMousePosition = { x: event.clientX, y: event.clientY };
+            }
+        });
+
+        // Mouse Wheel Zoom
+        document.addEventListener('wheel', (event) => {
+            if (proofModal.classList.contains('opacity-100')) return; // Ignore scroll if modal open
+            
+            if (camera) {
+                targetCameraZ += event.deltaY * 0.02;
+                targetCameraZ = Math.max(8, Math.min(targetCameraZ, 60)); 
+            }
+        }, { passive: true });
+
+        // Touch Pinch Zoom
+        let initialPinchDist = null;
+        let initialZ = null;
+
+        document.addEventListener('touchstart', (e) => {
+            if (proofModal.classList.contains('opacity-100')) return;
+
+            if (e.touches.length === 2 && camera) {
+                isPinching = true;
+                initialPinchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialZ = targetCameraZ;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (proofModal.classList.contains('opacity-100')) return;
+
+            if (e.touches.length === 2 && initialPinchDist && camera) {
+                const currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                targetCameraZ = initialZ * (initialPinchDist / currentDist);
+                targetCameraZ = Math.max(8, Math.min(targetCameraZ, 60));
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                isPinching = false;
+                initialPinchDist = null;
+            }
+        });
+
+        // --- 3D Core & Non-Overlapping Mathematics ---
+        let scene, camera, renderer, faceMaterial, edgeMaterial, hoverMaterial;
+        let currentOuterGroup = null;
+        let allHinges = [];
+        let allMeshes = [];
+        let animationFrameId = null;
+
+        class NetBuilder {
+            constructor(sides, sideLength) {
+                this.n = sides;
+                this.R = sideLength / (2 * Math.sin(Math.PI / this.n));
+                this.a = sideLength / (2 * Math.tan(Math.PI / this.n));
+                
+                const shape = new THREE.Shape();
+                for (let i = 0; i < this.n; i++) {
+                    const theta = (i * 2 * Math.PI) / this.n;
+                    if (i === 0) shape.moveTo(this.R * Math.cos(theta), this.R * Math.sin(theta));
+                    else shape.lineTo(this.R * Math.cos(theta), this.R * Math.sin(theta));
+                }
+                shape.closePath();
+                this.geometry = new THREE.ShapeGeometry(shape);
+            }
+
+            getEdgeTransform(edgeIndex) {
+                const angle = (edgeIndex * 2 * Math.PI / this.n) + (Math.PI / this.n);
+                return { x: this.a * Math.cos(angle), y: this.a * Math.sin(angle), angle };
+            }
+
+            createNode(id) {
+                const group = new THREE.Group();
+                const mesh = new THREE.Mesh(this.geometry, faceMaterial);
+                mesh.userData = { faceId: id };
+                allMeshes.push(mesh);
+
+                const edges = new THREE.LineSegments(new THREE.EdgesGeometry(this.geometry), edgeMaterial);
+                mesh.add(edges);
+                group.add(mesh);
+                return { group, mesh, hinges: [] };
+            }
+
+            attach(parentNode, parentEdge, childNode, childEdge, foldAngle) {
+                const pTransform = this.getEdgeTransform(parentEdge);
+                const cTransform = this.getEdgeTransform(childEdge);
+
+                const hingeBase = new THREE.Group();
+                hingeBase.position.set(pTransform.x, pTransform.y, 0);
+                hingeBase.rotation.z = pTransform.angle;
+
+                const hingeFold = new THREE.Group();
+                hingeBase.add(hingeFold);
+
+                const childContainer = new THREE.Group();
+                childContainer.rotation.z = Math.PI - cTransform.angle;
+                childContainer.position.set(this.a, 0, 0);
+                
+                childContainer.add(childNode.group);
+                hingeFold.add(childContainer);
+                parentNode.group.add(hingeBase);
+                
+                parentNode.hinges.push({ hinge: hingeFold, foldAngle, childMesh: childNode.mesh });
+            }
+        }
+
+        // Exact Non-Overlapping Spanning Trees
+        const solidsData = {
+            tetrahedron: {
+                n: 3, S: 5, fold: Math.PI - Math.acos(1/3), baseZ: 18, foldedZ: 8,
+                tree: [
+                    { id: 0 },
+                    { id: 1, parent: 0, pEdge: 0, cEdge: 0 },
+                    { id: 2, parent: 0, pEdge: 1, cEdge: 0 },
+                    { id: 3, parent: 0, pEdge: 2, cEdge: 0 }
+                ]
+            },
+            cube: {
+                n: 4, S: 3, fold: Math.PI / 2, baseZ: 20, foldedZ: 10,
+                tree: [
+                    { id: 0 }, // Center
+                    { id: 1, parent: 0, pEdge: 0, cEdge: 0 }, // Right
+                    { id: 2, parent: 0, pEdge: 1, cEdge: 0 }, // Top
+                    { id: 3, parent: 0, pEdge: 2, cEdge: 0 }, // Left
+                    { id: 4, parent: 0, pEdge: 3, cEdge: 0 }, // Bottom
+                    { id: 5, parent: 1, pEdge: 2, cEdge: 0 }  // Far Right Cap
+                ]
+            },
+            octahedron: {
+                n: 3, S: 3.5, fold: Math.PI - Math.acos(-1/3), baseZ: 22, foldedZ: 9,
+                tree: [
+                    { id: 0 },
+                    { id: 1, parent: 0, pEdge: 1, cEdge: 2 },
+                    { id: 2, parent: 1, pEdge: 1, cEdge: 2 },
+                    { id: 3, parent: 2, pEdge: 1, cEdge: 2 },
+                    { id: 4, parent: 0, pEdge: 0, cEdge: 0 },
+                    { id: 5, parent: 1, pEdge: 0, cEdge: 0 },
+                    { id: 6, parent: 2, pEdge: 0, cEdge: 0 },
+                    { id: 7, parent: 3, pEdge: 0, cEdge: 0 }
+                ]
+            },
+            dodecahedron: {
+                n: 5, S: 1.8, fold: Math.PI - Math.acos(-1/Math.sqrt(5)), baseZ: 28, foldedZ: 12,
+                tree: [
+                    { id: 0 },
+                    { id: 1, parent: 0, pEdge: 0, cEdge: 0 },
+                    { id: 2, parent: 0, pEdge: 1, cEdge: 0 },
+                    { id: 3, parent: 0, pEdge: 2, cEdge: 0 },
+                    { id: 4, parent: 0, pEdge: 3, cEdge: 0 },
+                    { id: 5, parent: 0, pEdge: 4, cEdge: 0 },
+                    { id: 6, parent: 1, pEdge: 2, cEdge: 2 },
+                    { id: 11, parent: 6, pEdge: 0, cEdge: 0 },
+                    { id: 7, parent: 11, pEdge: 1, cEdge: 0 },
+                    { id: 8, parent: 11, pEdge: 2, cEdge: 0 },
+                    { id: 9, parent: 11, pEdge: 3, cEdge: 0 },
+                    { id: 10, parent: 11, pEdge: 4, cEdge: 0 }
+                ]
+            },
+            icosahedron: {
+                n: 3, S: 2.2, fold: Math.PI - Math.acos(-Math.sqrt(5)/3), baseZ: 26, foldedZ: 11,
+                tree: [
+                    { id: 0 },
+                    { id: 1, parent: 0, pEdge: 1, cEdge: 0 },
+                    { id: 2, parent: 1, pEdge: 2, cEdge: 0 },
+                    { id: 3, parent: 2, pEdge: 1, cEdge: 0 },
+                    { id: 4, parent: 3, pEdge: 2, cEdge: 0 },
+                    { id: 5, parent: 4, pEdge: 1, cEdge: 0 },
+                    { id: 6, parent: 5, pEdge: 2, cEdge: 0 },
+                    { id: 7, parent: 6, pEdge: 1, cEdge: 0 },
+                    { id: 8, parent: 7, pEdge: 2, cEdge: 0 },
+                    { id: 9, parent: 8, pEdge: 1, cEdge: 0 },
+                    { id: 10, parent: 0, pEdge: 2, cEdge: 0 },
+                    { id: 11, parent: 2, pEdge: 2, cEdge: 0 },
+                    { id: 12, parent: 4, pEdge: 2, cEdge: 0 },
+                    { id: 13, parent: 6, pEdge: 2, cEdge: 0 },
+                    { id: 14, parent: 8, pEdge: 2, cEdge: 0 },
+                    { id: 15, parent: 1, pEdge: 1, cEdge: 0 },
+                    { id: 16, parent: 3, pEdge: 1, cEdge: 0 },
+                    { id: 17, parent: 5, pEdge: 1, cEdge: 0 },
+                    { id: 18, parent: 7, pEdge: 1, cEdge: 0 },
+                    { id: 19, parent: 9, pEdge: 1, cEdge: 0 }
+                ]
+            }
+        };
+
+        window.buildSolid = function(type) {
+            if (!scene) return;
+            if (currentOuterGroup) {
+                scene.remove(currentOuterGroup);
+                currentOuterGroup.traverse(child => {
+                    if (child.isMesh || child.isLineSegments) {
+                        if (child.geometry) child.geometry.dispose();
+                    }
+                });
+            }
+            
+            allHinges = [];
+            allMeshes = [];
+            const data = solidsData[type];
+            const builder = new NetBuilder(data.n, data.S);
+            const nodes = {};
+            const netGroup = new THREE.Group();
+            
+            data.tree.forEach(step => {
+                const node = builder.createNode(step.id);
+                nodes[step.id] = node;
+                if (step.parent === undefined) netGroup.add(node.group);
+                else builder.attach(nodes[step.parent], step.pEdge, node, step.cEdge, data.fold);
+            });
+            
+            Object.values(nodes).forEach(n => allHinges.push(...n.hinges));
+
+            // Force fold 100% to calculate center offset
+            allHinges.forEach(({ hinge, foldAngle }) => { hinge.rotation.y = -foldAngle; });
+            netGroup.updateMatrixWorld(true);
+            
+            const box = new THREE.Box3().setFromObject(netGroup);
+            const center = new THREE.Vector3();
+            if (!box.isEmpty()) {
+                box.getCenter(center);
+                netGroup.position.sub(center); 
+            }
+            // Revert back for slider update
+            allHinges.forEach(({ hinge }) => { hinge.rotation.y = 0; });
+            
+            currentOuterGroup = new THREE.Group();
+            currentOuterGroup.add(netGroup);
+            
+            if (slider.value === '0') {
+                targetRotationX = 0;
+                targetRotationY = 0;
+            } else {
+                targetRotationX = Math.PI / 6;
+                targetRotationY = -Math.PI / 4;
+            }
+            targetCameraX = 0;
+            targetCameraY = 0;
+            currentOuterGroup.rotation.set(targetRotationX, targetRotationY, 0);
+
+            scene.add(currentOuterGroup);
+            window.currentSolidType = type;
+
+            if (window.updateFold) window.updateFold();
+        };
+
+        window.updateFold = function() {
+            const progress = parseFloat(slider.value) / 100;
+            percentageText.textContent = `${Math.round(progress * 100)}%`;
+            quickFoldBtn.textContent = progress > 0.5 ? "Unfold" : "Fold";
+            
+            if (progress === 0) {
+                targetRotationX = 0;
+                targetRotationY = 0;
+            } else {
+                targetCameraX = 0;
+                targetCameraY = 0;
+            }
+
+            allHinges.forEach(({ hinge, foldAngle }) => {
+                hinge.rotation.y = -progress * foldAngle;
+            });
+
+            if (window.currentSolidType) {
+                const data = solidsData[window.currentSolidType];
+                if (data) {
+                    targetCameraZ = data.baseZ + (data.foldedZ - data.baseZ) * progress;
+                }
+            }
+        };
+
+        slider.addEventListener('input', window.updateFold);
+
+        function animate() {
+            if (!scene || !renderer) return;
+            animationFrameId = requestAnimationFrame(animate);
+            
+            // Suspend 3D updates heavily while modal is covering screen to save resources
+            if (proofModal.classList.contains('opacity-100')) {
+                renderer.render(scene, camera);
+                return;
+            }
+            
+            if (isAutoRotating && slider.value !== '0') {
+                targetRotationY -= 0.003;
+                targetRotationX += 0.001;
+            }
+            
+            if (currentOuterGroup) {
+                currentOuterGroup.rotation.y += (targetRotationY - currentOuterGroup.rotation.y) * 0.1;
+                currentOuterGroup.rotation.x += (targetRotationX - currentOuterGroup.rotation.x) * 0.1;
+            }
+
+            if (camera) {
+                camera.position.x += (targetCameraX - camera.position.x) * 0.1;
+                camera.position.y += (targetCameraY - camera.position.y) * 0.1;
+                camera.position.z += (targetCameraZ - camera.position.z) * 0.1;
+
+                // Face Highlighting Raycast Check
+                raycaster.setFromCamera(mouseVector, camera);
+                const intersects = raycaster.intersectObjects(allMeshes);
+
+                if (intersects.length > 0) {
+                    const hit = intersects[0].object;
+                    if (hoveredMesh !== hit) {
+                        if (hoveredMesh) hoveredMesh.material = faceMaterial;
+                        hoveredMesh = hit;
+                        hoveredMesh.material = hoverMaterial;
+                        faceBadgeText.textContent = `FACE ${hoveredMesh.userData.faceId + 1}`;
+                        faceBadge.classList.remove('opacity-0');
+                    }
+                } else {
+                    if (hoveredMesh) {
+                        hoveredMesh.material = faceMaterial;
+                        hoveredMesh = null;
+                        faceBadge.classList.add('opacity-0');
+                    }
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // --- Context Handling Engine Setup ---
+        function initScene() {
+            try {
+                const canvas = document.getElementById('gl-canvas');
+                const width = Math.max(300, window.innerWidth || document.documentElement.clientWidth || 300);
+                const height = Math.max(300, window.innerHeight || document.documentElement.clientHeight || 300);
+
+                if (window.__RENDERER__) {
+                    try { window.__RENDERER__.dispose(); } catch(e) {}
+                }
+
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+
+                scene = new THREE.Scene();
+
+                try {
+                    renderer = new THREE.WebGLRenderer({ 
+                        canvas: canvas, 
+                        antialias: true, 
+                        alpha: true, 
+                        powerPreference: 'default',
+                        failIfMajorPerformanceCaveat: false 
+                    });
+                } catch (e) {
+                    logError("WebGL Init failed, using fallback.");
+                    return; 
+                }
+
+                window.__RENDERER__ = renderer;
+                
+                renderer.setSize(width, height, false);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+                camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+                camera.position.set(0, 0, targetCameraZ);
+
+                scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+                dirLight.position.set(10, 20, 15);
+                scene.add(dirLight);
+                const amberLight = new THREE.DirectionalLight(0xffbf00, 0.6); 
+                amberLight.position.set(-10, -10, -10);
+                scene.add(amberLight);
+
+                faceMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xffbf00, 
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.88,
+                    roughness: 0.25,
+                    metalness: 0.45,
+                    polygonOffset: true,
+                    polygonOffsetFactor: 1,
+                    polygonOffsetUnits: 1
+                });
+
+                hoverMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xff3366,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.95,
+                    roughness: 0.1,
+                    metalness: 0.8,
+                    emissive: 0xff0044,
+                    emissiveIntensity: 0.3
+                });
+
+                edgeMaterial = new THREE.LineBasicMaterial({ 
+                    color: 0xffdb4d, 
+                    linewidth: 2,
+                    transparent: false
+                });
+
+                window.buildSolid('dodecahedron');
+                animate();
+
+            } catch (err) {
+                logError("Handled Engine Init Error: " + err.message);
+            }
+        }
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                const w = Math.max(300, window.innerWidth || document.documentElement.clientWidth || 300);
+                const h = Math.max(300, window.innerHeight || document.documentElement.clientHeight || 300);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h, false);
+            }
+        });
+
+        // Safe Initialization Polling & Event Binding
+        function startVisualizer() {
+            const canvas = document.getElementById('gl-canvas');
+            if (!canvas) return;
+
+            canvas.addEventListener('webglcontextlost', function(e) {
+                e.preventDefault();
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                logError("Context lost. Standby.");
+            }, false);
+            
+            canvas.addEventListener('webglcontextrestored', function(e) {
+                logError("Context restored. Rebuilding...");
+                initScene();
+            }, false);
+
+            initScene();
+        }
+
+        let initAttempts = 0;
+        function tryInit() {
+            if (window.THREE && window.THREE.WebGLRenderer) {
+                startVisualizer();
+            } else {
+                initAttempts++;
+                if (initAttempts < 100) setTimeout(tryInit, 50);
+            }
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            tryInit();
+        } else {
+            document.addEventListener('DOMContentLoaded', tryInit);
+            window.addEventListener('load', tryInit);
+        }
+    </script>
+</body>
+</html>

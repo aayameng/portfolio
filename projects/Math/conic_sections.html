@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<!-- Chosen Palette: Cosmic Gold & Dark Navy -->
+<!-- Application Structure Plan: Interactive 3D conic section visualizer featuring an upright double cone along the vertical W-axis, a cut plane with normal vector displacement, real-time parametric curve calculations, collapsible UI cards for uncluttered geometry viewing, and live mathematical metrics calculation. -->
+<!-- Visualization & Content Choices: Three.js WebGL canvas for 3D double cone rendering, BufferGeometry for neon green intersection curves, HTML/Tailwind CSS for collapsible UI overlay panels. NO SVG graphics used. NO Mermaid JS used. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Conic Sections Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #080c1b;
+            --panel-bg: rgba(13, 19, 35, 0.88);
+            --gold-bright: #ffc107;
+            --gold-dim: rgba(255, 193, 7, 0.35);
+            --gold-glow: rgba(255, 193, 7, 0.5);
+            --neon-green: #00ff66;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Space Mono', monospace;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        /* Dot grid background */
+        #bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 28px 28px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* Top Action Bar */
+        .top-toolbar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 30;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--gold-bright);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .icon-btn.back-btn { width: auto; padding: 0 14px 0 10px; gap: 4px; text-decoration: none; font-family: 'Space Mono', monospace; font-size: .8rem; font-weight: 700; letter-spacing: .5px; }
+        .icon-btn:hover {
+            background: rgba(255, 193, 7, 0.15);
+            border-color: var(--gold-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        /* Floating Panel Standard */
+        .ui-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--gold-dim);
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .card-header:hover {
+            background: rgba(255, 193, 7, 0.05);
+        }
+
+        .card-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
+            overflow: hidden;
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .card-body.collapsed {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            pointer-events: none;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            color: var(--gold-bright);
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* UI Panels Positions */
+        #controls-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 460px;
+            z-index: 20;
+        }
+
+        #metrics-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 280px;
+            z-index: 20;
+        }
+
+        .glow-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--gold-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--gold-bright), 0 0 18px var(--gold-bright);
+        }
+
+        h1, h2 {
+            color: var(--gold-bright);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 0;
+            text-shadow: 0 0 6px var(--gold-glow);
+        }
+
+        /* Preset Buttons */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .conic-btn {
+            background: transparent;
+            border: 1px solid var(--gold-dim);
+            color: var(--gold-bright);
+            padding: 9px 6px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .conic-btn:hover {
+            background: rgba(255, 193, 7, 0.08);
+            border-color: var(--gold-bright);
+        }
+
+        .conic-btn.active {
+            background: rgba(255, 193, 7, 0.18);
+            border-color: var(--gold-bright);
+            box-shadow: inset 0 0 12px rgba(255, 193, 7, 0.25), 0 0 10px rgba(255, 193, 7, 0.2);
+            text-shadow: 0 0 6px var(--gold-bright);
+        }
+
+        /* Sliders */
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: #a0aec0;
+            letter-spacing: 1px;
+        }
+
+        .slider-val {
+            color: var(--gold-bright);
+            font-weight: 700;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 2px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: var(--gold-bright);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 12px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            letter-spacing: 1px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #1e293b;
+            transition: .3s;
+            border-radius: 22px;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .slider-toggle:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #a0aec0;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-toggle {
+            background-color: rgba(255, 193, 7, 0.2);
+            border-color: var(--gold-bright);
+        }
+
+        input:checked + .slider-toggle:before {
+            transform: translateX(18px);
+            background-color: var(--gold-bright);
+            box-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        /* UI Hidden state */
+        .ui-hidden {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        #restore-ui-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 40;
+            padding: 10px 16px;
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid var(--gold-bright);
+            border-radius: 20px;
+            color: var(--gold-bright);
+            font-size: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--gold-glow);
+            display: none;
+        }
+        /* axis-label toggle rows inside the proof panels */
+        .lbl-row { display: flex; justify-content: space-between; align-items: center; font-size: .68rem; color: #a0aec0; letter-spacing: 1px; }
+        #px-head .lbl-row { gap: 8px; justify-content: flex-start; }
+        /* ===== Dandelion Sphere Proof overlay ===== */
+        .lb { position: fixed; left: 0; right: 0; height: 0; background: #000; z-index: 35; pointer-events: none; transition: height .9s cubic-bezier(.2,.8,.2,1); }
+        #lb-top { top: 0; } #lb-bot { bottom: 0; }
+        body.proof-on .lb { height: var(--bar); }
+        #proof-vignette { position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: 0; transition: opacity .9s; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%); }
+        body.proof-on #proof-vignette { opacity: 1; }
+        #proof-card h3 { margin: 0; color: var(--gold-bright); font-size: 1rem; letter-spacing: 1.5px; text-shadow: 0 0 6px var(--gold-glow); }
+        #proof-text { margin: 0; font-size: .82rem; line-height: 1.55; color: #e2e8f0; }
+        #proof-live { min-height: 1.2em; color: var(--neon-green); font-size: .85rem; font-weight: 700; }
+        #proof-nav { display: flex; gap: 10px; }
+        #proof-nav .conic-btn { flex: 1; padding: 11px 6px; }
+        .conic-btn:disabled { opacity: .35; cursor: default; }
+        #proof-bar { height: 3px; background: #1e293b; border-radius: 2px; overflow: hidden; }
+        #proof-fill { height: 100%; width: 0; background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-glow); transition: width .5s ease; }
+        .proof-btn { width: 100%; background: rgba(255,193,7,.1); }
+
+
+        :root { --bar: 6vh; }
+        /* ---- responsive proof layout: the 3D stage and the panels never share pixels ---- */
+        #proof-ui { display: none; position: fixed; z-index: 40; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; box-sizing: border-box; }
+        body.proof-on #proof-ui { display: flex; }
+        body.mode-side #proof-ui { right: 14px; top: calc(var(--bar) + 10px); bottom: calc(var(--bar) + 10px); width: min(360px, 36vw); }
+        body.mode-sheet #proof-ui { left: 8px; right: 8px; bottom: calc(var(--bar) + 8px); max-height: 58vh; }
+        #proof-ui > .ui-card { flex: none; }
+        #proof-top { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
+        .ph-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .ph-row h2 { font-size: .85rem; }
+        .ph-actions { display: flex; gap: 6px; }
+        .ph-actions .conic-btn { padding: 6px 10px; font-size: .68rem; }
+        .ph-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .ph-tabs .conic-btn { padding: 6px 2px; font-size: .62rem; }
+        #proof-step { font-size: .68rem; color: #a0aec0; letter-spacing: 1px; }
+        #proof-card { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+        #proof-2d { display: none; flex-direction: column; padding: 0; overflow: hidden; }
+        #proof-2d .p2-head { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 14px 0; font-size: .64rem; letter-spacing: 1.5px; color: var(--gold-bright); }
+        
+        /* main (non-proof) view on small screens */
+        #controls-body { max-height: min(500px, 46vh); overflow-y: auto; }
+        @media (max-width: 760px) {
+            #proof-text { font-size: .76rem; } #proof-card { padding: 10px 12px; } #proof-card h3 { font-size: .88rem; }
+            .ph-row h2 { font-size: .74rem; letter-spacing: 1px; } #proof-nav .conic-btn { padding: 9px 4px; font-size: .7rem; }
+        }
+        @media (max-width: 640px) {
+            #metrics-panel { width: min(230px, calc(100vw - 100px)); top: 12px; left: 12px; }
+            .top-toolbar { top: 12px; right: 12px; gap: 8px; } .icon-btn { width: 38px; height: 38px; } .icon-btn.back-btn { width: auto; font-size: .74rem; }
+            #controls-panel { bottom: 12px; width: calc(100% - 24px); }
+        }
+
+        /* 3D and 2D side by side in every layout: sidebar (desktop), 3-column (short landscape), stacked (portrait) */
+        body.proof-on #proof-2d { display: flex; flex: 1 1 110px; min-height: 110px; }
+        #c2d { display: block; width: 100%; flex: 1 1 0; min-height: 0; }
+        #proof-ui > #proof-card { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+        body.mode-sheet #proof-ui { left: 8px; right: 8px; bottom: calc(var(--bar) + 6px); top: calc(var(--bar) + var(--stageH, 40vh)); max-height: none; }
+        body.proof-on.mode-tri #proof-ui { display: grid; right: 10px; top: calc(var(--bar) + 6px); bottom: calc(var(--bar) + 6px); width: min(600px, 64vw); grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "two head" "two card"; gap: 8px; overflow: hidden; }
+        body.mode-tri #proof-top { grid-area: head; } body.mode-tri #proof-2d { grid-area: two; min-height: 0; } body.mode-tri #proof-card { grid-area: card; }
+        @media (max-width: 760px) { #proof-2d .p2-head span:nth-child(2) { display: none; } }
+
+        /* ===== General second-degree equation card ===== */
+        #metrics-body:not(.collapsed) { max-height: min(520px, 58vh); overflow-y: auto; scrollbar-width: thin; }
+        .eq-box { border-top: 1px solid #1f2937; padding-top: 10px; display: flex; flex-direction: column; gap: 7px; font-size: .72rem; }
+        .eq-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .eq-btn { background: rgba(255,193,7,.1); border: 1px solid var(--gold-dim); color: var(--gold-bright); border-radius: 6px; font-family: inherit; font-size: .62rem; letter-spacing: .8px; padding: 4px 9px; cursor: pointer; white-space: nowrap; }
+        .eq-btn:hover { background: rgba(255,193,7,.22); }
+        .eq-view { font-family: 'Space Mono', monospace; color: #e2e8f0; line-height: 1.75; overflow-wrap: anywhere; font-size: .7rem; }
+        .eq-t.z { opacity: .38; }
+        .eq-form { display: none; flex-direction: column; gap: 7px; }
+        .eq-form.open { display: flex; }
+        .eq-row { display: flex; gap: 6px; }
+        .eq-input { flex: 1; min-width: 0; box-sizing: border-box; background: #0b1226; border: 1px solid var(--gold-dim); color: #e2e8f0; border-radius: 6px; padding: 7px 8px; font-family: 'Space Mono', monospace; font-size: .76rem; outline: none; }
+        .eq-input:focus { border-color: var(--gold-bright); box-shadow: 0 0 0 2px rgba(255,193,7,.18); }
+        .eq-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+        .eq-note { color: #a0aec0; font-size: .64rem; line-height: 1.45; overflow-wrap: anywhere; }
+        .eq-note.err { color: #ff7a90; } .eq-note.ok { color: var(--neon-green); }
+        @media (pointer: coarse) { .eq-input { font-size: 16px; } .eq-btn { padding: 6px 10px; } }
+
+        /* ===== Expanded proof: 3D + 2D + step text, nothing else ===== */
+        #px { display: none; position: fixed; inset: 0; z-index: 60; box-sizing: border-box; pointer-events: none; gap: 8px;
+            height: 100vh; height: 100dvh; color: #e2e8f0;
+            padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+            /* portrait / phones: 3D on top, 2D below, text at the bottom */
+            grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) clamp(150px, 33dvh, 300px); grid-template-areas: "head" "d3" "d2" "text"; }
+        body.p-exp #px { display: grid; }
+        body.p-exp { background: #050a18; }
+        body.p-exp #proof-ui { display: none !important; }
+        body.p-exp #proof-vignette { opacity: 0; }
+        .px-cell { position: relative; min-width: 0; min-height: 0; border-radius: 12px; overflow: hidden; }
+        #px-head { grid-area: head; pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 2px 2px 0; }
+        #px-head .conic-btn { padding: 8px 12px; font-size: .74rem; white-space: nowrap; }
+        #px-step { flex: 1; font-size: .7rem; letter-spacing: 1.2px; color: #a0aec0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #px-bar { position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: #1e293b; border-radius: 2px; overflow: hidden; }
+        #px-fill { height: 100%; width: 0; background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-glow); transition: width .5s ease; }
+        #px-head { position: relative; margin-bottom: 4px; }
+        #px-3d { grid-area: d3; outline: 1px solid rgba(255,193,7,.28); outline-offset: -1px; }      /* transparent: the live 3D canvas sits right behind this cell */
+        #px-2d { grid-area: d2; pointer-events: auto; background: radial-gradient(ellipse at 40% 35%, #0e1a33 0%, #060b1a 80%); border: 1px solid rgba(255,193,7,.28); box-sizing: border-box; }
+        #c2dBig { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+        #c2dBig:active { cursor: grabbing; }
+        .px-tag { position: absolute; left: 10px; top: 8px; font-size: .6rem; letter-spacing: 1.5px; color: var(--gold-bright); pointer-events: none; text-shadow: 0 0 6px rgba(0,0,0,.9); }
+        .px-hint { position: absolute; right: 10px; bottom: 6px; font-size: .56rem; color: #66758f; pointer-events: none; letter-spacing: .3px; }
+        #px-text { grid-area: text; pointer-events: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; background: rgba(10,16,34,.92); border: 1px solid rgba(255,193,7,.22); box-sizing: border-box; }
+        #px-title { margin: 0; color: var(--gold-bright); font-size: .95rem; letter-spacing: 1.5px; text-shadow: 0 0 6px var(--gold-glow); }
+        #px-body { margin: 0; font-size: .8rem; line-height: 1.55; }
+        #px-live { min-height: 1.1em; color: var(--neon-green); font-size: .82rem; font-weight: 700; }
+        .px-nav { display: flex; gap: 10px; margin-top: auto; position: sticky; bottom: -12px; padding-top: 4px; }
+        .px-nav .conic-btn { flex: 1; padding: 11px 6px; }
+        /* wide screens: 3D left, 2D right, text underneath */
+        @media (min-aspect-ratio: 1/1) and (min-width: 700px) {
+            #px { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) clamp(130px, 27dvh, 240px); grid-template-areas: "head head" "d3 d2" "text text"; }
+            #px-head { grid-column: 1 / -1; }
+            #px-text { flex-direction: row; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; gap: 6px 18px; }
+            #px-title { flex: 1 1 100%; } #px-body { flex: 1 1 55%; font-size: .86rem; } #px-live { flex: 1 1 30%; }
+            .px-nav { flex: 1 1 100%; max-width: 420px; position: static; margin-top: 0; }
+        }
+        /* short landscape phones: 3D | 2D | text */
+        @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
+            #px { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(210px, 30vw); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "head head head" "d3 d2 text"; }
+            #px-text { flex-direction: column; flex-wrap: nowrap; padding: 10px 12px; gap: 8px; }
+            #px-title { flex: none; font-size: .82rem; } #px-body { flex: none; font-size: .72rem; } #px-live { flex: none; }
+            .px-nav { flex: none; max-width: none; position: sticky; margin-top: auto; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-grid"></div>
+    <div id="canvas-container"></div>
+    
+    <!-- Top Action Toolbar -->
+    <div class="top-toolbar">
+        <button class="icon-btn" title="Toggle UI Controls" onclick="toggleAllUI()">
+            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="icon-btn" title="Reset Camera View" onclick="resetCamera()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <a class="icon-btn back-btn" href="/" title="Back" aria-label="Back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <span>Back</span>
+        </a>
+    </div>
+
+    <!-- Floating Pill to Restore UI -->
+    <button id="restore-ui-btn" onclick="toggleAllUI()">Show Controls (ESC)</button>
+
+    <!-- Metrics Panel (Collapsible) -->
+    <div id="metrics-panel" class="ui-card">
+        <div class="card-header" onclick="toggleCard('metrics-body', 'metrics-chevron')">
+            <div class="flex items-center gap-2">
+                <div class="glow-dot"></div>
+                <h2>CONIC METRICS</h2>
+            </div>
+            <span id="metrics-chevron" class="chevron">▲</span>
+        </div>
+        <div id="metrics-body" class="card-body">
+            <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-400">TYPE:</span>
+                <span id="metric-type" class="font-bold text-amber-400">CIRCLE</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-400">ECCENTRICITY (e):</span>
+                <span id="metric-ecc" class="font-bold text-amber-400">0.00</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-400">PLANE ANGLE (&theta;):</span>
+                <span id="metric-angle" class="font-bold text-amber-400">0.0°</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-400">CONE GENERATOR (&alpha;):</span>
+                <span class="font-bold text-amber-400">26.57°</span>
+            </div>
+            <div class="flex justify-between items-center text-xs border-t border-gray-800 pt-2">
+                <span class="text-gray-400">PLANE OFFSET (d):</span>
+                <span id="metric-offset" class="font-bold text-amber-400">6.00</span>
+            </div>
+            <div class="eq-box">
+                <div class="eq-head">
+                    <span class="text-gray-400">GENERAL EQUATION</span>
+                    <button class="eq-btn" id="eq-edit-btn" onclick="toggleEqEdit()">&#9998; EDIT</button>
+                </div>
+                <div id="eq-view" class="eq-view" onclick="toggleEqEdit()"></div>
+                <div id="eq-form" class="eq-form">
+                    <div class="eq-row">
+                        <input id="eq-input" class="eq-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="e.g. x^2/4 + y^2/9 = 1" aria-label="Edit equation">
+                        <button class="eq-btn" onclick="applyEq()">APPLY</button>
+                    </div>
+                    <div class="eq-chips">
+                        <button class="eq-btn" onclick="eqExample('x^2 + y^2 = 9')">Circle</button>
+                        <button class="eq-btn" onclick="eqExample('x^2/4 + y^2/9 = 1')">Ellipse</button>
+                        <button class="eq-btn" onclick="eqExample('x^2 = 4y')">Parabola</button>
+                        <button class="eq-btn" onclick="eqExample('y^2/16 - x^2/4 = 1')">Hyperbola</button>
+                    </div>
+                </div>
+                <div id="eq-note" class="eq-note"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Panel (Collapsible) -->
+    <div id="controls-panel" class="ui-card">
+        <div class="card-header" onclick="toggleCard('controls-body', 'controls-chevron')">
+            <div class="flex items-center gap-2">
+                <div class="glow-dot"></div>
+                <h1>CONIC SECTIONS 3D</h1>
+            </div>
+            <span id="controls-chevron" class="chevron">▲</span>
+        </div>
+
+        <div id="controls-body" class="card-body">
+            <div class="btn-grid">
+                <button class="conic-btn active" id="btn-circle" onclick="setPreset('circle')">Circle</button>
+                <button class="conic-btn" id="btn-ellipse" onclick="setPreset('ellipse')">Ellipse</button>
+                <button class="conic-btn" id="btn-parabola" onclick="setPreset('parabola')">Parabola</button>
+                <button class="conic-btn" id="btn-hyperbola" onclick="setPreset('hyperbola')">Hyperbola</button>
+            </div>
+            <button class="conic-btn proof-btn" id="btn-proof" onclick="startProof()">Dandelion Sphere Proof</button>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>PLANE ANGLE (&theta;)</span>
+                    <span class="slider-val" id="val-angle">0.0°</span>
+                </div>
+                <input type="range" id="slider-angle" min="0" max="90" step="0.01" value="0">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>PLANE OFFSET (d)</span>
+                    <span class="slider-val" id="val-offset">6.0</span>
+                </div>
+                <input type="range" id="slider-offset" min="-12" max="12" step="0.01" value="6">
+            </div>
+
+            <div class="toggle-container">
+                <span>AUTO-ROTATE SCENE</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-rotate" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+
+            <div class="toggle-container" style="border-top:none;padding-top:0;">
+                <span>AXIS LABELS</span>
+                <label class="switch">
+                    <input type="checkbox" class="axis-label-toggle" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="lb" id="lb-top"></div><div class="lb" id="lb-bot"></div>
+
+    <div id="px" role="dialog" aria-label="Expanded proof: 3D and 2D">
+        <div id="px-head">
+            <button class="conic-btn" onclick="close2D()">&#10005; EXIT</button>
+            <div id="px-step"></div>
+            <div class="lbl-row">
+                <span>AXIS LABELS</span>
+                <label class="switch">
+                    <input type="checkbox" class="axis-label-toggle" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+            <div id="px-bar"><div id="px-fill"></div></div>
+        </div>
+        <div id="px-3d" class="px-cell"><span class="px-tag">3D</span></div>
+        <div id="px-2d" class="px-cell"><canvas id="c2dBig"></canvas><span class="px-tag">2D CROSS-SECTION</span><span class="px-hint">pinch / scroll to zoom &middot; drag to pan &middot; double-tap to fit</span></div>
+        <div id="px-text">
+            <h3 id="px-title"></h3>
+            <p id="px-body"></p>
+            <div id="px-live"></div>
+            <div class="px-nav">
+                <button class="conic-btn" id="px-prev" onclick="proofPrev()">&#9664; Previous</button>
+                <button class="conic-btn" id="px-next" onclick="proofNext()">Next &#9654;</button>
+            </div>
+        </div>
+    </div>
+    <div id="proof-vignette"></div>
+    <div id="proof-ui">
+        <div id="proof-top" class="ui-card">
+            <div class="ph-row">
+                <h2>DANDELION SPHERE PROOF</h2>
+                <div class="ph-actions">
+                    <button class="conic-btn" onclick="exitProof()">&#10005; EXIT</button>
+                </div>
+            </div>
+            <div class="ph-tabs">
+                <button class="conic-btn" id="ptab-circle" onclick="setProofType('circle')">Circle</button>
+                <button class="conic-btn" id="ptab-ellipse" onclick="setProofType('ellipse')">Ellipse</button>
+                <button class="conic-btn" id="ptab-parabola" onclick="setProofType('parabola')">Parabola</button>
+                <button class="conic-btn" id="ptab-hyperbola" onclick="setProofType('hyperbola')">Hyperbola</button>
+            </div>
+            <div class="lbl-row">
+                <span>AXIS LABELS</span>
+                <label class="switch">
+                    <input type="checkbox" class="axis-label-toggle" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+            <div id="proof-step"></div>
+            <div id="proof-bar"><div id="proof-fill"></div></div>
+        </div>
+        <div id="proof-card" class="ui-card">
+            <h3 id="proof-title"></h3>
+            <p id="proof-text"></p>
+            <div id="proof-live"></div>
+            <div id="proof-nav">
+                <button class="conic-btn" id="proof-prev" onclick="proofPrev()">&#9664; Previous</button>
+                <button class="conic-btn" id="proof-next" onclick="proofNext()">Next &#9654;</button>
+            </div>
+            <button class="conic-btn proof-btn" onclick="openExpand()">&#10530; EXPAND &middot; 3D + 2D VIEW</button>
+        </div>
+    </div>
+
+    <script>
+        // --- UI Collapse and Visibility Management ---
+        function toggleCard(bodyId, chevronId) {
+            const body = document.getElementById(bodyId);
+            const chevron = document.getElementById(chevronId);
+            if (body.classList.contains('collapsed')) {
+                body.classList.remove('collapsed');
+                chevron.classList.remove('rotated');
+            } else {
+                body.classList.add('collapsed');
+                chevron.classList.add('rotated');
+            }
+        }
+
+        let isUIHidden = false;
+        function toggleAllUI() {
+            isUIHidden = !isUIHidden;
+            const controls = document.getElementById('controls-panel');
+            const metrics = document.getElementById('metrics-panel');
+            const restoreBtn = document.getElementById('restore-ui-btn');
+
+            if (isUIHidden) {
+                controls.classList.add('ui-hidden');
+                metrics.classList.add('ui-hidden');
+                restoreBtn.style.display = 'block';
+            } else {
+                controls.classList.remove('ui-hidden');
+                metrics.classList.remove('ui-hidden');
+                restoreBtn.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isUIHidden) {
+                toggleAllUI();
+            }
+        });
+
+        if (typeof THREE === 'undefined' || !THREE.OrbitControls) {
+            document.body.insertAdjacentHTML('beforeend', '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;text-align:center;color:#ffc107">Could not load the Three.js library. Check your internet connection or ad-blocker, then reload.</div>');
+            throw new Error('Three.js failed to load');
+        }
+
+        // --- Three.js Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 18, 28);
+
+        // Renderer
+        // Fallback renderer: draws the same Three.js scene graph with the 2D canvas API
+        // (used only when WebGL cannot be created at all).
+        class Canvas2DRenderer {
+            constructor() {
+                this.domElement = document.createElement('canvas');
+                this.ctx = this.domElement.getContext('2d');
+                this.w = 0; this.h = 0; this.dpr = 1;
+            }
+            setPixelRatio(r) { this.dpr = r; if (this.w) this.setSize(this.w, this.h); }
+            setSize(w, h) {
+                this.w = w; this.h = h;
+                const c = this.domElement;
+                c.width = Math.round(w * this.dpr); c.height = Math.round(h * this.dpr);
+                c.style.width = w + 'px'; c.style.height = h + 'px';
+            }
+            render(scene, camera) {
+                const ctx = this.ctx, W = this.w, H = this.h;
+                ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+                ctx.clearRect(0, 0, W, H);
+                scene.updateMatrixWorld(); camera.updateMatrixWorld();
+                const inv = camera.matrixWorldInverse, proj = camera.projectionMatrix;
+                const pxUnit = (z) => H / (2 * Math.tan(camera.fov * Math.PI / 360) * z);
+                const toScreen = (v) => {
+                    const c = v.clone().applyMatrix4(inv);
+                    if (c.z > -camera.near) return null;
+                    const dist = -c.z;
+                    const p = c.applyMatrix4(proj);
+                    return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H, z: dist };
+                };
+                const faces = [], lines = [], overlays = [];
+                const light = new THREE.Vector3(0.4, 0.8, 0.45).normalize();
+
+                scene.traverseVisible((o) => {
+                    if (o.userData.skip2D) return;
+                    if (o.isSprite || (o.isMesh && o.geometry.type === 'SphereGeometry')) { overlays.push(o); return; }
+                    const g = o.geometry, m = o.material;
+                    const pos = g && g.attributes && g.attributes.position;
+                    if (!pos || !m) return;
+                    if (o.isMesh) {
+                        const idx = g.index, n = idx ? idx.count : pos.count;
+                        const wv = [];
+                        for (let i = 0; i < pos.count; i++) wv.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld));
+                        for (let i = 0; i < n; i += 3) {
+                            const a = wv[idx ? idx.getX(i) : i], b = wv[idx ? idx.getX(i + 1) : i + 1], c = wv[idx ? idx.getX(i + 2) : i + 2];
+                            const pa = toScreen(a), pb = toScreen(b), pc = toScreen(c);
+                            if (!pa || !pb || !pc) continue;
+                            const nrm = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3().subVectors(c, a)).normalize();
+                            faces.push({ ro: o.renderOrder, p: [pa, pb, pc], z: (pa.z + pb.z + pc.z) / 3, lit: 0.45 + 0.55 * Math.abs(nrm.dot(light)), m });
+                        }
+                    } else if (o.isLine) {
+                        const col = g.attributes.color, step = o.isLineSegments ? 2 : 1;
+                        const w = o.renderOrder >= 5 ? 1.5 : (o.renderOrder >= 3 ? 2 : 1);
+                        for (let i = 0; i + 1 < pos.count; i += step) {
+                            const a = toScreen(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld));
+                            const b = toScreen(new THREE.Vector3().fromBufferAttribute(pos, i + 1).applyMatrix4(o.matrixWorld));
+                            if (!a || !b) continue;
+                            const c = col ? new THREE.Color(col.getX(i), col.getY(i), col.getZ(i)) : m.color;
+                            lines.push({ a, b, style: c.getStyle(), alpha: m.opacity, w, ro: o.renderOrder });
+                        }
+                    }
+                });
+
+                faces.sort((p, q) => ((p.ro >= 4) - (q.ro >= 4)) || (q.z - p.z));
+                for (const f of faces) {
+                    const c = f.m.color, e = f.m.emissive || { r: 0, g: 0, b: 0 };
+                    ctx.fillStyle = 'rgb(' + Math.min(255, Math.round((c.r * f.lit + e.r) * 255)) + ',' + Math.min(255, Math.round((c.g * f.lit + e.g) * 255)) + ',' + Math.min(255, Math.round((c.b * f.lit + e.b) * 255)) + ')';
+                    ctx.globalAlpha = f.m.opacity;
+                    ctx.beginPath();
+                    ctx.moveTo(f.p[0].x, f.p[0].y); ctx.lineTo(f.p[1].x, f.p[1].y); ctx.lineTo(f.p[2].x, f.p[2].y);
+                    ctx.closePath(); ctx.fill();
+                }
+
+                lines.sort((p, q) => p.ro - q.ro);
+                ctx.lineCap = 'round';
+                for (const l of lines) {
+                    ctx.strokeStyle = l.style;
+                    if (l.ro >= 5) {
+                        ctx.strokeStyle = '#00ff88'; ctx.globalAlpha = 0.2; ctx.lineWidth = 4;
+                        ctx.beginPath(); ctx.moveTo(l.a.x, l.a.y); ctx.lineTo(l.b.x, l.b.y); ctx.stroke();
+                        ctx.strokeStyle = l.style;
+                    }
+                    ctx.globalAlpha = l.alpha; ctx.lineWidth = l.w;
+                    ctx.beginPath(); ctx.moveTo(l.a.x, l.a.y); ctx.lineTo(l.b.x, l.b.y); ctx.stroke();
+                }
+
+                ctx.globalAlpha = 1;
+                for (const o of overlays) {
+                    const p = toScreen(new THREE.Vector3().setFromMatrixPosition(o.matrixWorld));
+                    if (!p) continue;
+                    if (o.isSprite) {
+                        const s = o.scale.x * pxUnit(p.z);
+                        ctx.drawImage(o.material.map.image, p.x - s / 2, p.y - s / 2, s, s);
+                    } else {
+                        ctx.fillStyle = '#' + o.material.color.getHexString();
+                        ctx.globalAlpha = o.material.opacity;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, o.geometry.parameters.radius * pxUnit(p.z), 0, Math.PI * 2); ctx.fill();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+        }
+
+        // Probe for WebGL ourselves first, so three.js never throws/logs
+        // "Error creating WebGL context" when WebGL is unavailable.
+        function createRenderer() {
+            const attrSets = [
+                { antialias: true, alpha: true },
+                { antialias: false, alpha: true },
+                { antialias: false, alpha: true, powerPreference: 'low-power', failIfMajorPerformanceCaveat: false }
+            ];
+            for (const attrs of attrSets) {
+                for (const name of ['webgl2', 'webgl', 'experimental-webgl']) {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const gl = canvas.getContext(name, attrs);
+                        if (gl) return new THREE.WebGLRenderer({ canvas, context: gl, alpha: true, antialias: attrs.antialias });
+                    } catch (e) { console.warn('WebGL setup failed, trying next option:', e.message); }
+                }
+            }
+            return null;
+        }
+
+        let renderer = createRenderer();
+        if (!renderer) {
+            renderer = new Canvas2DRenderer();
+        }
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 100;
+        controls.minDistance = 8;
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+        scene.add(ambientLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffedd5, 0.85);
+        dirLight.position.set(12, 24, 12);
+        scene.add(dirLight);
+
+        const dirLight2 = new THREE.DirectionalLight(0xaaddff, 0.35);
+        dirLight2.position.set(-12, -24, -12);
+        scene.add(dirLight2);
+
+        // All geometry lives in this group; turning it makes the cone's W axis vertical (upright cone).
+        // The intersection maths is unchanged because it happens inside this group's own frame.
+        const world = new THREE.Group();
+        world.rotation.x = -Math.PI / 2;
+        scene.add(world);
+
+        // Axis Helper & Labels (u, v, w)
+        const axesLength = 16;
+        const AXIS_COL = { U: '#ff7a90', V: '#6ee7b7', W: '#7cc4ff' };
+        const axesHelper = new THREE.Group();
+        (function buildAxes() {
+            const Y = new THREE.Vector3(0, 1, 0);
+            [['U', new THREE.Vector3(1, 0, 0)], ['V', new THREE.Vector3(0, 1, 0)], ['W', new THREE.Vector3(0, 0, 1)]].forEach(([name, dir]) => {
+                const col = new THREE.Color(AXIS_COL[name]);
+                const q = new THREE.Quaternion().setFromUnitVectors(Y, dir);
+                const solid = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.8, depthWrite: false });
+                // slim shaft
+                const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, axesLength, 8), solid);
+                shaft.position.copy(dir).multiplyScalar(axesLength / 2); shaft.quaternion.copy(q);
+                // arrow head
+                const head = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.95, 18), solid);
+                head.position.copy(dir).multiplyScalar(axesLength + 0.45); head.quaternion.copy(q);
+                // faint dashed negative half
+                const negGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), dir.clone().multiplyScalar(-axesLength)]);
+                const neg = new THREE.Line(negGeo, new THREE.LineDashedMaterial({ color: col, dashSize: 0.35, gapSize: 0.45, transparent: true, opacity: 0.35 }));
+                neg.computeLineDistances();
+                axesHelper.add(shaft, head, neg);
+            });
+            const origin = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
+            axesHelper.add(origin);
+        })();
+        world.add(axesHelper);
+
+        // ===== Axis-label visibility (numbers on the ticks + the U/V/W/x/y letters, in 3D and in the proof's 2D view) =====
+        let showAxisLabels = true;
+        const axisLetterSprites = [];
+        function createTextSprite(text, position, color = '#ffc107') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.font = 'bold 68px "Space Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = color; ctx.shadowBlur = 14;
+            ctx.fillStyle = color;
+            ctx.fillText(text, 64, 66);
+            ctx.shadowBlur = 0;
+            ctx.fillText(text, 64, 66);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.position.copy(position);
+            sprite.scale.set(2.8, 2.8, 1);
+            axisLetterSprites.push(sprite);
+            return sprite;
+        }
+
+        world.add(createTextSprite('U', new THREE.Vector3(axesLength + 2, 0, 0), AXIS_COL.U));
+        world.add(createTextSprite('V', new THREE.Vector3(0, axesLength + 2, 0), AXIS_COL.V));
+        world.add(createTextSprite('W', new THREE.Vector3(0, 0, axesLength + 2), AXIS_COL.W));
+
+        // Double Cone Setup
+        const coneRadius = 7;
+        const coneHeight = 14;
+        const coneRadialSegments = 36;
+        const k = coneRadius / coneHeight; // 0.5 slope
+        const alphaRad = Math.atan(k); // generator angle ~26.565°
+        const generatorAngleHorizontal = 90 - (alphaRad * (180 / Math.PI)); // ~63.435°
+
+        const solidGoldMat = new THREE.MeshPhongMaterial({
+            color: 0xb8860b,
+            emissive: 0x332200,
+            shininess: 40,
+            transparent: false,
+            opacity: 1,
+            side: THREE.DoubleSide,
+            depthWrite: true,
+            polygonOffset: true,
+            polygonOffsetFactor: 1,
+            polygonOffsetUnits: 1
+        });
+
+        const goldWireframeMat = new THREE.LineBasicMaterial({ 
+            color: 0xffd700,
+            linewidth: 1,
+            transparent: true,
+            opacity: 0.55
+        });
+
+        const conesGroup = new THREE.Group();
+
+        // Upper Cone
+        const topConeGeom = new THREE.CylinderGeometry(coneRadius, 0.01, coneHeight, coneRadialSegments, 1, true);
+        const topCone = new THREE.Mesh(topConeGeom, solidGoldMat);
+        topCone.position.y = coneHeight / 2;
+        topCone.add(new THREE.LineSegments(new THREE.EdgesGeometry(topConeGeom), goldWireframeMat));
+        conesGroup.add(topCone);
+
+        // Lower Cone
+        const botConeGeom = new THREE.CylinderGeometry(0.01, coneRadius, coneHeight, coneRadialSegments, 1, true);
+        const botCone = new THREE.Mesh(botConeGeom, solidGoldMat);
+        botCone.position.y = -coneHeight / 2;
+        botCone.add(new THREE.LineSegments(new THREE.EdgesGeometry(botConeGeom), goldWireframeMat));
+        conesGroup.add(botCone);
+
+        // Orient Cones Vertically along W-axis (Z in ThreeJS)
+        conesGroup.rotation.x = Math.PI / 2;
+        world.add(conesGroup);
+
+        // --- Cutting Plane Setup ---
+        const planeSize = 45;
+        const planeGroup = new THREE.Group();
+        const localOriginGroup = new THREE.Group();
+
+        const planeGeom = new THREE.PlaneGeometry(planeSize, planeSize);
+        const planeMat = new THREE.MeshPhongMaterial({
+            color: 0x154f7a,
+            emissive: 0x061f34,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const solidPlane = new THREE.Mesh(planeGeom, planeMat);
+        solidPlane.renderOrder = 1;
+        localOriginGroup.add(solidPlane);
+
+        // Bright outline so the plane's edges are easy to see
+        const planeBorder = new THREE.LineSegments(
+            new THREE.EdgesGeometry(planeGeom),
+            new THREE.LineBasicMaterial({ color: 0x3aa0c0, transparent: true, opacity: 0.6 })
+        );
+        planeBorder.renderOrder = 3;
+        localOriginGroup.add(planeBorder);
+
+        // Local Grid on Cut Plane
+        const gridHelper = new THREE.GridHelper(planeSize, 45, 0x48a8c0, 0x176880);
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.36;
+        gridHelper.rotation.x = Math.PI / 2;
+        gridHelper.renderOrder = 2;
+        localOriginGroup.add(gridHelper);
+
+        // Plane 2D Coordinate System Axes
+        const axis2DX = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-22, 0, 0), new THREE.Vector3(22, 0, 0)]),
+            new THREE.LineBasicMaterial({ color: 0xff7a90, transparent: true, opacity: 0.9 })
+        );
+        axis2DX.renderOrder = 3;
+        localOriginGroup.add(axis2DX);
+
+        const axis2DY = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -22, 0), new THREE.Vector3(0, 22, 0)]),
+            new THREE.LineBasicMaterial({ color: 0x6ee7b7, transparent: true, opacity: 0.9 })
+        );
+        axis2DY.renderOrder = 3;
+        localOriginGroup.add(axis2DY);
+
+        [[0xff7a90, new THREE.Vector3(22, 0, 0), -Math.PI / 2], [0x6ee7b7, new THREE.Vector3(0, 22, 0), 0]].forEach(([c, p, rz]) => {
+            const h = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.8, 16), new THREE.MeshBasicMaterial({ color: c }));
+            h.position.copy(p); h.rotation.z = rz; h.renderOrder = 3; localOriginGroup.add(h);
+        });
+        localOriginGroup.add(createTextSprite('x', new THREE.Vector3(20, 1.8, 0), '#ff7a90'));
+        localOriginGroup.add(createTextSprite('y', new THREE.Vector3(1.8, 20, 0), '#6ee7b7'));
+
+        // ===== Dynamic unit ticks + numeric labels on every 3D axis (world U/V/W and the cutting plane's x/y) =====
+        // Tick spacing follows the camera distance (1-2-5 steps), so zooming in shows finer, more precise units.
+        const tickTexCache = new Map();
+        function tickTex(text, col) {
+            const key = text + '|' + col;
+            let t = tickTexCache.get(key);
+            if (t) return t;
+            if (tickTexCache.size > 500) { tickTexCache.forEach(v => v.dispose()); tickTexCache.clear(); }
+            const cv = document.createElement('canvas'); cv.width = 192; cv.height = 64;
+            const c = cv.getContext('2d');
+            c.font = 'bold 38px "Space Mono", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+            c.lineJoin = 'round'; c.lineWidth = 8; c.strokeStyle = 'rgba(6,10,24,0.92)'; c.strokeText(text, 96, 34);
+            c.fillStyle = col; c.fillText(text, 96, 34);
+            t = new THREE.CanvasTexture(cv); tickTexCache.set(key, t); return t;
+        }
+        const niceStep = (raw) => { const p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; };
+        const TICK_MAX = 160, TICK_PX = 46, TICK_LABEL_PX = 15;
+        const tickSets = [];
+        function addTickSet(grp, dir, col, L, perp, zero) {
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TICK_MAX * 6), 3));
+            geo.setDrawRange(0, 0);
+            const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: new THREE.Color(col), transparent: true, opacity: 0.75, depthTest: false }));
+            lines.renderOrder = 8; lines.frustumCulled = false; grp.add(lines);
+            tickSets.push({ grp, dir, col, L, perp, zero, geo, lines, sprites: [], key: '' });
+        }
+        const _pw = new THREE.Vector3(), _tl = new THREE.Vector3(), _o = new THREE.Vector3();
+        const perpOf = (d) => new THREE.Vector3().crossVectors(d, new THREE.Vector3(0.577, 0.577, 0.577)).normalize();
+        [['U', 0], ['V', 1], ['W', 2]].forEach(([n, i]) => {
+            const d = new THREE.Vector3(i === 0 ? 1 : 0, i === 1 ? 1 : 0, i === 2 ? 1 : 0);
+            addTickSet(axesHelper, d, AXIS_COL[n], axesLength, perpOf(d), i === 0);
+        });
+        addTickSet(localOriginGroup, new THREE.Vector3(1, 0, 0), '#ff7a90', 22, new THREE.Vector3(0, 1, 0), true);
+        addTickSet(localOriginGroup, new THREE.Vector3(0, 1, 0), '#6ee7b7', 22, new THREE.Vector3(1, 0, 0), false);
+
+        function updateAxisTicks() {
+            const H = renderer.domElement.clientHeight || window.innerHeight || 800, tf = Math.tan(camera.fov * Math.PI / 360);
+            for (const T of tickSets) {
+                if (!T.grp.visible) continue;
+                T.grp.getWorldPosition(_o);
+                const dist = Math.max(0.5, camera.position.distanceTo(_o)), wpp = 2 * dist * tf / H;
+                const step = niceStep(wpp * TICK_PX), dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+                _tl.copy(controls.target); T.grp.worldToLocal(_tl);
+                const c = _tl.dot(T.dir), h = Math.max(dist, 6) * 0.9;
+                const lo = Math.max(-T.L, Math.floor((c - h) / step) * step), hi = Math.min(T.L, Math.ceil((c + h) / step) * step);
+                const key = step + '|' + lo + '|' + hi;
+                if (key !== T.key) {
+                    T.key = key;
+                    const pos = T.geo.attributes.position.array, vals = [];
+                    for (let v = lo, i = 0; v <= hi + step * 1e-6 && i < TICK_MAX; v += step, i++) {
+                        const vv = Math.round(v / step) * step;
+                        if (Math.abs(vv) < step * 1e-6 && !T.zero) continue;
+                        vals.push(vv);
+                    }
+                    T.vals = vals; T.dec = dec; T.col2 = T.col;
+                    while (T.sprites.length < vals.length) {
+                        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tickTex('0', T.col), transparent: true, depthTest: false, opacity: 0.92 }));
+                        sp.renderOrder = 20; T.grp.add(sp); T.sprites.push(sp);
+                    }
+                    T.sprites.forEach((sp, i) => {
+                        if (i < vals.length) {
+                            const txt = (Math.abs(vals[i]) < step * 1e-6 ? 0 : vals[i]).toFixed(dec).replace('-', '\u2212');
+                            sp.material.map = tickTex(txt, T.col); sp.userData.v = vals[i]; sp.visible = true;
+                        } else sp.visible = false;
+                    });
+                    T.geo.setDrawRange(0, vals.length * 2);
+                }
+                const vals = T.vals || [], tl = wpp * 5, pos = T.geo.attributes.position.array;
+                for (let i = 0; i < vals.length; i++) {
+                    const b = i * 6, v = vals[i];
+                    pos[b] = T.dir.x * v + T.perp.x * tl; pos[b + 1] = T.dir.y * v + T.perp.y * tl; pos[b + 2] = T.dir.z * v + T.perp.z * tl;
+                    pos[b + 3] = T.dir.x * v - T.perp.x * tl; pos[b + 4] = T.dir.y * v - T.perp.y * tl; pos[b + 5] = T.dir.z * v - T.perp.z * tl;
+                }
+                T.geo.attributes.position.needsUpdate = true;
+                for (let i = 0; i < vals.length; i++) {
+                    const sp = T.sprites[i];
+                    sp.position.copy(T.dir).multiplyScalar(vals[i]).addScaledVector(T.perp, wpp * 17);
+                    sp.visible = showAxisLabels;
+                    sp.getWorldPosition(_pw);
+                    const w = 2 * camera.position.distanceTo(_pw) * tf / H * TICK_LABEL_PX;
+                    sp.scale.set(w * 3, w, 1);
+                }
+            }
+        }
+
+        // Intersection Curves (Neon Green lines)
+        const curveMat = new THREE.LineBasicMaterial({ color: 0xb8ffd6, linewidth: 3.5, transparent: true, depthTest: true });
+        const curve1 = new THREE.Line(new THREE.BufferGeometry(), curveMat);
+        const curve2 = new THREE.Line(new THREE.BufferGeometry(), curveMat);
+        curve1.renderOrder = 7;
+        curve2.renderOrder = 7;
+        curve1.position.z = 0.05;
+        curve2.position.z = 0.05;
+        localOriginGroup.add(curve1);
+        localOriginGroup.add(curve2);
+
+        // Thick glowing intersection: bright core tube + soft outer glow + filled cross-section
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x00ff66, transparent: true, opacity: 1, depthTest: true, depthWrite: false });
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.2, depthTest: true, depthWrite: false });
+        const fillMat = new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthTest: true, depthWrite: false });
+        function makeMesh(mat, order, z, skip2D) {
+            const m = new THREE.Mesh(new THREE.BufferGeometry(), mat);
+            m.renderOrder = order; m.position.z = z; m.visible = false;
+            if (skip2D) m.userData.skip2D = true;
+            localOriginGroup.add(m);
+            return m;
+        }
+        const fill1 = makeMesh(fillMat, 4, 0.03, false), fill2 = makeMesh(fillMat, 4, 0.03, false);
+        const glow1 = makeMesh(glowMat, 5, 0.05, true), glow2 = makeMesh(glowMat, 5, 0.05, true);
+        const tube1 = makeMesh(coreMat, 6, 0.05, true), tube2 = makeMesh(coreMat, 6, 0.05, true);
+
+        // Degenerate Point Vertex Dot Marker
+        const pointDotMat = new THREE.MeshBasicMaterial({ color: 0x00ff66, transparent: true, depthTest: false });
+        const pointDot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), pointDotMat);
+        pointDot.renderOrder = 6;
+        pointDot.visible = false;
+        localOriginGroup.add(pointDot);
+
+        planeGroup.add(localOriginGroup);
+        world.add(planeGroup);
+
+        // --- Intersection Mathematics & Real-Time Updates ---
+        const sliderAngle = document.getElementById('slider-angle');
+        const sliderOffset = document.getElementById('slider-offset');
+        const valAngle = document.getElementById('val-angle');
+        const valOffset = document.getElementById('val-offset');
+        const toggleRotate = document.getElementById('toggle-rotate');
+        const buttons = document.querySelectorAll('.conic-btn');
+
+        // ===== General second-degree equation: a x^2 + b xy + c y^2 + d x + e y + f = 0 =====
+        // Shown in the cutting plane's own axes (origin at the curve's centre / vertex, the same axes drawn on the plane).
+        /*EQ-PURE-START*/
+        const padd = (p, q, sg) => { const r = Object.assign({}, p); for (const key in q) r[key] = (r[key] || 0) + sg * q[key]; return r; };
+        const pscale = (p, s) => { const r = {}; for (const key in p) r[key] = p[key] * s; return r; };
+        const pconst = (c) => ({ '0,0': c });
+        function pmul(p, q) {
+            const r = {};
+            for (const a in p) for (const b in q) {
+                const [i1, j1] = a.split(',').map(Number), [i2, j2] = b.split(',').map(Number), i = i1 + i2, j = j1 + j2, v = p[a] * q[b];
+                if (i + j > 2) { if (Math.abs(v) > 1e-12) throw new Error('Only second-degree terms are allowed (x\u00b2, xy, y\u00b2, x, y, constant).'); continue; }
+                r[i + ',' + j] = (r[i + ',' + j] || 0) + v;
+            }
+            return r;
+        }
+        function polyOf(src) {
+            if (!src) throw new Error('One side of the equation is empty.');
+            let i = 0;
+            const peek = () => src[i], fail = (m) => { throw new Error(m); };
+            const isConst = (p) => Object.keys(p).every(key => key === '0,0' || Math.abs(p[key]) < 1e-12), cval = (p) => p['0,0'] || 0;
+            function expr() { let v = term(); while (peek() === '+' || peek() === '-') { const op = src[i++]; v = padd(v, term(), op === '+' ? 1 : -1); } return v; }
+            function term() {
+                let v = unary();
+                for (;;) {
+                    const ch = peek();
+                    if (ch === '*') { i++; v = pmul(v, unary()); }
+                    else if (ch === '/') { i++; const d = unary(); if (!isConst(d)) fail('Dividing by x or y is not supported.'); if (Math.abs(cval(d)) < 1e-12) fail('Division by zero.'); v = pscale(v, 1 / cval(d)); }
+                    else if (ch !== undefined && /[0-9.xy(]/.test(ch)) v = pmul(v, power());     // implicit product: 3x, xy, 2(x+1)
+                    else break;
+                }
+                return v;
+            }
+            function unary() { if (peek() === '-') { i++; return pscale(unary(), -1); } if (peek() === '+') { i++; return unary(); } return power(); }
+            function power() {
+                let b = atom();
+                if (peek() === '^') {
+                    i++; let neg = false, n; if (peek() === '-') { neg = true; i++; }
+                    if (peek() === '(') { i++; const e = expr(); if (peek() !== ')') fail('Missing \u201c)\u201d.'); i++; if (!isConst(e)) fail('Exponents must be plain numbers.'); n = cval(e); }
+                    else { const m = /^\d+(\.\d+)?/.exec(src.slice(i)); if (!m) fail('Exponents must be plain numbers.'); n = parseFloat(m[0]); i += m[0].length; }
+                    if (neg) n = -n;
+                    if (!Number.isInteger(n) || n < 0 || n > 64) fail('Exponents must be whole numbers from 0 up.');
+                    let r = pconst(1); for (let q = 0; q < n; q++) r = pmul(r, b); b = r;
+                }
+                return b;
+            }
+            function atom() {
+                const ch = peek();
+                if (ch === '(') { i++; const v = expr(); if (peek() !== ')') fail('Missing \u201c)\u201d.'); i++; return v; }
+                if (ch === 'x') { i++; return { '1,0': 1 }; }
+                if (ch === 'y') { i++; return { '0,1': 1 }; }
+                const m = /^(\d+\.?\d*|\.\d+)/.exec(src.slice(i));
+                if (m) { i += m[0].length; return pconst(parseFloat(m[0])); }
+                return fail(ch === undefined ? 'The equation ends unexpectedly.' : 'Unexpected \u201c' + ch + '\u201d. Use only x, y, numbers and + - * / ^ ( ).');
+            }
+            const v = expr(); if (i < src.length) fail('Unexpected \u201c' + src[i] + '\u201d.'); return v;
+        }
+        function parseEq(str) {
+            const s = String(str).toLowerCase().replace(/\u00b2/g, '^2').replace(/[\u2212\u2013\u2014]/g, '-').replace(/[\u00d7\u00b7]/g, '*').replace(/\u00f7/g, '/').replace(/\s+/g, '');
+            if (!s) throw new Error('Type an equation first.');
+            const sides = s.split('=');
+            if (sides.length > 2) throw new Error('Use just one \u201c=\u201d sign.');
+            const P = padd(polyOf(sides[0]), sides.length === 2 ? polyOf(sides[1]) : {}, -1), g = (i, j) => P[i + ',' + j] || 0;
+            return [g(2, 0), g(1, 1), g(0, 2), g(1, 0), g(0, 1), g(0, 0)];
+        }
+
+        // Classify any conic with the invariants (delta = ac - b^2/4, 3x3 determinant) and measure its shape and size.
+        function analyzeConic(co) {
+            const m = Math.max(...co.map(Math.abs));
+            if (!isFinite(m) || m === 0) return { err: 'That equation has no x or y terms.' };
+            let [a, b, c, d, e, f] = co.map(v => v / m);
+            const eps = 1e-9;
+            if (Math.abs(a) < eps && Math.abs(b) < eps && Math.abs(c) < eps) return { err: 'That is a straight line, not a second-degree curve. Include an x\u00b2, xy or y\u00b2 term.' };
+            const I = a + c, del = a * c - b * b / 4, Del = a * (c * f - e * e / 4) - (b / 2) * (b * f / 2 - d * e / 4) + (d / 2) * (b * e / 4 - c * d / 2);
+            const sq = Math.sqrt(Math.max(0, I * I - 4 * del)), l1 = (I + sq) / 2, l2 = (I - sq) / 2, degenerate = Math.abs(Del) < eps;
+            if (del > eps) {                                                   // ellipse family
+                if (degenerate) { const lo = Math.min(Math.abs(l1), Math.abs(l2)), hi = Math.max(Math.abs(l1), Math.abs(l2)); return { kind: 'point', e: Math.sqrt(Math.max(0, 1 - lo / hi)), size: 0 }; }
+                const K = -Del / del, a2 = K / l1, b2 = K / l2;
+                if (a2 < 0) return { err: 'No real points satisfy this equation (it is an imaginary ellipse).' };
+                const A2 = Math.max(a2, b2), B2 = Math.min(a2, b2), ecc = Math.sqrt(Math.max(0, 1 - B2 / A2));
+                return { kind: 'ellipse', e: ecc < 1e-6 ? 0 : ecc, size: Math.sqrt(A2), a: Math.sqrt(A2), b: Math.sqrt(B2) };
+            }
+            if (del < -eps) {                                                  // hyperbola family
+                if (degenerate) { const q = l1 / Math.abs(l2), r = Math.min(q, 1 / q); return { kind: 'lines', e: Math.sqrt(1 + r), size: 0 }; }
+                const K = -Del / del; let a2, r;
+                if (K > 0) { a2 = K / l1; r = l1 / Math.abs(l2); } else { a2 = K / l2; r = Math.abs(l2) / l1; }
+                return { kind: 'hyperbola', e: Math.sqrt(1 + r), size: Math.sqrt(a2), a: Math.sqrt(a2), b: Math.sqrt(a2 * r) };
+            }
+            if (degenerate) return { err: 'This equation is a pair of parallel lines (or a single line / nothing). A plane cannot cut that from a cone.' };
+            const ux = Math.hypot(a, b / 2) >= Math.hypot(b / 2, c) ? [a, b / 2] : [b / 2, c], un = Math.hypot(ux[0], ux[1]);     // parabola
+            const n = [-ux[1] / un, ux[0] / un], g = d * n[0] + e * n[1], lat = Math.abs(g / I);
+            return { kind: 'parabola', e: 1, size: lat, lat };
+        }
+
+        // Pick the plane angle (from the eccentricity) and offset (from the size) whose cone section matches.
+        function realizeConic(info) {
+            const cosA = Math.cos(alphaRad), emax = Math.sqrt(1 + k * k), notes = [];
+            let e = info.e, th;
+            if (info.kind === 'ellipse' || info.kind === 'point') { e = Math.min(e, 0.985); th = e < 1e-5 ? 0 : Math.asin(e * cosA) * 180 / Math.PI; }
+            else if (info.kind === 'parabola') th = generatorAngleHorizontal;
+            else {
+                if (e > emax + 1e-6) notes.push('this cone can only cut hyperbolas up to e = ' + emax.toFixed(3) + ' (yours is ' + e.toFixed(2) + '), so the closest one is shown');
+                e = Math.min(Math.max(e, 1.013), emax); th = Math.asin(Math.min(1, e * cosA)) * 180 / Math.PI;
+            }
+            th = Math.round(th * 100) / 100;
+            const t = th * Math.PI / 180, s = Math.sin(t), c = Math.cos(t), A = c * c - k * k * s * s, B1 = -2 * s * c * (1 + k * k), C1 = s * s - k * k * c * c;
+            let s1 = 0;                                                       // size of the section when the offset is 1
+            if (info.kind === 'ellipse') s1 = A > 1e-4 ? Math.sqrt(((B1 * B1) / (4 * A) - C1) / A) : 0;
+            else if (info.kind === 'hyperbola') s1 = A < -1e-4 ? Math.sqrt(((B1 * B1) / (-4 * A) + C1) / -A) : 0;
+            else if (info.kind === 'parabola') s1 = Math.abs(B1);
+            let d = 0;
+            if (s1 > 0 && info.size > 0) {
+                d = info.size / s1;
+                if (d > 12) { d = 12; notes.push('the curve is larger than the cone can show, so it is scaled down to fit'); }
+                d = Math.max(0.01, Math.round(d * 100) / 100);
+            }
+            return { angle: th, offset: d, notes };
+        }
+        /*EQ-PURE-END*/
+
+        const eqView = document.getElementById('eq-view'), eqInput = document.getElementById('eq-input'), eqNote = document.getElementById('eq-note'), eqForm = document.getElementById('eq-form');
+        let eqKeep = false;
+        const eqTerms = ['x\u00b2', 'xy', 'y\u00b2', 'x', 'y', ''], eqPlain = ['x^2', 'xy', 'y^2', 'x', 'y', ''];
+        function eqHTML(co) {
+            return co.map((v, i) => {
+                const z = Math.abs(v) < 5e-4, neg = v < 0 && !z, txt = (z ? '0' : Math.abs(v).toFixed(Math.abs(v) < 0.1 ? 3 : 2)) + eqTerms[i];
+                return '<span class="eq-t' + (z ? ' z' : '') + '">' + (i === 0 ? (neg ? '\u2212' : '') : ' ' + (neg ? '\u2212' : '+') + '&nbsp;') + txt + '</span>';
+            }).join('') + ' = 0';
+        }
+        function eqText(co) {
+            let out = '';
+            co.forEach((v, i) => {
+                if (Math.abs(v) < 5e-4) return;
+                const n = +Math.abs(v).toPrecision(4);
+                out += (out ? (v < 0 ? ' - ' : ' + ') : (v < 0 ? '-' : '')) + ((i < 5 && n === 1) ? '' : String(n)) + eqPlain[i];
+            });
+            return (out || '0') + ' = 0';
+        }
+        function setEqNote(msg, cls) { eqNote.textContent = msg; eqNote.className = 'eq-note' + (cls ? ' ' + cls : ''); }
+        function showEquation(co, type) {
+            eqView.innerHTML = eqHTML(co);
+            if (!eqKeep) {
+                eqInput.value = eqText(co);
+                setEqNote('B\u00b2 \u2212 4AC = ' + (co[1] * co[1] - 4 * co[0] * co[2]).toFixed(2) + '  \u2192  ' + type.toLowerCase() + '.  Written in the cutting plane\u2019s own centred axes.');
+            }
+            eqKeep = false;
+        }
+        function describeConic(i) {
+            const f = (v) => v.toFixed(2);
+            switch (i.kind) {
+                case 'ellipse': return i.e === 0 ? 'Matched: CIRCLE, radius ' + f(i.a) : 'Matched: ELLIPSE, e = ' + f(i.e) + ', semi-axes ' + f(i.a) + ' \u00d7 ' + f(i.b);
+                case 'hyperbola': return 'Matched: HYPERBOLA, e = ' + f(i.e) + ', a = ' + f(i.a) + ', b = ' + f(i.b);
+                case 'parabola': return 'Matched: PARABOLA, e = 1, latus rectum ' + f(i.lat);
+                case 'lines': return 'Matched: TWO LINES through the apex';
+                default: return 'Matched: a single POINT (the apex)';
+            }
+        }
+        window.toggleEqEdit = function() { const open = eqForm.classList.toggle('open'); document.getElementById('eq-edit-btn').innerHTML = open ? '&#10005; CLOSE' : '&#9998; EDIT'; if (open) { try { eqInput.focus({ preventScroll: true }); } catch (e) {} } };
+        window.applyEq = function() {
+            try {
+                const info = analyzeConic(parseEq(eqInput.value));
+                if (info.err) throw new Error(info.err);
+                const R = realizeConic(info);
+                sliderAngle.value = R.angle; sliderOffset.value = R.offset;
+                eqKeep = true; updatePlane();
+                setEqNote(describeConic(info) + (R.notes.length ? '. Note: ' + R.notes.join('; ') : '') + '.  Drawn in the plane\u2019s own centred axes.', R.notes.length ? '' : 'ok');
+            } catch (err) { setEqNote(err.message, 'err'); }
+        };
+        window.eqExample = function(s) { eqInput.value = s; applyEq(); };
+        eqInput.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Enter') { ev.preventDefault(); applyEq(); } });
+
+        function updatePlane() {
+            const angleDeg = parseFloat(sliderAngle.value);
+            const offset = parseFloat(sliderOffset.value);
+            
+            valAngle.textContent = angleDeg.toFixed(1) + '°';
+            valOffset.textContent = offset.toFixed(1);
+
+            const theta = angleDeg * (Math.PI / 180);
+            const sinT = Math.sin(theta);
+            const cosT = Math.cos(theta);
+
+            // The plane sits at distance `offset` from the apex measured along its own normal (0, -sinT, cosT),
+            // so tilting the plane no longer slides it toward or away from the apex.
+            planeGroup.rotation.x = theta;
+            planeGroup.position.set(0, -offset * sinT, offset * cosT);
+
+            // Plane-Cone quadratic intersection equation: x^2 + A y^2 + B y + C = 0
+            const A = cosT * cosT - k * k * sinT * sinT;
+            const B = -2 * offset * sinT * cosT * (1 + k * k);
+            const C = offset * offset * (sinT * sinT - k * k * cosT * cosT);
+
+            const yMinPlane = (sinT > 1e-4) ? (-14 - offset * cosT) / sinT : -25;
+            const yMaxPlane = (sinT > 1e-4) ? (14 - offset * cosT) / sinT : 25;
+
+            let yCenter = 0;
+            const pts1 = [];
+            const pts2 = [];
+            pointDot.visible = false;
+
+            let conicTypeStr = "CIRCLE";
+            let eccVal = 0.0;
+
+            if (Math.abs(A) < 0.02) {
+                // PARABOLA
+                conicTypeStr = "PARABOLA";
+                eccVal = 1.0;
+                if (Math.abs(B) > 1e-4) {
+                    const yVert = -C / B;
+                    yCenter = yVert;
+                    let maxX2 = 0;
+                    if (B > 0 && yVert >= yMinPlane) {
+                        maxX2 = B * (yVert - yMinPlane);
+                    } else if (B < 0 && yVert <= yMaxPlane) {
+                        maxX2 = -B * (yMaxPlane - yVert);
+                    }
+                    const xMax = Math.min(22, Math.sqrt(Math.max(0, maxX2)));
+                    const steps = 90;
+                    for (let i = -steps; i <= steps; i++) {
+                        const x = (i / steps) * xMax;
+                        const yRel = -(x * x) / B;
+                        pts1.push(new THREE.Vector3(x, yRel, 0));
+                    }
+                }
+            } else if (A > 0) {
+                // CIRCLE / ELLIPSE
+                yCenter = -B / (2 * A);
+                const Rsq = (B * B) / (4 * A) - C;
+                eccVal = Math.sin(theta) / Math.cos(alphaRad);
+                if (angleDeg < 0.1) {
+                    conicTypeStr = (Math.abs(offset) < 0.1) ? "POINT VERTEX" : "CIRCLE";
+                } else {
+                    conicTypeStr = "ELLIPSE";
+                }
+
+                if (Rsq > 0) {
+                    const ax = Math.sqrt(Rsq);
+                    const ay = Math.sqrt(Rsq / A);
+                    const steps = 100;
+                    for (let i = 0; i <= steps; i++) {
+                        const t = (i / steps) * Math.PI * 2;
+                        const x = ax * Math.cos(t);
+                        const yRel = ay * Math.sin(t);
+                        const yAbs = yCenter + yRel;
+                        if (yAbs >= yMinPlane - 0.5 && yAbs <= yMaxPlane + 0.5) {
+                            pts1.push(new THREE.Vector3(x, yRel, 0));
+                        }
+                    }
+                } else if (Math.abs(Rsq) < 1e-3 && Math.abs(offset) < 0.1) {
+                    pointDot.visible = true;
+                    pointDot.position.set(0, -yCenter, 0);
+                }
+            } else {
+                // HYPERBOLA (A < 0)
+                const alphaH = -A;
+                yCenter = B / (2 * alphaH);
+                const Hsq = (B * B) / (4 * alphaH) + C;
+                eccVal = Math.sin(theta) / Math.cos(alphaRad);
+
+                if (Math.abs(offset) < 0.1) {
+                    conicTypeStr = "DEGENERATE LINES";
+                    const m = Math.sqrt(alphaH);
+                    const xMax = 22;
+                    for (let i = -50; i <= 50; i++) {
+                        const x = (i / 50) * xMax;
+                        const yRel = x / m;
+                        if (yCenter + yRel >= yMinPlane && yCenter + yRel <= yMaxPlane) {
+                            pts1.push(new THREE.Vector3(x, yRel, 0));
+                        }
+                    }
+                    for (let i = -50; i <= 50; i++) {
+                        const x = (i / 50) * xMax;
+                        const yRel = -x / m;
+                        if (yCenter + yRel >= yMinPlane && yCenter + yRel <= yMaxPlane) {
+                            pts2.push(new THREE.Vector3(x, yRel, 0));
+                        }
+                    }
+                } else if (Hsq > 0) {
+                    conicTypeStr = "HYPERBOLA";
+                    const ay = Math.sqrt(Hsq / alphaH);
+                    
+                    // Upper Branch
+                    const maxRelY_upper = yMaxPlane - yCenter;
+                    let xMaxUpper = 0;
+                    if (maxRelY_upper > ay) {
+                        xMaxUpper = Math.sqrt(alphaH * (maxRelY_upper * maxRelY_upper - ay * ay));
+                    }
+                    xMaxUpper = Math.min(22, xMaxUpper);
+
+                    if (xMaxUpper > 0) {
+                        const steps = 80;
+                        for (let i = -steps; i <= steps; i++) {
+                            const x = (i / steps) * xMaxUpper;
+                            const yRel = Math.sqrt(ay * ay + (x * x) / alphaH);
+                            pts1.push(new THREE.Vector3(x, yRel, 0));
+                        }
+                    }
+
+                    // Lower Branch
+                    const maxRelY_lower = yCenter - yMinPlane;
+                    let xMaxLower = 0;
+                    if (maxRelY_lower > ay) {
+                        xMaxLower = Math.sqrt(alphaH * (maxRelY_lower * maxRelY_lower - ay * ay));
+                    }
+                    xMaxLower = Math.min(22, xMaxLower);
+
+                    if (xMaxLower > 0) {
+                        const steps = 80;
+                        for (let i = -steps; i <= steps; i++) {
+                            const x = (i / steps) * xMaxLower;
+                            const yRel = -Math.sqrt(ay * ay + (x * x) / alphaH);
+                            pts2.push(new THREE.Vector3(x, yRel, 0));
+                        }
+                    }
+                }
+            }
+
+            localOriginGroup.position.set(0, yCenter, 0);
+
+            // Update Geometry Buffers safely
+            updateCurveMesh(curve1, pts1);
+            updateCurveMesh(curve2, pts2);
+            updateTube(tube1, pts1, 0.035); updateTube(glow1, pts1, 0.085);
+            updateTube(tube2, pts2, 0.035); updateTube(glow2, pts2, 0.085);
+            const fillable = conicTypeStr !== "DEGENERATE LINES" && conicTypeStr !== "POINT VERTEX";
+            updateFill(fill1, fillable ? pts1 : []);
+            updateFill(fill2, fillable ? pts2 : []);
+
+            // General second-degree equation in the plane's own centred axes: a x^2 + b xy + c y^2 + d x + e y + f = 0
+            const eqCo = (conicTypeStr === "PARABOLA")
+                ? (Math.abs(B) > 1e-4 ? [1, 0, 0, 0, B, 0] : [1, 0, 0, 0, 0, C])
+                : [1, 0, A, 0, 0, Math.abs(A) > 1e-9 ? C - (B * B) / (4 * A) : C];
+            showEquation(eqCo, conicTypeStr);
+
+            // Update Metrics Panel text
+            document.getElementById('metric-type').textContent = conicTypeStr;
+            document.getElementById('metric-ecc').textContent = eccVal.toFixed(2);
+            document.getElementById('metric-angle').textContent = angleDeg.toFixed(1) + '°';
+            document.getElementById('metric-offset').textContent = offset.toFixed(2);
+
+            updateActiveButtonFromSliders(angleDeg);
+        }
+
+        function dedupe(pts) {
+            const out = [];
+            for (const p of pts) {
+                const q = out[out.length - 1];
+                if (!q || Math.abs(p.x - q.x) + Math.abs(p.y - q.y) > 1e-4) out.push(p);
+            }
+            return out;
+        }
+
+        function updateTube(mesh, pts, radius) {
+            const clean = dedupe(pts);
+            if (clean.length < 2) { mesh.visible = false; return; }
+            mesh.visible = true;
+            mesh.geometry.dispose();
+            const path = new THREE.CatmullRomCurve3(clean, false, 'catmullrom', 0.5);
+            mesh.geometry = new THREE.TubeGeometry(path, Math.min(clean.length * 2, 400), radius, 8, false);
+        }
+
+        function updateFill(mesh, pts) {
+            const clean = dedupe(pts);
+            if (clean.length < 3) { mesh.visible = false; return; }
+            mesh.visible = true;
+            mesh.geometry.dispose();
+            mesh.geometry = new THREE.ShapeGeometry(new THREE.Shape(clean.map(p => new THREE.Vector2(p.x, p.y))));
+        }
+
+        function updateCurveMesh(lineMesh, pointsArray) {
+            if (pointsArray.length < 2) {
+                lineMesh.visible = false;
+            } else {
+                lineMesh.visible = true;
+                lineMesh.geometry.dispose();
+                lineMesh.geometry = new THREE.BufferGeometry().setFromPoints(pointsArray);
+            }
+        }
+
+        function updateActiveButtonFromSliders(angle) {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const tol = 1.2;
+            
+            if (Math.abs(angle - 0) < tol) {
+                document.getElementById('btn-circle').classList.add('active');
+            } else if (angle > tol && angle < generatorAngleHorizontal - tol) {
+                document.getElementById('btn-ellipse').classList.add('active');
+            } else if (Math.abs(angle - generatorAngleHorizontal) < tol) {
+                document.getElementById('btn-parabola').classList.add('active');
+            } else if (angle > generatorAngleHorizontal + tol) {
+                document.getElementById('btn-hyperbola').classList.add('active');
+            }
+        }
+
+        window.setPreset = function(type) {
+            let targetAngle = 0;
+            let targetOffset = 6;
+
+            switch(type) {
+                case 'circle':
+                    targetAngle = 0;
+                    targetOffset = 7;
+                    break;
+                case 'ellipse':
+                    targetAngle = 35;
+                    targetOffset = 6;
+                    break;
+                case 'parabola':
+                    targetAngle = generatorAngleHorizontal;
+                    targetOffset = 7;
+                    break;
+                case 'hyperbola':
+                    targetAngle = 90;
+                    targetOffset = 3;
+                    break;
+            }
+
+            sliderAngle.value = targetAngle;
+            sliderOffset.value = targetOffset;
+            updatePlane();
+        }
+
+        sliderAngle.addEventListener('input', updatePlane);
+        sliderOffset.addEventListener('input', updatePlane);
+
+        window.resetCamera = function() {
+            camera.position.set(25, 18, 28);
+            controls.target.set(0, 0, 0);
+        }
+
+        setPreset('ellipse');
+
+        // Animation Loop
+        let autoRotate = true;
+        toggleRotate.addEventListener('change', (e) => {
+            autoRotate = e.target.checked;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            proofTick(performance.now());
+            controls.update();
+            updateAxisTicks();
+            
+            if (autoRotate) {
+                const delta = clock.getDelta();
+                scene.rotation.y += 0.18 * delta;
+            } else {
+                clock.getDelta();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function fitRenderer() {
+            const c = document.getElementById('canvas-container');
+            const w = c.clientWidth || window.innerWidth, h = c.clientHeight || window.innerHeight;
+            camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+        }
+        window.addEventListener('resize', () => {
+            if (typeof proofState !== 'undefined' && proofState.active) { layoutProof(); aimStep(proofState.step, 600); }
+            else fitRenderer();
+        });
+        window.addEventListener('orientationchange', () => setTimeout(() => window.dispatchEvent(new Event('resize')), 250));
+        if (window.innerWidth < 700) toggleCard('metrics-body', 'metrics-chevron');
+
+
+        // ===================== Dandelin Sphere Proofs: circle, ellipse, parabola, hyperbola =====================
+        // Cone frame: apex at origin, axis = +Z. The cutting plane passes through (0,0,z0), tilted PTH about X.
+        const $ = (id) => document.getElementById(id);
+        const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+        const L2W = (v) => V3(v.x, v.z, -v.y);            // cone frame -> scene frame (world group is turned -90deg about X)
+        const HX = (c) => '#' + new THREE.Color(c).getHexString();
+        const ease = (k) => k * k * k * (k * (6 * k - 15) + 10);
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        const proofState = { active: false, step: 0, t: 0, last: 0, saved: {}, a2: 1, a2s: 0 };
+        const proofGroup = new THREE.Group();
+        proofGroup.visible = false;
+        world.add(proofGroup);
+        const reveal = [], fixed = [], sphereMats = [], tmpV = V3(0, 0, 0);
+        let geo = {}, camTween = null, proofType = 'ellipse';
+
+        // Label painter shared by the 3D sprites and the 2D inset: letter + small subscript, dark halo for legibility.
+        function paintLabel(ctx, txt, x, y, col, size) {
+            const m = /^([A-Za-z]+)(\d*)$/.exec(txt) || [txt, txt, ''];
+            const fb = 'bold ' + size + 'px "Space Mono", monospace', fs = 'bold ' + Math.round(size * 0.62) + 'px "Space Mono", monospace';
+            ctx.font = fb; const wb = ctx.measureText(m[1]).width;
+            ctx.font = fs; const ws = m[2] ? ctx.measureText(m[2]).width : 0;
+            const sx = x - (wb + ws) / 2;
+            ctx.lineJoin = 'round'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+            ctx.lineWidth = Math.max(3, size * 0.22); ctx.strokeStyle = 'rgba(6,10,24,0.92)'; ctx.fillStyle = col;
+            ctx.font = fb; ctx.strokeText(m[1], sx, y); ctx.fillText(m[1], sx, y);
+            if (m[2]) { ctx.font = fs; ctx.strokeText(m[2], sx + wb + 1, y + size * 0.2); ctx.fillText(m[2], sx + wb + 1, y + size * 0.2); }
+        }
+
+        // ---------- 2D axial cross-section (inline card + full-screen view share one renderer) ----------
+        let P2W = 290, P2H = 250, O2W = 0, O2H = 0;
+        const V2 = { open: false, z: 1, px: 0, py: 0 };
+        function fitCanvas(cv, maxDpr) {
+            if (!cv) return null;
+            const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, maxDpr);
+            if (r.width < 40 || r.height < 40) return null;              // hidden: keep the last size
+            const W = Math.round(r.width), H = Math.round(r.height);
+            if (cv._W !== W || cv._H !== H || cv._d !== d) { cv.width = W * d; cv.height = H * d; }
+            cv._W = W; cv._H = H; cv._d = d; return [W, H];
+        }
+        function size2D() { const s = fitCanvas($('c2d'), 2); if (s) { P2W = s[0]; P2H = s[1]; } }
+        function sizeBig() { const s = fitCanvas($('c2dBig'), 3); if (s) { O2W = s[0]; O2H = s[1]; } }
+        function draw2D(step, a) {
+            render2D($('c2d'), P2W, P2H, step, a, null, 1);
+            if (V2.open) render2D($('c2dBig'), O2W, O2H, step, a, V2, clamp(Math.min(O2W, O2H) / 420, 0.85, 1.5));
+        }
+        const redraw2D = () => draw2D(proofState.step, proofState.a2 < 1 ? proofState.a2 : 1);
+
+        const rectOv = (r, s) => Math.max(0, Math.min(r.x1, s.x1) - Math.max(r.x0, s.x0)) * Math.max(0, Math.min(r.y1, s.y1) - Math.max(r.y0, s.y0));
+        function segHitsRect(x0, y0, x1, y1, r) {                         // Liang-Barsky
+            let t0 = 0, t1 = 1; const dx = x1 - x0, dy = y1 - y0, p = [-dx, dx, -dy, dy], q = [x0 - r.x0, r.x1 - x0, y0 - r.y0, r.y1 - y0];
+            for (let i = 0; i < 4; i++) {
+                if (p[i] === 0) { if (q[i] < 0) return false; }
+                else { const t = q[i] / p[i]; if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } }
+            }
+            return true;
+        }
+        function circleHitsRect(c, r) {
+            const nx = clamp(c[0], r.x0, r.x1), ny = clamp(c[1], r.y0, r.y1), dmin = Math.hypot(c[0] - nx, c[1] - ny);
+            const dmax = Math.hypot(Math.max(Math.abs(c[0] - r.x0), Math.abs(c[0] - r.x1)), Math.max(Math.abs(c[1] - r.y0), Math.abs(c[1] - r.y1)));
+            return dmin <= c[2] && c[2] <= dmax;
+        }
+
+        // k = on-screen size factor (1 inline, larger in the full-screen view); view = {z, px, py} zoom/pan, or null.
+        function render2D(cv, W, H, step, a, view, k) {
+            const D = geo.d2; if (!cv || !D || !W || !H) return;
+            const ctx = cv.getContext('2d'), d = cv._d || 1;
+            ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H);
+            const b = D.b, pad = view ? Math.max(30, Math.min(W, H) * 0.07) : Math.max(16, Math.min(30, W * 0.1));
+            const sc = Math.min((W - 2 * pad) / (b.y1 - b.y0), (H - 2 * pad) / (b.z1 - b.z0)) * (view ? view.z : 1);
+            const cy = (b.y0 + b.y1) / 2, cz = (b.z0 + b.z1) / 2, ox = view ? view.px : 0, oy = view ? view.py : 0;
+            const X = (y) => W / 2 + (y - cy) * sc + ox, Y = (z) => H / 2 - (z - cz) * sc + oy;
+            const lw = Math.min(k, 1.35), fs = Math.round(14 * k), pts = [], lns = [], cis = [], labs = [];
+            ctx.save(); ctx.beginPath(); ctx.rect(1, 1, W - 2, H - 2); ctx.clip(); ctx.lineCap = 'round';
+            // pass 1: geometry (lines, circles, points, right-angle marks); labels are only collected
+            for (const it of D.it) {
+                if (it.min > step) continue;
+                const cur = it.min === step, e = cur ? ease(a) : 1, al = (it.alpha || 1) * (cur ? Math.min(1, a * 2.5) : 1);
+                if (al < 0.02) continue;
+                ctx.globalAlpha = al; ctx.setLineDash((it.dash || []).map(v => v * lw));
+                if (it.k === 'l') {
+                    const qy = it.p[0] + (it.q[0] - it.p[0]) * e, qz = it.p[1] + (it.q[1] - it.p[1]) * e;
+                    const x0 = X(it.p[0]), y0 = Y(it.p[1]), x1 = X(qy), y1 = Y(qz);
+                    ctx.strokeStyle = it.col; ctx.lineWidth = it.w * lw;
+                    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                    lns.push([x0, y0, x1, y1, al]);
+                    if (it.tick && e > 0.98) {
+                        ctx.setLineDash([]);
+                        const dx = x1 - x0, dy = y1 - y0, ln = Math.hypot(dx, dy) || 1, tx = dx / ln, ty = dy / ln, nx = -ty, ny = tx, mx = (x0 + x1) / 2, my = (y0 + y1) / 2, tl = 5 * k, ts = 5 * k;
+                        for (let j = 0; j < it.tick; j++) { const o = (j - (it.tick - 1) / 2) * ts; ctx.beginPath(); ctx.moveTo(mx + tx * o + nx * tl, my + ty * o + ny * tl); ctx.lineTo(mx + tx * o - nx * tl, my + ty * o - ny * tl); ctx.stroke(); }
+                    }
+                } else if (it.k === 'c') {
+                    const cx = X(it.c[0]), cyy = Y(it.c[1]), R = it.r * sc;
+                    ctx.strokeStyle = it.col; ctx.fillStyle = it.col; ctx.lineWidth = 1.8 * lw;
+                    ctx.beginPath(); ctx.arc(cx, cyy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(e, 0.001)); ctx.stroke();
+                    ctx.globalAlpha = al * 0.09 * e; ctx.beginPath(); ctx.arc(cx, cyy, R, 0, Math.PI * 2); ctx.fill();
+                    if (e > 0.5) cis.push([cx, cyy, R, al]);
+                } else if (it.k === 'p') {
+                    const x = X(it.p[0]), y = Y(it.p[1]), s = (0.4 + 0.6 * e) * k;
+                    ctx.fillStyle = '#070d1c'; ctx.beginPath(); ctx.arc(x, y, 5.4 * s, 0, 6.2832); ctx.fill();
+                    ctx.fillStyle = it.col; ctx.beginPath(); ctx.arc(x, y, 3.6 * s, 0, 6.2832); ctx.fill();
+                    pts.push([x, y, 5.4 * k]);
+                } else if (it.k === 't') {
+                    labs.push({ txt: it.txt, x: X(it.p[0]), y: Y(it.p[1]), dx: it.dx, dy: it.dy, col: it.col, al });
+                } else if (it.k === 's') {
+                    const x = X(it.c[0]), y = Y(it.c[1]), s = 7 * k, ax = it.a[0] * s, ay = -it.a[1] * s, bx = it.b[0] * s, by = -it.b[1] * s;
+                    ctx.strokeStyle = it.col; ctx.lineWidth = 1.2 * lw;
+                    ctx.beginPath(); ctx.moveTo(x + ax, y + ay); ctx.lineTo(x + ax + bx, y + ay + by); ctx.lineTo(x + bx, y + by); ctx.stroke();
+                }
+            }
+            ctx.setLineDash([]);
+            // pass 2: labels. Each one tries its preferred spot plus 24 spots around its point and keeps the one
+            // that overlaps the fewest other labels, points, lines and circles, so nothing is written on top of anything.
+            const placed = [], cw = fs * 0.6, full = { x0: 0, y0: 0, x1: W, y1: H };
+            for (const L of labs) {
+                const m = /^([A-Za-z]+)(\d*)$/.exec(L.txt) || [L.txt, L.txt, ''];
+                const w = m[1].length * cw + m[2].length * cw * 0.62 + 6, h = fs * 1.25, hw = w / 2, hh = h / 2, area = w * h;
+                const cands = [[L.x + L.dx * k, L.y + L.dy * k]];
+                for (const mul of [1, 1.8]) for (let i = 0; i < 12; i++) {
+                    const ang = i * Math.PI / 6, ux = Math.cos(ang), uy = -Math.sin(ang), dist = (5.4 * k + 3 + Math.abs(ux) * hw + Math.abs(uy) * hh) * mul;
+                    cands.push([L.x + ux * dist, L.y + uy * dist]);
+                }
+                let best = null, bestR = null, bc = 1e9;
+                cands.forEach((c, i) => {
+                    const r = { x0: c[0] - hw, x1: c[0] + hw, y0: c[1] - hh, y1: c[1] + hh };
+                    let cost = i * 0.02 + Math.hypot(c[0] - L.x, c[1] - L.y) / fs * 0.08;
+                    for (const p of placed) cost += rectOv(r, p) / area * 4;
+                    for (const p of pts) cost += rectOv(r, { x0: p[0] - p[2], x1: p[0] + p[2], y0: p[1] - p[2], y1: p[1] + p[2] }) / area * 3;
+                    for (const l of lns) if (segHitsRect(l[0], l[1], l[2], l[3], r)) cost += 0.5 * l[4];
+                    for (const ci of cis) if (circleHitsRect(ci, r)) cost += 0.25 * ci[3];
+                    cost += (area - rectOv(r, full)) / area * 6;
+                    if (cost < bc) { bc = cost; best = c; bestR = r; }
+                });
+                placed.push(bestR);
+                ctx.globalAlpha = L.al; paintLabel(ctx, L.txt, best[0], best[1] + fs * 0.3, L.col, fs);
+            }
+            // axes: horizontal = V (cone-frame y), vertical = W (cone axis, z). Unit ticks are dynamic (1-2-5 steps)
+            // so the numbers get finer as you zoom in; the axes stay pinned inside the view when panned away.
+            {
+                const ax0 = X(0), ay0 = Y(0), m = 6 * k, ah = 6 * k, lfs = Math.round(15 * k), tfs = Math.round(10.5 * k);
+                const hx = clamp(ay0, m + ah, H - m - ah), vx = clamp(ax0, m + ah, W - m - ah);
+                const CV = '#6ee7b7', CW = '#7cc4ff';
+                ctx.setLineDash([]); ctx.lineWidth = 1.1 * lw; ctx.globalAlpha = 0.55;
+                ctx.strokeStyle = CV; ctx.fillStyle = CV;
+                ctx.beginPath(); ctx.moveTo(m, hx); ctx.lineTo(W - m, hx); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(W - m, hx); ctx.lineTo(W - m - ah * 1.6, hx - ah * 0.7); ctx.lineTo(W - m - ah * 1.6, hx + ah * 0.7); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = CW; ctx.fillStyle = CW;
+                ctx.beginPath(); ctx.moveTo(vx, H - m); ctx.lineTo(vx, m); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(vx, m); ctx.lineTo(vx - ah * 0.7, m + ah * 1.6); ctx.lineTo(vx + ah * 0.7, m + ah * 1.6); ctx.closePath(); ctx.fill();
+                // dynamic ticks
+                const rawStep = 46 * k / sc, pw = Math.pow(10, Math.floor(Math.log10(rawStep))), mant = rawStep / pw;
+                const st = (mant <= 1 ? 1 : mant <= 2 ? 2 : mant <= 5 ? 5 : 10) * pw, dec = Math.max(0, -Math.floor(Math.log10(st) + 1e-9));
+                const sub = (st / pw === 2) ? 4 : 5, ms = st / sub, drawMinor = ms * sc >= 7 * k;
+                const fmt = (v) => (Math.abs(v) < st * 1e-6 ? 0 : v).toFixed(dec).replace('-', '\u2212');
+                const yLo = cy + (m - W / 2 - ox) / sc, yHi = cy + (W - m - W / 2 - ox) / sc;
+                const zLo = cz + (H / 2 + oy - (H - m)) / sc, zHi = cz + (H / 2 + oy - m) / sc;
+                const tl = 4.5 * k, tm = 2.5 * k;
+                ctx.font = 'bold ' + tfs + 'px "Space Mono", monospace'; ctx.lineJoin = 'round';
+                const halo = (txt, x, y) => { ctx.lineWidth = Math.max(3, tfs * 0.3); ctx.strokeStyle = 'rgba(6,10,24,0.92)'; ctx.strokeText(txt, x, y); ctx.fillText(txt, x, y); };
+                const labBelow = hx < H - tfs * 3.2, labRight = vx > tfs * 4.5;
+                const noV = W - m - ah * 1.6 - lfs * 2, noW = m + ah * 1.6 + lfs * 1.8;
+                ctx.lineWidth = 1 * lw;
+                // minor ticks
+                if (drawMinor) {
+                    ctx.globalAlpha = 0.35;
+                    ctx.strokeStyle = CV; ctx.beginPath();
+                    for (let i = Math.ceil(yLo / ms), n = 0; i <= Math.floor(yHi / ms) && n < 600; i++, n++) { if (i % sub === 0) continue; const x = X(i * ms); ctx.moveTo(x, hx - tm); ctx.lineTo(x, hx + tm); }
+                    ctx.stroke();
+                    ctx.strokeStyle = CW; ctx.beginPath();
+                    for (let i = Math.ceil(zLo / ms), n = 0; i <= Math.floor(zHi / ms) && n < 600; i++, n++) { if (i % sub === 0) continue; const y = Y(i * ms); ctx.moveTo(vx - tm, y); ctx.lineTo(vx + tm, y); }
+                    ctx.stroke();
+                }
+                // major ticks + numbers
+                ctx.globalAlpha = 0.85; ctx.textBaseline = labBelow ? 'top' : 'bottom'; ctx.textAlign = 'center';
+                for (let i = Math.ceil(yLo / st), n = 0; i <= Math.floor(yHi / st) && n < 200; i++, n++) {
+                    const x = X(i * st); ctx.strokeStyle = CV; ctx.lineWidth = 1.2 * lw; ctx.beginPath(); ctx.moveTo(x, hx - tl); ctx.lineTo(x, hx + tl); ctx.stroke();
+                    if (!showAxisLabels || i === 0 || x > noV) continue;
+                    ctx.fillStyle = CV; halo(fmt(i * st), x, labBelow ? hx + tl + 2 * k : hx - tl - 2 * k);
+                }
+                ctx.textBaseline = 'middle'; ctx.textAlign = labRight ? 'right' : 'left';
+                for (let i = Math.ceil(zLo / st), n = 0; i <= Math.floor(zHi / st) && n < 200; i++, n++) {
+                    const y = Y(i * st); ctx.strokeStyle = CW; ctx.lineWidth = 1.2 * lw; ctx.beginPath(); ctx.moveTo(vx - tl, y); ctx.lineTo(vx + tl, y); ctx.stroke();
+                    if (!showAxisLabels || i === 0 || y < noW) continue;
+                    ctx.fillStyle = CW; halo(fmt(i * st), labRight ? vx - tl - 3 * k : vx + tl + 3 * k, y);
+                }
+                // origin and scale readout
+                ctx.fillStyle = '#ffffff'; ctx.textBaseline = labBelow ? 'top' : 'bottom'; ctx.textAlign = labRight ? 'right' : 'left';
+                if (showAxisLabels) {
+                    halo('0', labRight ? vx - 4 * k : vx + 4 * k, labBelow ? hx + tl + 2 * k : hx - tl - 2 * k);
+                    ctx.globalAlpha = 0.75; ctx.fillStyle = '#cbd5e1'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+                    halo('major tick = ' + st.toFixed(dec) + ' unit' + (st === 1 ? '' : 's'), W - m - 2, H - m - 2);
+                }
+                ctx.globalAlpha = 1;
+                if (showAxisLabels) paintLabel(ctx, 'V', W - m - ah * 1.6 - lfs * 0.6, Math.max(lfs, hx - 7 * k - (labBelow ? 0 : 0)), CV, lfs);
+                if (showAxisLabels) paintLabel(ctx, 'W', clamp(vx + lfs * 0.9, lfs, W - lfs), m + ah * 1.6 + lfs * 0.9, CW, lfs);
+            }
+            ctx.restore(); ctx.globalAlpha = 1; ctx.setLineDash([]);
+        }
+
+        // ---------- expanded view: 3D (live canvas) + 2D (zoom / pan) + step text ----------
+        function sync2DFull() {
+            if (!V2.open || !geo.steps) return;
+            const i = proofState.step, N = geo.steps.length;
+            $('px-step').textContent = 'STEP ' + (i + 1) + ' / ' + N + '  \u00b7  ' + proofType.toUpperCase();
+            $('px-fill').style.width = ((i + 1) / N * 100) + '%';
+            $('px-title').innerHTML = geo.steps[i][0]; $('px-body').innerHTML = geo.steps[i][1]; $('px-live').innerHTML = geo.live(i);
+            $('px-prev').disabled = i === 0; $('px-next').disabled = i === N - 1;
+            $('px-text').scrollTop = 0;
+        }
+        window.openExpand = function() {
+            if (!proofState.active || V2.open) return;
+            V2.open = true; V2.z = 1; V2.px = V2.py = 0;
+            document.body.classList.add('p-exp');
+            layoutProof(); sync2DFull(); aimStep(proofState.step, 500);
+            requestAnimationFrame(() => { layoutProof(); redraw2D(); });
+        };
+        window.close2D = function() {
+            if (!V2.open) return;
+            V2.open = false; document.body.classList.remove('p-exp');
+            layoutProof(); aimStep(proofState.step, 500);
+        };
+        window.reset2D = function() { V2.z = 1; V2.px = V2.py = 0; redraw2D(); };
+        function zoomAt(f, mx, my) {
+            const nz = clamp(V2.z * f, 1, 10), r = nz / V2.z, dx = mx - O2W / 2, dy = my - O2H / 2;
+            V2.px = dx - (dx - V2.px) * r; V2.py = dy - (dy - V2.py) * r; V2.z = nz;
+            if (nz === 1) { V2.px = V2.py = 0; }
+            const lim = Math.max(O2W, O2H) * nz * 0.6; V2.px = clamp(V2.px, -lim, lim); V2.py = clamp(V2.py, -lim, lim);
+            redraw2D();
+        }
+        (function wire2DFull() {
+            const cv = $('c2dBig'), ptrs = new Map(); let pinch = null;
+            const loc = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+            cv.addEventListener('wheel', (e) => { e.preventDefault(); const [x, y] = loc(e); zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0018)), x, y); }, { passive: false });
+            cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, loc(e)); pinch = null; });
+            cv.addEventListener('pointermove', (e) => {
+                if (!ptrs.has(e.pointerId)) return;
+                const prev = ptrs.get(e.pointerId), cur = loc(e); ptrs.set(e.pointerId, cur);
+                if (ptrs.size === 1) { V2.px += cur[0] - prev[0]; V2.py += cur[1] - prev[1]; const lim = Math.max(O2W, O2H) * V2.z * 0.6; V2.px = clamp(V2.px, -lim, lim); V2.py = clamp(V2.py, -lim, lim); redraw2D(); }
+                else if (ptrs.size === 2) {
+                    const [p, q] = [...ptrs.values()], dist = Math.hypot(p[0] - q[0], p[1] - q[1]), mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+                    if (pinch && pinch.d > 0) { V2.px += mx - pinch.mx; V2.py += my - pinch.my; zoomAt(dist / pinch.d, mx, my); }
+                    pinch = { d: dist, mx, my };
+                }
+            });
+            const up = (e) => { ptrs.delete(e.pointerId); pinch = null; };
+            cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+            cv.addEventListener('dblclick', () => reset2D());
+            if (window.ResizeObserver) { const ro = new ResizeObserver(() => { if (V2.open) layoutProof(); }); ro.observe($('px-3d')); ro.observe($('px-2d')); }
+        })();
+
+        function buildProof(type) {
+            while (proofGroup.children.length) proofGroup.remove(proofGroup.children[0]);
+            reveal.length = 0; fixed.length = 0; sphereMats.length = 0; geo = {}; proofType = type;
+            botCone.visible = (type === 'hyperbola');
+            ['circle', 'ellipse', 'parabola', 'hyperbola'].forEach(t => $('ptab-' + t).classList.toggle('active', t === type));
+
+            const sa = Math.sin(alphaRad), ca = Math.cos(alphaRad);
+            const PTH = { circle: 0, ellipse: Math.PI / 6, parabola: Math.PI / 2 - alphaRad, hyperbola: 75 * Math.PI / 180 }[type];
+            const z0 = type === 'parabola' ? 6 : 4.2;
+            const ct = Math.cos(PTH), st = Math.sin(PTH), n = V3(0, -st, ct), u = V3(0, ct, st), vx = V3(1, 0, 0), O = V3(0, 0, z0), cst = z0 * ct;
+            // Palette: spheres are violet / sky; points use gold, green and pale tints with a dark outline so they never blend into a sphere.
+            const VIO = 0xa78bfa, SKY = 0x38bdf8, GOLD = 0xffe27a, GREEN = 0x00ff66, INK = 0x070d1c, TV = 0xe9e0ff, TS = 0xcdf1ff, PLN = 0x5ec8f0, Yaxis = V3(0, 1, 0);
+
+            const mk = (c, o, extra) => new THREE.MeshBasicMaterial(Object.assign({ color: c, transparent: true, opacity: o, depthWrite: false }, extra));
+            const addP = (obj, min, ro) => { obj.renderOrder = ro || 0; proofGroup.add(obj); reveal.push({ obj, min }); return obj; };
+            const foot = (s) => V3(0, 0, s).addScaledVector(n, -(s * ct - cst));            // where a sphere on the axis touches the plane
+            const mid = (...vs) => vs.reduce((s, v) => s.add(v), V3(0, 0, 0)).multiplyScalar(1 / vs.length);
+            const sph = (s, c) => {
+                const col = new THREE.Color(c);
+                const vert = 'varying vec3 vN; varying vec3 vV; varying vec2 vUv; void main(){ vUv = uv; vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }';
+                // Clear glass ball: studio reflections on the surface, an inverted refracted view through the body,
+                // a dark total-internal-reflection ring with a bright rim, focused caustic + inner reflections, sharp speculars.
+                const frag = [
+                    'uniform vec3 uCol; uniform float uTime; varying vec3 vN; varying vec3 vV; varying vec2 vUv;',
+                    'vec3 env(vec3 r){',
+                    '  float h = r.y * 0.5 + 0.5;',
+                    '  vec3 c = mix(vec3(0.02, 0.03, 0.07), vec3(0.26, 0.34, 0.52), smoothstep(0.0, 0.55, h));',
+                    '  c = mix(c, vec3(0.85, 0.93, 1.0), smoothstep(0.58, 1.0, h));',
+                    '  c += vec3(0.6, 0.65, 0.8) * smoothstep(0.06, 0.0, abs(r.y + 0.02)) * 0.45;',
+                    '  vec2 q = r.xy / (1.2 + r.z);',
+                    '  float win = smoothstep(0.02, 0.0, max(abs(q.x + 0.42) - 0.24, abs(q.y - 0.42) - 0.17));',
+                    '  float bar = smoothstep(0.012, 0.0, abs(q.x + 0.42) - 0.012) * smoothstep(0.02, 0.0, abs(q.y - 0.42) - 0.17);',
+                    '  float bar2 = smoothstep(0.012, 0.0, abs(q.y - 0.42) - 0.012) * smoothstep(0.02, 0.0, abs(q.x + 0.42) - 0.24);',
+                    '  float strip = smoothstep(0.02, 0.0, max(abs(q.x - 0.66) - 0.03, abs(q.y + 0.05) - 0.36));',
+                    '  float floorL = smoothstep(0.82, 1.0, dot(r, normalize(vec3(0.45, -0.7, 0.45))));',
+                    '  return c + vec3(1.0, 0.99, 0.96) * (win * 2.6 + strip * 1.2) - vec3(0.9) * (bar + bar2) * win + mix(uCol, vec3(1.0), 0.4) * floorL * 0.8;',
+                    '}',
+                    'void main(){',
+                    '  bool front = gl_FrontFacing;',
+                    '  vec3 nn = normalize(vN);',
+                    '  vec3 n = front ? nn : -nn;',
+                    '  vec3 v = normalize(vV);',
+                    '  float ndv = clamp(dot(n, v), 0.0, 1.0);',
+                    '  float e = 1.0 - ndv;',
+                    '  vec3 r = reflect(-v, n);',
+                    '  float F = 0.05 + 0.95 * pow(e, 4.0);',
+                    '  vec3 refl = env(r);',
+                    // refracted view: inverted and magnified, like looking through a lens
+                    '  vec3 t = refract(-v, n, 0.667);',
+                    '  vec3 rf = env(normalize(vec3(-t.x * 1.3, -t.y * 1.3, abs(t.z) + 0.2)));',
+                    '  vec3 body = uCol * (0.45 + 0.9 * pow(e, 1.3)) + rf * mix(vec3(1.0), uCol * 1.4 + 0.25, 0.65) * 0.5;',
+                    // dark ring where light is trapped, then bright rim
+                    '  float ring = smoothstep(0.55, 0.88, e) * (1.0 - smoothstep(0.90, 1.0, e));',
+                    '  body *= 1.0 - 0.6 * ring;',
+                    '  vec3 irid = 0.5 + 0.5 * cos(6.2831 * (vec3(0.0, 0.33, 0.67) + e * 0.8 + vUv.y * 0.3 + uTime * 0.03));',
+                    '  vec3 fr3 = vec3(pow(e, 3.0), pow(e, 3.5), pow(e, 4.0));',
+                    '  vec3 rim = (uCol * 1.6 + irid * 0.35) * fr3 * 1.4;',
+                    '  vec3 L = normalize(vec3(-0.45, 0.65, 0.6));',
+                    '  float caus = pow(max(dot(nn, -L), 0.0), 8.0) * (front ? 0.3 : 1.0);',
+                    '  vec3 causCol = mix(uCol, vec3(1.0), 0.6) * 2.0;',
+                    '  float hi = pow(max(dot(r, L), 0.0), 220.0) * 2.0;',
+                    '  float hiS = pow(max(dot(r, L), 0.0), 40.0) * 0.18;',
+                    '  float hi2 = pow(max(dot(r, normalize(vec3(0.6, -0.4, 0.5))), 0.0), 70.0) * 0.4;',
+                    '  float hiB = front ? 0.0 : pow(max(dot(r, normalize(vec3(0.5, -0.55, 0.55))), 0.0), 150.0) * 0.9;',
+                    '  float refW = clamp(F * (front ? 1.0 : 0.4), 0.0, 1.0);',
+                    '  vec3 rgb = mix(body, refl, refW) + rim + causCol * caus + vec3(1.0) * (hi + hiS + hi2 + hiB);',
+                    '  float a = 0.10 + 0.30 * ring + 0.75 * pow(e, 3.0) + refW * 0.55 + caus * 0.5 + (hi + hiS + hi2 + hiB) * 0.9;',
+                    '  if (!front) a *= 0.65;',
+                    '  gl_FragColor = vec4(rgb, clamp(a, 0.0, 0.95));',
+                    '}'
+                ].join('\n');
+                const mat = new THREE.ShaderMaterial({
+                    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+                    uniforms: { uCol: { value: col }, uTime: { value: 0 } },
+                    vertexShader: vert, fragmentShader: frag
+                });
+                sphereMats.push(mat);
+                const R = Math.abs(s) * sa;
+                const m = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 44), mat);
+                mat.color = col; mat.opacity = 0.3;      // read only by the no-WebGL fallback renderer
+                // soft outer aura: additive, fades out toward the silhouette
+                const aura = new THREE.Mesh(new THREE.SphereGeometry(R * 1.07, 48, 32), new THREE.ShaderMaterial({
+                    transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending,
+                    uniforms: { uCol: { value: col } },
+                    vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+                    fragmentShader: 'uniform vec3 uCol; varying vec3 vN; varying vec3 vV; void main(){ float k = pow(clamp(dot(-normalize(vN), normalize(vV)), 0.0, 1.0), 2.5); gl_FragColor = vec4(uCol * 1.3, k * 0.26); }'
+                }));
+                aura.userData.skip2D = true; aura.renderOrder = -1;
+                m.add(aura);
+                m.position.set(0, 0, s); return m;
+            };
+            const ring = (s, c) => {                     // contact circle: one thin line plus a faint halo
+                const g = new THREE.Group(), R = Math.abs(s) * ca * sa;
+                g.add(new THREE.Mesh(new THREE.TorusGeometry(R, 0.04, 10, 128), mk(c, 0.95)));
+                g.add(new THREE.Mesh(new THREE.TorusGeometry(R, 0.1, 8, 128), mk(c, 0.12)));
+                g.position.z = s * ca * ca; return g;
+            };
+            // Every point is the same size on screen: dark outline + coloured core, rescaled each frame with camera distance.
+            const dot = (c) => {
+                const g = new THREE.Group(), o = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14), mk(INK, 0.92, { depthTest: false })), m = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), mk(c, 1, { depthTest: false }));
+                o.renderOrder = 0; m.renderOrder = 1; g.add(o, m); g.userData.dot = true; fixed.push(g); return g;
+            };
+            // Labels float up-and-sideways from their point in screen space, with a constant on-screen size.
+            const label = (txt, col, dir) => {
+                const cv = document.createElement('canvas'); cv.width = 160; cv.height = 96;
+                paintLabel(cv.getContext('2d'), txt, 80, 62, col, 56);
+                const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false, depthWrite: false }));
+                sp.scale.set(1.2, 0.72, 1);
+                const g = new THREE.Group(); g.add(sp);
+                g.userData = { label: true, anchor: V3(0, 0, 0), dir: dir || [1, 0.9], sp };
+                fixed.push(g); return g;
+            };
+            const put = (o, v) => { if (o.userData.label) { o.userData.anchor.copy(v); o.userData.sp.position.copy(v); } else o.position.copy(v); };
+            const seg = (c, r) => new THREE.Mesh(new THREE.CylinderGeometry(r || 0.035, r || 0.035, 1, 8), mk(c, 0.95, { depthTest: false }));
+            const setSeg = (m, p, q) => { const d = q.clone().sub(p), len = d.length(); m.position.copy(p).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(Yaxis, d.normalize()); m.scale.set(1, len, 1); };
+            const tube = (pts, closed) => addP(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, closed), pts.length * 2, 0.05, 8, closed), mk(GREEN, 1, { depthTest: true })), 0, 2);
+            const planeAt = (Yc, size) => {
+                const pl = new THREE.Group(); pl.rotation.x = PTH; pl.position.copy(O);
+                const inner = new THREE.Group(); inner.position.y = Yc; pl.add(inner);
+                inner.add(new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshPhongMaterial({ color: 0x154f7a, emissive: 0x061f34, transparent: true, opacity: 0.38, side: THREE.DoubleSide, depthWrite: false })));
+                const g = new THREE.GridHelper(size, size, 0x48a8c0, 0x176880); g.rotation.x = Math.PI / 2; g.material.transparent = true; g.material.opacity = 0.16; inner.add(g);
+                inner.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(size, size)), new THREE.LineBasicMaterial({ color: 0x3aa0c0, transparent: true, opacity: 0.7 })));
+                addP(pl, 0, -1);
+            };
+            const f2 = (x) => x.toFixed(2);
+
+            // ---- 2D construction data (axial slice: horizontal = y, vertical = z of the cone frame) ----
+            const D = { it: [] }, yz = (v) => [v.y, v.z];
+            const L2 = (min, p, q, col, w, o) => D.it.push(Object.assign({ k: 'l', min, p, q, col: HX(col), w: w || 1.6 }, o));
+            const Ci = (min, c, r, col) => D.it.push({ k: 'c', min, c, r, col: HX(col) });
+            const Pt = (min, p, col) => D.it.push({ k: 'p', min, p, col: HX(col) });
+            const Tx = (min, p, txt, col, dx, dy) => D.it.push({ k: 't', min, p, txt, col: HX(col), dx, dy });
+            const Sq = (min, c, a, b) => D.it.push({ k: 's', min, c, a, b, col: '#ffffff', alpha: 0.8 });
+            const base2D = (both) => {
+                L2(0, [0, -80], [0, 80], 0xffffff, 1, { dash: [4, 5], alpha: 0.22 });                        // axis
+                [1, -1].forEach(sg => { L2(0, [0, 0], [sg * sa * 80, ca * 80], 0xd4a017, 1.6); if (both) L2(0, [0, 0], [sg * sa * 80, -ca * 80], 0xd4a017, 1.6); });
+                L2(0, yz(O.clone().addScaledVector(u, -80)), yz(O.clone().addScaledVector(u, 80)), PLN, 2);  // cutting plane
+                D.it.push({ k: 'p', min: 0, p: [0, 0], col: HX(0xd4a017) });
+            };
+            const finish2D = () => {
+                let y0 = 0, y1 = 0, z0b = 0, z1 = 0;
+                D.it.forEach(it => {
+                    if (it.k === 'c') { y0 = Math.min(y0, it.c[0] - it.r); y1 = Math.max(y1, it.c[0] + it.r); z0b = Math.min(z0b, it.c[1] - it.r); z1 = Math.max(z1, it.c[1] + it.r); }
+                    else if (it.k === 'p') { y0 = Math.min(y0, it.p[0]); y1 = Math.max(y1, it.p[0]); z0b = Math.min(z0b, it.p[1]); z1 = Math.max(z1, it.p[1]); }
+                });
+                const my = (y1 - y0) * 0.12 + 0.3, mz = (z1 - z0b) * 0.1 + 0.3;
+                D.b = { y0: y0 - my, y1: y1 + my, z0: z0b - mz, z1: z1 + mz }; geo.d2 = D;
+            };
+
+            const T = {   // shared wording
+                p: ['Pick Any Point P', 'Take any point <b>P</b> on the curve, where the plane meets the cone.'],
+                s1: ['Sphere #1', 'Drop a sphere into the cone above the plane. Inflate it until it just touches both the cone and the plane.'],
+                s2: ['Sphere #2', 'Place a second sphere below the plane and inflate it the same way, touching the cone and the plane.']
+            };
+
+            if (type === 'circle' || type === 'ellipse') {
+                const circ = type === 'circle';
+                const s1 = cst / (ct - sa), s2 = cst / (ct + sa);
+                const F1 = foot(s1), F2 = foot(s2), C = mid(F1, F2);
+                const a = (s1 - s2) * ca / 2, cf = F1.distanceTo(F2) / 2, b = Math.sqrt(Math.max(0, a * a - cf * cf));
+                const l1 = s1 * ca, l2 = s2 * ca;                       // apex -> contact circle along a generator
+                const pt = (t) => C.clone().addScaledVector(u, a * Math.cos(t)).addScaledVector(vx, b * Math.sin(t));
+                planeAt(C.clone().sub(O).dot(u), 12);
+                const ep = []; for (let i = 0; i < 120; i++) ep.push(pt(i / 120 * Math.PI * 2));
+                tube(ep, true);
+                addP(sph(s1, VIO), 1); addP(sph(s2, SKY), 2);
+                addP(ring(s1, VIO), 3, 3); addP(ring(s2, SKY), 3, 3);
+                const mF1 = dot(GOLD), lF1 = label(circ ? 'F' : 'F1', HX(GOLD), [-1, 0.9]);
+                put(mF1, F1); put(lF1, F1); addP(mF1, 3, 10); addP(lF1, 3, 12);
+                if (!circ) { const mF2 = dot(GOLD), lF2 = label('F2', HX(GOLD), [-1, -0.9]); put(mF2, F2); put(lF2, F2); addP(mF2, 3, 10); addP(lF2, 3, 12); }
+                const mP = dot(GREEN), lP = label('P', HX(GREEN), [1, 0.9]); addP(mP, 4, 10); addP(lP, 4, 12);
+                const gen = seg(GOLD, 0.022), mQ1 = dot(TV), mQ2 = dot(TS), lQ1 = label('Q1', HX(TV), [-1, 0.9]), lQ2 = label('Q2', HX(TS), [-1, -0.9]);
+                addP(gen, 5, 7); [mQ1, mQ2].forEach(o => addP(o, 5, 10)); [lQ1, lQ2].forEach(o => addP(o, 5, 12));
+                const sPF1 = seg(VIO), sPQ1 = seg(VIO), sPF2 = seg(SKY), sPQ2 = seg(SKY);
+                addP(sPF1, 6, 8); addP(sPQ1, 6, 8); addP(sPF2, 7, 8); addP(sPQ2, 7, 8);
+                geo.t0 = 1.0;
+                geo.layoutP = (t) => {
+                    const P = pt(t), dir = P.clone().normalize(), Q1 = dir.clone().multiplyScalar(l1), Q2 = dir.clone().multiplyScalar(l2);
+                    put(mP, P); put(mQ1, Q1); put(mQ2, Q2); put(lP, P); put(lQ1, Q1); put(lQ2, Q2);
+                    setSeg(gen, V3(0, 0, 0), dir.clone().multiplyScalar(l1 + 1));
+                    setSeg(sPF1, P, F1); setSeg(sPQ1, P, Q1); setSeg(sPF2, P, F2); setSeg(sPQ2, P, Q2);
+                    Object.assign(geo, { P, Q1, Q2 });
+                };
+                // 2D axial slice: P at the end of the major axis
+                const P0 = pt(0), d0 = P0.clone().normalize(), Q1a = d0.clone().multiplyScalar(l1), Q2a = d0.clone().multiplyScalar(l2);
+                base2D(false);
+                Ci(1, [0, s1], s1 * sa, VIO); Ci(2, [0, s2], s2 * sa, SKY);
+                [[s1, VIO], [s2, SKY]].forEach(([s, c]) => { const R = s * ca * sa, zc = s * ca * ca; L2(3, [-R, zc], [R, zc], c, 1.2, { dash: [3, 3] }); });
+                Pt(3, yz(F1), GOLD); Tx(3, yz(F1), circ ? 'F' : 'F1', GOLD, -14, -12);
+                if (!circ) { Pt(3, yz(F2), GOLD); Tx(3, yz(F2), 'F2', GOLD, -14, 14); }
+                Pt(4, yz(P0), GREEN); Tx(4, yz(P0), 'P', GREEN, 13, 0);
+                L2(5, [0, 0], yz(d0.clone().multiplyScalar(l1 + 1.2)), GOLD, 1.2, { alpha: 0.85 });
+                Pt(5, yz(Q1a), TV); Tx(5, yz(Q1a), 'Q1', TV, -15, -3); Pt(5, yz(Q2a), TS); Tx(5, yz(Q2a), 'Q2', TS, -15, -3);
+                L2(6, yz(P0), yz(F1), VIO, 2, { tick: 1 }); L2(6, yz(P0), yz(Q1a), VIO, 2, { tick: 1 });
+                L2(7, yz(P0), yz(F2), SKY, circ ? 1.2 : 2, { tick: 2, dash: circ ? [4, 3] : [] }); L2(7, yz(P0), yz(Q2a), SKY, 2, { tick: 2 });
+                finish2D();
+                const gap = f2(l1 - l2);
+                geo.live = (i) => { const P = geo.P, d1 = P.distanceTo(F1), d2 = P.distanceTo(F2);
+                    if (i === 6) return (circ ? 'PF' : 'PF<sub>1</sub>') + ' = ' + f2(d1) + ' &nbsp; PQ<sub>1</sub> = ' + f2(P.distanceTo(geo.Q1));
+                    if (i === 7) return (circ ? 'PF' : 'PF<sub>2</sub>') + ' = ' + f2(d2) + ' &nbsp; PQ<sub>2</sub> = ' + f2(P.distanceTo(geo.Q2));
+                    if (i === 8) return circ ? '2 &middot; PF = ' + f2(d1 + d2) + ' &nbsp; Q<sub>1</sub>Q<sub>2</sub> = ' + gap : 'PF<sub>1</sub> + PF<sub>2</sub> = ' + f2(d1 + d2) + ' &nbsp; Q<sub>1</sub>Q<sub>2</sub> = ' + gap;
+                    if (i === 9) return circ ? 'PF = ' + f2(d1) + ' (constant, the radius)' : 'PF<sub>1</sub> + PF<sub>2</sub> = ' + f2(d1 + d2) + ' (constant = 2a)';
+                    return ''; };
+                geo.cams = [[V3(0, 0, 6.5), 46, 55, 18], [V3(0, 0, s1), 26, 85, 12], [V3(0, 0, (s1 + s2) / 2), 28, 80, 14], [C, 15, 75, 22], [V3(1.8, 1.9, 5.3), 11, 65, 20],
+                    [V3(0, 2, 5.2), 16, 80, 16], [V3(0, 2, 5.6), 9.5, 75, 18], [V3(0, 1.2, 3.8), 8, 75, 18], [C, 17, 70, 22], [C, 22, 60, 26]];
+                geo.steps = [
+                    ['The Setup', circ ? 'A plane perpendicular to the cone\u2019s axis cuts a <b>circle</b>. Dandelin\u2019s spheres will show that every point on it is the same distance from one point, its centre.' : 'A plane slices the cone at a tilt shallower than the cone\u2019s sides, so the cut is an <b>ellipse</b>. We will prove that every point on it has the same <b>sum of distances</b> to two fixed points.'],
+                    T.s1, T.s2,
+                    [circ ? 'Contact Circles &amp; the Centre' : 'Contact Circles &amp; Foci', circ ? 'Each sphere touches the cone along a circle and touches the plane at one point. For a level plane both spheres touch at the <i>same</i> point: <b>F<sub>1</sub> = F<sub>2</sub> = F</b>, the centre.' : 'Each sphere touches the cone along a circle, and touches the plane at a single point: <b>F<sub>1</sub></b> and <b>F<sub>2</sub></b>. These are the foci.'],
+                    T.p,
+                    ['The Generator Through P', 'Draw the straight line on the cone from the apex through P. It crosses the two contact circles at <b>Q<sub>1</sub></b> and <b>Q<sub>2</sub></b>.'],
+                    ['Equal Tangents (Upper)', circ ? 'PF and PQ<sub>1</sub> are both tangent segments from P to the upper sphere, and tangents from one point to a sphere are equal: <b>PF = PQ<sub>1</sub></b>.' : 'PF<sub>1</sub> and PQ<sub>1</sub> are both tangent segments from P to the upper sphere, and tangents from one point to a sphere are equal: <b>PF<sub>1</sub> = PQ<sub>1</sub></b>.'],
+                    ['Equal Tangents (Lower)', circ ? 'PF and PQ<sub>2</sub> are both tangent to the lower sphere, so <b>PF = PQ<sub>2</sub></b>.' : 'In the same way PF<sub>2</sub> and PQ<sub>2</sub> are tangent to the lower sphere, so <b>PF<sub>2</sub> = PQ<sub>2</sub></b>.'],
+                    ['Add Them Up', circ ? '2 &middot; PF = PQ<sub>1</sub> + PQ<sub>2</sub> = Q<sub>1</sub>Q<sub>2</sub>, the length of cone between the two circles, the same along every generator.' : 'PF<sub>1</sub> + PF<sub>2</sub> = PQ<sub>1</sub> + PQ<sub>2</sub> = Q<sub>1</sub>Q<sub>2</sub>, the length of cone between the two circles. That length is the same along every generator.'],
+                    ['Q.E.D.', circ ? 'PF = Q<sub>1</sub>Q<sub>2</sub> / 2 is constant for every P, so the section is a <b>circle</b> centred at F. Watch PF stay fixed as P travels around it.' : 'PF<sub>1</sub> + PF<sub>2</sub> is constant for every P, so the section is an <b>ellipse</b> with foci F<sub>1</sub> and F<sub>2</sub>. Watch the sum stay fixed as P travels around it.']
+                ];
+            } else if (type === 'hyperbola') {
+                const sU = cst / (sa + ct), sL = -cst / (sa - ct);          // one sphere in each nappe
+                const FU = foot(sU), FL = foot(sL), C = mid(FU, FL);
+                const lU = sU * ca, lL = -sL * ca;
+                const a = (lU + lL) / 2, cf = FU.distanceTo(FL) / 2, b = Math.sqrt(cf * cf - a * a);
+                const hp = (sg, tt) => C.clone().addScaledVector(u, sg * a * Math.cosh(tt)).addScaledVector(vx, b * Math.sinh(tt));
+                planeAt(C.clone().sub(O).dot(u), 16);
+                [1, -1].forEach(sg => { const pts = []; for (let i = 0; i <= 60; i++) pts.push(hp(sg, -1.3 + 2.6 * i / 60)); tube(pts, false); });
+                addP(sph(sU, VIO), 1); addP(sph(sL, SKY), 2);
+                addP(ring(sU, VIO), 3, 3); addP(ring(sL, SKY), 3, 3);
+                const mF1 = dot(GOLD), mF2 = dot(GOLD), lF1 = label('F1', HX(GOLD), [-1, 0.9]), lF2 = label('F2', HX(GOLD), [-1, -0.9]);
+                put(mF1, FU); put(mF2, FL); put(lF1, FU); put(lF2, FL);
+                [mF1, mF2].forEach(o => addP(o, 3, 10)); [lF1, lF2].forEach(o => addP(o, 3, 12));
+                const mP = dot(GREEN), lP = label('P', HX(GREEN), [1, 0.9]); addP(mP, 4, 10); addP(lP, 4, 12);
+                const gen = seg(GOLD, 0.022), mQ1 = dot(TV), mQ2 = dot(TS), lQ1 = label('Q1', HX(TV), [-1, 0.9]), lQ2 = label('Q2', HX(TS), [-1, -0.9]);
+                addP(gen, 5, 7); [mQ1, mQ2].forEach(o => addP(o, 5, 10)); [lQ1, lQ2].forEach(o => addP(o, 5, 12));
+                const sPF1 = seg(VIO), sPQ1 = seg(VIO), sPF2 = seg(SKY), sPQ2 = seg(SKY);
+                addP(sPF1, 6, 8); addP(sPQ1, 6, 8); addP(sPF2, 7, 8); addP(sPQ2, 7, 8);
+                geo.t0 = 0.9;
+                geo.layoutP = (t) => {
+                    const P = hp(1, 1.3 * Math.sin(t)), dir = P.clone().normalize(), len = P.length();
+                    const Q1 = dir.clone().multiplyScalar(lU), Q2 = dir.clone().multiplyScalar(-lL);   // Q2 lies in the other nappe
+                    put(mP, P); put(mQ1, Q1); put(mQ2, Q2); put(lP, P); put(lQ1, Q1); put(lQ2, Q2);
+                    setSeg(gen, dir.clone().multiplyScalar(-lL - 1), dir.clone().multiplyScalar(len + 1.5));
+                    setSeg(sPF1, P, FU); setSeg(sPQ1, P, Q1); setSeg(sPF2, P, FL); setSeg(sPQ2, P, Q2);
+                    Object.assign(geo, { P, Q1, Q2 });
+                };
+                const P0 = hp(1, 0), d0 = P0.clone().normalize(), Q1a = d0.clone().multiplyScalar(lU), Q2a = d0.clone().multiplyScalar(-lL);
+                base2D(true);
+                Ci(1, [0, sU], sU * sa, VIO); Ci(2, [0, sL], -sL * sa, SKY);
+                [[sU, VIO], [sL, SKY]].forEach(([s, c]) => { const R = Math.abs(s) * ca * sa, zc = s * ca * ca; L2(3, [-R, zc], [R, zc], c, 1.2, { dash: [3, 3] }); });
+                Pt(3, yz(FU), GOLD); Tx(3, yz(FU), 'F1', GOLD, -14, -12); Pt(3, yz(FL), GOLD); Tx(3, yz(FL), 'F2', GOLD, -14, 14);
+                Pt(4, yz(P0), GREEN); Tx(4, yz(P0), 'P', GREEN, 13, 0);
+                L2(5, yz(d0.clone().multiplyScalar(-lL - 1.2)), yz(d0.clone().multiplyScalar(P0.length() + 1.5)), GOLD, 1.2, { alpha: 0.85 });
+                Pt(5, yz(Q1a), TV); Tx(5, yz(Q1a), 'Q1', TV, -15, -3); Pt(5, yz(Q2a), TS); Tx(5, yz(Q2a), 'Q2', TS, 15, 3);
+                L2(6, yz(P0), yz(FU), VIO, 2, { tick: 1 }); L2(6, yz(P0), yz(Q1a), VIO, 2, { tick: 1 });
+                L2(7, yz(P0), yz(FL), SKY, 2, { tick: 2 }); L2(7, yz(P0), yz(Q2a), SKY, 2, { tick: 2 });
+                finish2D();
+                geo.live = (i) => { const P = geo.P, d1 = P.distanceTo(FU), d2 = P.distanceTo(FL);
+                    if (i === 6) return 'PF<sub>1</sub> = ' + f2(d1) + ' &nbsp; PQ<sub>1</sub> = ' + f2(P.distanceTo(geo.Q1));
+                    if (i === 7) return 'PF<sub>2</sub> = ' + f2(d2) + ' &nbsp; PQ<sub>2</sub> = ' + f2(P.distanceTo(geo.Q2));
+                    if (i === 8) return 'PF<sub>2</sub> &minus; PF<sub>1</sub> = ' + f2(d2 - d1) + ' &nbsp; Q<sub>1</sub>Q<sub>2</sub> = ' + f2(lU + lL);
+                    if (i === 9) return 'PF<sub>2</sub> &minus; PF<sub>1</sub> = ' + f2(d2 - d1) + ' (constant = 2a)';
+                    return ''; };
+                geo.cams = [[V3(0, 0, 0.5), 52, 55, 18], [V3(0, 0, sU), 20, 85, 12], [V3(0, 0, sL), 24, 85, 12], [C, 24, 75, 18], [V3(1.5, -0.3, 3.2), 11, 65, 20],
+                    [V3(0, -0.3, -0.5), 20, 80, 16], [V3(0.8, -0.3, 2.4), 9, 75, 18], [V3(0.8, -1.2, -1.2), 13, 75, 18], [C, 24, 70, 20], [C, 28, 60, 24]];
+                geo.steps = [
+                    ['The Setup', 'A plane steeper than the cone\u2019s sides cuts <i>both</i> halves of the cone and makes a <b>hyperbola</b>, with two branches. We will prove that the <b>difference</b> of the distances to two fixed points is constant.'],
+                    ['Sphere in the Upper Nappe', 'Place a sphere in the upper half of the cone, touching the cone and the plane.'],
+                    ['Sphere in the Lower Nappe', 'Place a second sphere in the lower half, touching the cone and the plane from the other side.'],
+                    ['Contact Circles &amp; Foci', 'Each sphere touches its half of the cone along a circle, and touches the plane at <b>F<sub>1</sub></b> and <b>F<sub>2</sub></b>. These are the foci.'],
+                    ['Pick Any Point P', 'Take any point <b>P</b> on the upper branch, where the plane meets the cone.'],
+                    ['The Generator Through P', 'The straight line on the cone through P also passes through the apex into the lower half. It meets the circles at <b>Q<sub>1</sub></b> and <b>Q<sub>2</sub></b>.'],
+                    ['Equal Tangents (Upper)', 'PF<sub>1</sub> and PQ<sub>1</sub> are tangents from P to the upper sphere, so <b>PF<sub>1</sub> = PQ<sub>1</sub></b>.'],
+                    ['Equal Tangents (Lower)', 'PF<sub>2</sub> and PQ<sub>2</sub> are tangents from P to the lower sphere, so <b>PF<sub>2</sub> = PQ<sub>2</sub></b>.'],
+                    ['Subtract', 'PF<sub>2</sub> &minus; PF<sub>1</sub> = PQ<sub>2</sub> &minus; PQ<sub>1</sub> = Q<sub>1</sub>Q<sub>2</sub>, the stretch of generator between the two circles. It is the same along every generator.'],
+                    ['Q.E.D.', 'PF<sub>2</sub> &minus; PF<sub>1</sub> is constant for every P, so the section is a <b>hyperbola</b> with foci F<sub>1</sub> and F<sub>2</sub>. (The lower branch works the same way with the roles swapped.)']
+                ];
+            } else {   // parabola
+                const sP = z0 / 2, F = foot(sP), zc = sP * ca * ca, lQ = sP * ca;
+                const Yv = -z0 / (2 * ca), kq = ca / (2 * sa * sa * z0), Yd = (zc - z0) / st;
+                const parPt = (X) => { const Y = kq * X * X + Yv; return V3(X, Y * ct, z0 + Y * st); };
+                planeAt(1.3, 14);
+                const pts = []; for (let i = 0; i <= 60; i++) pts.push(parPt(-5 + 10 * i / 60)); tube(pts, false);
+                addP(sph(sP, VIO), 1);
+                addP(ring(sP, VIO), 2, 3);
+                const mF = dot(GOLD), lF = label('F', HX(GOLD), [-1, 0.9]); put(mF, F); put(lF, F); addP(mF, 2, 10); addP(lF, 2, 12);
+                const disc = new THREE.Mesh(new THREE.CircleGeometry(5.5, 48), mk(GOLD, 0.1, { side: THREE.DoubleSide })); disc.position.z = zc; addP(disc, 3, 1);
+                const dA = V3(-6.5, Yd * ct, zc), dB = V3(6.5, Yd * ct, zc), dir1 = seg(GOLD, 0.05); setSeg(dir1, dA, dB); addP(dir1, 3, 7);
+                const lDir = label('d', HX(GOLD), [1, 0.9]); put(lDir, dB); addP(lDir, 3, 12);
+                const mP = dot(GREEN), lP = label('P', HX(GREEN), [1, 0.9]); addP(mP, 4, 10); addP(lP, 4, 12);
+                const gen = seg(GOLD, 0.022), mQ = dot(TV), lQl = label('Q', HX(TV), [-1, 0.9]); addP(gen, 5, 7); addP(mQ, 5, 10); addP(lQl, 5, 12);
+                const sPF = seg(VIO), sPQ = seg(VIO); addP(sPF, 6, 8); addP(sPQ, 6, 8);
+                const mE = dot(0xffffff), mD = dot(GOLD), lE = label('E', '#ffffff', [-1, -0.9]), lD = label('D', HX(GOLD), [1, -0.9]);
+                const sPE = seg(0xffffff, 0.028), sPD = seg(GREEN, 0.035);
+                [mE, mD].forEach(o => addP(o, 7, 10)); [lE, lD].forEach(o => addP(o, 7, 12)); [sPE, sPD].forEach(o => addP(o, 7, 9));
+                geo.t0 = 0.6;
+                geo.layoutP = (t) => {
+                    const P = parPt(4 * Math.sin(t)), dir = P.clone().normalize(), Q = dir.clone().multiplyScalar(lQ);
+                    const E = V3(P.x, P.y, zc), Dp = V3(P.x, Yd * ct, zc);
+                    put(mP, P); put(mQ, Q); put(mE, E); put(mD, Dp);
+                    put(lP, P); put(lQl, Q); put(lE, E); put(lD, Dp);
+                    setSeg(gen, V3(0, 0, 0), dir.clone().multiplyScalar(P.length() + 1.5));
+                    setSeg(sPF, P, F); setSeg(sPQ, P, Q); setSeg(sPE, P, E); setSeg(sPD, P, Dp);
+                    Object.assign(geo, { P, Q, E, D: Dp });
+                };
+                // 2D axial slice: P at the vertex of the parabola
+                const P0 = parPt(0), d0 = P0.clone().normalize(), Q0 = d0.clone().multiplyScalar(lQ), E0 = V3(0, P0.y, zc), D0 = V3(0, Yd * ct, zc);
+                base2D(false);
+                Ci(1, [0, sP], sP * sa, VIO);
+                { const R = sP * ca * sa; L2(2, [-R, zc], [R, zc], VIO, 1.2, { dash: [3, 3] }); }
+                Pt(2, yz(F), GOLD); Tx(2, yz(F), 'F', GOLD, -13, -12);
+                L2(3, [-80, zc], [80, zc], GOLD, 1.1, { dash: [5, 4], alpha: 0.6 });
+                Pt(3, yz(D0), GOLD); Tx(3, yz(D0), 'd', GOLD, 12, -11);
+                Pt(4, yz(P0), GREEN); Tx(4, yz(P0), 'P', GREEN, -13, -5);
+                L2(5, [0, 0], yz(d0.clone().multiplyScalar(P0.length() + 1.5)), GOLD, 1.2, { alpha: 0.85 });
+                Pt(5, yz(Q0), TV); Tx(5, yz(Q0), 'Q', TV, 13, -4);
+                L2(6, yz(P0), yz(F), VIO, 2, { tick: 1 }); L2(6, yz(P0), yz(Q0), VIO, 2, { tick: 1 });
+                L2(7, yz(P0), yz(E0), 0xffffff, 1.3); L2(7, yz(P0), yz(D0), GREEN, 2, { tick: 1 });
+                Pt(7, yz(E0), 0xffffff); Tx(7, yz(E0), 'E', 0xffffff, -13, 10); Pt(7, yz(D0), GOLD); Tx(7, yz(D0), 'D', GOLD, 12, 12);
+                Sq(7, yz(E0), [0, 1], [Math.sign(D0.y - E0.y) || 1, 0]);
+                finish2D();
+                geo.live = (i) => { const P = geo.P;
+                    if (i === 6) return 'PF = ' + f2(P.distanceTo(F)) + ' &nbsp; PQ = ' + f2(P.distanceTo(geo.Q));
+                    if (i === 7) return 'PQ = ' + f2(P.distanceTo(geo.Q)) + ' &nbsp; PD = ' + f2(P.distanceTo(geo.D)) + ' &nbsp; PE = ' + f2(P.distanceTo(geo.E));
+                    if (i === 8) return 'PF = ' + f2(P.distanceTo(F)) + ' &nbsp; PD = ' + f2(P.distanceTo(geo.D));
+                    return ''; };
+                geo.cams = [[V3(0, 0, 6), 40, 55, 18], [V3(0, 0, sP), 16, 85, 12], [mid(F, V3(0, 0, zc)), 11, 80, 16], [V3(0, Yd * ct, zc), 13, 80, 18], [V3(2, 0.6, 5.2), 9, 65, 20],
+                    [V3(1, 0.3, 3.4), 8, 80, 16], [V3(1, 0.2, 3.9), 6.5, 75, 18], [V3(1.6, -0.2, 3.4), 7, 75, 18], [F, 15, 60, 24]];
+                geo.steps = [
+                    ['The Setup', 'A plane parallel to one generator of the cone cuts a <b>parabola</b>. This time only <i>one</i> sphere fits: the second one would have to be infinitely far away. We will prove every point is as far from a point F as from a line.'],
+                    ['The Sphere', 'Inflate one sphere inside the cone until it touches both the cone and the plane.'],
+                    ['Contact Circle &amp; Focus', 'The sphere touches the cone along a circle, and touches the plane at the point <b>F</b>. This is the focus.'],
+                    ['The Directrix', 'The contact circle lies in a flat plane (shown in gold). Where it meets the cutting plane is a straight line, <b>d</b>, the directrix.'],
+                    T.p,
+                    ['The Generator Through P', 'Draw the straight line on the cone from the apex through P. It meets the contact circle at <b>Q</b>.'],
+                    ['Equal Tangents', 'PF and PQ are both tangents from P to the sphere, so <b>PF = PQ</b>.'],
+                    ['Distance to the Directrix', 'Drop PE to the gold plane and PD to the directrix. The generator is tilted &alpha; from the axis, so PE = PQ cos&alpha;. The cutting plane is tilted &theta; from the gold plane, so PE = PD sin&theta;. For a parabola &theta; = 90&deg; &minus; &alpha;, so sin&theta; = cos&alpha; and <b>PQ = PD</b>.'],
+                    ['Q.E.D.', 'PF = PQ = PD: every point is as far from the focus as from the directrix. That is the <b>parabola</b>. Watch the two distances stay equal as P sweeps the curve.']
+                ];
+            }
+            geo.layoutP(geo.t0);
+            size2D();
+        }
+
+        // Camera moves along an orbit arc around the target (never cuts straight through the cone), with a slight pull-back.
+        function flyTo(pos, target, dur) {
+            const s0 = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+            const s1 = new THREE.Spherical().setFromVector3(pos.clone().sub(target));
+            let dth = s1.theta - s0.theta; while (dth > Math.PI) dth -= 2 * Math.PI; while (dth < -Math.PI) dth += 2 * Math.PI;
+            camTween = { s0, s1, dth, t0: controls.target.clone(), t1: target.clone(), s: performance.now(), d: dur || 2600 };
+            controls.enabled = false;
+        }
+
+        function updateFixed() {
+            const camUp = V3(0, 1, 0).applyQuaternion(camera.quaternion), camRt = V3(1, 0, 0).applyQuaternion(camera.quaternion);
+            const inv = world.quaternion.clone().invert(); camUp.applyQuaternion(inv); camRt.applyQuaternion(inv);
+            for (const o of fixed) {
+                if (!o.visible) continue;
+                const ud = o.userData;
+                if (ud.label) {
+                    tmpV.copy(ud.anchor); proofGroup.localToWorld(tmpV);
+                    const k = clamp(camera.position.distanceTo(tmpV) / 15, 0.4, 2.4);
+                    ud.sp.scale.set(1.2 * k, 0.72 * k, 1);
+                    ud.sp.position.copy(ud.anchor).addScaledVector(camRt, ud.dir[0] * 0.36 * k).addScaledVector(camUp, ud.dir[1] * 0.3 * k);
+                } else {
+                    o.getWorldPosition(tmpV);
+                    o.scale.setScalar(clamp(camera.position.distanceTo(tmpV) / 15, 0.4, 2.4));
+                }
+            }
+        }
+
+        function proofTick(now) {
+            if (camTween) {
+                const k = Math.min(1, (now - camTween.s) / camTween.d), e = ease(k), c = camTween;
+                const r = (c.s0.radius + (c.s1.radius - c.s0.radius) * e) * (1 + 0.14 * Math.sin(Math.PI * e));
+                const phi = c.s0.phi + (c.s1.phi - c.s0.phi) * e, th = c.s0.theta + c.dth * e;
+                controls.target.lerpVectors(c.t0, c.t1, e);
+                camera.position.copy(controls.target).add(V3(0, 0, 0).setFromSphericalCoords(r, phi, th));
+                if (k >= 1) { camTween = null; controls.enabled = true; }
+            }
+            if (!proofState.active) return;
+            for (const m of sphereMats) m.uniforms.uTime.value = now / 1000;
+            controls.autoRotate = false;                           // the camera only moves when a step sends it, or when you drag
+            if (proofState.step === geo.steps.length - 1) {
+                proofState.t += Math.min(0.05, (now - proofState.last) / 1000) * 0.7;
+                geo.layoutP(proofState.t); $('proof-live').innerHTML = geo.live(proofState.step); if (V2.open) $('px-live').innerHTML = geo.live(proofState.step);
+            }
+            proofState.last = now;
+            if (proofState.a2 < 1) { proofState.a2 = Math.min(1, (now - proofState.a2s) / 700); draw2D(proofState.step, proofState.a2); }
+            updateFixed();
+        }
+
+        function showStep(i) {
+            const N = geo.steps.length;
+            i = Math.max(0, Math.min(N - 1, i));
+            proofState.step = i; proofState.t = geo.t0;
+            reveal.forEach(r => { r.obj.visible = i >= r.min; });
+            geo.layoutP(geo.t0);
+            $('proof-title').innerHTML = geo.steps[i][0];
+            $('proof-text').innerHTML = geo.steps[i][1];
+            $('proof-live').innerHTML = geo.live(i);
+            $('proof-step').textContent = 'STEP ' + (i + 1) + ' / ' + N;
+            $('proof-fill').style.width = ((i + 1) / N * 100) + '%';
+            $('proof-prev').disabled = i === 0;
+            $('proof-next').disabled = i === N - 1;
+            layoutProof();
+            proofState.a2 = 0; proofState.a2s = performance.now(); draw2D(i, 0); sync2DFull();
+            aimStep(i);
+            updateFixed();
+        }
+
+        // Camera shot for a step; in tall/narrow stages the camera backs off so the model is never cropped.
+        function aimStep(i, dur) {
+            const [tg, d, az, el] = geo.cams[i], Tg = L2W(tg), A = az * Math.PI / 180, E = el * Math.PI / 180;
+            const dd = d * clamp(1.45 / camera.aspect, 1, 2.1);
+            flyTo(Tg.clone().add(V3(dd * Math.cos(E) * Math.sin(A), dd * Math.sin(E), dd * Math.cos(E) * Math.cos(A))), Tg, dur);
+        }
+
+        // Splits the screen into a 3D stage and a panel area that never overlap:
+        //   wide screens  -> stage on the left, panels in a right sidebar (2D inline when tall enough)
+        //   phones/narrow -> stage on top, panels in a bottom sheet, 2D reachable with the 2D/3D toggle
+        function layoutProof() {
+            const b = document.body, root = document.documentElement, cc = $('canvas-container');
+            if (!b.classList.contains('proof-on')) {
+                cc.style.left = cc.style.top = cc.style.width = cc.style.height = '';
+                b.classList.remove('mode-side', 'mode-tri', 'mode-sheet');
+                root.style.removeProperty('--bar'); root.style.removeProperty('--stageH'); fitRenderer(); return;
+            }
+            if (V2.open) {      // expanded: the live 3D canvas is placed exactly behind the transparent 3D cell
+                root.style.setProperty('--bar', '0px'); b.classList.remove('mode-side', 'mode-tri', 'mode-sheet');
+                const r = $('px-3d').getBoundingClientRect();
+                cc.style.left = r.left + 'px'; cc.style.top = r.top + 'px'; cc.style.width = Math.round(r.width) + 'px'; cc.style.height = Math.round(r.height) + 'px';
+                fitRenderer(); sizeBig(); if (geo.d2) redraw2D(); return;
+            }
+            const W = window.innerWidth, H = window.innerHeight, side = W >= 700 && W > H * 1.05, tri = false;
+            const bar = Math.round(H * ((side && !tri) ? 0.06 : 0.025));
+            root.style.setProperty('--bar', bar + 'px');
+            b.classList.toggle('mode-side', side && !tri); b.classList.toggle('mode-tri', tri); b.classList.toggle('mode-sheet', !side);
+            const avail = H - 2 * bar;
+            let w = W, h = avail;
+            if (!side) { const sh = Math.round(clamp(avail * 0.38, 150, avail * 0.5)); root.style.setProperty('--stageH', sh + 'px'); h = sh - 6; }
+            else w = Math.max(200, Math.floor($('proof-ui').getBoundingClientRect().left - 10));
+            cc.style.left = '0px'; cc.style.top = bar + 'px'; cc.style.width = w + 'px'; cc.style.height = h + 'px';
+            fitRenderer();
+            if (geo.d2) draw2D(proofState.step, proofState.a2 < 1 ? proofState.a2 : 1);
+        }
+        if (window.ResizeObserver) new ResizeObserver(() => { if (proofState.active) layoutProof(); }).observe($('proof-ui'));
+
+        const setCone = (glass) => {
+            solidGoldMat.transparent = glass; solidGoldMat.opacity = glass ? 0.1 : 1;
+            goldWireframeMat.opacity = glass ? 0.16 : 0.55;
+            solidGoldMat.depthWrite = !glass; solidGoldMat.needsUpdate = true;
+        };
+        const proofHidden = () => [axesHelper, ...world.children.filter(c => c.isSprite), document.querySelector('.top-toolbar')];
+
+        function applyAxisLabels() {
+            axisLetterSprites.forEach(sp => { sp.visible = showAxisLabels && !proofState.active; });
+            document.querySelectorAll('.axis-label-toggle').forEach(c => { c.checked = showAxisLabels; });
+            if (typeof geo !== 'undefined' && geo.d2) { try { redraw2D(); } catch (e) {} }
+        }
+        document.querySelectorAll('.axis-label-toggle').forEach(c => c.addEventListener('change', (e) => { showAxisLabels = e.target.checked; applyAxisLabels(); }));
+
+        window.setProofType = function(type) { buildProof(type); showStep(0); };
+
+        window.startProof = function() {
+            if (proofState.active) return;
+            const act = document.querySelector('#controls-body .conic-btn.active'), id = act ? act.id.replace('btn-', '') : '';
+            proofState.active = true;
+            proofState.saved = { cam: camera.position.clone(), tgt: controls.target.clone(), minD: controls.minDistance };
+            autoRotate = false; scene.rotation.y = 0; controls.autoRotate = false;   // no rotation while the proof runs
+            planeGroup.visible = false; proofGroup.visible = true;
+            setCone(true);
+            proofHidden().forEach(o => { if (o.classList) o.classList.add('ui-hidden'); else o.visible = false; });
+            ['controls-panel', 'metrics-panel'].forEach(i => $(i).classList.add('ui-hidden'));
+            controls.minDistance = 2;
+            document.body.classList.add('proof-on');
+            try { const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+            proofState.last = performance.now();
+            buildProof(['circle', 'ellipse', 'parabola', 'hyperbola'].includes(id) ? id : 'ellipse');   // start with the conic you are viewing
+            showStep(0);
+        };
+
+        window.exitProof = function() {
+            if (!proofState.active) return;
+            proofState.active = false; V2.open = false; document.body.classList.remove('p-exp');
+            document.body.classList.remove('proof-on');
+            layoutProof();
+            proofGroup.visible = false; planeGroup.visible = true; botCone.visible = true;
+            setCone(false);
+            proofHidden().forEach(o => { if (o.classList) o.classList.remove('ui-hidden'); else o.visible = true; });
+            applyAxisLabels();
+            if (!isUIHidden) ['controls-panel', 'metrics-panel'].forEach(i => $(i).classList.remove('ui-hidden'));
+            controls.autoRotate = false; controls.minDistance = proofState.saved.minD;
+            autoRotate = toggleRotate.checked;
+            flyTo(proofState.saved.cam, proofState.saved.tgt, 1600);
+            try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
+        };
+
+        window.proofNext = () => showStep(proofState.step + 1);
+        window.proofPrev = () => showStep(proofState.step - 1);
+        window.addEventListener('keydown', (e) => {
+            if (!proofState.active) return;
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); proofNext(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); proofPrev(); }
+            else if (e.key === 'Escape') { if (V2.open) close2D(); else exitProof(); }
+        });
+
+        window.onload = animate;
+    </script>
+</body>
+</html>

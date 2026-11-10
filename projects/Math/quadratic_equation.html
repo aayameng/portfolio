@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex Quadratic 3D Graph</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-color: #050914;
+            --panel-bg: rgba(5, 9, 20, 0.85);
+            --gold: #ffc107;
+            --gold-glow: rgba(255, 193, 7, 0.6);
+            --gold-dim: rgba(255, 193, 7, 0.05);
+            --text-gold: #ffdf70;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            color: var(--text-gold);
+            /* Dot matrix background effect */
+            background-image: radial-gradient(var(--gold-dim) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;

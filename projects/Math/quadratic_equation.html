@@ -35,3 +35,1948 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through to canvas where there's no UI */
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 15px var(--gold-glow);
+            pointer-events: auto; /* Re-enable clicks for the panel */
+            backdrop-filter: blur(5px);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+            transition: margin-bottom 0.3s ease;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .collapse-btn {
+            background: rgba(255, 193, 7, 0.08);
+            border: 1px solid rgba(255, 193, 7, 0.55);
+            border-radius: 6px;
+            color: var(--gold);
+            font-size: 0.85rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(255, 193, 7, 0.18);
+            box-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        .collapse-btn:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 2px;
+        }
+
+        .collapse-btn.collapsed {
+            transform: rotate(180deg);
+        }
+
+        #panel-content {
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-out;
+            max-height: 800px;
+            opacity: 1;
+        }
+
+        #panel-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dot-indicator {
+            width: 10px;
+            height: 10px;
+            background-color: var(--gold);
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 8px var(--gold);
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        /* Equation Input Styles */
+        .equation-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 1.6rem;
+            margin: 25px 0;
+            flex-wrap: nowrap !important;
+            flex-direction: row;
+            font-weight: 700;
+        }
+
+        .equation-display input[type="number"] {
+            background: rgba(13, 21, 39, 0.7);
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            width: 75px;
+            padding: 4px;
+            outline: none;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 0 8px var(--gold-dim);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .equation-display input[type="number"]:focus {
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 0 12px var(--gold-glow);
+            border-color: #fff;
+        }
+
+        /* Hide standard up/down arrows for number inputs for cleaner UI */
+        .equation-display input[type="number"]::-webkit-inner-spin-button, 
+        .equation-display input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .equation-display input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .fn-text {
+            color: var(--gold);
+            text-shadow: 0 0 8px var(--gold-dim);
+        }
+        
+        /* Mobile specific styling to ensure it fits on one line */
+        @media (max-width: 480px) {
+            .equation-display {
+                font-size: 1.1rem;
+                gap: 3px;
+                margin: 15px 0;
+            }
+            .equation-display input[type="number"] {
+                width: 45px;
+                font-size: 1.1rem;
+                padding: 2px;
+            }
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(245, 176, 39, 0.2);
+            padding-top: 16px;
+            margin-top: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            transition: .4s;
+            border-radius: 20px;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 2px;
+            background-color: var(--gold);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--gold);
+        }
+
+        input:checked + .slider {
+            background-color: rgba(245, 176, 39, 0.2);
+            border-color: var(--gold);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+        
+        .floating-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--gold-glow);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            transition: opacity 0.3s ease, visibility 0s linear 0s;
+        }
+
+        /* Back button: top right. Reset view sits just to its left. */
+        #back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            box-sizing: border-box;
+            width: 64px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--gold-glow);
+            backdrop-filter: blur(5px);
+            transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease, visibility 0s linear 0s;
+        }
+
+        #back-btn:hover { background: rgba(255, 193, 7, 0.15); box-shadow: 0 0 14px var(--gold-glow); }
+        #back-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        #reset-btn { right: 94px; }
+
+        /* Normal UI vs. "completing the square" mode.
+           visibility:hidden (not just opacity:0) so hidden controls can't be clicked
+           or block dragging on the 3D canvas. */
+        #ui-layer {
+            transition: opacity 0.3s ease, visibility 0s linear 0s;
+        }
+
+        #ui-layer.anim-hidden,
+        #reset-btn.anim-hidden,
+        #back-btn.anim-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+
+        /* ---- Completing-the-square walkthrough UI ----
+           Everything with .anim-ui is hidden with visibility:hidden until the walkthrough starts,
+           so it can never be clicked (or block dragging on the canvas) while invisible. */
+        .anim-ui {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+
+        .anim-ui.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0s linear 0s;
+        }
+
+        /* EXIT: top right */
+        #btn-exit {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 60;
+            height: 34px;
+            padding: 0 12px;
+            background: rgba(127, 29, 29, 0.85);
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+        }
+
+        #btn-exit:hover { background: rgba(153, 27, 27, 0.95); }
+
+        /* Step description + PREV / NEXT: very bottom */
+        #anim-bottom {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 92%;
+            max-width: 640px;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        #anim-bottom, #btn-exit { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+        #anim-card {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            background: rgba(5, 9, 20, 0.88);
+            border: 1px solid rgba(255, 193, 7, 0.35);
+            border-radius: 10px;
+            padding: 7px 12px 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        #anim-eq {
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #fff;
+            letter-spacing: 0.3px;
+            font-variant-numeric: tabular-nums;
+            word-break: break-word;
+        }
+
+        #anim-desc {
+            margin-top: 3px;
+            font-size: 0.76rem;
+            font-weight: 500;
+            line-height: 1.35;
+            color: rgba(255, 233, 168, 0.88);
+        }
+
+        #anim-eq:empty, #anim-desc:empty { display: none; }
+
+        .anim-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .anim-btn {
+            flex: 1 1 0;
+            pointer-events: auto;
+            padding: 7px 10px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            border-radius: 8px;
+            color: #fde68a;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.2);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .anim-btn:hover:not(:disabled) {
+            background: rgba(51, 65, 85, 0.95);
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+        }
+
+        .anim-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #anim-step {
+            flex: 0 0 auto;
+            min-width: 84px;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 0.74rem;
+            color: var(--gold);
+            text-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        /* Input card that morphs into the x² square (warped with matrix3d from JS) */
+        #morph-card {
+            position: fixed; left: 0; top: 0; display: none; z-index: 30;
+            transform-origin: 0 0; box-sizing: border-box; overflow: hidden;
+            background: var(--panel-bg); border: 1px solid var(--gold); border-radius: 12px;
+            box-shadow: 0 0 15px var(--gold-glow); pointer-events: none; will-change: transform, opacity;
+        }
+        #morph-card, #morph-card * { pointer-events: none !important; }
+        #morph-card .panel { width: 100%; height: 100%; box-sizing: border-box; background: transparent; border: none; box-shadow: none; backdrop-filter: none; }
+        .morph-content { position: absolute; inset: 0; }
+        .morph-tint { position: absolute; inset: 0; box-sizing: border-box; background: rgba(255,193,7,0.55); border: 2px solid rgba(255,255,255,0.9); opacity: 0; }
+        .morph-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff2c0; text-shadow: 0 0 12px rgba(0,0,0,0.8); opacity: 0; }
+        .pc-clone { overflow: hidden; max-height: 800px; }
+        .pc-clone.collapsed { max-height: 0; opacity: 0; }
+
+        /* Tooltip for Roots */
+        #tooltip {
+            position: absolute;
+            background: var(--panel-bg);
+            border: 1px solid var(--gold);
+            color: var(--text-gold);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            pointer-events: none; /* Don't block clicks */
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 100;
+            box-shadow: 0 0 10px var(--gold-glow);
+            transform: translate(-50%, -100%); /* Center above cursor */
+            margin-top: -15px; /* Offset from cursor */
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+    
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
+
+    <!-- Input card clone that morphs into the x² square -->
+    <div id="morph-card"></div>
+
+    <!-- Back (top right) -->
+    <a id="back-btn" href="/" aria-label="Back">back</a>
+
+    <!-- Reset View (kept outside the panel so it never covers the collapse button) -->
+    <button id="reset-btn" type="button" class="floating-button" onclick="resetView()" title="Reset View" aria-label="Reset view">
+        &#8634;
+    </button>
+
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="header-title">
+                    <div class="dot-indicator"></div>
+                    COMPLEX QUADRATIC
+                </div>
+                <button id="collapse-btn" type="button" class="collapse-btn" title="Collapse / expand panel"
+                        aria-label="Collapse panel" aria-expanded="true" aria-controls="panel-content">
+                    &#9660; <!-- Downwards Triangle -->
+                </button>
+            </div>
+            
+            <div id="panel-content">
+                <div class="text-sm font-semibold mb-2 opacity-75 text-center tracking-wide">
+                    Surface & Slicing Visualization
+                </div>
+
+                <!-- Surface Mode Selection -->
+                <div class="control-group">
+                    <div class="control-header">SURFACE TYPE</div>
+                    <select id="surface-mode" class="w-full bg-slate-900 border border-amber-400/50 rounded p-2 text-amber-200 outline-none font-semibold cursor-pointer">
+                        <option value="real">Real Part Surface Re(f(z))</option>
+                        <option value="modulus">Modular Surface |f(z)|</option>
+                    </select>
+                </div>
+
+                <!-- Equation Input Form -->
+                <div class="equation-display">
+                    <span class="fn-text">f(z) = </span>
+                    <input type="number" id="input-a" value="1" step="0.1"> 
+                    <span class="fn-text">z² + </span>
+                    <input type="number" id="input-b" value="0" step="0.1"> 
+                    <span class="fn-text">z + </span>
+                    <input type="number" id="input-c" value="0" step="0.1">
+                </div>
+
+                <div class="toggle-container">
+                    <span>AUTO-ROTATE</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-rotate" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-container">
+                    <span>SHOW REAL & IMAGINARY PARABOLAS</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-parabolas" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Completing the Square Animation Button -->
+                <button id="btn-animate-sq" class="w-full bg-slate-800 hover:bg-slate-700 border border-amber-400/50 rounded p-2 text-amber-200 mt-5 font-bold tracking-widest transition-all shadow-[0_0_10px_rgba(255,193,7,0.2)] hover:shadow-[0_0_15px_rgba(255,193,7,0.5)]">
+                    ▶ ANIMATE COMPLETING THE SQUARE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completing the Square: EXIT (top right) -->
+    <button id="btn-exit" type="button" class="anim-ui">&#10005; EXIT</button>
+
+    <!-- Completing the Square: step description + PREV / NEXT (very bottom) -->
+    <div id="anim-bottom" class="anim-ui">
+        <div id="anim-card">
+            <div id="anim-eq"></div>
+            <div id="anim-desc"></div>
+        </div>
+        <div class="anim-nav">
+            <button id="btn-prev" type="button" class="anim-btn">&#9664; PREV</button>
+            <div id="anim-step"></div>
+            <button id="btn-next" type="button" class="anim-btn">NEXT &#9654;</button>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // --- 3D Scene Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        
+        // Add subtle fog to blend into background
+        scene.fog = new THREE.FogExp2(0x050914, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(6, 6, 8);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.localClippingEnabled = true;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.0;
+        controls.maxDistance = 200;
+
+        // --- Grid & Environment ---
+        const planeGeo = new THREE.PlaneGeometry(400, 400);
+        const planeMat = new THREE.MeshBasicMaterial({
+            color: 0x4dabf7,
+            transparent: true,
+            opacity: 0.15,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const complexPlane = new THREE.Mesh(planeGeo, planeMat);
+        complexPlane.rotation.x = -Math.PI / 2;
+        scene.add(complexPlane);
+
+        // Helper function to create text labels as sprites
+        function createTextSprite(text, color) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+            
+            context.font = 'Bold 44px sans-serif'; 
+            context.fillStyle = color;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            
+            context.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            context.shadowBlur = 4;
+            
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(4, 2, 1); 
+            return sprite;
+        }
+
+        // Dynamic Axes Manager
+        const axesManager = {
+            group: new THREE.Group(),
+            ticksGroup: new THREE.Group(),
+            arrowsGroup: new THREE.Group(),
+            labelsGroup: new THREE.Group(),
+            gridHelper: null,
+            currentStep: -1,
+            currentLength: -1,
+            
+            init: function() {
+                this.group.add(this.arrowsGroup);
+                this.group.add(this.ticksGroup);
+                this.group.add(this.labelsGroup);
+                scene.add(this.group);
+            },
+            
+            update: function(distance) {
+                let step = 1;
+                if (distance > 200) step = 50;
+                else if (distance > 100) step = 20;
+                else if (distance > 50) step = 10;
+                else if (distance > 20) step = 5;
+                else if (distance > 10) step = 2;
+
+                let length = Math.max(10, Math.ceil(distance * 0.8));
+                length = Math.ceil(length / step) * step + step;
+
+                if (this.currentStep === step && this.currentLength === length) return;
+                
+                this.currentStep = step;
+                this.currentLength = length;
+
+                this.rebuildGrid(length, step);
+                this.rebuildAxes(length);
+                this.rebuildTicks(length, step);
+            },
+            
+            rebuildGrid: function(length, step) {
+                if (this.gridHelper) {
+                    this.group.remove(this.gridHelper);
+                    this.gridHelper.geometry.dispose();
+                    this.gridHelper.material.dispose();
+                }
+                const divisions = (length * 2) / step;
+                this.gridHelper = new THREE.GridHelper(length * 2, divisions, 0xffcc00, 0x1a2640);
+                this.gridHelper.material.opacity = 0.5;
+                this.gridHelper.material.transparent = true;
+                this.gridHelper.position.y = -0.01;
+                this.group.add(this.gridHelper);
+            },
+
+            rebuildAxes: function(length) {
+                while(this.arrowsGroup.children.length > 0) {
+                    const child = this.arrowsGroup.children[0];
+                    this.arrowsGroup.remove(child);
+                    if (child.dispose) child.dispose();
+                    if (child.material) child.material.dispose();
+                    if (child.geometry) child.geometry.dispose();
+                }
+                while(this.labelsGroup.children.length > 0) {
+                     const child = this.labelsGroup.children[0];
+                     this.labelsGroup.remove(child);
+                     if (child.material) {
+                         if (child.material.map) child.material.map.dispose();
+                         child.material.dispose();
+                     }
+                }
+
+                const origin = new THREE.Vector3(0, 0, 0);
+                const headLen = Math.max(1, length * 0.05);
+                const headWidth = Math.max(0.5, length * 0.03);
+                
+                // Y Axis (Re(f(z))) - Gold
+                const arrowY = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, length, 0xffcc00, headLen, headWidth);
+                const arrowYNeg = new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), origin, length, 0xffcc00, headLen, headWidth);
+                
+                // X Axis (Real input Re(z)) - Cyan
+                const arrowX = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), origin, length, 0x00e5ff, headLen, headWidth);
+                // Z Axis (Imaginary input Im(z)) - Pink/Red (mapped to -Z)
+                const arrowZ = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), origin, length, 0xff007f, headLen, headWidth);
+                
+                const matXLine = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.5 });
+                const geoX = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-length, 0, 0), origin]);
+                const lineX = new THREE.Line(geoX, matXLine);
+                
+                const matZLine = new THREE.LineBasicMaterial({ color: 0xff007f, transparent: true, opacity: 0.5 });
+                const geoZ = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, length), origin]);
+                const lineZ = new THREE.Line(geoZ, matZLine);
+
+                this.arrowsGroup.add(arrowY, arrowYNeg, arrowX, arrowZ, lineX, lineZ);
+                
+                const lblY = createTextSprite("Re f(z)", '#ffcc00');
+                lblY.position.set(0, length + headLen * 2, 0);
+                
+                const lblX = createTextSprite("Re(z)", '#00e5ff');
+                lblX.position.set(length + headLen * 2, 0, 0);
+
+                const lblZ = createTextSprite("Im(z)", '#ff007f');
+                lblZ.position.set(0, 0, -(length + headLen * 2));
+                
+                const scale = Math.max(0.6, length / 15);
+                lblY.scale.set(2 * scale, 1 * scale, 1);
+                lblX.scale.set(2 * scale, 1 * scale, 1);
+                lblZ.scale.set(2 * scale, 1 * scale, 1);
+
+                this.labelsGroup.add(lblY, lblX, lblZ);
+            },
+
+            rebuildTicks: function(length, step) {
+                while(this.ticksGroup.children.length > 0) {
+                    const child = this.ticksGroup.children[0];
+                    this.ticksGroup.remove(child);
+                    if (child.material) {
+                        if (child.material.map) child.material.map.dispose();
+                        child.material.dispose();
+                    }
+                }
+
+                const scale = Math.max(0.5, length / 20);
+
+                for(let i = -length; i <= length; i += step) {
+                    if(i === 0) continue; 
+                    
+                    let tx = createTextSprite(i.toString(), '#00e5ff');
+                    tx.position.set(i, 0, 0.5 * scale);
+                    tx.scale.set(1.2 * scale, 0.6 * scale, 1);
+                    this.ticksGroup.add(tx);
+
+                    let tz = createTextSprite((-i).toString() + 'i', '#ff007f');
+                    tz.position.set(0.5 * scale, 0, i);
+                    tz.scale.set(1.2 * scale, 0.6 * scale, 1);
+                    this.ticksGroup.add(tz);
+                }
+            }
+        };
+        
+        axesManager.init();
+
+        // --- Roots Visualization ---
+        const rootMarkersGroup = new THREE.Group();
+        scene.add(rootMarkersGroup);
+
+        function calculateRoots(a, b, c) {
+            if (a === 0) {
+                if (b === 0) return [];
+                return [{ re: -c / b, im: 0 }];
+            }
+            const discriminant = b * b - 4 * a * c;
+            const roots = [];
+            if (discriminant >= 0) {
+                roots.push({ re: (-b + Math.sqrt(discriminant)) / (2 * a), im: 0 });
+                if (discriminant > 0) {
+                    roots.push({ re: (-b - Math.sqrt(discriminant)) / (2 * a), im: 0 });
+                }
+            } else {
+                roots.push({ re: -b / (2 * a), im: Math.sqrt(-discriminant) / (2 * a) });
+                roots.push({ re: -b / (2 * a), im: -Math.sqrt(-discriminant) / (2 * a) });
+            }
+            return roots;
+        }
+
+        function updateRoots(a, b, c) {
+            while(rootMarkersGroup.children.length > 0){ 
+                const child = rootMarkersGroup.children[0];
+                rootMarkersGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            }
+
+            const roots = calculateRoots(a, b, c);
+            const rootGeo = new THREE.SphereGeometry(0.1, 16, 16); 
+            const rootMat = new THREE.MeshBasicMaterial({ color: 0x39ff14 }); // Neon Green
+
+            const hitAreaGeo = new THREE.SphereGeometry(0.5, 8, 8);
+            const hitAreaMat = new THREE.MeshBasicMaterial({ visible: false });
+
+            roots.forEach(r => {
+                if(Math.abs(r.re) <= 20 && Math.abs(r.im) <= 20) {
+                    const mesh = new THREE.Mesh(rootGeo, rootMat);
+                    mesh.position.set(r.re, 0, -r.im); // Placed at y=0 (Re f(z) = 0 and Im f(z) = 0)
+                    mesh.userData = { root: r };
+
+                    const hitArea = new THREE.Mesh(hitAreaGeo, hitAreaMat);
+                    hitArea.userData = { root: r };
+                    mesh.add(hitArea);
+
+                    rootMarkersGroup.add(mesh);
+                }
+            });
+        }
+
+        // --- 3D Surface & Slicing Curves ---
+        let graphMeshFront, wireframeMesh, realParabolaMesh, imagParabolaMesh;
+        const resolution = 250; 
+        const extent = 8; 
+        const heightScale = 0.5; 
+        let currentSurfaceMode = 'real';
+        
+        // Calculate Real and Imaginary parts of f(z) = a z^2 + b z + c
+        // z = x + iy
+        function calculateComplexComponents(x, y, a, b, c) {
+            const reZ2 = (x * x) - (y * y);
+            const imZ2 = 2 * x * y;
+            
+            const re = a * reZ2 + b * x + c;
+            const im = a * imZ2 + b * y;
+            const modulus = Math.sqrt(re * re + im * im);
+            
+            return { re, im, modulus };
+        }
+
+        // Real Parabola along y=0 (Real Input Axis)
+        class RealParabolaCurve extends THREE.Curve {
+            constructor(a, b, c) {
+                super();
+                this.a = a; this.b = b; this.c = c;
+            }
+            getPoint(t, optionalTarget = new THREE.Vector3()) {
+                const x = (t - 0.5) * (extent * 2.5); 
+                let y;
+                if (currentSurfaceMode === 'modulus') {
+                    y = Math.abs(this.a * x * x + this.b * x + this.c) * heightScale;
+                } else {
+                    y = (this.a * x * x + this.b * x + this.c) * heightScale;
+                }
+                return optionalTarget.set(x, y, 0);
+            }
+        }
+
+        // Imaginary Parabola along x = -b / (2a) (Imaginary Input Axis)
+        class ImaginaryParabolaCurve extends THREE.Curve {
+            constructor(a, b, c) {
+                super();
+                this.a = a; this.b = b; this.c = c;
+            }
+            getPoint(t, optionalTarget = new THREE.Vector3()) {
+                const y_input = (t - 0.5) * (extent * 2.5); // Imaginary input variable y
+                const x_fixed = (this.a !== 0) ? -this.b / (2 * this.a) : 0; // Axis of symmetry x
+                
+                const comp = calculateComplexComponents(x_fixed, y_input, this.a, this.b, this.c);
+                const val = (currentSurfaceMode === 'modulus') ? comp.modulus : comp.re;
+                
+                // Mapped to 3D space: X = x_fixed, Y = height, Z = -y_input
+                return optionalTarget.set(x_fixed, val * heightScale, -y_input);
+            }
+        }
+
+        // Custom curve for animating "Completing the Square"
+        class AnimatedParabolaCurve extends THREE.Curve {
+            constructor(a, h, k) {
+                super();
+                this.a = a; this.h = h; this.k = k;
+            }
+            getPoint(t, optionalTarget = new THREE.Vector3()) {
+                const x = (t - 0.5) * (extent * 2.5);
+                // Vertex form equation: y = a(x - h)^2 + k
+                let y = (this.a * Math.pow(x - this.h, 2) + this.k) * heightScale;
+                
+                if (currentSurfaceMode === 'modulus') y = Math.abs(y);
+                
+                return optionalTarget.set(x, y, 0);
+            }
+        }
+
+        function createGraphGeometry(a, b, c) {
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const indices = [];
+
+            for (let i = 0; i <= resolution; i++) {
+                const z = (i / resolution) * (extent * 2) - extent; // Imaginary input axis
+                for (let j = 0; j <= resolution; j++) {
+                    const x = (j / resolution) * (extent * 2) - extent; // Real input axis
+                    
+                    const comp = calculateComplexComponents(x, -z, a, b, c);
+                    // Toggle height calculation based on chosen mode
+                    const val = (currentSurfaceMode === 'modulus') ? comp.modulus : comp.re;
+                    const y = val * heightScale;
+                    
+                    vertices.push(x, y, z);
+                }
+            }
+
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const a_idx = i * (resolution + 1) + j;
+                    const b_idx = a_idx + 1;
+                    const c_idx = (i + 1) * (resolution + 1) + j;
+                    const d_idx = c_idx + 1;
+
+                    indices.push(a_idx, c_idx, b_idx);
+                    indices.push(b_idx, c_idx, d_idx);
+                }
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geometry.setIndex(indices);
+            geometry.computeVertexNormals();
+            return geometry;
+        }
+
+        function initGraph() {
+            const a = getInputValue('input-a', 1);
+            const b = getInputValue('input-b', 0);
+            const c = getInputValue('input-c', 0);
+
+            const geometry = createGraphGeometry(a, b, c);
+            updateRoots(a, b, c);
+
+            const frontMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xb59228, 
+                emissive: 0x332400, 
+                emissiveIntensity: 0.08, 
+                side: THREE.DoubleSide, 
+                shadowSide: THREE.DoubleSide,
+                roughness: 1.0, 
+                metalness: 0.0,
+                polygonOffset: true,
+                polygonOffsetFactor: 1,
+                polygonOffsetUnits: 1
+            });
+            
+            graphMeshFront = new THREE.Mesh(geometry, frontMaterial);
+            scene.add(graphMeshFront);
+
+            const wireframeGeo = new THREE.WireframeGeometry(geometry);
+            const wireframeMat = new THREE.LineBasicMaterial({ 
+                color: 0xffffff, 
+                linewidth: 1,
+                transparent: true,
+                opacity: 0.16
+            });
+            wireframeMesh = new THREE.LineSegments(wireframeGeo, wireframeMat);
+            graphMeshFront.add(wireframeMesh);
+            
+            // 2D Real Parabola (Cyan)
+            const realCurve = new RealParabolaCurve(a, b, c);
+            realParabolaMesh = new THREE.Mesh(
+                new THREE.TubeGeometry(realCurve, 400, 0.015, 8, false),
+                new THREE.MeshPhysicalMaterial({ 
+                    color: 0x00e5ff, 
+                    emissive: 0x00e5ff, 
+                    emissiveIntensity: 0.8, 
+                    roughness: 0.2
+                })
+            );
+            scene.add(realParabolaMesh);
+
+            // 2D Imaginary Parabola (Purple/Pink)
+            const imagCurve = new ImaginaryParabolaCurve(a, b, c);
+            imagParabolaMesh = new THREE.Mesh(
+                new THREE.TubeGeometry(imagCurve, 400, 0.015, 8, false),
+                new THREE.MeshPhysicalMaterial({ 
+                    color: 0xd946ef, 
+                    emissive: 0xd946ef, 
+                    emissiveIntensity: 0.8, 
+                    roughness: 0.2
+                })
+            );
+            scene.add(imagParabolaMesh);
+        }
+
+        function updateGraph() {
+            const a = getInputValue('input-a', 1);
+            const b = getInputValue('input-b', 0);
+            const c = getInputValue('input-c', 0);
+
+            const newGeometry = createGraphGeometry(a, b, c);
+            
+            graphMeshFront.geometry.dispose();
+            graphMeshFront.geometry = newGeometry;
+
+            const newWireframeGeo = new THREE.WireframeGeometry(newGeometry);
+            wireframeMesh.geometry.dispose();
+            wireframeMesh.geometry = newWireframeGeo;
+            
+            // Re-build Real Parabola Mesh
+            realParabolaMesh.geometry.dispose();
+            realParabolaMesh.geometry = new THREE.TubeGeometry(new RealParabolaCurve(a, b, c), 400, 0.015, 8, false);
+
+            // Re-build Imaginary Parabola Mesh
+            imagParabolaMesh.geometry.dispose();
+            imagParabolaMesh.geometry = new THREE.TubeGeometry(new ImaginaryParabolaCurve(a, b, c), 400, 0.015, 8, false);
+
+            updateRoots(a, b, c);
+            document.getElementById('tooltip').style.opacity = 0;
+        }
+
+        function getInputValue(id, fallback) {
+            const val = parseFloat(document.getElementById(id).value);
+            return isNaN(val) ? fallback : val;
+        }
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+        scene.add(ambientLight);
+
+        // Directional lights acting as light sources at infinity
+        const dirLight1 = new THREE.DirectionalLight(0xfff0b3, 0.65);
+        dirLight1.position.set(0, 1, 0).normalize();
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0xfff0b3, 0.65);
+        dirLight2.position.set(0, -1, 0).normalize();
+        scene.add(dirLight2);
+
+        // --- Event Listeners ---
+        document.getElementById('surface-mode').addEventListener('change', (e) => {
+            currentSurfaceMode = e.target.value;
+            updateGraph();
+        });
+
+        document.getElementById('input-a').addEventListener('input', updateGraph);
+        document.getElementById('input-b').addEventListener('input', updateGraph);
+        document.getElementById('input-c').addEventListener('input', updateGraph);
+
+        const inputIds = ['input-a', 'input-b', 'input-c'];
+        inputIds.forEach((id, index) => {
+            document.getElementById(id).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    updateGraph();
+                    if (index < inputIds.length - 1) {
+                        const nextInput = document.getElementById(inputIds[index + 1]);
+                        nextInput.focus();
+                        nextInput.select();
+                    } else {
+                        e.target.blur();
+                    }
+                }
+            });
+        });
+
+        document.getElementById('toggle-rotate').addEventListener('change', (e) => {
+            controls.autoRotate = e.target.checked;
+        });
+
+        document.getElementById('toggle-parabolas').addEventListener('change', (e) => {
+            realParabolaMesh.visible = e.target.checked;
+            imagParabolaMesh.visible = e.target.checked;
+        });
+
+        // --- Completing the Square Animation Logic ---
+        // The walkthrough shows the SAME curve being re-described. Steps (full version):
+        //   input (card folds into the x² square) -> tiles -> split -> complete -> balance -> shiftH -> shiftV
+        // Steps tiles..balance draw "area tiles" (x² square + x-term strips) on the complex plane
+        // in the same 3D scene; shiftH/shiftV then read the vertex form back off the curve.
+        let currentAnimStep = 0;               // 1-based index into animSteps; 0 = inactive
+        let animSteps = [];
+        let currentAnimState = { h: 0, k: 0 }; // vertex-form parameters of the animated curve
+        let shapeTween = null, tileTween = null, camPosTween = null, camTargetTween = null;
+        let animFrame = null;                  // current camera framing: 'curve' | 'tiles'
+        let savedCamera = null;                // camera to return to when the walkthrough ends
+        let tileLayout = null;                 // geometry of the area diagram for the current a, b
+        let tileState = null;                  // tweened numbers that drive the area diagram
+        let tileLabelMode = 'full';            // 'full' = one label on the whole strip, 'halves' = one per half
+        let ghostParabolaMesh = null;          // faint copy of the input curve (the target for the shifts)
+        let tiles = null;                      // meshes + labels of the area diagram
+
+        // Number / equation formatting helpers
+        const isZero = (n) => Math.abs(n) < 0.005;
+        const fmt = (n) => String(parseFloat(Math.abs(n).toFixed(2)));
+        const fmtS = (n) => (n < 0 && !isZero(n) ? '-' : '') + fmt(n);
+        const sgn = (n) => (n < 0 ? '-' : '+');
+        const signed = (n) => `${sgn(n)} ${fmt(n)}`;
+        const coefAbs = (n) => (Math.abs(Math.abs(n) - 1) < 0.005 ? '' : fmt(n));
+        const coefStr = (n) => (n < 0 ? '-' : '') + coefAbs(n);
+
+        function setRealCurve(a, h, k) {
+            realParabolaMesh.geometry.dispose();
+            realParabolaMesh.geometry = new THREE.TubeGeometry(new AnimatedParabolaCurve(a, h, k), 400, 0.015, 8, false);
+        }
+
+        function ensureGhost(a, h, k) {
+            const geo = new THREE.TubeGeometry(new AnimatedParabolaCurve(a, h, k), 400, 0.04, 6, false);
+            if (!ghostParabolaMesh) {
+                ghostParabolaMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 }));
+                scene.add(ghostParabolaMesh);
+            } else {
+                ghostParabolaMesh.geometry.dispose();
+                ghostParabolaMesh.geometry = geo;
+            }
+            ghostParabolaMesh.visible = false;
+        }
+
+        // ---------- Area-tile diagram ----------
+        // Tile coordinates (u, w): u runs along the real axis (X), w runs away from the camera (-Z).
+        // x² is a square of side s with a corner at the origin. The x-term is a strip of width |p| = |b/a|,
+        // split into two halves of width |q| = |b/2a|. The completed square spans [-q, s] on both axes, so its
+        // near edge sits exactly on the vertex line x = h = -q.
+        const TILE_GAP = 0.8;
+        const tileGroup = new THREE.Group();
+        tileGroup.visible = false;
+        scene.add(tileGroup);
+        const tileGeo = new THREE.BoxGeometry(1, 1, 1);
+        const tileEdgeGeo = new THREE.EdgesGeometry(tileGeo);
+
+        const tileZ = (w) => -(w - tileLayout.uLow + TILE_GAP);
+
+        function computeTileLayout(a, b) {
+            const p = b / a;
+            const q = p / 2;
+            const Q = Math.abs(q);
+            const s = Math.max(2.5, 2.2 * Q);
+            const uLow = Math.min(0, -q);
+            const extent = s - uLow;
+            return { p, q, Q, pos: q >= 0, flat: isZero(q), s, uLow, extent, ls: Math.max(1.6, extent * 0.2) };
+        }
+
+        const LABEL_W = 1024, LABEL_H = 512, LABEL_K = LABEL_W / 256;
+        function createLabel() {
+            const canvas = document.createElement('canvas');
+            canvas.width = LABEL_W;
+            canvas.height = LABEL_H;
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+            sprite.renderOrder = 10;
+            sprite.visible = false;
+            sprite.userData.canvas = canvas;
+            return sprite;
+        }
+
+        function setLabel(sprite, text, color) {
+            const canvas = sprite.userData.canvas;
+            const ctx = canvas.getContext('2d');
+            const k = LABEL_K;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const face = (px) => `700 ${px}px Rajdhani, "Segoe UI", system-ui, sans-serif`;
+            let size = 56 * k;
+            ctx.font = face(size);
+            while (ctx.measureText(text).width > 232 * k && size > 20 * k) {
+                size -= 2 * k;
+                ctx.font = face(size);
+            }
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 5 * k;
+            ctx.strokeStyle = 'rgba(5, 9, 20, 0.9)';   // dark outline keeps it crisp over the surface
+            ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+            ctx.fillStyle = color;
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            sprite.material.map.needsUpdate = true;
+        }
+
+        function clearTiles() {
+            while (tileGroup.children.length > 0) {
+                const child = tileGroup.children[0];
+                tileGroup.remove(child);
+                child.traverse((o) => {
+                    if (o.material) {
+                        if (o.material.map) o.material.map.dispose();
+                        o.material.dispose();
+                    }
+                });
+            }
+            tiles = null;
+        }
+
+        // Absolute target state of the diagram for each step (so PREV and NEXT both just tween to it)
+        function tileTarget(id) {
+            const L = tileLayout;
+            const OP = 0.55;
+            const init = { aU: -L.Q / 2, aW: L.s / 2, bU: -1.5 * L.Q, bW: L.s / 2, bRot: 0 };   // full strip, left of the square
+            const fin  = { aU: -L.q / 2, aW: L.s / 2, bU: L.s / 2,   bW: -L.q / 2, bRot: 1 };   // halves wrapped around the square
+            switch (id) {
+                case 'input':    return { ...init, sqOp: OP, aOp: 0,  bOp: 0,  cOp: 0,   cMix: 0, cLift: 0, oOp: 0 };
+                case 'tiles':    return { ...init, sqOp: OP, aOp: OP, bOp: OP, cOp: 0,   cMix: 0, cLift: 0, oOp: 0 };
+                case 'perfect':  return { ...init, sqOp: OP, aOp: 0,  bOp: 0,  cOp: 0,   cMix: 0, cLift: 0, oOp: 0 };
+                case 'split':    return { ...fin,  sqOp: OP, aOp: OP, bOp: OP, cOp: 0,   cMix: 0, cLift: 0, oOp: 0 };
+                case 'complete': return { ...fin,  sqOp: OP, aOp: OP, bOp: OP, cOp: 0.8, cMix: 0, cLift: 0, oOp: 1 };
+                case 'balance':  return { ...fin,  sqOp: OP, aOp: OP, bOp: OP, cOp: 0.8, cMix: 1, cLift: 1, oOp: 1 };
+                default:         return { ...fin,  sqOp: 0,  aOp: 0,  bOp: 0,  cOp: 0,   cMix: 1, cLift: 1, oOp: 0 };
+            }
+        }
+
+        function buildTiles(a, b) {
+            clearTiles();
+            const L = computeTileLayout(a, b);
+            tileLayout = L;
+
+            const slab = (color) => {
+                const mesh = new THREE.Mesh(tileGeo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false }));
+                const edges = new THREE.LineSegments(tileEdgeGeo, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
+                mesh.add(edges);
+                mesh.userData.edges = edges;
+                mesh.visible = false;
+                tileGroup.add(mesh);
+                return mesh;
+            };
+
+            const stripColor = L.pos ? 0x4dabf7 : 0xff4d6d; // blue = added area, red = removed area
+            tiles = {
+                sq: slab(0xffc107),
+                A: slab(stripColor),
+                B: slab(stripColor),
+                corner: slab(0x39ff14),
+                outline: new THREE.Group(),
+                outlineMat: new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false }),
+                labels: { sq: createLabel(), full: createLabel(), A: createLabel(), B: createLabel(), corner: createLabel(), big: createLabel(), r1: createLabel(), r2: createLabel() }
+            };
+            tileGroup.add(tiles.outline);
+            tiles.outline.visible = false;
+            Object.values(tiles.labels).forEach((lab) => {
+                lab.scale.set(1.5 * L.ls, 0.75 * L.ls, 1);
+                tileGroup.add(lab);
+            });
+
+            // Outline of the completed square, spanning [-q, s] on both axes
+            const t = Math.max(0.08, L.extent * 0.012);
+            const u0 = -L.q, u1 = L.s, mid = (u0 + u1) / 2, len = u1 - u0;
+            const bar = (cu, cw, dx, dz) => {
+                const m = new THREE.Mesh(tileGeo, tiles.outlineMat);
+                m.position.set(cu, 0.5, tileZ(cw));
+                m.scale.set(dx, t, dz);
+                tiles.outline.add(m);
+            };
+            bar(mid, u0, len + t, t);
+            bar(mid, u1, len + t, t);
+            bar(u0, mid, t, len + t);
+            bar(u1, mid, t, len + t);
+
+            const stripTxt = L.pos ? '#9ad4ff' : '#ff9fb0';
+            setLabel(tiles.labels.sq, 'x²', '#ffe08a');
+            setLabel(tiles.labels.full, `${coefStr(L.p)}x`, stripTxt);
+            setLabel(tiles.labels.A, `${coefStr(L.q)}x`, stripTxt);
+            setLabel(tiles.labels.B, `${coefStr(L.q)}x`, stripTxt);
+            setLabel(tiles.labels.big, `(x ${sgn(L.q)} ${fmt(L.Q)})²`, '#ffffff');
+            setLabel(tiles.labels.corner, `+${fmt(L.q * L.q)}`, '#7dff6b');
+
+            const R = vertexRoots(a, b, getInputValue('input-c', 0));
+            [tiles.labels.r1, tiles.labels.r2].forEach((lab, i) => {
+                const pt = R.pts[i];
+                if (!pt) return;
+                setLabel(lab, rootTxt(pt), '#7dff6b');
+                lab.position.set(pt.re, 0.9, -pt.im);
+            });
+
+            tileState = tileTarget('input');
+            tileLabelMode = 'full';
+            applyTiles();
+        }
+
+        // Roots read off the vertex form a(x - h)² + k = 0  ->  x = h ± √(-k/a); complex when -k/a < 0
+        function vertexRoots(a, b, c) {
+            const h = -b / (2 * a), k = c - (b * b) / (4 * a), r2 = -k / a;
+            if (Math.abs(r2) < 1e-9) return { h, k, r2: 0, m: 0, kind: 'double', pts: [{ re: h, im: 0 }] };
+            const m = Math.sqrt(Math.abs(r2));
+            return r2 > 0
+                ? { h, k, r2, m, kind: 'real', pts: [{ re: h + m, im: 0 }, { re: h - m, im: 0 }] }
+                : { h, k, r2, m, kind: 'complex', pts: [{ re: h, im: m }, { re: h, im: -m }] };
+        }
+
+        function rootTxt(p) {
+            if (Math.abs(p.im) < 1e-9) return fmtS(p.re);
+            const im = `${fmt(p.im)}i`;
+            return isZero(p.re) ? `${p.im < 0 ? '-' : ''}${im}` : `${fmtS(p.re)} ${p.im < 0 ? '-' : '+'} ${im}`;
+        }
+
+        const rootFade = { o: 0 };
+        let rootFadeTween = null;
+        function showRootLabels(on, n) {
+            if (rootFadeTween) rootFadeTween.stop();
+            rootMarkersGroup.children.forEach((m) => m.scale.setScalar(on ? 2.2 : 1));
+            if (!tiles) return;
+            const labs = [tiles.labels.r1, tiles.labels.r2];
+            rootFade.o = 0;
+            labs.forEach((sp, i) => { sp.visible = on && i < n; sp.material.opacity = 0; });
+            if (on) rootFadeTween = new TWEEN.Tween(rootFade).to({ o: 1 }, 700)
+                .onUpdate(() => labs.forEach((sp) => { sp.material.opacity = rootFade.o; })).start();
+        }
+
+        function applyTiles() {
+            if (!tiles || !tileLayout) return;
+            const L = tileLayout, st = tileState;
+            // Positive case: tiles sit side by side. Negative case: the removed strips are stacked on top of the square.
+            const th = L.pos ? 0.12 : 0.1;
+            const y = L.pos ? { sq: 0.07, A: 0.07, B: 0.07, c: 0.07 } : { sq: 0.07, A: 0.18, B: 0.29, c: 0.4 };
+
+            const place = (mesh, u, w, rot, op, dx, dz, yy) => {
+                mesh.visible = op > 0.01 && dx > 1e-4 && dz > 1e-4;
+                mesh.position.set(u, yy, tileZ(w));
+                mesh.rotation.y = rot * Math.PI / 2;
+                mesh.scale.set(dx, th, dz);
+                mesh.material.opacity = op;
+                mesh.userData.edges.material.opacity = Math.min(1, op * 1.6);
+            };
+            place(tiles.sq, L.s / 2, L.s / 2, 0, st.sqOp, L.s, L.s, y.sq);
+            place(tiles.A, st.aU, st.aW, 0, st.aOp, L.Q, L.s, y.A);
+            place(tiles.B, st.bU, st.bW, st.bRot, st.bOp, L.Q, L.s, y.B);
+            place(tiles.corner, -L.q / 2, -L.q / 2, 0, st.cOp, L.Q, L.Q, y.c + st.cLift * 1.4);
+
+            // green (added to complete the square) -> red (taken away again)
+            const g = [0.2235, 1.0, 0.0784], r = [1.0, 0.302, 0.4275];
+            tiles.corner.material.color.setRGB(
+                g[0] + (r[0] - g[0]) * st.cMix, g[1] + (r[1] - g[1]) * st.cMix, g[2] + (r[2] - g[2]) * st.cMix
+            );
+
+            const lb = tiles.labels;
+            const show = (sprite, visible, u, w, yy, op) => {
+                sprite.visible = visible;
+                if (visible) {
+                    sprite.position.set(u, yy, tileZ(w));
+                    sprite.material.opacity = Math.min(1, op * 1.8);
+                }
+            };
+            show(lb.sq, st.sqOp > 0.05, L.s / 2, L.s / 2, 0.9, st.sqOp);
+            show(lb.full, tileLabelMode === 'full' && st.aOp > 0.05 && !L.flat, (st.aU + st.bU) / 2, (st.aW + st.bW) / 2, 0.9, st.aOp);
+            show(lb.A, tileLabelMode === 'halves' && st.aOp > 0.05 && !L.flat, st.aU, st.aW, 0.9, st.aOp);
+            show(lb.B, tileLabelMode === 'halves' && st.bOp > 0.05 && !L.flat, st.bU, st.bW, 0.9, st.bOp);
+            show(lb.corner, st.cOp > 0.05 && !L.flat, -L.q / 2, -L.q / 2, 0.9 + st.cLift * 1.4, st.cOp);
+            show(lb.big, st.oOp > 0.05 && !L.flat, (L.s - L.q) / 2, L.s + L.ls * 0.45, 0.9, st.oOp);
+
+            tiles.outline.visible = st.oOp > 0.01;
+            tiles.outlineMat.opacity = st.oOp * 0.95;
+        }
+
+        // ---------- Camera ----------
+        function getFramePose(mode) {
+            if (mode === 'tiles' && tileLayout) {
+                // Elevated view looking down at the diagram that lies on the complex plane
+                const L = tileLayout;
+                const cu = (L.uLow + L.s) / 2;
+                const cz = tileZ(cu);
+                const d = Math.max(9, (L.extent * 1.7) / Math.min(1, camera.aspect || 1));
+                return { tgt: { x: cu, y: 0, z: cz }, pos: { x: cu, y: d * 0.85, z: cz + d * 0.5 } };
+            }
+            if (mode === 'roots') {
+                // Angled view of the real parabola, the imaginary parabola and the roots on the complex plane
+                const R = vertexRoots(getInputValue('input-a', 1), getInputValue('input-b', 0), getInputValue('input-c', 0));
+                const span = Math.max(3, R.m, Math.abs(R.k) * heightScale * 0.6);
+                const d = Math.max(9, span * 3) / Math.min(1, camera.aspect || 1);
+                return { tgt: { x: R.h, y: 0, z: 0 }, pos: { x: R.h + d * 0.5, y: d * 0.45, z: d * 0.8 } };
+            }
+            // Front-on view of the parabola along the real axis
+            return { tgt: { x: 0, y: 0, z: 0 }, pos: { x: 0, y: 3, z: 12 } };
+        }
+
+        function frameCamera(mode) {
+            const pose = getFramePose(mode);
+            moveCamera(pose.pos, pose.tgt, 1000);
+        }
+
+        function moveCamera(pos, tgt, ms) {
+            if (camPosTween) camPosTween.stop();
+            if (camTargetTween) camTargetTween.stop();
+            camPosTween = new TWEEN.Tween(camera.position)
+                .to({ x: pos.x, y: pos.y, z: pos.z }, ms)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+            camTargetTween = new TWEEN.Tween(controls.target)
+                .to({ x: tgt.x, y: tgt.y, z: tgt.z }, ms)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+        }
+
+        // ---------- Input card -> x² square morph ----------
+        // A clone of the input card is warped with a CSS matrix3d so it lands exactly on the projected x² square,
+        // then cross-fades into the real 3D tile. Everything stays in the main window.
+        const clamp01 = (x) => Math.max(0, Math.min(1, x));
+        const morphCard = document.getElementById('morph-card');
+        const morphP = { p: 0 };
+        const morphFade = { o: 1 };
+        const surfaceFade = { v: 1 };
+        let morphRect = null, morphQuad = null, morphEls = null;
+        let morphTween = null, morphFadeTween = null, surfaceTween = null;
+        let morphPhase = 'none';   // 'in' | 'xfade' | 'out' | 'none'
+        let morphBusy = false, exiting = false;
+
+        function homographyCSS(P, W, H) {
+            const [p0, p1, p2, p3] = P;
+            const dx1 = p1.x - p2.x, dx2 = p3.x - p2.x, dx3 = p0.x - p1.x + p2.x - p3.x;
+            const dy1 = p1.y - p2.y, dy2 = p3.y - p2.y, dy3 = p0.y - p1.y + p2.y - p3.y;
+            let g = 0, h = 0;
+            if (Math.abs(dx3) > 1e-9 || Math.abs(dy3) > 1e-9) {
+                const den = dx1 * dy2 - dx2 * dy1;
+                g = (dx3 * dy2 - dx2 * dy3) / den;
+                h = (dx1 * dy3 - dx3 * dy1) / den;
+            }
+            const a = p1.x - p0.x + g * p1.x, b = p3.x - p0.x + h * p3.x;
+            const d = p1.y - p0.y + g * p1.y, e = p3.y - p0.y + h * p3.y;
+            return `matrix3d(${a / W},${d / W},0,${g / W},${b / H},${e / H},0,${h / H},0,0,1,0,${p0.x},${p0.y},0,1)`;
+        }
+
+        function computeMorphQuad() {
+            // Screen-space corners (TL, TR, BR, BL) of the x² square as seen from the final "tiles" camera
+            const pose = getFramePose('tiles');
+            const cam = camera.clone();
+            cam.position.set(pose.pos.x, pose.pos.y, pose.pos.z);
+            cam.lookAt(pose.tgt.x, pose.tgt.y, pose.tgt.z);
+            cam.updateMatrixWorld(true);
+            const L = tileLayout, W = window.innerWidth, H = window.innerHeight;
+            return [[0, L.s], [L.s, L.s], [L.s, 0], [0, 0]].map(([u, w]) => {
+                const v = new THREE.Vector3(u, 0.13, tileZ(w)).project(cam);
+                return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H };
+            });
+        }
+
+        function buildMorphCard() {
+            const panel = document.querySelector('#ui-layer .panel');
+            const rc = panel.getBoundingClientRect();
+            morphRect = { x: rc.left, y: rc.top, w: rc.width, h: rc.height };
+            const clone = panel.cloneNode(true);
+            clone.querySelectorAll('[id]').forEach((el) => {
+                if (el.id === 'panel-content') el.classList.add('pc-clone');
+                el.removeAttribute('id');
+            });
+            const mk = (cls) => { const d = document.createElement('div'); d.className = cls; return d; };
+            const content = mk('morph-content'), tint = mk('morph-tint'), label = mk('morph-label');
+            content.appendChild(clone);
+            label.textContent = 'x²';
+            label.style.fontSize = Math.round(Math.min(rc.width, rc.height) * 0.5) + 'px';
+            morphCard.innerHTML = '';
+            morphCard.append(content, tint, label);
+            morphCard.style.width = rc.width + 'px';
+            morphCard.style.height = rc.height + 'px';
+            morphEls = { content, tint, label };
+        }
+
+        function placeMorph(p) {
+            const r = morphRect, Q = morphQuad;
+            const S = [{ x: r.x, y: r.y }, { x: r.x + r.w, y: r.y }, { x: r.x + r.w, y: r.y + r.h }, { x: r.x, y: r.y + r.h }];
+            const P = S.map((s0, i) => ({ x: s0.x + (Q[i].x - s0.x) * p, y: s0.y + (Q[i].y - s0.y) * p }));
+            morphCard.style.transform = homographyCSS(P, r.w, r.h);
+            morphCard.style.borderRadius = `${12 * (1 - p)}px`;
+            morphEls.content.style.opacity = clamp01(1 - p / 0.4);
+            morphEls.tint.style.opacity = clamp01((p - 0.1) / 0.6);
+            morphEls.label.style.opacity = clamp01((p - 0.5) / 0.4);
+        }
+
+        function showWalkUI(on) {
+            ['btn-exit', 'anim-bottom'].forEach((id) => document.getElementById(id).classList.toggle('active', on));
+        }
+
+        function updateNavButtons() {
+            document.getElementById('btn-prev').disabled = currentAnimStep <= 1 || morphBusy;
+            document.getElementById('btn-next').disabled = currentAnimStep >= animSteps.length || morphBusy;
+        }
+
+        // The 3D surface stays in the scene, just dimmed so the diagram reads clearly
+        function applySurfaceFade() {
+            graphMeshFront.material.opacity = surfaceFade.v;
+            wireframeMesh.material.opacity = 0.16 * surfaceFade.v;
+        }
+
+        function fadeSurface(to, ms) {
+            if (surfaceTween) surfaceTween.stop();
+            surfaceTween = new TWEEN.Tween(surfaceFade).to({ v: to }, ms)
+                .easing(TWEEN.Easing.Quadratic.Out).onUpdate(applySurfaceFade).start();
+        }
+
+        // ---------- Steps ----------
+        function goToAnimStep(step, entering = false) {
+            const prevStep = currentAnimStep;
+            currentAnimStep = step;
+            const id = animSteps[step - 1];
+            const prevId = animSteps[prevStep - 1];
+
+            const a = getInputValue('input-a', 1);
+            const b = getInputValue('input-b', 0);
+            const c = getInputValue('input-c', 0);
+            const L = tileLayout;
+            const hT = -b / (2 * a);
+            const kT = c - (b * b) / (4 * a);
+            const q = L.q, Q = L.Q, q2 = q * q;
+
+            // ----- text -----
+            const aStr = coefStr(a);
+            const cTerm = isZero(c) ? '' : ` ${signed(c)}`;
+            const pStr = (n) => `${sgn(n)} ${coefAbs(n)}x`;
+            const grouped = `x² ${pStr(L.p)}`;
+            const factor = Math.abs(a - 1) < 0.005 ? '' : 'Factor out a. ';
+            const squaredStr = isZero(hT) ? `${aStr}x²` : `${aStr}(x ${hT < 0 ? '+' : '-'} ${fmt(hT)})²`;
+            const vertexStr = isZero(kT) ? squaredStr : `${squaredStr} ${signed(kT)}`;
+            let inputPoly = `${aStr}z²`;
+            if (!isZero(b)) inputPoly += ` ${sgn(b)} ${coefAbs(b)}z`;
+            if (!isZero(c)) inputPoly += ` ${signed(c)}`;
+
+            let title = '', eq = '', desc = '';
+            switch (id) {
+                case 'input':
+                    title = 'START WITH THE INPUT EQUATION';
+                    eq = `f(z) = ${inputPoly}`;
+                    desc = 'The card folds into the x² square. The cyan curve is f on the real axis; completing the square rewrites it without changing it.';
+                    break;
+                case 'perfect':
+                    title = 'NO x-TERM: ALREADY A PERFECT SQUARE';
+                    eq = `y = ${aStr}x²${cTerm}`;
+                    desc = 'b = 0, so there is no strip to add: x² is already a square and the vertex sits above the origin (h = 0).';
+                    break;
+                case 'tiles':
+                    title = 'DRAW THE x-TERMS AS AREAS';
+                    eq = `y = ${aStr}(${grouped})${cTerm}`;
+                    desc = L.pos
+                        ? `${factor}x² is a square of side x. The x-term is a strip ${fmt(L.p)} wide and x long, so its area is ${coefStr(Math.abs(L.p))}x.`
+                        : `${factor}x² is a square of side x. The x-term is negative, so its strip (${fmt(L.p)} wide, x long) is area we take away.`;
+                    break;
+                case 'split':
+                    title = 'SPLIT THE STRIP IN HALF';
+                    eq = `${grouped} = x² ${pStr(q)} ${pStr(q)}`;
+                    desc = L.pos
+                        ? `Cut the strip into two halves, each ${fmt(Q)} wide. Put one along the side of the square and one along the bottom.`
+                        : `Cut the strip into two halves, each ${fmt(Q)} wide, and lay them along two edges of the square. They overlap in the corner.`;
+                    break;
+                case 'complete':
+                    title = 'COMPLETE THE SQUARE';
+                    eq = `${grouped} + ${fmt(q2)} = (x ${sgn(q)} ${fmt(Q)})²`;
+                    desc = L.pos
+                        ? `The missing corner is a ${fmt(Q)} × ${fmt(Q)} square of area ${fmt(q2)}. Adding it completes a big square of side x + ${fmt(Q)}.`
+                        : `The corner was cut away twice, so add its area ${fmt(q2)} back once. What is left is a square of side x - ${fmt(Q)}.`;
+                    break;
+                case 'balance':
+                    title = 'KEEP IT BALANCED: TAKE THE EXTRA AWAY';
+                    eq = `y = ${aStr}[(x ${sgn(q)} ${fmt(Q)})² - ${fmt(q2)}]${cTerm}`;
+                    desc = `We added ${fmt(q2)} to make the square, so subtract it again${factor ? ` (inside the bracket, so it costs a × ${fmt(q2)})` : ''}. The constant is k = c - b²/4a = ${fmtS(kT)}.`;
+                    break;
+                case 'shiftH':
+                    title = 'READ THE SHIFT: HORIZONTAL (h)';
+                    eq = `y = ${squaredStr}`;
+                    desc = `Slide the base parabola y = ${aStr}x² ${hT < 0 ? 'left' : 'right'} by ${fmt(hT)}. The faint line is the original curve.`;
+                    break;
+                case 'shiftV':
+                    title = 'READ THE SHIFT: VERTICAL (k)';
+                    eq = `y = ${vertexStr}`;
+                    desc = (L.flat ? `Start from the base parabola y = ${aStr}x². ` : '')
+                        + (isZero(kT) ? 'k = 0, so no vertical shift is needed. ' : `Slide it ${kT < 0 ? 'down' : 'up'} by ${fmt(kT)}. `)
+                        + 'It lands on the original curve (faint line): same curve, new form.';
+                    break;
+                case 'roots': {
+                    const R = vertexRoots(a, b, c);
+                    const xp = L.flat ? 'x' : `x ${sgn(q)} ${fmt(Q)}`;
+                    const sq = L.flat ? 'x²' : `(${xp})²`;
+                    const ctr = isZero(hT) ? '' : `${fmtS(hT)} `;
+                    title = 'SOLVE FOR THE ROOTS';
+                    if (R.kind === 'double') {
+                        eq = `${aStr}${sq} = 0  →  z = ${fmtS(hT)}`;
+                        desc = 'k = 0, so the vertex touches zero: one repeated real root, at the vertex.';
+                    } else if (R.kind === 'real') {
+                        eq = `${sq} = ${fmtS(R.r2)}  →  z = ${ctr}± ${fmt(R.m)}`;
+                        desc = `The square equals a positive number, so take the real square root: two real roots, ${rootTxt(R.pts[0])} and ${rootTxt(R.pts[1])}. They are the green dots on the real axis.`;
+                    } else {
+                        eq = `${sq} = ${fmtS(R.r2)}  →  z = ${ctr}± ${fmt(R.m)}i`;
+                        desc = `A real square can't be negative, so use i² = -1: ${xp} = ±${fmt(R.m)}i. The roots ${rootTxt(R.pts[0])} and ${rootTxt(R.pts[1])} are the green dots off the real axis, where the magenta parabola crosses zero.`;
+                    }
+                    break;
+                }
+            }
+            document.getElementById('anim-eq').innerText = eq;
+            document.getElementById('anim-desc').innerText = desc;
+            document.getElementById('anim-step').innerText = `STEP ${step} / ${animSteps.length}`;
+            updateNavButtons();
+
+            // ----- curve -----
+            const isShift = (id === 'shiftH' || id === 'shiftV');
+            const prevWasShift = (prevId === 'shiftH' || prevId === 'shiftV');
+            if (isShift && !prevWasShift && prevStep < step) {
+                // Going forward into the shifts: restart from the base parabola y = a x²
+                currentAnimState.h = 0;
+                currentAnimState.k = 0;
+            }
+            const target = (id === 'shiftH') ? { h: hT, k: 0 } : { h: hT, k: kT };
+            setRealCurve(a, currentAnimState.h, currentAnimState.k); // draw current state now (no one-frame flash)
+            if (shapeTween) shapeTween.stop();
+            shapeTween = new TWEEN.Tween(currentAnimState)
+                .to(target, 800)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate((state) => setRealCurve(a, state.h, state.k))
+                .start();
+
+            ghostParabolaMesh.visible = isShift;
+            const onRoots = id === 'roots';
+            imagParabolaMesh.visible = onRoots;
+            showRootLabels(onRoots, vertexRoots(a, b, c).pts.length);
+
+            // ----- area diagram -----
+            if (id === 'balance') setLabel(tiles.labels.corner, `-${fmt(q2)}`, '#ff8fa3');
+            else setLabel(tiles.labels.corner, `+${fmt(q2)}`, '#7dff6b');
+            tileLabelMode = (id === 'input' || id === 'tiles' || id === 'perfect') ? 'full' : 'halves';
+            if (!entering) {   // on entry the morph itself fades the square in
+                if (tileTween) tileTween.stop();
+                tileTween = new TWEEN.Tween(tileState)
+                    .to(tileTarget(id), id === 'split' ? 1400 : 900)
+                    .easing(TWEEN.Easing.Cubic.InOut)
+                    .onUpdate(() => applyTiles())
+                    .start();
+            }
+            applyTiles();
+
+            // ----- camera: only the shift steps use the front-on curve view -----
+            if (!entering) {
+                const frame = id === 'roots' ? 'roots' : (isShift ? 'curve' : 'tiles');
+                if (frame !== animFrame) {
+                    animFrame = frame;
+                    frameCamera(frame);
+                }
+            }
+        }
+
+        function enterAnimMode() {
+            const a = getInputValue('input-a', 1);
+            const b = getInputValue('input-b', 0);
+            const hT = -b / (2 * a);
+            const kT = getInputValue('input-c', 0) - (b * b) / (4 * a);
+
+            savedCamera = { pos: camera.position.clone(), target: controls.target.clone() };
+
+            buildTiles(a, b);
+            ensureGhost(a, hT, kT);
+            animSteps = tileLayout.flat
+                ? ['input', 'perfect', 'shiftV', 'roots']
+                : ['input', 'tiles', 'split', 'complete', 'balance', 'shiftH', 'shiftV', 'roots'];
+
+            // The surface stays in the main window, just dimmed behind the diagram
+            const m = graphMeshFront.material;
+            m.transparent = true; m.depthWrite = false; m.needsUpdate = true;
+            fadeSurface(0.1, 900);
+            imagParabolaMesh.visible = false;
+            realParabolaMesh.visible = true; // must be visible even if "show parabolas" is switched off
+            tileGroup.visible = true;
+            tooltip.style.opacity = 0;
+            controls.autoRotate = false;     // hold a steady view
+
+            tileState.sqOp = 0;              // the square appears when the card lands on it
+            applyTiles();
+
+            document.getElementById('reset-btn').classList.add('anim-hidden');
+            document.getElementById('back-btn').classList.add('anim-hidden');
+
+            currentAnimState = { h: hT, k: kT };
+            currentAnimStep = 0;
+            animFrame = 'tiles';
+            morphBusy = true;
+            goToAnimStep(1, true);
+
+            // Camera glides to the diagram view while the card folds onto the square's final screen position
+            const pose = getFramePose('tiles');
+            moveCamera(pose.pos, pose.tgt, 1100);
+
+            morphQuad = computeMorphQuad();
+            buildMorphCard();
+            morphCard.style.display = 'block';
+            morphCard.style.opacity = '1';
+            morphP.p = 0;
+            placeMorph(0);
+            document.getElementById('ui-layer').classList.add('anim-hidden');
+
+            morphPhase = 'in';
+            let uiShown = false;
+            morphTween = new TWEEN.Tween(morphP).to({ p: 1 }, 1300)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .onUpdate(() => {
+                    placeMorph(morphP.p);
+                    if (!uiShown && morphP.p > 0.5) { uiShown = true; showWalkUI(true); }
+                })
+                .onComplete(() => {
+                    // Card -> real 3D tile cross-fade
+                    morphPhase = 'xfade';
+                    morphFade.o = 1;
+                    morphFadeTween = new TWEEN.Tween(morphFade).to({ o: 0 }, 500)
+                        .onUpdate(() => { morphCard.style.opacity = morphFade.o; })
+                        .onComplete(() => {
+                            morphCard.style.display = 'none';
+                            morphPhase = 'none';
+                            morphBusy = false;
+                            updateNavButtons();
+                        }).start();
+                    tileTween = new TWEEN.Tween(tileState).to(tileTarget('input'), 500)
+                        .easing(TWEEN.Easing.Cubic.InOut).onUpdate(() => applyTiles()).start();
+                }).start();
+        }
+
+        function exitAnimMode() {
+            if (exiting) return;
+            exiting = true;
+            const a = getInputValue('input-a', 1);
+            const b = getInputValue('input-b', 0);
+            const hT = -b / (2 * a);
+            const kT = getInputValue('input-c', 0) - (b * b) / (4 * a);
+
+            currentAnimStep = 0;
+            animFrame = null;
+            [shapeTween, tileTween, camPosTween, camTargetTween, morphTween, morphFadeTween].forEach((t) => { if (t) t.stop(); });
+            showWalkUI(false);
+            morphBusy = true;
+            if (ghostParabolaMesh) ghostParabolaMesh.visible = false;
+            showRootLabels(false, 0);
+
+            const showParabolas = document.getElementById('toggle-parabolas').checked;
+            realParabolaMesh.visible = showParabolas;
+            imagParabolaMesh.visible = showParabolas;
+
+            // Curve settles back onto the input equation, tiles fade, surface and camera come back
+            shapeTween = new TWEEN.Tween(currentAnimState).to({ h: hT, k: kT }, 500)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate((st) => setRealCurve(a, st.h, st.k)).start();
+            tileTween = new TWEEN.Tween(tileState).to(tileTarget('shiftV'), 450)
+                .easing(TWEEN.Easing.Cubic.InOut).onUpdate(() => applyTiles()).start();
+            fadeSurface(1, 1000);
+            if (savedCamera) { moveCamera(savedCamera.pos, savedCamera.target, 1000); savedCamera = null; }
+
+            const unfold = () => {
+                morphPhase = 'out';
+                morphTween = new TWEEN.Tween(morphP).to({ p: 0 }, 1000)
+                    .easing(TWEEN.Easing.Cubic.InOut)
+                    .onUpdate(() => placeMorph(morphP.p))
+                    .onComplete(finishExit).start();
+            };
+
+            if (morphPhase === 'in') {
+                unfold();   // card is still mid-flight: just reverse it from where it is
+            } else {
+                morphQuad = computeMorphQuad();
+                buildMorphCard();
+                morphCard.style.display = 'block';
+                morphCard.style.opacity = '0';
+                morphP.p = 1;
+                placeMorph(1);
+                morphFade.o = 0;
+                morphFadeTween = new TWEEN.Tween(morphFade).to({ o: 1 }, 400)
+                    .onUpdate(() => { morphCard.style.opacity = morphFade.o; })
+                    .onComplete(unfold).start();
+            }
+        }
+
+        function finishExit() {
+            document.getElementById('ui-layer').classList.remove('anim-hidden');
+            document.getElementById('reset-btn').classList.remove('anim-hidden');
+            document.getElementById('back-btn').classList.remove('anim-hidden');
+            morphFade.o = 1;
+            morphFadeTween = new TWEEN.Tween(morphFade).to({ o: 0 }, 300)
+                .onUpdate(() => { morphCard.style.opacity = morphFade.o; })
+                .onComplete(() => { morphCard.style.display = 'none'; morphCard.innerHTML = ''; }).start();
+
+            [shapeTween, tileTween, surfaceTween].forEach((t) => { if (t) t.stop(); });
+            tileGroup.visible = false;
+            clearTiles();
+            const m = graphMeshFront.material;
+            surfaceFade.v = 1;
+            m.opacity = 1; m.transparent = false; m.depthWrite = true; m.needsUpdate = true;
+            wireframeMesh.material.opacity = 0.16;
+            controls.autoRotate = document.getElementById('toggle-rotate').checked;
+            updateGraph(); // curves back to their final static equations
+
+            morphPhase = 'none';
+            morphBusy = false;
+            exiting = false;
+        }
+
+        let animBtnErrorShowing = false;
+        document.getElementById('btn-animate-sq').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const a = getInputValue('input-a', 1);
+            if (a === 0) {
+                if (animBtnErrorShowing) return;
+                animBtnErrorShowing = true;
+                const originalText = btn.innerText;
+                btn.innerText = "REQUIRES a ≠ 0";
+                btn.style.color = "#ff4444";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.color = "";
+                    animBtnErrorShowing = false;
+                }, 2000);
+                return;
+            }
+            enterAnimMode();
+        });
+
+        // Manual Navigation Listeners
+        document.getElementById('btn-prev').addEventListener('click', () => {
+            if (currentAnimStep > 1) goToAnimStep(currentAnimStep - 1);
+        });
+
+        document.getElementById('btn-next').addEventListener('click', () => {
+            if (currentAnimStep >= 1 && currentAnimStep < animSteps.length) goToAnimStep(currentAnimStep + 1);
+        });
+
+        document.getElementById('btn-exit').addEventListener('click', exitAnimMode);
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        // --- Raycasting ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const tooltip = document.getElementById('tooltip');
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(rootMarkersGroup.children, true);
+
+            if (intersects.length > 0) {
+                const r = intersects[0].object.userData.root;
+                let text = "";
+                if (Math.abs(r.im) < 0.0001) {
+                    text = `${r.re.toFixed(2)}`;
+                } else {
+                    const sign = r.im > 0 ? '+' : '-';
+                    text = `${r.re.toFixed(2)} ${sign} ${Math.abs(r.im).toFixed(2)}i`;
+                }
+
+                tooltip.innerHTML = `Root: ${text}`;
+                tooltip.style.left = `${event.clientX}px`;
+                tooltip.style.top = `${event.clientY}px`;
+                tooltip.style.opacity = 1;
+            } else {
+                tooltip.style.opacity = 0;
+            }
+        });
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        window.resetView = function() {
+            camera.position.set(6, 6, 8);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        };
+
+        window.togglePanel = function() {
+            const content = document.getElementById('panel-content');
+            const btn = document.getElementById('collapse-btn');
+            const header = document.querySelector('.panel-header');
+
+            const nowCollapsed = content.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed', nowCollapsed);
+            header.style.marginBottom = nowCollapsed ? '0px' : '20px';
+
+            btn.setAttribute('aria-expanded', String(!nowCollapsed));
+            btn.setAttribute('aria-label', nowCollapsed ? 'Expand panel' : 'Collapse panel');
+        };
+
+        // Clicking the header bar or the chevron button toggles the card
+        document.querySelector('.panel-header').addEventListener('click', window.togglePanel);
+
+        // Simple Tween engine for camera interpolation during animation
+        const TWEEN = {
+            tweens: [],
+            update: function() {
+                const now = Date.now();
+                const running = this.tweens;
+                this.tweens = [];   // tweens started inside callbacks land here and are kept
+                const alive = running.filter(tween => tween.update(now));
+                this.tweens = alive.concat(this.tweens);
+            },
+            Tween: class {
+                constructor(object) { this.object = object; this._valuesEnd = {}; this._duration = 1000; this._easingFunction = t=>t; this._onUpdateCallback = null; this._onComplete = null; this._stopped = false; }
+                to(properties, duration) { this._valuesEnd = properties; this._duration = duration; return this; }
+                easing(fn) { this._easingFunction = fn; return this; }
+                onUpdate(callback) { this._onUpdateCallback = callback; return this; }
+                onComplete(callback) { this._onComplete = callback; return this; }
+                start() {
+                    this._stopped = false;
+                    this._startTime = Date.now();
+                    this._valuesStart = {};
+                    for (const property in this._valuesEnd) this._valuesStart[property] = this.object[property];
+                    TWEEN.tweens.push(this);
+                    return this;
+                }
+                stop() {
+                    this._stopped = true;
+                    TWEEN.tweens = TWEEN.tweens.filter(t => t !== this);
+                    return this;
+                }
+                update(time) {
+                    if (this._stopped) return false;
+                    let elapsed = (time - this._startTime) / this._duration;
+                    elapsed = elapsed > 1 ? 1 : elapsed;
+                    const value = this._easingFunction(elapsed);
+                    for (const property in this._valuesEnd) {
+                        const start = this._valuesStart[property];
+                        const end = this._valuesEnd[property];
+                        this.object[property] = start + (end - start) * value;
+                    }
+                    if (this._onUpdateCallback) this._onUpdateCallback(this.object, elapsed);
+                    if (elapsed >= 1) {
+                        const cb = this._onComplete;
+                        this._onComplete = null;
+                        if (cb) cb();
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        };
+        TWEEN.Easing = {
+            Quadratic: { Out: function (k) { return k * (2 - k); } },
+            Cubic: { InOut: function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; } }
+        };
+
+        // --- Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+            controls.update();
+            
+            const distance = camera.position.distanceTo(controls.target);
+            axesManager.update(distance);
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function() {
+            initGraph();
+            animate();
+        };
+    </script>
+</body>
+</html>

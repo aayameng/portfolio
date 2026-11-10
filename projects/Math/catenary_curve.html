@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Catenary Curve</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=STIX+Two+Text:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -121,6 +121,30 @@ body:not(.tight) .txt{margin-top:14px;min-height:0;font-size:clamp(.95rem,2.1vh,
 .tabs button:hover{color:var(--gold)}
 .tabs button.on{background:linear-gradient(135deg,#ffe082,#ffb300);color:#1a1200;box-shadow:0 0 14px rgba(255,202,40,.4)}
 </style>
+<style>
+/* responsive viewport patch */
+html{background:#030a18!important;position:fixed;inset:0;width:100%;height:100%;height:100dvh}
+body{background:none!important;position:fixed;inset:0;width:100%;height:100%;height:100dvh;overscroll-behavior:none}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+background:radial-gradient(ellipse at 50% 30%,#12305a 0%,#081a35 45%,#030a18 100%)}
+#cv,#css,.nav,.bar{position:fixed}
+.bar{left:0;right:0}
+html,body{overflow:hidden;max-width:100%;touch-action:none}
+#cv,#css{overflow:hidden;contain:paint}
+#card{touch-action:pan-y}
+.pole-ui,#nav,#dock,.back{touch-action:manipulation}
+</style>
+<script>
+(function(){
+ var vv=window.visualViewport;
+ var busy=false;
+ function poke(){if(busy)return;busy=true;requestAnimationFrame(function(){busy=false;dispatchEvent(new Event('resize'))})}
+ if(vv)vv.addEventListener('resize',poke);
+ addEventListener('orientationchange',function(){setTimeout(poke,250)});
+ addEventListener('load',function(){setTimeout(poke,100);setTimeout(poke,600)});
+ if(window.ResizeObserver)new ResizeObserver(poke).observe(document.documentElement);
+})();
+</script>
 </head>
 <body>
 <div class="nav"><h1 class="title">Catenary Curve<small>y = a·cosh(x / a)</small></h1><a class="back" href="/" aria-label="Back to home"><span aria-hidden="true">‹</span><span class="bl"> Back</span></a></div>

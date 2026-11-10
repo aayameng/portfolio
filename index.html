@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -76,6 +77,7 @@
             background-size: 18px 18px;
         }
     </style>
+</head>
 <body class="bg-slate-50 text-slate-900 min-h-full flex flex-col justify-between p-3 sm:p-6 md:p-8 antialiased selection:bg-sky-500 selection:text-white overflow-x-hidden">
 
     <!-- ================= MAIN LANDING VIEW ================= -->
@@ -149,11 +151,11 @@
                             <span class="text-[10px] sm:text-[11px] font-mono font-bold text-amber-600 uppercase tracking-widest block mb-1">SHOWCASE MIND MAP</span>
                             <h2 class="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-amber-600 transition-colors">Projects</h2>
                             <p class="text-xs text-slate-500 mt-1 font-sans">
-                                Boxer Engine & Stirling Engine CAD design showcase.
+                                Interactive CAD, Mathematics &amp; Physics Visualizers.
                             </p>
                         </div>
                         <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-600 group-hover:translate-x-1.5 transition-transform">
-                            <span>Explore CAD Mind Map 📐 →</span>
+                            <span>Explore Projects Mind Map 📐 →</span>
                         </div>
                     </button>
 
@@ -191,19 +193,15 @@
                 </button>
             </div>
 
-            <!-- MODERN ADVANCED BENTO GRID (4 SIGNATURE CARDS WITH DARK HOVER & DARK PAGES ON CLICK) -->
+            <!-- MODERN ADVANCED BENTO GRID -->
             <div class="flex-1 flex flex-col justify-center my-auto py-4">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 max-w-[1200px] mx-auto w-full">
 
-                    <!-- CARD 1: THAPATHALI CAMPUS TIMELINE (DARK SHADE ON HOVER) -->
+                    <!-- CARD 1: THAPATHALI CAMPUS TIMELINE -->
                     <button onclick="openThapathaliTimeline()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/90 hover:from-slate-950 hover:via-emerald-950 hover:to-slate-900 border border-emerald-300/80 hover:border-emerald-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
-                        <!-- Ambient Color Glow Background -->
-                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-emerald-400/20 group-hover:bg-emerald-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
-
                         <div class="space-y-4 relative z-10">
                             <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 group-hover:bg-emerald-950/90 text-emerald-800 group-hover:text-emerald-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-emerald-300 group-hover:border-emerald-700 transition-colors duration-300">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 group-hover:bg-emerald-950/90 text-emerald-800 group-hover:text-emerald-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-emerald-300 border-emerald-700 transition-colors duration-300">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                     Institution • Est. 1966 AD
                                 </span>
@@ -211,7 +209,6 @@
                                     🏛️
                                 </span>
                             </div>
-
                             <div>
                                 <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-white tracking-tight transition-colors duration-300">
                                     Thapathali Campus timeline
@@ -230,11 +227,8 @@
                         </div>
                     </button>
 
-                    <!-- CARD 2: B.E. MECHANICAL ENGINEERING (DARK SHADE ON HOVER) -->
+                    <!-- CARD 2: B.E. MECHANICAL ENGINEERING -->
                     <button onclick="openMechSyllabusOverlay()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50/90 via-white to-blue-50/90 hover:from-slate-950 hover:via-sky-950 hover:to-slate-900 border border-sky-300/80 hover:border-sky-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-sky-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
-                        <!-- Ambient Color Glow Background -->
-                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-sky-400/20 group-hover:bg-sky-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
-
                         <div class="space-y-4 relative z-10">
                             <div class="flex items-center justify-between">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 group-hover:bg-sky-950/90 text-sky-800 group-hover:text-sky-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-sky-300 group-hover:border-sky-700 transition-colors duration-300">
@@ -251,7 +245,7 @@
                                     B.E. Mechanical Engineering
                                 </h3>
                                 <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-300 font-sans mt-2 leading-relaxed transition-colors duration-300">
-                                    Comprehensive semester-by-semester curriculum mind map (Year I to IV) linked directly to 18 official Tribhuvan University syllabus PDF documents.
+                                    Comprehensive semester-by-semester curriculum mind map (Year I to IV) linked directly to official Tribhuvan University syllabus PDF documents.
                                 </p>
                             </div>
                         </div>
@@ -264,11 +258,8 @@
                         </div>
                     </button>
 
-                    <!-- CARD 3: THINGS I AM INTERESTED IN (DARK SHADE ON HOVER) -->
+                    <!-- CARD 3: THINGS I AM INTERESTED IN -->
                     <button onclick="openMindMapOverlay()" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-violet-50/90 via-white to-purple-50/90 hover:from-slate-950 hover:via-violet-950 hover:to-slate-900 border border-violet-300/80 hover:border-violet-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
-                        <!-- Ambient Color Glow Background -->
-                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-violet-400/20 group-hover:bg-violet-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
-
                         <div class="space-y-4 relative z-10">
                             <div class="flex items-center justify-between">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 group-hover:bg-violet-950/90 text-violet-800 group-hover:text-violet-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-violet-300 group-hover:border-violet-700 transition-colors duration-300">
@@ -298,11 +289,8 @@
                         </div>
                     </button>
 
-                    <!-- CARD 4: INSTAGRAM PROFILE (DARK SHADE ON HOVER) -->
+                    <!-- CARD 4: INSTAGRAM PROFILE -->
                     <a href="https://www.instagram.com/aayamfrommathscal" target="_blank" rel="noopener noreferrer" class="group relative text-left overflow-hidden rounded-3xl bg-gradient-to-br from-pink-50/90 via-white to-rose-50/90 hover:from-slate-950 hover:via-pink-950 hover:to-slate-900 border border-pink-300/80 hover:border-pink-500 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-pink-500/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between min-h-[260px] sm:min-h-[290px] cursor-pointer">
-                        <!-- Ambient Color Glow Background -->
-                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-pink-400/20 group-hover:bg-pink-500/30 blur-3xl group-hover:scale-150 transition-all duration-700 pointer-events-none"></div>
-
                         <div class="space-y-4 relative z-10">
                             <div class="flex items-center justify-between">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 group-hover:bg-pink-950/90 text-pink-800 group-hover:text-pink-300 text-[11px] font-mono font-bold uppercase tracking-wider border border-pink-300 group-hover:border-pink-700 transition-colors duration-300">
@@ -333,7 +321,6 @@
                     </a>
 
                 </div>
-
             </div>
 
             <!-- Sleek Light Footer Note -->
@@ -344,10 +331,9 @@
         </div>
     </div>
 
-    <!-- ================= FULLPAGE B.E. MECHANICAL ENGINEERING SYLLABUS MIND MAP OVERLAY (DARK SKY THEME PAGE) ================= -->
+    <!-- ================= FULLPAGE B.E. MECHANICAL ENGINEERING SYLLABUS MIND MAP OVERLAY ================= -->
     <div id="mech-syllabus-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-950 via-slate-950 to-blue-950">
         
-        <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
             <button onclick="closeMechSyllabusOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 font-mono text-xs font-bold transition-all border border-sky-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -355,35 +341,25 @@
             </button>
         </div>
 
-        <!-- FULL SCREEN MECHANICAL SYLLABUS MIND MAP CANVAS CONTAINER -->
         <div id="mech-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-sky-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(14,165,233,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="mech-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="mech-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-6 w-full h-full items-center my-auto">
-                    <!-- Academic Year Column (L1: Year I to IV) -->
                     <div id="mech-l1-nodes-col" class="md:col-span-3 space-y-2.5 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- Semester Part Column (L2: Part I / Part II) -->
                     <div id="mech-l2-nodes-col" class="md:col-span-3 space-y-2.5 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- Subject Courses Column (L3: IOE Course Code & Title - Fitted 2-Column Compact Grid) -->
                     <div id="mech-l3-nodes-col" class="md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= FULLPAGE DARK VIOLET / INDIGO MIND MAP OVERLAY (DARK VIOLET THEME PAGE) ================= -->
+    <!-- ================= FULLPAGE DARK VIOLET MIND MAP OVERLAY ================= -->
     <div id="mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-950 via-slate-950 to-purple-950">
         
-        <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
             <button onclick="closeMindMapOverlay()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-violet-400 font-mono text-xs font-bold transition-all border border-violet-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -391,36 +367,26 @@
             </button>
         </div>
 
-        <!-- FULL SCREEN PURE MIND MAP CANVAS CONTAINER WITH EXPANDABLE BRANCHES -->
         <div id="notebooklm-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-violet-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(139,92,246,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="mm-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="mm-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
-                    <!-- Pillar Column (L1: Initial 3 Nodes) -->
                     <div id="nb-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- L2 Nodes Column (Expands smoothly on Pillar click) -->
                     <div id="nb-l2-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- L3 Subnodes Column (Expands smoothly on L2 click) -->
                     <div id="nb-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= THAPATHALI CAMPUS HISTORICAL TIMELINE OVERLAY (DARK EMERALD THEME PAGE) ================= -->
+    <!-- ================= THAPATHALI CAMPUS HISTORICAL TIMELINE OVERLAY ================= -->
     <div id="thapathali-timeline-overlay" class="fixed inset-0 z-[100] bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-y-auto p-3 sm:p-6 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-teal-950">
         <div class="max-w-[1250px] mx-auto space-y-6 sm:space-y-8 pb-12">
             
-            <!-- Top Navigation & Header -->
             <div class="flex items-center justify-between pb-4 border-b border-emerald-500/20 flex-wrap gap-3">
                 <div class="flex items-center gap-3">
                     <span class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
@@ -437,7 +403,6 @@
                 </button>
             </div>
 
-            <!-- Dark Campus Stats Banner -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md text-center">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">Established</span>
@@ -461,7 +426,6 @@
                 </div>
             </div>
 
-            <!-- Campus Google Maps & Satellite Interactive Card (Dark Styled) -->
             <div class="rounded-2xl border border-emerald-500/30 bg-slate-900/90 shadow-lg space-y-2 p-3">
                 <div class="flex items-center justify-between px-2 pt-1 flex-wrap gap-1">
                     <span class="text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -495,7 +459,6 @@
                 </div>
             </div>
 
-            <!-- HOVER INFORMATIONAL INSPECTOR HEADER (DARK MODE) -->
             <div id="timeline-hover-inspector" class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-mono text-lg font-bold flex-shrink-0">
@@ -511,10 +474,8 @@
                 </p>
             </div>
 
-            <!-- ANIMATED SNAKE LINE TIMELINE CONTAINER (DARK MODE) -->
             <div id="snake-timeline-container" class="relative p-4 sm:p-8 md:p-12 rounded-3xl bg-slate-900/80 border border-emerald-500/30 overflow-hidden space-y-12 backdrop-blur-md shadow-2xl">
                 
-                <!-- SVG SNAKE PATH LAYER -->
                 <svg id="snake-path-svg" class="absolute inset-0 w-full h-full pointer-events-none z-0" style="overflow: visible;">
                     <defs>
                         <linearGradient id="emerald-snake-grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -530,10 +491,8 @@
                     <path id="snake-animated-path" d="" fill="none" stroke="url(#emerald-snake-grad)" stroke-width="4" filter="url(#emerald-glow)" stroke-linecap="round" />
                 </svg>
 
-                <!-- SNAKE TIMELINE NODES -->
                 <div class="relative z-10 space-y-12 sm:space-y-16">
                     
-                    <!-- MILESTONE 1 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(0)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
                             <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
@@ -556,7 +515,6 @@
                         </div>
                     </div>
 
-                    <!-- MILESTONE 2 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(1)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
                             <div id="snake-dot-1" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
@@ -579,7 +537,6 @@
                         </div>
                     </div>
 
-                    <!-- MILESTONE 3 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(2)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
                             <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
@@ -602,7 +559,6 @@
                         </div>
                     </div>
 
-                    <!-- MILESTONE 4 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(3)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 flex justify-center items-center order-2 md:order-1">
                             <div id="snake-dot-3" class="w-10 h-10 rounded-full bg-slate-950 border-4 border-emerald-500 flex items-center justify-center font-mono text-xs font-bold text-emerald-400 shadow-md group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
@@ -625,7 +581,6 @@
                         </div>
                     </div>
 
-                    <!-- MILESTONE 5 -->
                     <div class="timeline-snake-node grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center group" onmouseenter="hoverSnakeNode(4)" onmouseleave="resetSnakeNode()">
                         <div class="md:col-span-6 space-y-2">
                             <div class="p-4 sm:p-6 rounded-2xl bg-slate-950/90 border-2 border-slate-800 group-hover:border-emerald-500 group-hover:bg-slate-900 transition-all duration-300 shadow-md group-hover:-translate-y-1 overflow-hidden">
@@ -677,7 +632,6 @@
                 </div>
             </div>
 
-            <!-- Bottom Back Button -->
             <div class="text-center pt-4">
                 <button onclick="closeThapathaliTimeline()" class="px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 font-mono text-xs font-bold transition-all border border-emerald-500/30 shadow-xl cursor-pointer">
                     ← Return to Profile
@@ -687,10 +641,9 @@
         </div>
     </div>
 
-    <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY (DARK AMBER THEME PAGE) ================= -->
+    <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY ================= -->
     <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
         
-        <!-- Top Navigation Floating Back Button -->
         <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
             <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-mono text-xs font-bold transition-all border border-amber-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -698,25 +651,16 @@
             </button>
         </div>
 
-        <!-- FULL SCREEN PROJECTS MIND MAP CANVAS CONTAINER -->
         <div id="proj-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-amber-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
             <svg id="proj-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
             <div id="proj-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
-                    <!-- Project Category Column (L1: CAD) -->
                     <div id="proj-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- Project Type Column (L2) -->
                     <div id="proj-l2-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- Deep Dive Subnodes Column (L3) -->
                     <div id="proj-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
-                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </div>
@@ -837,7 +781,7 @@
             svgPath.setAttribute('d', d);
         }
 
-        // ================= THINGS I AM INTERESTED IN MIND MAP DATA & CONTROLS =================
+        // ================= THINGS I AM INTERESTED IN MIND MAP DATA =================
         const NOTEBOOKLM_MINDMAP_DATA = {
             physics: {
                 name: "Physics ⚛️",
@@ -1076,7 +1020,7 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // ================= MECHANICAL ENGINEERING SYLLABUS DATA & CONTROLS =================
+        // ================= MECHANICAL ENGINEERING SYLLABUS DATA =================
         const RAW_SYLLABUS_DATA = [
             { "year": "I", "part": "I", "subject_code": "ENSH 101", "subject_name": "Engineering Mathematics I", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_14.pdf" },
             { "year": "I", "part": "I", "subject_code": "ENSH 103", "subject_name": "Engineering Chemistry", "syllabus_link": "https://portal.tu.edu.np/downloads/2025_10_06_14_20_43.pdf" },
@@ -1190,11 +1134,9 @@
             };
         }
 
-        // Dynamically populate MECH_SYLLABUS_DATA from the JSON array
         function populateMechSyllabusData(dataArray) {
             if (!Array.isArray(dataArray) || dataArray.length === 0) return;
 
-            // Reset syllabus structure
             MECH_SYLLABUS_DATA = {
                 year1: { name: "Year I (Sem 1 & 2) 🔹", parts: [{ title: "Part I", subtitle: "First Semester (Odd)", name: "Part I (Semester 1)", courses: [] }, { title: "Part II", subtitle: "Second Semester (Even)", name: "Part II (Semester 2)", courses: [] }] },
                 year2: { name: "Year II (Sem 3 & 4) ⚙️", parts: [{ title: "Part I", subtitle: "Third Semester (Odd)", name: "Part I (Semester 3)", courses: [] }, { title: "Part II", subtitle: "Fourth Semester (Even)", name: "Part II (Semester 4)", courses: [] }] },
@@ -1220,7 +1162,6 @@
                 const titleRaw = getVal(item, ['subject_name', 'name', 'title', 'course_name', 'subjectName']);
                 const linkRaw = getVal(item, ['syllabus_link', 'link', 'pdf', 'url', 'syllabusLink']);
 
-                // Filter invalid dummy placeholders if present
                 if (!codeRaw || codeRaw.length < 2 || !isNaN(codeRaw)) return;
 
                 const yearInfo = getYearKeyAndName(yearRaw);
@@ -1237,9 +1178,7 @@
             });
         }
 
-        // Fetch syllabus data dynamically from ./mechanical_engineering_syllabus.json or use RAW_SYLLABUS_DATA
         async function loadMechSyllabusData() {
-            // First populate with embedded dataset
             populateMechSyllabusData(RAW_SYLLABUS_DATA);
 
             try {
@@ -1251,7 +1190,6 @@
                     }
                 }
             } catch (error) {
-                // Silently fallback to embedded dataset
             }
 
             renderMechL1Nodes();
@@ -1498,7 +1436,7 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // ================= PROJECTS CAD MIND MAP DATA & CONTROLS =================
+        // ================= PROJECTS SHOWCASE MIND MAP DATA & CONTROLS =================
         const PROJECTS_MINDMAP_DATA = {
             cad: {
                 name: "CAD 📐",
@@ -1513,7 +1451,8 @@
                     { name: "Direction Field Visualizer 📈", url: "./projects/Math/direction_field_visualizer.html", subnodes: [] },
                     { name: "Platonic Solids 🧊", url: "./projects/Math/platonic_solids.html", subnodes: [] },
                     { name: "Conic Sections ⭕", url: "./projects/Math/conic_sections.html", subnodes: [] },
-                    { name: "Catenary Curve ⛓️", url: "./projects/Math/catenary_curve.html", subnodes: [] }
+                    { name: "Catenary Curve ⛓️", url: "./projects/Math/catenary_curve.html", subnodes: [] },
+                    { name: "Quadratic Equation 🧮", url: "./projects/Math/quadratic_equation.html", subnodes: [] }
                 ]
             },
             physics: {
@@ -1565,7 +1504,6 @@
                 const node = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey].nodes[idx];
                 if (node && node.url) {
                     console.log("Target Project File:", node.url);
-                    console.log(node.url);
                     window.location.href = node.url;
                     return;
                 }
@@ -1741,7 +1679,6 @@
             svg.innerHTML = pathsHTML;
         }
 
-        // Global Event Listeners & Orientation/Resize Handlers
         window.addEventListener('load', () => {
             loadMechSyllabusData();
             renderL1Nodes();
@@ -1767,3 +1704,4 @@
     </script>
 </body>
 </html>
+```

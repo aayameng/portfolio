@@ -134,4 +134,1174 @@ body.world #fchip.on{display:block}
 #defs .alt{display:block;margin:14px auto 0;border:1px solid rgba(224,239,214,.34);border-radius:999px;background:linear-gradient(180deg,rgba(159,233,168,.15),rgba(255,255,255,.06));color:#e9f1de;padding:9px 18px;font:750 10px system-ui;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;box-shadow:0 5px 15px rgba(0,0,0,.18)}
 #defs .fig.f3{max-width:700px}#defs .f3 canvas{width:100%;height:auto;aspect-ratio:8/5;display:block;border:1px solid rgba(225,241,210,.2);border-radius:11px;touch-action:pan-y;cursor:grab;background:#1b333b;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}#defs .f3 canvas:active{cursor:grabbing}#defs .f3 figcaption b{color:var(--c)}
 @media(max-width:600px){#defs .card{padding:14px 12px}#defs .stp{padding:10px 10px}#defs .stp p,#defs .res p,#defs .ex{font-size:12.5px}#defs .fig{padding:5px;margin:10px auto}#defs .fig figcaption{font-size:11px}#defs .mjx-container[display="true"]{font-size:88%}}
-#back{position:fixed;z-index:10;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
+#back{position:fixed;z-index:10;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));left:auto;display:none;align-items:center;gap:5px;padding:9px 16px 9px 12px;border:0;border-radius:999px;background:linear-gradient(180deg,#ffe48f,#f2b51a);color:#3b2a00;font:800 13px/1 system-ui,sans-serif;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.65);cursor:pointer;-webkit-tap-highlight-color:transparent}body.play:not(.world) #back{display:flex}body.world #back{display:none!important}body.show-defs #back{display:none!important}#back:active{transform:scale(.95)}@media(max-width:720px){body.world #hud{padding-left:calc(104px + env(safe-area-inset-left,0px))}#cap.top{padding-left:104px;padding-right:104px}}
+</style></head><body>
+<button id="back" type="button" aria-label="Back">‹ Back</button><div id="cap"><b>Coccinella septempunctata</b><span id="ph">Resting on the knuckle</span></div>
+<div id="cine"></div><div class="bar" id="bt"></div><div class="bar" id="bb"></div><div id="js"><i></i></div><div id="jb">JUMP</div>
+<div id="calc"><canvas id="minimap" width="220" height="160"></canvas></div><div id="gradCompass"><canvas width="184" height="184"></canvas></div>
+<aside id="lesson" aria-live="polite">
+  <div class="lesson-meta"><span id="lesson-step">ASCENT · STEP 01 / 04</span><span id="lesson-state">UP NEXT</span></div>
+  <h2 id="lesson-title">Gradient</h2>
+  <div class="equation" id="lesson-equation"></div>
+  <p class="lesson-desc" id="lesson-desc"></p>
+  <p class="lesson-observe" id="lesson-observe"></p>
+  <div class="lesson-hint" id="lesson-hint">The ladybird has reached this demonstration</div>
+  <div class="lesson-actions"><button id="backToChoices" type="button">Choose another operator</button></div>
+</aside>
+<section id="operatorMenu" aria-label="Choose a vector calculus operator">
+  <div class="menu-kicker">Choose an operator</div>
+  <div class="choice-grid">
+    <button class="choice" data-op="0" style="--accent:#75ed9a"><span class="choice-math">∇h</span><strong>Gradient</strong><small>steepest climb</small></button>
+    <button class="choice" data-op="1" style="--accent:#77d4ff"><span class="choice-math">∇·F</span><strong>Divergence</strong><small>spreading flow</small></button>
+    <button class="choice" data-op="2" style="--accent:#d4a0ff"><span class="choice-math">∇×F</span><strong>Curl</strong><small>spinning flow</small></button>
+    <button class="choice" data-op="3" style="--accent:#ffdf86"><span class="choice-math">∇²h</span><strong>Laplacian</strong><small>bending height</small></button>
+  </div>
+<button id="menuDefs" type="button">∇ Math definitions of all four operators</button></section>
+<div id="hud"><div id="wt"></div><div id="wl"></div><div id="ws"></div><div id="wd"></div></div>
+<aside id="wp" aria-label="World controls"><button id="wq" type="button">‹ Operators</button><button id="wv" type="button">Top view</button><button id="wf" type="button">Arrows</button><button id="wx" type="button">Equation</button><button id="wm" type="button">∇ Math</button><span class="hint" aria-label="Keyboard and mouse controls"><span class="key-cluster" aria-hidden="true"><span class="key-row"><kbd>W</kbd></span><span class="key-row"><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></span><span class="hint-word">MOVE</span><kbd class="key-wide" aria-hidden="true">⇧ SHIFT</kbd><span class="hint-word">FAST</span><span class="mouse-hint">↔ DRAG · SCROLL ZOOM</span></span></aside>
+<section id="eq"><div id="wc"></div><div id="wi"></div><small>Use x, y, + − * / ^, parentheses, pi, e; functions: sin, cos, tan, exp, sqrt, abs, ln, log, tanh, atan, sign, min, max, atan2.</small></section>
+<section id="defs" aria-label="Operator definitions"><div class="card"><div class="body"></div><button id="defsClose" type="button">Close</button></div></section><div id="fchip"></div>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'},startup:{typeset:false}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" onerror="this.onerror=null;this.src='https://unpkg.com/mathjax@3.2.2/es5/tex-svg.js';"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script>if(!window.THREE)document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.147.0/three.min.js"><\/script>');</script>
+<script>if(!window.THREE)document.write('<script src="https://unpkg.com/three@0.147.0/build/three.min.js"><\/script>');</script>
+<script>
+if(!window.THREE){
+  const panel=document.createElement('section');
+  panel.setAttribute('role','alert');
+  panel.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-content:center;gap:12px;padding:28px;background:radial-gradient(ellipse at 50% 25%,#203f35,#07130f 70%);color:#f4f1df;text-align:center;font:16px/1.6 system-ui,sans-serif';
+  panel.innerHTML='<h1 style="margin:0;font-size:clamp(24px,5vw,38px)">The 3D engine could not start</h1><p style="max-width:560px;margin:0 auto">This game needs the Three.js library. Check your internet connection or allow the page to load scripts from its CDN, then reload.</p><button type="button" style="justify-self:center;padding:10px 18px;border:0;border-radius:999px;background:#f2c85d;color:#2d240d;font-weight:800;cursor:pointer" onclick="location.reload()">Reload game</button>';
+  document.body.appendChild(panel);
+}else{
+(()=>{
+THREE.ArrowHelper=(()=>{const sG=new THREE.CylinderGeometry(1,1,1,24,1).translate(0,.5,0),cG=new THREE.CylinderGeometry(0,.5,1,48,1).translate(0,-.5,0),ax=new THREE.Vector3();
+const mat=c=>new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.5,roughness:.38,metalness:.05});
+return class extends THREE.Object3D{constructor(dir=new THREE.Vector3(0,0,1),origin=new THREE.Vector3(),length=1,color=0xffff00,headLength=length*.2,headWidth=headLength*.2){super();this.type='ArrowHelper';this.position.copy(origin);
+this.line=new THREE.Mesh(sG,mat(color));this.cone=new THREE.Mesh(cG,mat(color));this.add(this.line,this.cone);this.setDirection(dir);this.setLength(length,headLength,headWidth)}
+setDirection(d){if(d.y>.99999)this.quaternion.set(0,0,0,1);else if(d.y<-.99999)this.quaternion.set(1,0,0,0);else{ax.set(d.z,0,-d.x).normalize();this.quaternion.setFromAxisAngle(ax,Math.acos(d.y))}}
+setLength(l,hl=l*.2,hw=hl*.2){const r=Math.max(.002,hw*.17);this.line.scale.set(r,Math.max(1e-4,l-hl),r);this.cone.scale.set(hw,hl,hw);this.cone.position.y=l}
+setColor(c){this.line.material.color.set(c);this.line.material.emissive.set(c);this.cone.material.color.set(c);this.cone.material.emissive.set(c)}
+dispose(){this.line.material.dispose();this.cone.material.dispose()}}})();
+const {PI}=Math,V3=THREE.Vector3;
+const QT=(()=>{const t=(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches)||(navigator.maxTouchPoints||0)>0,nd=window.devicePixelRatio||1;return{k:1.4,seg:480,dpr:Math.max(nd,1.5),sh:2048,px:t?16e6:20e6,touch:t}})();
+let rn;
+try{rn=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',precision:'highp',alpha:false,stencil:false});}
+catch(error){
+  const panel=document.createElement('section');panel.setAttribute('role','alert');
+  panel.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-content:center;gap:12px;padding:28px;background:#07130f;color:#f4f1df;text-align:center;font:16px/1.6 system-ui,sans-serif';
+  panel.innerHTML='<h1 style="margin:0">WebGL is unavailable</h1><p style="max-width:560px;margin:0 auto">This 3D game needs WebGL. Try the latest Chrome or Edge, enable hardware acceleration, and make sure graphics are not blocked by your browser or device.</p><button type="button" style="justify-self:center;padding:10px 18px;border:0;border-radius:999px;background:#f2c85d;color:#2d240d;font-weight:800;cursor:pointer" onclick="location.reload()">Try again</button>';
+  document.body.appendChild(panel);
+  return;
+}
+const GLX=rn.getContext(),MAXDIM=Math.min(rn.capabilities.maxTextureSize||4096,GLX.getParameter(GLX.MAX_RENDERBUFFER_SIZE)||4096,16384);QT.sh=Math.min(QT.touch?3072:4096,rn.capabilities.maxTextureSize||2048);
+const maxDpr=(w,h)=>{w=Math.max(1,w);h=Math.max(1,h);return Math.max(1,Math.min(QT.dpr,Math.sqrt(QT.px/(w*h)),MAXDIM/Math.max(w,h)))};
+let dprNow=maxDpr(innerWidth,innerHeight);
+rn.setPixelRatio(dprNow);rn.setSize(Math.max(1,innerWidth),Math.max(1,innerHeight));
+rn.domElement.setAttribute('aria-label','Interactive 3D Ladybird Hill Walk game viewport');
+rn.domElement.setAttribute('role','img');
+rn.outputEncoding=THREE.sRGBEncoding;rn.toneMapping=THREE.ACESFilmicToneMapping;rn.toneMappingExposure=1.05;
+rn.shadowMap.enabled=QT.k>=.68;rn.shadowMap.type=THREE.PCFSoftShadowMap;document.body.prepend(rn.domElement);
+const ANISO=Math.max(1,rn.capabilities.getMaxAnisotropy());
+let graphicsLost=false;
+const graphicsNotice=document.createElement('section');graphicsNotice.setAttribute('role','alert');graphicsNotice.setAttribute('aria-live','assertive');graphicsNotice.style.cssText='position:fixed;inset:0;z-index:100000;display:none;place-content:center;gap:12px;padding:28px;background:rgba(5,15,13,.96);color:#f4f1df;text-align:center;font:16px/1.6 system-ui,sans-serif';
+graphicsNotice.innerHTML='<h1 style="margin:0;font-size:clamp(22px,5vw,34px)">Graphics paused</h1><p style="max-width:560px;margin:0 auto">The device temporarily reset its graphics context. The game will resume if the browser restores it. You can reload the game if it does not recover.</p><button type="button" style="justify-self:center;padding:10px 18px;border:0;border-radius:999px;background:#f2c85d;color:#2d240d;font-weight:800;cursor:pointer">Reload game</button>';
+graphicsNotice.querySelector('button').addEventListener('click',()=>location.reload());document.body.appendChild(graphicsNotice);
+rn.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();graphicsLost=true;rn.setAnimationLoop(null);graphicsNotice.style.display='grid'});
+rn.domElement.addEventListener('webglcontextrestored',()=>{graphicsLost=false;graphicsNotice.style.display='none';fit();if(!document.hidden)rn.setAnimationLoop(renderFrame)});
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,Math.max(1,innerWidth)/Math.max(1,innerHeight),.4,6000);
+// CanvasRenderingContext2D.roundRect is missing in older Safari and embedded WebViews.
+if(typeof CanvasRenderingContext2D!=='undefined'&&!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r=0){const q=Math.max(0,Math.min(Number(r)||0,Math.abs(w)/2,Math.abs(h)/2));this.moveTo(x+q,y);this.arcTo(x+w,y,x+w,y+h,q);this.arcTo(x+w,y+h,x,y+h,q);this.arcTo(x,y+h,x,y,q);this.arcTo(x,y,x+w,y,q);return this};
+}
+const cv=(w,h,f,srgb=true)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);if(srgb)t.encoding=THREE.sRGBEncoding;t.anisotropy=ANISO;return t};
+scene.background=cv(512,512,(g,w,h)=>{const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#7a5566');q.addColorStop(1,'#2a1b20');g.fillStyle=q;g.fillRect(0,0,w,h)});
+// Studio-ish environment for reflections
+const envT=cv(2048,1024,(g,w0,h0)=>{g.scale(w0/1024,h0/512);const w=1024,h=512;const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#9ec6ff');q.addColorStop(.45,'#fff0d2');q.addColorStop(.55,'#8fa77a');q.addColorStop(1,'#1f3f1d');g.fillStyle=q;g.fillRect(0,0,w,h);g.shadowColor='#fff';g.shadowBlur=30*w0/1024;g.fillStyle='#fff';[[180,60,170,60],[600,40,240,50],[860,120,70,110],[380,150,90,40]].forEach(r=>g.fillRect(...r))});
+envT.mapping=THREE.EquirectangularReflectionMapping;
+const pmremGenerator=new THREE.PMREMGenerator(rn);
+const environmentTarget=pmremGenerator.fromEquirectangular(envT);
+scene.environment=environmentTarget.texture;
+envT.dispose();
+pmremGenerator.dispose();
+// Lights
+const key=new THREE.DirectionalLight(0xfff0d8,2.4);key.position.set(4,7,3);key.castShadow=true;key.shadow.mapSize.set(QT.sh,QT.sh);
+Object.assign(key.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:1,far:90});key.shadow.bias=-.0004;key.shadow.normalBias=.04;scene.add(key,key.target);
+const rim=new THREE.DirectionalLight(0x9fd0ff,1.6);rim.position.set(-4,3,-5);scene.add(rim);
+scene.add(new THREE.HemisphereLight(0xcfe8ff,0x2b5a24,.45));
+// 3D hand: knuckle of the index finger at origin, finger points +Y, back of hand faces +Z
+const skin=new THREE.MeshStandardMaterial({color:0xd6a283,roughness:.6,bumpMap:cv(256,256,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);for(let i=0;i<9000;i++){g.fillStyle=`rgba(${Math.random()<.5?'0,0,0':'255,255,255'},.08)`;g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5)}},false),bumpScale:.5});
+const crease=new THREE.MeshStandardMaterial({color:0xa97a60,roughness:.8}),nailM=new THREE.MeshPhysicalMaterial({color:0xe9c3b2,roughness:.25,clearcoat:1}),sleeve=new THREE.MeshStandardMaterial({color:0x6b8799,roughness:1});
+const hand=new THREE.Group();scene.add(hand);const hS=new THREE.SphereGeometry(1,96,64),hC=new THREE.CylinderGeometry(1,1,1,64);
+const hs=(g,x,y,z,sx,sy,sz,m=skin)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.receiveShadow=true;hand.add(o);return o};
+const rr=y=>2.5-.035*y+.18*Math.exp(-(((y-9)/1.3)**2))+.12*Math.exp(-(((y-16.5)/1.1)**2));
+const lp=[];for(let y=-2;y<=20;y+=.5)lp.push(new THREE.Vector2(rr(y),y));for(let i=1;i<=8;i++){const a=i/8*PI/2;lp.push(new THREE.Vector2(rr(20)*Math.cos(a),20+rr(20)*1.15*Math.sin(a)))}
+hs(new THREE.LatheGeometry(lp,96),0,0,0,1,1,.86);
+[8.6,9.3,16.1,16.8].forEach(y=>hs(new THREE.TorusGeometry(rr(y)+.02,.05,6,48).rotateX(PI/2),0,y,0,1,1,.86,crease));
+hs(hS,0,19.3,.86*rr(19.3)-.12,.95,1.9,.26,nailM);
+hs(hS,6,-6.5,-1.2,9.8,8.4,4.2);hs(hS,-3.4,-8,-.4,4.3,6,3.2);
+const chain=(P,Rd)=>P.forEach((p,i)=>{hs(hS,...p,Rd[i],Rd[i],Rd[i]);if(i){const a=new V3(...P[i-1]),d=new V3(...p).sub(a),r=(Rd[i]+Rd[i-1])/2,c=hs(hC,0,0,0,r,d.length(),r);c.position.copy(a).addScaledVector(d,.5);c.quaternion.setFromUnitVectors(new V3(0,1,0),d.normalize())}});
+chain([[-4.2,-9,-.5],[-6.4,-4.2,.4],[-6.8,-.2,.6],[-5.8,3,.2]],[2.4,2.2,2,1.75]);
+[[4.8,1],[9.3,.5],[13.4,-1.2]].forEach(([x,y],i)=>chain([[x,y,-.5],[x,y+.5,-5.5],[x,y-3.5,-6.8]],[2.2-i*.15,2-i*.1,1.8-i*.1]));
+hs(hC,5,-17,-1.2,5.6,10,3.6);hs(hC,5,-30.5,-1.2,7,19,5.4,sleeve);
+const frame=new THREE.Group();frame.scale.setScalar(.8);scene.add(frame);const bug=new THREE.Group();bug.rotation.order='YXZ';frame.add(bug);
+// Materials
+const black=new THREE.MeshPhysicalMaterial({color:0x08080a,roughness:.28,clearcoat:.9,clearcoatRoughness:.08});
+const white=new THREE.MeshPhysicalMaterial({color:0xf4f0e2,roughness:.35,clearcoat:.5});
+const elT=cv(2048,1024,(g,w0,h0)=>{g.scale(w0/1024,h0/512);const w=1024,h=512;const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#e0221a');q.addColorStop(1,'#a50d0b');g.fillStyle=q;g.fillRect(0,0,w,h);g.fillStyle='#050505';g.shadowColor='#000';g.shadowBlur=7*w0/1024;
+[[0,.8,.7],[.2,.6,1],[.3,.88,.8],[.52,.48,1.05],[.58,.84,.9],[.82,.6,.9],[.94,.86,.7]].forEach(([u,v,r])=>{g.beginPath();g.ellipse(u*w,(1-v)*h,64*r,50*r,0,0,7);g.fill()})});
+const elT2=elT.clone();elT2.wrapS=THREE.RepeatWrapping;elT2.repeat.x=-1;elT2.offset.x=1;elT2.needsUpdate=true;
+const elM=t=>new THREE.MeshPhysicalMaterial({map:t,roughness:.2,clearcoat:1,clearcoatRoughness:.03,envMapIntensity:1.5});
+const inner=new THREE.MeshStandardMaterial({color:0x3a0a08,roughness:.6,side:THREE.BackSide});
+const wT=cv(2048,1024,(g,w0,h0)=>{g.scale(w0/1024,h0/512);const w=1024,h=512;const q=g.createLinearGradient(0,0,w,0);q.addColorStop(0,'rgba(255,214,150,.42)');q.addColorStop(1,'rgba(200,160,120,.2)');g.fillStyle=q;g.fillRect(0,0,w,h);
+g.lineWidth=60;for(let i=0;i<9;i++){g.strokeStyle=`hsla(${i*45+190},85%,70%,.06)`;g.beginPath();g.moveTo(i*130,0);g.lineTo(i*130-140,h);g.stroke()}
+g.strokeStyle='rgba(70,40,25,.92)';g.lineCap='round';g.lineWidth=13;g.beginPath();g.moveTo(0,7);g.quadraticCurveTo(500,2,990,40);g.stroke();
+g.lineWidth=5;g.beginPath();g.moveTo(0,40);g.quadraticCurveTo(500,34,900,50);g.stroke();
+[[330,420],[560,380],[780,300],[900,200],[975,100]].forEach(([x,y],i)=>{g.lineWidth=4-i*.4;g.beginPath();g.moveTo(30,30);g.quadraticCurveTo(x*.5,y*.45,x,y);g.stroke();g.lineWidth=1.6;g.beginPath();g.moveTo(x*.6,y*.5+15);g.lineTo(x*.9,y*.9-8);g.stroke()});
+g.lineWidth=1.4;for(let i=0;i<30;i++){const x=120+i*28;g.beginPath();g.moveTo(x,60+Math.sin(i)*20);g.lineTo(x+16,150+i*5);g.stroke()}});
+const wm=new THREE.MeshPhysicalMaterial({map:wT,emissiveMap:wT,emissive:0xffb060,emissiveIntensity:.22,transparent:true,side:THREE.DoubleSide,depthWrite:false,roughness:.3,clearcoat:.6,envMapIntensity:1.3});
+// Body
+const body=new THREE.Group();bug.add(body);let host=body;
+const add=(g,m,p,s)=>{const o=new THREE.Mesh(g,m);o.position.set(...p);if(s)o.scale.set(...s);o.castShadow=o.receiveShadow=true;host.add(o);return o};
+const sp=new THREE.SphereGeometry(1,112,72);
+add(sp,black,[0,.36,-.05],[.82,.24,1.05]);add(sp,black,[0,.58,1.38],[.62,.36,.5]);add(sp,black,[0,.45,1.86],[.3,.25,.26]);
+[-1,1].forEach(s=>{add(sp,white,[s*.42,.7,1.62],[.17,.1,.2]);add(sp,white,[s*.17,.5,2.06],[.07,.07,.07])});
+const limb=(a,b,r)=>{a=new V3(...a);b=new V3(...b);const d=b.clone().sub(a),m=new THREE.Mesh(new THREE.CylinderGeometry(r*.7,r,d.length(),24),black);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new V3(0,1,0),d.normalize());m.castShadow=true;host.add(m)};
+const legs=[];[-1,1].forEach(s=>{[[.85,.12],[.25,.0],[-.4,-.15]].forEach(([z,o],i)=>{const k=[s*1.15,.62,z+o+.1],f=[s*1.5,.02,z+o+.4],pv=new THREE.Group(),g=new THREE.Group();pv.position.set(s*.5,.3,z);g.position.set(-s*.5,-.3,-z);pv.add(g);body.add(pv);host=g;limb([s*.5,.3,z],k,.05);limb(k,f,.035);add(sp,black,k,[.06,.06,.06]);host=body;legs.push({pv,s,ph:((i+(s>0?1:0))%2)*PI})});
+limb([s*.1,.52,2.08],[s*.28,.64,2.4],.018);limb([s*.28,.64,2.4],[s*.4,.6,2.62],.025)});
+// Elytra
+const elyG=new THREE.Group();bug.add(elyG);const ely={};
+[1,-1].forEach(s=>{const g=new THREE.Group();g.position.set(s*.1,.8,.9);g.rotation.order='ZXY';
+const geo=new THREE.SphereGeometry(1,160,96,s>0?PI/2:-PI/2,PI,0,PI/2);geo.scale(.95,.78,1.2);
+const a=new THREE.Mesh(geo,elM(s>0?elT:elT2)),b=new THREE.Mesh(geo,inner);a.castShadow=true;
+[a,b].forEach(m=>{m.position.set(s*.004-g.position.x,.22-g.position.y,-g.position.z);g.add(m)});elyG.add(g);ely[s]=g});
+// Hindwings (folded in a Z-pattern along oblique creases)
+const L=2.4,K=.38,wid=x=>.62*Math.sqrt(Math.max(0,1-Math.pow(x/L,3.2)))*(.5+.5*Math.min(1,x/.5));
+function seg(X0,X1){const nx=72,nv=36,p=[],u=[],ix=[];
+for(let i=0;i<=nx;i++){const xm=X0+(X1-X0)*i/nx,W=wid(xm);for(let j=0;j<=nv;j++){const v=j/nv,c=v*W,xg=xm+K*c;p.push(xg-X0,.07*Math.sin(v*PI)*(1-xg/L*.6)+.02*Math.sin(xg*9+v*3)*v,-c);u.push(xg/L,1-c/.65)}}
+for(let i=0;i<nx;i++)for(let j=0;j<nv;j++){const a=i*(nv+1)+j,b=a+nv+1;ix.push(a,b,a+1,b,b+1,a+1)}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));g.setIndex(ix);g.computeVertexNormals();return g}
+function wing(side,pos){const rig=new THREE.Group();rig.position.set(...pos);rig.scale.x=side;bug.add(rig);
+const fl=new THREE.Group(),yw=new THREE.Group(),gB=new THREE.Group(),gC=new THREE.Group();rig.add(fl);fl.add(yw);
+const m=(a,b,o,par)=>{const x=new THREE.Mesh(seg(a,b),wm);x.renderOrder=o;par.add(x)};
+m(0,1,0,yw);gB.position.x=1;yw.add(gB);m(1,1.75,1,gB);gC.position.x=.75;gB.add(gC);m(1.75,L,2,gC);return{fl,yw,gB,gC}}
+const W=[wing(1,[.62,.46,.8]),wing(-1,[-.62,.42,.8])],D=new V3(K,0,-1).normalize();
+// Animation: flat bug frame (up=+Y, head=+Z) is mapped onto the finger's back (up=+Z toward viewer, head=+Y)
+const SC=.8,PL=22,sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*x*(x*(x*6-15)+10)};
+frame.quaternion.setFromAxisAngle(new V3(0,1,1).normalize(),PI);
+const cp=document.getElementById('ph'),tgt=new V3(),KO=new V3(-3,4,8).multiplyScalar(4),bp=new V3();let t0=performance.now(),uTh=0,uPh=0,drag=null;
+addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY]});
+addEventListener('pointerup',()=>drag=null);
+addEventListener('pointermove',e=>{if(!drag||phase>0)return;uTh-=(e.clientX-drag[0])*.006;uPh=Math.max(-.3,Math.min(.8,uPh+(e.clientY-drag[1])*.004));drag=[e.clientX,e.clientY]});
+let fitRaf=0;
+function fit(){if(fitRaf)cancelAnimationFrame(fitRaf);fitRaf=requestAnimationFrame(()=>{fitRaf=0;const w=Math.max(1,document.documentElement.clientWidth||innerWidth||1),h=Math.max(1,document.documentElement.clientHeight||innerHeight||1);const targetDpr=Math.min(maxDpr(w,h),dprNow);if(Math.abs(targetDpr-dprNow)>.01){dprNow=targetDpr;rn.setPixelRatio(dprNow)}rn.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()})}
+addEventListener('resize',fit,{passive:true});addEventListener('orientationchange',fit,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',fit,{passive:true});
+/* ===== WORLD + CINEMATIC FLIGHT + FIRST-PERSON GAME ===== */
+const G=-100,CZ=520,T1=14.2,FD=10.5,LD=1.8,EH=4.2,capEl=document.getElementById('cap');
+let phase=0,landR=0,tau=0,lastT=0,dt=.016,jumpReq=0,lookId=null,lx=0,ly=0;
+const hh=(x,y)=>{const h=Math.sin(x*127.1+y*311.7)*43758.5453;return h-Math.floor(h)};
+const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j,u=a*a*(3-2*a),v=b*b*(3-2*b),m=(p,q,s)=>p+(q-p)*s;return m(m(hh(i,j),hh(i+1,j),u),m(hh(i,j+1),hh(i+1,j+1),u),v)};
+const fbm=(x,y,o=4)=>{let s=0,a=.5,n=0;for(let i=0;i<o;i++){s+=a*vn(x,y);n+=a;x=x*2.03+17;y=y*2.03+31;a*=.5}return s/n};
+// One enormous rounded mountain. Coordinates are local to the mountain centre (0, 280).
+const Hn=(x,z)=>{const dz=z-280,d=Math.sqrt(x*x+dz*dz+3600),u=Math.max(0,1-d/775),sh=Math.pow(u,1.5),k=Math.min(1,u*2.2),wq=fbm(x*.0028+11,z*.0028+7,2)-.5,m=fbm(x*.0052+wq*1.6,z*.0052+wq*1.6,4)-.5,shape=268*sh*(1+.16*wq*k);return Math.max(0,shape+m*48*k*k+(fbm(x*.021,z*.021,3)-.5)*3.2*k)};
+const PD=[{x:140,z:-70,R:38,d:4.2},{x:-135,z:105,R:33,d:3.8}];PD.forEach(p=>p.h=Hn(p.x,p.z));
+const MD=[{x:40,z:-245,s:20,a:30},{x:-40,z:262,s:15,a:24},{x:40,z:262,s:13,a:-19}];
+const H=(x,z)=>{let h=Hn(x,z);for(const m of MD)h+=m.a*Math.exp(-.5*(((x-m.x)**2+(z-m.z)**2)/(m.s*m.s)));for(const p of PD){const r=Math.hypot(x-p.x,z-p.z);if(r<p.R*2.4){const q=Math.min(1,r/p.R),t=Math.max(0,Math.min(1,(r-p.R)/(p.R*1.4))),w=r<p.R?1:1-t*t*(3-2*t),tg=r<p.R?p.h-p.d*(1-q*q):p.h;h+=(tg-h)*w}}return h};
+const gh=(x,z)=>H(x,z-CZ)+G;
+const wg=new THREE.Group();wg.visible=false;scene.add(wg);
+// Single mountain surface; the distant flat world and surrounding mountain ring are gone.
+{const geo=new THREE.PlaneGeometry(1800,1800,QT.seg,QT.seg).rotateX(-PI/2),P=geo.attributes.position;
+for(let i=0;i<P.count;i++){const z=P.getZ(i)+CZ+280;P.setZ(i,z);P.setY(i,gh(P.getX(i),z))}
+geo.computeVertexNormals();const N=geo.attributes.normal,col=new Float32Array(P.count*3),low=new THREE.Color(0x174d31),meadow=new THREE.Color(0x39834b),high=new THREE.Color(0x71836a),rock=new THREE.Color(0x9a9a83),c=new THREE.Color();
+const cM=new THREE.Color(0xa3b24c),cF=new THREE.Color(0x214f2a),cK=new THREE.Color(0xb9b49c),cMud=new THREE.Color(0x6e5f40);
+const g1=new THREE.Color(0x66954a),g2=new THREE.Color(0x4d7d3c),gD=new THREE.Color(0x3a6531),gY=new THREE.Color(0x9fa65e),gH=new THREE.Color(0x84906a),gR=new THREE.Color(0x908c7c),gW=new THREE.Color(0x4a4a34),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i),h=P.getY(i)-G,steep=1-N.getY(i),n=fbm(x*.008,z*.008,3);
+c.copy(g1).lerp(g2,cl((n-.35)*2.4,0,1));c.lerp(gY,cl((fbm(x*.014+30,z*.014,2)-.52)*2.2,0,.5)*cl(1-h/240,0,1));c.lerp(gD,cl((fbm(x*.011+9,z*.011+4,3)-.5-h/600)*2.4,0,.55));
+c.multiplyScalar(.94+.12*fbm(x*.05+7,z*.05,2));c.lerp(gH,cl((h-130)/110,0,.7));c.lerp(gR,cl((steep-.22)*2.6+(h-215)/110,0,.75));
+for(const p of PD)c.lerp(gW,cl(1-(Math.hypot(x-p.x,z-CZ-p.z)-p.R*.9)/(p.R*.4),0,.8));c.toArray(col,i*3)}
+geo.setAttribute('color',new THREE.BufferAttribute(col,3));const ter=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.94,metalness:0}));ter.receiveShadow=true;ter.castShadow=false;wg.add(ter)}
+// Sparse woodland stays around the lower rim, leaving the climbing route open.
+const TX=[],TZ=[],TR=[],tl=[],dm=new THREE.Object3D();
+// A handful of summit clouds frame the one giant hill.
+{const cm=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.82}),sg=new THREE.SphereGeometry(1,24,16);for(let i=0;i<8;i++){const g=new THREE.Group();for(let j=0;j<4;j++){const m=new THREE.Mesh(sg,cm);m.position.set((Math.random()-.5)*42,(Math.random()-.5)*8,(Math.random()-.5)*28);m.scale.set(1,.5,1).multiplyScalar(13+Math.random()*17);g.add(m)}g.position.set((Math.random()-.5)*360,245+Math.random()*95,CZ+280+(Math.random()-.5)*300);wg.add(g)}}
+// birds
+const bwG=new THREE.BufferGeometry();bwG.setAttribute('position',new THREE.Float32BufferAttribute([0,0,.8,0,0,-.8,-4.5,.3,-.2],3));
+const bM=new THREE.MeshBasicMaterial({color:0x222a33,side:THREE.DoubleSide}),bB=new THREE.ConeGeometry(.35,2.2,12).rotateX(PI/2),birds=[];
+for(let i=0;i<9;i++){const g=new THREE.Group(),wl=new THREE.Mesh(bwG,bM),wr=new THREE.Mesh(bwG,bM);wr.scale.x=-1;g.add(wl,wr,new THREE.Mesh(bB,bM));g.scale.setScalar(1.6);wg.add(g);
+birds.push({g,wl,wr,cx:(Math.random()-.5)*260,cz:CZ+170+Math.random()*260,R:35+Math.random()*110,y:Math.random()*65+150,sp:14+Math.random()*10,ph:Math.random()*6.28,d:Math.random()<.5?1:-1})}
+const bp3=new V3();
+function birdsU(t){if(window.__gu)window.__gu.value=t;if(window.__wb)window.__wb.forEach(b=>{b.offset.x=t*.012;b.offset.y=t*.008});birds.forEach(b=>{const a=b.ph+b.d*t*b.sp/b.R,f=Math.sin(t*8+b.ph)*.6;b.g.position.set(b.cx+Math.cos(a)*b.R,b.y+Math.sin(t*.5+b.ph)*4,b.cz+Math.sin(a)*b.R);
+bp3.copy(b.g.position).add(new V3(-Math.sin(a)*b.d,0,Math.cos(a)*b.d));b.g.lookAt(bp3);b.g.rotateZ(.25*b.d);b.wl.rotation.z=-f;b.wr.rotation.z=f})}
+// sky dome, sun, fog
+const sk=new THREE.Mesh(new THREE.SphereGeometry(4000,64,32),new THREE.MeshBasicMaterial({map:cv(8,256,(g,w,h)=>{const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#2a63b8');q.addColorStop(.35,'#6fb0ea');q.addColorStop(.5,'#cfe4f0');q.addColorStop(1,'#cfe4f0');g.fillStyle=q;g.fillRect(0,0,w,h)}),side:THREE.BackSide,transparent:true,opacity:0,depthWrite:false,fog:false}));sk.renderOrder=-1;scene.add(sk);
+const sun=new THREE.Sprite(new THREE.SpriteMaterial({map:cv(128,128,(g,w,h)=>{const q=g.createRadialGradient(64,64,0,64,64,64);q.addColorStop(0,'#fff');q.addColorStop(.15,'rgba(255,240,190,.9)');q.addColorStop(1,'rgba(255,220,150,0)');g.fillStyle=q;g.fillRect(0,0,w,h)}),blending:THREE.AdditiveBlending,depthWrite:false,fog:false,transparent:true,opacity:0}));sun.scale.setScalar(900);scene.add(sun);
+scene.fog=new THREE.Fog(new THREE.Color(0xcfe4f0).convertSRGBToLinear(),1e6,2e6);
+// first-person arms
+scene.add(cam);const arms=new THREE.Group(),armS=[];arms.visible=false;cam.add(arms);
+[-1,1].forEach(s=>{const p=new THREE.Group();p.position.set(s*1.25,-1.3,-.5);const a=new THREE.Mesh(new THREE.CylinderGeometry(.34,.42,2.2,32).rotateX(PI/2).translate(0,0,-1.1),sleeve),h=new THREE.Mesh(hS,skin);h.scale.set(.4,.34,.5);h.position.z=-2.35;p.add(a,h);arms.add(p);armS.push(p)});
+// input
+const keys={},joy={x:0,y:0},touch=(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches)||(navigator.maxTouchPoints||0)>0;if(touch)document.body.classList.add('touch');
+addEventListener('keydown',e=>{
+  keys[e.code]=1;
+  if(e.code==='Space'){jumpReq=1;e.preventDefault()}
+  else if(document.body.classList.contains('world')&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+});
+addEventListener('keyup',e=>{keys[e.code]=0});
+const js=document.getElementById('js'),kn=js.querySelector('i'),jb=document.getElementById('jb');
+const clearInputState=()=>{Object.keys(keys).forEach(k=>keys[k]=0);joy.x=joy.y=0;lookId=null;if(kn)kn.style.transform=''};
+addEventListener('blur',clearInputState,{passive:true});
+const jm=e=>{const r=js.getBoundingClientRect(),lim=r.width/2-16;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2;const d=Math.hypot(dx,dy),m=Math.min(1,d/lim);if(d>0){dx=dx/d*m*lim;dy=dy/d*m*lim}joy.x=dx/lim;joy.y=dy/lim;kn.style.transform=`translate(${dx}px,${dy}px)`};
+js.addEventListener('pointerdown',e=>{js.setPointerCapture(e.pointerId);jm(e)});js.addEventListener('pointermove',e=>{if(js.hasPointerCapture(e.pointerId))jm(e)});
+['pointerup','pointercancel'].forEach(n=>js.addEventListener(n,()=>{joy.x=joy.y=0;kn.style.transform=''}));
+jb.addEventListener('pointerdown',()=>jumpReq=1);
+if(!('PointerEvent' in window)){
+ let joyTouchId=null,lookTouchId=null;
+ js.addEventListener('touchstart',e=>{const q=e.changedTouches[0];if(!q)return;joyTouchId=q.identifier;jm(q);e.preventDefault()},{passive:false});
+ js.addEventListener('touchmove',e=>{for(const q of e.changedTouches)if(q.identifier===joyTouchId){jm(q);e.preventDefault();break}},{passive:false});
+ const endJoy=e=>{for(const q of e.changedTouches)if(q.identifier===joyTouchId){joyTouchId=null;joy.x=joy.y=0;kn.style.transform='';break}};
+ js.addEventListener('touchend',endJoy,{passive:true});js.addEventListener('touchcancel',endJoy,{passive:true});
+ jb.addEventListener('touchstart',e=>{jumpReq=1;e.preventDefault()},{passive:false});
+ rn.domElement.addEventListener('touchstart',e=>{if(phase<3||document.body.classList.contains('tour'))return;const q=e.changedTouches[0];if(q){lookTouchId=q.identifier;lx=q.clientX;ly=q.clientY;e.preventDefault()}},{passive:false});
+ rn.domElement.addEventListener('touchmove',e=>{for(const q of e.changedTouches)if(q.identifier===lookTouchId){look(q.clientX-lx,q.clientY-ly,.005);lx=q.clientX;ly=q.clientY;e.preventDefault();break}},{passive:false});
+ const endLook=e=>{for(const q of e.changedTouches)if(q.identifier===lookTouchId){lookTouchId=null;break}};
+ rn.domElement.addEventListener('touchend',endLook,{passive:true});rn.domElement.addEventListener('touchcancel',endLook,{passive:true});
+}
+const pl={x:0,z:100,y:gh(0,100),vx:0,vz:0,vy:0,on:1,yaw:PI,pit:-.25,bob:0,dip:0,up:0,fov:72};
+const look=(dx,dy,k)=>{pl.yaw-=dx*k;pl.pit=Math.max(-1.4,Math.min(1.4,pl.pit-dy*k))};
+addEventListener('pointerdown',e=>{if(phase<3||document.body.classList.contains('tour')||(e.target instanceof Element&&e.target.closest('#js,#jb')))return;if(e.pointerType==='mouse'&&!document.pointerLockElement&&rn.domElement.requestPointerLock){try{const lock=rn.domElement.requestPointerLock();if(lock&&typeof lock.catch==='function')lock.catch(()=>{})}catch(_){}}lookId=e.pointerId;lx=e.clientX;ly=e.clientY});
+document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement)lookId=null});
+addEventListener('pointermove',e=>{if(phase<3||document.body.classList.contains('tour'))return;if(document.pointerLockElement)look(e.movementX,e.movementY,.0025);else if(e.pointerId===lookId){look(e.clientX-lx,e.clientY-ly,.005);lx=e.clientX;ly=e.clientY}});
+addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});
+// flight
+const m4=new THREE.Matrix4(),zero=new V3(),tmp=new V3(),qa=new THREE.Quaternion(),qb=new THREE.Quaternion(),sq0=new THREE.Quaternion(),sp0=new V3(),fwd=new V3(0,0,1),UP=new V3(0,1,0),ZA=new V3(0,0,1);let cur;
+function startPlay(){phase=3;document.body.classList.add('play','tour');capEl.classList.add('top');arms.visible=false;hand.visible=false;cam.rotation.order='YXZ';showOperatorMenu();}
+// Trapezoid speed profile: brisk cruise, then a short flare that ends exactly at the touchdown point (no endless crawl).
+const trap=(x,a,b)=>{x=Math.min(1,Math.max(0,x));const v=1/(1-a/2-b/2);return x<a?v*x*x/(2*a):x<=1-b?v*(a/2+x-a):1-v*(1-x)*(1-x)/(2*b)};
+function flight(t){dt=Math.min(.05,Math.max(.001,t-lastT));lastT=t;if(phase>=3||t<T1)return;
+if(!phase){phase=1;scene.attach(bug);bug.getWorldPosition(sp0);bug.getWorldQuaternion(sq0);wg.visible=true;fieldGroup.visible=false;
+const Lp=landSpot.p;pl.x=Lp.x;pl.z=Lp.z-11;
+// Swoop round, line up behind the start of the trail, glide in along it and touch down on its surface.
+cur=new THREE.CatmullRomCurve3([sp0.clone(),sp0.clone().add(new V3(6,42,25)),new V3(-35,65,48),new V3(40,48,30),new V3(14,Lp.y+62,46),new V3(3,Lp.y+28,70),new V3(Lp.x+.6,Lp.y+9,Lp.z-26),Lp.clone()],false,"catmullrom",0.22)}
+tau=t-T1;const u=trap(tau/FD,.22,.18),b=sm(0,1.8,tau),k=sm(0,3,tau);
+cur.getPointAt(u,tmp);cur.getTangentAt(u,fwd);fwd.lerp(landSpot.t,sm(.72,1,u)).normalize();
+bug.position.copy(tmp);m4.lookAt(fwd,zero,UP);qa.setFromRotationMatrix(m4);qb.setFromAxisAngle(ZA,.3*Math.sin(tau*.9)*(1-landR)*(1-sm(.72,1,u)));qa.multiply(qb);bug.quaternion.copy(sq0).slerp(qa,b);
+KO.set(-12+22*k,16+4*k,32-62*k);landR=sm(-.6,.25,tau-FD);if(tau>FD&&phase<2)phase=2;if(tau>FD+LD&&phase<3)startPlay()}
+// first-person controller
+function play(){const f=new V3(-Math.sin(pl.yaw),0,-Math.cos(pl.yaw)),r=new V3(Math.cos(pl.yaw),0,-Math.sin(pl.yaw));
+let ix=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x,iz=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-joy.y;
+const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}const rn2=keys.ShiftLeft||keys.ShiftRight||Math.hypot(joy.x,joy.y)>.92,spd=rn2?30:18,k=1-Math.exp(-(pl.on?14:3)*dt);
+pl.vx+=((f.x*iz+r.x*ix)*spd-pl.vx)*k;pl.vz+=((f.z*iz+r.z*ix)*spd-pl.vz)*k;pl.x+=pl.vx*dt;pl.z+=pl.vz*dt;
+for(let i=0;i<TX.length;i++){const dx=pl.x-TX[i],dz=pl.z-TZ[i],q=TR[i]+1.2;if(Math.abs(dx)<q&&Math.abs(dz)<q){const d=Math.hypot(dx,dz);if(d<q){const e=d||.01;pl.x=TX[i]+dx/e*q;pl.z=TZ[i]+dz/e*q}}}
+const ex=pl.x,ez=pl.z-(CZ+280),ed=Math.hypot(ex,ez);if(ed>748){pl.x=ex*748/ed;pl.z=CZ+280+ez*748/ed}
+const gd=gh(pl.x,pl.z);if(jumpReq&&pl.on){pl.vy=27;pl.on=0}jumpReq=0;
+if(!pl.on){pl.vy-=75*dt;pl.y+=pl.vy*dt;if(pl.y<=gd){if(pl.vy<-12)pl.dip=Math.min(1.4,-pl.vy*.03);pl.y=gd;pl.vy=0;pl.on=1}}else pl.y+=(gd-pl.y)*Math.min(1,dt*30);
+const v=Math.hypot(pl.vx,pl.vz),mv=Math.min(1,v/18)*pl.on;pl.bob+=v*dt*.42*pl.on;pl.dip*=Math.exp(-9*dt);pl.up+=((pl.on?0:1)-pl.up)*Math.min(1,dt*10);
+const sw=Math.sin(pl.bob),by=Math.abs(sw)*.35*mv-pl.dip+pl.up*.15;
+cam.position.set(pl.x+r.x*Math.cos(pl.bob)*.12*mv,pl.y+EH+by,pl.z+r.z*Math.cos(pl.bob)*.12*mv);cam.rotation.set(pl.pit+Math.sin(pl.bob*2)*.008*mv-pl.dip*.03,pl.yaw,Math.cos(pl.bob)*.015*mv);
+armS[0].rotation.x=-.25+sw*.45*mv+pl.up*1.0+Math.sin(t0*0+performance.now()/900)*.02;armS[1].rotation.x=-.25-sw*.45*mv+pl.up*1.0+Math.cos(performance.now()/900)*.02;
+const tf=72+(rn2&&v>5?7:0)+(pl.on?0:3);pl.fov+=(tf-pl.fov)*Math.min(1,dt*6);cam.fov=pl.fov;cam.updateProjectionMatrix()}
+// camera director
+const ccam=new V3(),ctg=new V3(),bq=new V3(),des=new V3(),eye=new V3(),q1=new THREE.Quaternion(),tq=new THREE.Quaternion(),te=new THREE.Euler(0,0,0,'YXZ');let first=1;
+function camUpd(t){if(phase<1)return;birdsU(t);hand.visible=phase<3&&tau<.5;
+  // Keep the ladybird as the visual anchor throughout the flight, with a soft cinematic follow.
+if(phase<3){const cp0=cam.position.clone(),cq0=cam.quaternion.clone();bug.getWorldPosition(bq);
+const w=sm(0.3,4.0,tau)*(1-sm(FD-4,FD,tau));
+  // Camera rides behind and slightly above the bug, following its tangent rather than cutting away from it.
+  des.copy(bq).addScaledVector(fwd,-(9+27*w));des.y+=2.8+15*w;{const sw2=Math.sin(tau*.42)*16*w;des.x+=fwd.z*sw2;des.z-=fwd.x*sw2}
+if(first){ccam.copy(cp0);ctg.copy(bq);first=0}
+ccam.lerp(des,1-Math.exp(-3.2*dt));ctg.copy(bq).addScaledVector(fwd,7+9*w);ctg.y+=1.2+2.5*w;ctg.lerp(bq,0.08);ccam.y=Math.max(ccam.y,gh(ccam.x,ccam.z)+3);
+const c=sm(0,2.8,tau);cam.position.copy(cp0).lerp(ccam,c);cam.lookAt(ctg);q1.copy(cam.quaternion);cam.quaternion.copy(cq0).slerp(q1,c);
+cam.fov=40+9*Math.sin(PI*sm(0,FD,tau));cam.updateProjectionMatrix();if(tau>FD){const k=sm(0,LD,tau-FD);pl.y=gh(pl.x,pl.z);eye.set(pl.x,pl.y+EH,pl.z);tq.setFromEuler(te.set(pl.pit,pl.yaw,0));cam.position.lerp(eye,k);cam.quaternion.slerp(tq,k);cam.fov=40+32*k;cam.updateProjectionMatrix()}
+cp.textContent=tau<3?'Leaving the leaf':tau<6?'A single mountain rises ahead':tau<FD?'Descending to the foot of the hill':'Landing at the mountain base'}
+else{updateAutoTour(t);cp.textContent=tourState==='menu'?'Choose a mathematical destination':tourState==='flying'?'The ladybird is flying to the chosen operator':(tourState==='lesson'||tourState==='world')?'Roaming the '+regions[tourSelected].name+' world':'Ready to explore'}
+const fz=sm(0,4.2,tau);scene.fog.near=70+160*fz;scene.fog.far=620+880*fz;sk.material.opacity=fz;sk.position.copy(cam.position);
+sun.material.opacity=fz;sun.position.copy(cam.position).addScaledVector(bq.copy(KO).normalize(),3000)}
+
+// ===== One mountain, four ascending vector-calculus terraces =====
+const fieldGroup=new THREE.Group();fieldGroup.visible=false;scene.add(fieldGroup);
+let fieldMode='gradient',fieldBuilt=false;const probes=[];
+const map=document.getElementById('minimap'),mg=map.getContext('2d'),MAPK=Math.min(3,Math.max(2,Math.ceil(window.devicePixelRatio||1)));map.width=220*MAPK;map.height=160*MAPK;
+const regions=[
+ {mode:'gradient',name:'Gradient',step:'01',x:0,z:CZ-245,r:48,color:'#75ed9a',symbol:'∇f'},
+ {mode:'divergence',name:'Divergence',step:'02',x:PD[0].x,z:CZ+PD[0].z,r:48,pond:PD[0],color:'#77d4ff',symbol:'∇·F'},
+ {mode:'curl',name:'Curl',step:'03',x:PD[1].x,z:CZ+PD[1].z,r:48,pond:PD[1],color:'#d4a0ff',symbol:'∇×F'},
+ {mode:'laplacian',name:'Laplacian',step:'04',x:0,z:CZ+265,r:52,color:'#ffdf86',symbol:'∇²f'}
+];
+const trailXZ=[[0,100],[0,190],[-12,250],[0,275],[32,340],[55,450],[18,520],[-38,585],[-48,625],[-30,690],[-5,735],[0,785]];
+const trailCurve=new THREE.CatmullRomCurve3(trailXZ.map(([x,z])=>new V3(x,0,z)),false,'centripetal',.35);
+// A thin, flat ribbon of light winds up the same slope from the base to the summit.
+const PW=1.3,PY=.32,trailTop=(x,z)=>gh(x,z)+PY;
+
+// Where the ladybird touches down: first landing sits on the trail itself; each terrace landing sits on its pad, on the trail, just before the beacon.
+const trailLen=trailCurve.getLength();
+const landSpot=(()=>{const u=.02,a=trailCurve.getPointAt(u),b=trailCurve.getPointAt(u+.006),A=new V3(a.x,trailTop(a.x,a.z),a.z),B=new V3(b.x,trailTop(b.x,b.z),b.z);return{p:A,t:B.sub(A).normalize()}})();
+const wLvl=p=>p.h-p.d*.42+G,padTop=r=>r.pond?wLvl(r.pond)+1.62:gh(r.x,r.z)+1.55;
+regions.forEach(r=>{if(r.pond){r.land=new V3(r.x,padTop(r),r.z);return}let best=0,bd=1e9;for(let i=0;i<=800;i++){const p=trailCurve.getPointAt(i/800),d=Math.hypot(p.x-r.x,p.z-r.z);if(d<bd){bd=d;best=i/800}}const p=trailCurve.getPointAt(Math.max(0,best-9/trailLen));r.land=new V3(p.x,padTop(r),p.z)});
+// Each terrace is a physical landing with its own luminous marker and floating formula sign.
+function signTexture(r){return cv(2048,1024,(g,w0,h0)=>{g.scale(w0/1024,h0/512);const w=1024,h=512;g.clearRect(0,0,w,h);const grad=g.createLinearGradient(0,0,0,h);grad.addColorStop(0,'rgba(9,28,25,.96)');grad.addColorStop(1,'rgba(12,42,34,.94)');g.fillStyle=grad;g.beginPath();g.roundRect(18,18,w-36,h-36,34);g.fill();g.strokeStyle=r.color;g.lineWidth=5;g.stroke();g.fillStyle=r.color;g.font='700 32px system-ui';g.letterSpacing='8px';g.fillText('ASCENT  /  STEP '+r.step,66,92);g.fillStyle='#fff4d8';g.font='600 66px Georgia';g.fillText(r.name,66,190);g.fillStyle=r.color;g.font='italic 100px Georgia';g.fillText(r.symbol,66,340);g.fillStyle='rgba(244,241,220,.72)';g.font='26px system-ui';g.fillText('VECTOR CALCULUS',68,425)})}
+function pineCol(x,z){return new THREE.Color().setHSL(.30+hh(x,z)*.08,.82,.07+hh(z,x)*.12)}
+function roundCol(x,z){return new THREE.Color().setHSL(.25+hh(z,x)*.09,.76,.2+hh(x,z)*.1)}
+function buildTerraceGround(r){
+ const ground=gh(r.x,r.z);
+ if(false){
+  // A small shoulder of land, raised off the real slope, dressed with a stand of trees.
+  const side=r.mode==='gradient'?1:-1,cx=r.x+side*17,cz=r.z+9,peak=7,sx=20,sz=23;
+  const bump=(x,z)=>peak*Math.exp(-.5*((x-cx)/sx)**2-.5*((z-cz)/sz)**2);
+  makeReliefPatch(wg,cx,cz,54,58,22,bump,peak,'hill');
+  for(let k=0;k<7;k++){
+   const a=k/7*PI*2+k*.53,rad=8+hh(k*3.1+r.x,k*1.7+r.z)*14,tx=cx+Math.cos(a)*rad,tz=cz+Math.sin(a)*rad,h=gh(tx,tz)+bump(tx,tz),s=.75+hh(tx,tz)*.7,pine=hh(tz,tx)<.6;
+   const tree=new THREE.Group();
+   tree.add(new THREE.Mesh(new THREE.CylinderGeometry(.7,1,7,6).translate(0,3.5,0),new THREE.MeshStandardMaterial({color:0x4a3220,roughness:.92,flatShading:true})));
+   if(pine){
+    tree.add(new THREE.Mesh(new THREE.ConeGeometry(6,14,8).translate(0,13,0),new THREE.MeshStandardMaterial({color:pineCol(tx,tz),roughness:.92,flatShading:true})));
+    tree.add(new THREE.Mesh(new THREE.ConeGeometry(4.2,11,8).translate(0,20,0),new THREE.MeshStandardMaterial({color:pineCol(tz,tx),roughness:.92,flatShading:true})));
+   }else tree.add(new THREE.Mesh(new THREE.IcosahedronGeometry(7,1).scale(1,.85,1).translate(0,13,0),new THREE.MeshStandardMaterial({color:roundCol(tx,tz),roughness:.92,flatShading:true})));
+   tree.position.set(tx,h,tz);tree.scale.setScalar(s);tree.rotation.y=tx*.7+tz*.3;tree.castShadow=true;wg.add(tree);
+  }
+ }else if(false){
+  // A still pond, with a slow circular current swirling just under its surface.
+  const radius=16;
+  const pool=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,1.1,96),new THREE.MeshPhysicalMaterial({color:0x2f8fc7,transparent:true,opacity:.82,roughness:.1,metalness:.06,clearcoat:1,emissive:0x1b5a7a,emissiveIntensity:.14}));
+  pool.scale.y=.3;pool.position.set(r.x,ground+.45,r.z);wg.add(pool);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(radius+.4,.55,24,128),new THREE.MeshStandardMaterial({color:0x6b5a3f,roughness:.92}));rim.rotation.x=PI/2;rim.position.set(r.x,ground+.65,r.z);wg.add(rim);
+  const pts=[];for(let j=0;j<=72;j++){const a=j/72*PI*2,rad=radius*.62,x=r.x+Math.cos(a)*rad,z=r.z+Math.sin(a)*rad;pts.push(new V3(x,ground+1.05,z))}
+  addWaterFlow(wg,pts,2,5,.028,.55);
+ }else if(false){
+  // A short stretch of river passing straight through the marker.
+  const a=1.15,pts=[];for(let j=0;j<=5;j++){const u=(j/5-.5)*2,x=r.x+Math.cos(a)*u*26,z=r.z+Math.sin(a)*u*26+(u*u-1)*4;pts.push(demoPoint(x,z,()=>0,2.2))}
+  addDemoRiver(wg,pts,1,3.2,.09,5);
+ }
+}
+for(const r of regions){const ground=r.pond?wLvl(r.pond):gh(r.x,r.z);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(r.r*.72,.55,24,128),new THREE.MeshBasicMaterial({color:new THREE.Color(r.color),transparent:true,opacity:.78}));ring.rotation.x=PI/2;ring.position.set(r.x,ground+1.7,r.z);wg.add(ring);
+ const orb=new THREE.Mesh(new THREE.SphereGeometry(2.1,40,28),new THREE.MeshBasicMaterial({color:new THREE.Color(r.color)}));orb.position.set(r.x,ground+16,r.z);wg.add(orb);
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:signTexture(r),transparent:true,depthWrite:false}));sprite.scale.set(34,17,1);sprite.position.set(r.x,ground+30,r.z);wg.add(sprite);if(r.pond){const lp=new THREE.Mesh(new THREE.CircleGeometry(3.6,36,.4,PI*2-.4).rotateX(-PI/2),new THREE.MeshStandardMaterial({color:0x3f9150,roughness:.6,side:THREE.DoubleSide}));lp.position.set(r.x,ground+.12,r.z);lp.receiveShadow=true;wg.add(lp)}}
+// Concept fields are drawn only around the current learning terrace.
+const phi=(x,z)=>Math.sin(x/45)*Math.cos(z/55)+.35*Math.cos(x/25+z/40);
+const hillHeight=(x,z)=>H(x,z-CZ);
+const hillGradient=(x,z)=>{const e=1.5;return new V3((hillHeight(x+e,z)-hillHeight(x-e,z))/(2*e),0,(hillHeight(x,z+e)-hillHeight(x,z-e))/(2*e))};
+const hillLaplacian=(x,z)=>{const e=2.5,c=hillHeight(x,z);return (hillHeight(x+e,z)+hillHeight(x-e,z)+hillHeight(x,z+e)+hillHeight(x,z-e)-4*c)/(e*e)};
+const div=(x,z)=>.5*Math.cos(x/50)-.5*Math.cos(z/30);
+function makeField(){if(fieldBuilt)return;fieldBuilt=true;const N=9,span=58;for(let ix=0;ix<N;ix++)for(let iz=0;iz<N;iz++){const x=(ix/(N-1)-.5)*span,z=(iz/(N-1)-.5)*span;const a=new THREE.ArrowHelper(new V3(0,1,0),new V3(0,0,0),4,0xffffff,1.1,.65);fieldGroup.add(a);probes.push({x,z,a})}}
+function updateField(){makeField();const r=regions[Math.min(stageIndex,3)];fieldMode=r.mode;for(const p of probes){const ox=p.x/2,oz=p.z/2;let d=new V3(0,1,0),len=3.4;if(fieldMode==='gradient'){d.copy(hillGradient(r.x+ox,r.z+oz));len=4+Math.min(7,d.length()*8)}else if(fieldMode==='divergence'){d.set(ox,0,oz);if(d.lengthSq()<.01)d.set(0,0,1);len=4.5+Math.min(4,Math.abs(div(ox,oz))*3); }else if(fieldMode==='curl'){d.set(-oz,0,ox);if(d.lengthSq()<.01)d.set(1,0,0);len=5.5;}else{const v=hillLaplacian(r.x+ox,r.z+oz);d.set(0,v>=0?1:-1,0);len=3.5+Math.min(5,Math.abs(v)*1800)}d.normalize();p.a.position.set(r.x+ox,gh(r.x+ox,r.z+oz)+2.4,r.z+oz);p.a.setDirection(d);p.a.setLength(len,Math.min(1.8,len*.25),Math.min(1.2,len*.16));p.a.setColor(new THREE.Color(r.color));p.a.visible=Math.hypot(ox,oz)<35}}
+function regionAt(x,z){let best=regions[0],bd=Infinity;for(const r of regions){const d=Math.hypot(x-r.x,z-r.z);if(d<bd){bd=d;best=r}}return {r:best,d:bd}}
+const lessonData=[
+ {title:'Gradient · the steepest way up',desc:'A scalar field assigns one number to every point. Here that number is hill height h(x,z). The gradient is a vector: it points in the direction where height increases fastest, and its length tells how steep that fastest climb is.',observe:'<b>Watch:</b> the green arrows point uphill and meet the hill contours at right angles. The blue streams run downhill, opposite to the gradient. A gentle slope has a shorter gradient; a steep slope has a longer one.',hint:'Gradient = direction of fastest increase + rate of that increase',formula:String.raw`\[\nabla h=\left(\dfrac{\partial h}{\partial x},\dfrac{\partial h}{\partial z}\right),\qquad \|\nabla h\|=\text{steepest slope}\]`},
+ {title:'Divergence · spreading or gathering',desc:'A vector field F describes the flow velocity of the water. Divergence measures the net amount of flow leaving a tiny region, per unit area (in this 2-D picture). It is not simply the direction of the river: it compares what flows out with what flows in.',observe:'<b>Watch:</b> at the spring, water fans out into branches: positive divergence (a source). At the drain, tributaries converge: negative divergence (a sink). If inflow and outflow balance, divergence is zero.',hint:'Positive = net outflow · Negative = net inflow · Zero = balanced',formula:String.raw`\[\nabla\!\cdot\!\mathbf F=\dfrac{\partial F_x}{\partial x}+\dfrac{\partial F_z}{\partial z}\]`},
+ {title:'Curl · the local spin of a flow',desc:'Curl measures the tendency of a vector field to rotate a tiny paddlewheel placed in the flow. A river can bend without having strong curl; what matters is the local turning effect of the water around a point.',observe:'<b>Watch:</b> the purple river circles the island and the little paddlewheel turns with it. The curl vector points along the rotation axis (right-hand rule); its magnitude measures how strong the local spin is.',hint:'Imagine a tiny floating wheel: does the water make it rotate?',formula:String.raw`\[\nabla\times\mathbf F=\left(0,\dfrac{\partial F_x}{\partial z}-\dfrac{\partial F_z}{\partial x},0\right)\]`},
+ {title:'Laplacian · compare the centre with its neighbours',desc:'For a height field, the Laplacian adds the second derivatives in the horizontal directions. It compares the centre P with nearby samples E, W, N and S, a small distance ε away. It is the divergence of the gradient.',observe:'<b>Watch:</b> on the mound, the centre is higher than its neighbours, so the Laplacian is negative and water runs outward. In the bowl, the centre is lower than its neighbours, so the Laplacian is positive and water gathers inward. The streams are an analogy: the Laplacian itself is not the water velocity.',hint:'Mound: centre above nearby average → negative · Bowl: centre below nearby average → positive',formula:String.raw`\[\nabla^2h(P)\approx\dfrac{h(E)+h(W)+h(N)+h(S)-4h(P)}{\varepsilon^2}\]`}
+];
+let stageIndex=0,insideStage=false,lastStageState='ahead',lessonRenderKey='',lastFieldIndex=-1;
+function showLesson(index,state){const title=document.getElementById('lesson-title'),eq=document.getElementById('lesson-equation'),desc=document.getElementById('lesson-desc'),observe=document.getElementById('lesson-observe'),step=document.getElementById('lesson-step'),status=document.getElementById('lesson-state'),hint=document.getElementById('lesson-hint');const key=index+':'+state;if(key===lessonRenderKey)return;lessonRenderKey=key;if(window.MathJax?.typesetClear)window.MathJax.typesetClear([eq]);if(index>=4){step.textContent='THE SUMMIT · 04 / 04';status.textContent='ALL FOUR REACHED';title.textContent='You reached the summit';eq.innerHTML=String.raw`\[\boxed{\nabla h\quad\nabla\!\cdot\!\mathbf F\quad\nabla\times\mathbf F\quad\nabla^2h}\]`;desc.textContent='You have explored four different questions that a vector-calculus operator can answer.';observe.innerHTML='<b>Remember:</b> gradient asks “which way and how fast uphill?” Divergence asks “is more flow leaving or entering?” Curl asks “does the flow spin?” Laplacian asks “how does the centre compare with its surroundings?”';hint.textContent='Four operators · four different meanings';}
+else{const d=lessonData[index];step.textContent='OPERATOR · '+String(index+1).padStart(2,'0')+' / 04';status.textContent=state==='here'?'DEMONSTRATION':'UP NEXT';title.textContent=d.title;eq.innerHTML=d.formula;desc.textContent=d.desc;observe.innerHTML=d.observe;hint.textContent=d.hint;}
+if(window.MathJax?.startup?.promise){window.MathJax.startup.promise.then(()=>window.MathJax.typesetPromise([eq])).catch(()=>{});}}
+let _dm=0;function drawMap(){const _n=performance.now();if(_n-_dm<100)return;_dm=_n;const w=220,h=160;mg.setTransform(MAPK,0,0,MAPK,0,0);mg.clearRect(0,0,w,h);const bg=mg.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#153b2b');bg.addColorStop(1,'#071a13');mg.fillStyle=bg;mg.fillRect(0,0,w,h);const sx=(w-38)/520,sz=(h-24)/760,ox=w/2,mp=(x,z)=>[ox+x*sx,h-12-((z-CZ)+450)*sz];
+ // A compact top-down silhouette of the single mountain.
+ const [cx,cy]=mp(0,CZ+280);mg.save();mg.translate(cx,cy);const hill=mg.createRadialGradient(0,0,5,0,0,Math.max(w*.52,h*.9));hill.addColorStop(0,'#a1a987');hill.addColorStop(.38,'#60885b');hill.addColorStop(.76,'#2f6941');hill.addColorStop(1,'rgba(20,58,36,0)');mg.fillStyle=hill;mg.beginPath();mg.ellipse(0,0,Math.min(w*.47,100),Math.min(h*.92,74),0,0,Math.PI*2);mg.fill();mg.restore();
+ const pts=[];for(let i=0;i<=90;i++){const p=trailCurve.getPointAt(i/90);pts.push(mp(p.x,p.z))}mg.beginPath();pts.forEach(([x,y],i)=>i?mg.lineTo(x,y):mg.moveTo(x,y));mg.strokeStyle='rgba(250,224,156,.9)';mg.lineWidth=2.7;mg.lineCap='round';mg.stroke();
+ regions.forEach((r,i)=>{const [x,y]=mp(r.x,r.z);mg.beginPath();mg.arc(x,y,7.5,0,Math.PI*2);mg.fillStyle=r.color;mg.shadowColor=r.color;mg.shadowBlur=10*MAPK;mg.fill();mg.shadowBlur=0;mg.fillStyle='#10251b';mg.font='bold 9px system-ui';mg.textAlign='center';mg.textBaseline='middle';mg.fillText(String(i+1),x,y)});
+ const [px,py]=mp(pl.x,pl.z),fx=-Math.sin(pl.yaw),fz=-Math.cos(pl.yaw),heading=Math.atan2(fx,-fz);mg.save();mg.translate(px,py);mg.rotate(heading);mg.beginPath();mg.moveTo(0,-7);mg.lineTo(5,5);mg.lineTo(0,2);mg.lineTo(-5,5);mg.closePath();mg.fillStyle='#fff';mg.shadowColor='#fff';mg.shadowBlur=8*MAPK;mg.fill();mg.restore();}
+let _dgc=0;function drawGradientCompass(){const _t=performance.now();if(_t-_dgc<40)return;_dgc=_t;const el=document.getElementById('gradCompass'),c=el.querySelector('canvas'),g=c.getContext('2d'),w=184,h=184,cx=w/2,cy=h/2;if(c.width!==w*MAPK){c.width=w*MAPK;c.height=h*MAPK}g.setTransform(MAPK,0,0,MAPK,0,0);g.clearRect(0,0,w,h);g.fillStyle='rgba(8,30,16,.38)';g.beginPath();g.arc(cx,cy,cx-3,0,Math.PI*2);g.fill();g.strokeStyle='rgba(190,255,175,.5)';g.lineWidth=2;g.stroke();const gd=hillGradient(pl.x,pl.z),dx=gd.x,dz=gd.z,ang=Math.atan2(dz,dx);g.save();g.translate(cx,cy);g.rotate(ang+Math.PI/2);g.beginPath();g.moveTo(0,-29);g.lineTo(10,10);g.lineTo(0,3);g.lineTo(-10,10);g.closePath();g.fillStyle='#73ff91';g.shadowColor='#73ff91';g.shadowBlur=18*MAPK;g.fill();g.restore();g.beginPath();g.arc(cx,cy,5,0,Math.PI*2);g.fillStyle='#f5fff1';g.fill()}
+function updateRegion(){const r=regions[Math.min(stageIndex,3)],d=Math.hypot(pl.x-r.x,pl.z-r.z),inside=d<r.r;if(inside&&!insideStage){insideStage=true;lastStageState='here';showLesson(stageIndex,'here');}else if(!inside&&insideStage){insideStage=false;stageIndex++;lastStageState='done';showLesson(stageIndex,'ahead');}else if(!inside&&lastStageState==='ahead'){showLesson(stageIndex,'ahead');}
+ if(stageIndex<4&&stageIndex!==lastFieldIndex){fieldMode=regions[stageIndex].mode;updateField();lastFieldIndex=stageIndex;}else if(stageIndex>=4){fieldGroup.visible=false;}
+ const inGradient=insideStage&&stageIndex===0;document.getElementById('gradCompass').style.display=inGradient?'block':'none';drawMap();if(inGradient)drawGradientCompass();}
+function setFieldMode(m){fieldMode=m;updateField()}
+setFieldMode('gradient');
+
+// ===== Automatic ladybird flight tour and physical operator demonstrations =====
+let tourState='intro',tourSelected=-1,tourStart=0,tourCurve=null,tourDuration=5.1,worldEnterTimer=0;const tourFocus=new V3();
+const flowAnimations=[],demoGroups=[],demoRotors=[];
+const waterColors=[0x8fffc0,0x72dfff,0xc89cff,0xffd77a];
+const waterMaterials=waterColors.map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.19,metalness:.08,clearcoat:1,clearcoatRoughness:.08,emissive:color,emissiveIntensity:.16}));
+const dropMaterials=waterColors.map(color=>new THREE.MeshPhysicalMaterial({color:0xe7faff,roughness:.12,metalness:.04,clearcoat:1,emissive:color,emissiveIntensity:.38}));
+// Now that the water-flow materials above exist, dress each terrace's marker with its themed terrain.
+regions.forEach(buildTerraceGround);
+// ===== Lush hillside: forests, meadows, wildflowers, grass, rocks =====
+function*scenery(){const RN=Math.random,trailPts=[];for(let i=0;i<=24;i++){const p=trailCurve.getPointAt(i/360);trailPts.push(p.x,p.z)}
+const nearTrail=(x,z,m)=>{const q=m*m;for(let i=0;i<trailPts.length;i+=2){const a=x-trailPts[i],b=z-trailPts[i+1];if(a*a+b*b<q)return true}return false};
+const wet=(x,z,m)=>PD.some(p=>Math.hypot(x-p.x,z-CZ-p.z)<p.R*.95+m);
+const nearPad=(x,z,m)=>regions.some(r=>Math.hypot(x-r.x,z-r.z)<r.r+m)||MD.some(q=>Math.hypot(x-q.x,z-CZ-q.z)<q.s*1.3+m);
+const spot=mx=>{const a=RN()*PI*2,r=Math.sqrt(RN())*mx,x=Math.cos(a)*r,lz=280+Math.sin(a)*r;return[x,lz+CZ,H(x,lz),lz]};
+const gd=new THREE.Mesh(new THREE.CircleGeometry(3800,48).rotateX(-PI/2),new THREE.MeshStandardMaterial({color:0x56914f,roughness:1}));gd.position.set(0,G-.3,CZ+280);gd.receiveShadow=true;wg.add(gd);
+const mkI=(geo,list,rough=.9)=>{const m=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:rough}),list.length);list.forEach((o,i)=>{dm.position.set(o.x,o.y+G,o.z);dm.scale.set(o.sx??o.s,o.sy??o.s,o.sz??o.s);dm.rotation.set(o.rx||0,o.ry||0,o.rz||0);dm.updateMatrix();m.setMatrixAt(i,dm.matrix);m.setColorAt(i,o.c)});wg.add(m);return m};
+const col=(h,s,l)=>new THREE.Color().setHSL(h,s,l),brown=new THREE.Color(0x4a3220),white=new THREE.Color(0xe8e4d8);
+// --- trees: broadleaf below, birch in glades, pines climbing toward the tree line
+const T=[],P1=[],P2=[],P3=[],BL=[],BT=[];
+for(let n=0;n<60000&&T.length+BT.length<320*QT.k;n++){if(n>0&&n%800===0)yield;const [x,z,h,lz]=spot(735);if(h>205)continue;
+ if(fbm(x*.012+9,lz*.012+4,3)<.5+h/700||nearTrail(x,z,7)||nearPad(x,z,12)||wet(x,z,6))continue;
+ const s=.75+RN()*.8,ry=RN()*PI*2,pine=RN()<Math.max(.08,Math.min(.95,(h-60)/120));TX.push(x);TZ.push(z);TR.push(1.1*s);
+ if(pine){const c=col(.33+RN()*.05,.5+RN()*.2,.12+RN()*.08);T.push({x,y:h,z,s,ry,c:brown});
+  P1.push({x,y:h+4*s,z,s,ry,c});P2.push({x,y:h+9.5*s,z,s,ry,c});P3.push({x,y:h+14.5*s,z,s,ry,c})}
+ else{const birch=RN()<.3,c=birch?col(.19+RN()*.05,.6,.36+RN()*.08):RN()<.06?col(.07+RN()*.05,.7,.42):col(.24+RN()*.07,.5+RN()*.2,.2+RN()*.1);
+  (birch?BT:T).push({x,y:h,z,s,ry,c:birch?white:brown});
+  [[0,9,0,6.4],[3.4,7.6,-1.6,4.8],[-3.2,7.8,1.9,4.9],[.8,12,.6,4.2]].forEach(([ox,oy,oz,r])=>BL.push({x:x+ox*s,y:h+oy*s,z:z+oz*s,s:r*s,sy:r*s*.85,ry,c:c.clone().offsetHSL(0,0,(RN()-.5)*.06)}))}}
+mkI(new THREE.CylinderGeometry(.55,.9,7,12).translate(0,3.5,0),T.concat(BT));
+mkI(new THREE.ConeGeometry(5.6,8.5,18).translate(0,4.25,0),P1);mkI(new THREE.ConeGeometry(4.4,7.5,18).translate(0,3.75,0),P2);mkI(new THREE.ConeGeometry(3,6.5,18).translate(0,3.25,0),P3);
+mkI(new THREE.IcosahedronGeometry(1,2),BL);
+yield;
+// --- bushes (a few in blossom)
+const BU=[];for(let n=0;n<9000&&BU.length<160*QT.k;n++){if(n>0&&n%800===0)yield;const [x,z,h]=spot(735);if(h>170||nearTrail(x,z,3.5)||nearPad(x,z,4)||wet(x,z,1))continue;const r=1.3+RN()*1.1;BU.push({x,y:h+r*.4,z,s:r,sy:r*.75,c:RN()<.1?col(.93+RN()*.05,.45,.62):col(.22+RN()*.08,.55+RN()*.2,.17+RN()*.1)})}
+mkI(new THREE.IcosahedronGeometry(1,2),BU);
+yield;
+// --- wildflower meadows (clustered by colour) plus blossoms along the trail
+const pal=[0xe8413c,0xf7d02c,0xff8fc0,0xf6f3ea,0xa56be0,0xff8a2a,0x5aa0ff],FL=[],fcol=(x,lz)=>new THREE.Color(RN()<.25?pal[Math.floor(RN()*7)]:pal[Math.floor(hh(Math.floor(x/11),Math.floor(lz/11))*7)%7]);
+for(let n=0;n<60000&&FL.length<650*QT.k;n++){if(n>0&&n%800===0)yield;const [x,z,h,lz]=spot(700);if(h>190||fbm(x*.03+50,lz*.03+20,2)<.5||nearTrail(x,z,2)||wet(x,z,-1))continue;FL.push({x,y:h,z,s:1+RN()*.7,c:fcol(x,lz)})}
+for(let n=0;n<0&&FL.length<1700*QT.k;n++){const k=Math.floor(RN()*361)*2,a=RN()*PI*2,d=2.3+RN()*3,x=trailPts[k]+Math.cos(a)*d,z=trailPts[k+1]+Math.sin(a)*d;if(nearTrail(x,z,1.9))continue;FL.push({x,y:H(x,z-CZ),z,s:1+RN()*.7,c:fcol(x,z-CZ)})}
+{const N=FL.length,st=new THREE.InstancedMesh(new THREE.CylinderGeometry(.04,.06,1.8,8).translate(0,.9,0),new THREE.MeshStandardMaterial({color:0x2d7a2d,roughness:.85}),N),
+ hd=new THREE.InstancedMesh(new THREE.SphereGeometry(.5,20,12).scale(1,.42,1).translate(0,1.85,0),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.55}),N),
+ ct=new THREE.InstancedMesh(new THREE.SphereGeometry(.2,16,10).translate(0,1.98,0),new THREE.MeshStandardMaterial({color:0xf2b705,roughness:.6}),N);
+ FL.forEach((o,i)=>{dm.position.set(o.x,o.y+G,o.z);dm.scale.setScalar(o.s);dm.rotation.set((RN()-.5)*.3,RN()*PI,(RN()-.5)*.3);dm.updateMatrix();st.setMatrixAt(i,dm.matrix);hd.setMatrixAt(i,dm.matrix);ct.setMatrixAt(i,dm.matrix);hd.setColorAt(i,o.c)});wg.add(st,hd,ct)}
+yield;
+// --- swaying grass tufts
+{const mg3=gs=>{const P=[],Nn=[],I=[];let o=0;gs.forEach(g=>{const p=g.attributes.position.array;P.push(...p);Nn.push(...g.attributes.normal.array);g.index.array.forEach(i=>I.push(i+o));o+=p.length/3});const m=new THREE.BufferGeometry();m.setAttribute('position',new THREE.Float32BufferAttribute(P,3));m.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));m.setIndex(I);return m};
+ const bl=(rz,ry)=>new THREE.ConeGeometry(.09,1.5,3).translate(0,.75,0).rotateZ(rz).rotateY(ry),tuft=mg3([bl(0,0),bl(.28,2.1),bl(-.3,4.2)]);
+ const gm=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),gu={value:0};window.__gu=gu;
+ gm.onBeforeCompile=sh=>{sh.uniforms.uT=gu;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uT;').replace('#include <begin_vertex>','#include <begin_vertex>\nfloat ph=instanceMatrix[3].x*.11+instanceMatrix[3].z*.09;transformed.x+=sin(uT*1.7+ph)*.22*position.y*position.y;transformed.z+=cos(uT*1.3+ph*1.3)*.12*position.y*position.y;')};
+ const GR=[];for(let n=0;n<130000&&GR.length<4200*QT.k;n++){if(n>0&&n%800===0)yield;const [x,z,h,lz]=spot(725);if(h>220||fbm(x*.02+3,lz*.02+8,2)<.3||nearTrail(x,z,1.6)||wet(x,z,-.5))continue;GR.push({x,y:h,z,sx:.8+RN()*.9,sy:.6+RN()*1.1,sz:.8+RN()*.9,ry:RN()*PI,c:col(.2+RN()*.14,.55+RN()*.25,.16+RN()*.2)})}
+ const m=mkI(tuft,GR);m.material=gm;gm.vertexColors=false}
+yield;
+// --- boulders, thickest near the rocky summit
+const RK=[];for(let n=0;n<20000&&RK.length<180*QT.k;n++){if(n>0&&n%800===0)yield;const [x,z,h]=spot(730);if(RN()>(h>165?.5:.05)||nearTrail(x,z,4)||nearPad(x,z,4))continue;const s=.8+RN()*2.4;RK.push({x,y:h+s*.2,z,sx:s,sy:s*(.55+RN()*.3),sz:s*(.8+RN()*.4),rx:RN()*.4,ry:RN()*PI,rz:RN()*.4,c:col(.09,.06,.3+RN()*.2)})}
+mkI(new THREE.IcosahedronGeometry(1,1),RK,.95)
+yield;
+// --- ponds: water surface, lily pads, reeds and shore stones
+PD.forEach((p,pi)=>{const wx=p.x,wz=p.z+CZ,wl=p.h-p.d*.42,Rw=p.R*1.02;
+ const bt=cv(256,256,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);for(let i=0;i<180;i++){g.fillStyle=`rgba(${RN()<.5?'255,255,255':'0,0,0'},.05)`;g.beginPath();g.ellipse(RN()*w,RN()*h,6+RN()*22,3+RN()*9,RN()*3,0,7);g.fill()}},false);bt.wrapS=bt.wrapT=THREE.RepeatWrapping;bt.repeat.set(8,8);(window.__wb=window.__wb||[]).push(bt);
+ const wg2=new THREE.RingGeometry(.01,Rw,160,24).rotateX(-PI/2),Q=wg2.attributes.position,cc=new Float32Array(Q.count*3),A1=new THREE.Color(pi?0x14544f:0x123f66),A2=new THREE.Color(pi?0x7cc4aa:0x7fc6dc),kc=new THREE.Color();
+ for(let i=0;i<Q.count;i++)kc.copy(A1).lerp(A2,Math.pow(Math.hypot(Q.getX(i),Q.getZ(i))/Rw,2.4)).toArray(cc,i*3);wg2.setAttribute('color',new THREE.BufferAttribute(cc,3));
+ const wm=new THREE.Mesh(wg2,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.07,metalness:.2,transparent:true,opacity:.92,bumpMap:bt,bumpScale:.45,envMapIntensity:1.7}));wm.position.set(wx,wl+G,wz);wg.add(wm);
+ const LP=[],LF=[],ba=RN()*PI*2;for(let i=0;i<26;i++){const a=ba+(RN()-.5)*2.6,r=p.R*(.3+RN()*.55),s=1+RN()*1.1,x=wx+Math.cos(a)*r,z=wz+Math.sin(a)*r;LP.push({x,y:wl+.06,z,s,ry:RN()*PI,c:col(.3+RN()*.04,.5,.22+RN()*.08)});if(i%5==0)LF.push({x,y:wl+.2,z,s:.9,c:RN()<.5?col(.95,.5,.82):col(.12,.15,.96)})}
+ mkI(new THREE.CircleGeometry(1,12).rotateX(-PI/2),LP);mkI(new THREE.SphereGeometry(.4,16,10).scale(1,.6,1),LF);
+ const RD=[];for(let i=0;i<150;i++){const a=RN()*PI*2,r=p.R*(.92+RN()*.2),x=wx+Math.cos(a)*r,lz=p.z+Math.sin(a)*r;RD.push({x,y:H(x,lz),z:lz+CZ,sx:1,sz:1,sy:.8+RN()*.9,rx:(RN()-.5)*.25,rz:(RN()-.5)*.25,ry:RN()*PI,c:col(.2+RN()*.07,.45+RN()*.15,.24+RN()*.1)})}
+ mkI(new THREE.CylinderGeometry(.035,.07,3.2,8).translate(0,1.6,0),RD);mkI(new THREE.CylinderGeometry(.13,.13,.7,12).translate(0,3.1,0),RD.filter((_,i)=>i%3==0).map(o=>({...o,c:new THREE.Color(0x5a3a22)})));
+ const SR=[];for(let i=0;i<24;i++){const a=RN()*PI*2,r=p.R*(1+RN()*.3),x=wx+Math.cos(a)*r,lz=p.z+Math.sin(a)*r,s=.5+RN()*.9;SR.push({x,y:H(x,lz)+s*.15,z:lz+CZ,sx:s,sy:s*.6,sz:s*.85,ry:RN()*PI,c:col(.09,.06,.32+RN()*.18)})}
+ mkI(new THREE.IcosahedronGeometry(1,2),SR,.95)});
+yield;
+// --- teaching landmarks: knoll (gradient), pond flows (divergence, curl), mound & bowl (Laplacian)
+{const hw=(x,z)=>H(x,z-CZ),gr=(x,z)=>{const e=1.5;return[(hw(x+e,z)-hw(x-e,z))/(2*e),(hw(x,z+e)-hw(x,z-e))/(2*e)]},wy=p=>p.h-p.d*.42+G+.3;
+const stream=(x,z,n,st,off)=>{const p=[];for(let i=0;i<n;i++){p.push(new V3(x,gh(x,z)+off,z));const[gx,gz]=gr(x,z),m=Math.hypot(gx,gz)||1;x-=gx/m*st;z-=gz/m*st}return p};
+const contours=(cx,cz,half,step)=>{const n=70,d=2*half/n,x0=cx-half,z0=cz-half,hs=[];let lo=1e9,hi=-1e9;for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){const v=hw(x0+i*d,z0+j*d);hs.push(v);lo=Math.min(lo,v);hi=Math.max(hi,v)}
+ const pos=[],idx=[],W=.45;for(let L=Math.ceil(lo/step)*step;L<hi;L+=step)for(let j=0;j<n;j++)for(let i=0;i<n;i++){const a=hs[j*(n+1)+i],b=hs[j*(n+1)+i+1],c=hs[(j+1)*(n+1)+i+1],e=hs[(j+1)*(n+1)+i];if(Math.min(a,b,c,e)>L||Math.max(a,b,c,e)<L)continue;
+  const P=[],X=x0+i*d,Z=z0+j*d,ed=(u,v,p,q)=>{if((u-L)*(v-L)<0){const t=(L-u)/(v-u);P.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t])}};ed(a,b,[X,Z],[X+d,Z]);ed(b,c,[X+d,Z],[X+d,Z+d]);ed(e,c,[X,Z+d],[X+d,Z+d]);ed(a,e,[X,Z],[X,Z+d]);
+  for(let k=0;k+1<P.length;k+=2){const p=P[k],q=P[k+1],dx=q[0]-p[0],dz=q[1]-p[1],l=Math.hypot(dx,dz)||1,nx=-dz/l*W,nz=dx/l*W,o=pos.length/3;[[p[0]+nx,p[1]+nz],[p[0]-nx,p[1]-nz],[q[0]+nx,q[1]+nz],[q[0]-nx,q[1]-nz]].forEach(([x,z])=>pos.push(x,gh(x,z)+.5,z));idx.push(o,o+1,o+2,o+1,o+3,o+2)}}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);wg.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xf4f7b0,side:THREE.DoubleSide,transparent:true,opacity:.85,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2})))};
+// GRADIENT knoll: level contours, uphill arrows, runoff streams
+{const K=MD[0],kx=K.x,kz=K.z+CZ;contours(kx,kz,62,4);
+ for(let k=0;k<12;k++){const a=k/12*PI*2,r=k%2?15:27,x=kx+Math.cos(a)*r,z=kz+Math.sin(a)*r,[gx,gz]=gr(x,z),m2=gx*gx+gz*gz;wg.add(new THREE.ArrowHelper(new V3(gx,m2,gz).normalize(),new V3(x,gh(x,z)+1.2,z),6+Math.min(10,Math.sqrt(m2)*22),0x7dff95,3,2))}
+ for(let k=0;k<8;k++){const a=k/8*PI*2+.3;addWaterFlow(wg,stream(kx+Math.cos(a)*7,kz+Math.sin(a)*7,26,3,.5),1,3,.06,.42)}
+ makeDemoLabel(wg,'∇h  ·  STEEPEST UPHILL','#a9ffb5',kx,gh(kx,kz)+20,kz,36,7);makeDemoLabel(wg,'CONTOURS = EQUAL HEIGHT','#f4f7b0',kx+34,gh(kx+34,kz)+12,kz,30,6)}
+// LAPLACIAN mound (centre above neighbours) and bowl (centre below neighbours)
+for(const [m,kind] of [[MD[1],0],[MD[2],1]]){const cx=m.x,cz=m.z+CZ;
+ [[0,0,0xffffff],[9,0,0xffb347],[-9,0,0xffb347],[0,9,0xffb347],[0,-9,0xffb347]].forEach(([dx,dz,c])=>{const x=cx+dx,z=cz+dz,g=gh(x,z),mt=new THREE.MeshBasicMaterial({color:c}),sp=new THREE.Mesh(new THREE.SphereGeometry(1.3,32,22),mt),po=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,3,12),mt);sp.position.set(x,g+3,z);po.position.set(x,g+1.5,z);wg.add(sp,po)});
+ if(!kind)for(let k=0;k<8;k++){const a=k/8*PI*2;addWaterFlow(wg,stream(cx+Math.cos(a)*4,cz+Math.sin(a)*4,28,2.6,.5),3,3,.06,.42)}
+ else{for(let k=0;k<8;k++){const a=k/8*PI*2+.2;addWaterFlow(wg,stream(cx+Math.cos(a)*21,cz+Math.sin(a)*21,16,2,.5),1,3,.06,.42)}
+  const pool=new THREE.Mesh(new THREE.CircleGeometry(4.2,64).rotateX(-PI/2),new THREE.MeshPhysicalMaterial({color:0x2a6f95,roughness:.05,clearcoat:1,transparent:true,opacity:.9}));pool.position.set(cx,gh(cx,cz)+.5,cz);wg.add(pool)}
+ makeDemoLabel(wg,kind?'BOWL  ·  ∇²h > 0':'MOUND  ·  ∇²h < 0',kind?'#a8e8ed':'#ffe7a8',cx,gh(cx,cz)+(kind?18:m.a+16),cz,30,6.5)}
+// POND FLOWS
+const pf=[],hooks=[];
+const parts=(p,n,field,spawn,dead,color)=>{const m=new THREE.InstancedMesh(new THREE.CircleGeometry(.5,24).rotateX(-PI/2),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.92,depthWrite:false}),n);m.frustumCulled=false;m.renderOrder=2;m.count=0;wg.add(m);const P=[];for(let i=0;i<n;i++)P.push(Object.assign(spawn(),{a:RN()*6}));pf.push({m,P,field,spawn,dead,wx:p.x,wz:p.z+CZ,y:wy(p),R:p.R*.9})};
+window.__pondTick=(dtk,t)=>{for(const f of pf){f.m.count=f.P.length;f.P.forEach((q,i)=>{const v=f.field(q.x,q.z);q.x+=v[0]*dtk;q.z+=v[1]*dtk;q.a+=dtk;if(q.a>9||q.x*q.x+q.z*q.z>f.R*f.R||(f.dead&&f.dead(q)))Object.assign(q,f.spawn(),{a:0});dm.position.set(f.wx+q.x,f.y,f.wz+q.z);dm.scale.setScalar(.7+.35*Math.sin(q.a*3+i));dm.rotation.set(0,0,0);dm.updateMatrix();f.m.setMatrixAt(i,dm.matrix)});f.m.instanceMatrix.needsUpdate=true}hooks.forEach(h=>h(t,dtk))};
+const bm=(c,o=1)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o});
+// DIVERGENCE pond: a spring (source, ∇·F>0) feeding a drain (sink, ∇·F<0)
+{const p=PD[0],wx=p.x,wz=p.z+CZ,y=wy(p),A=-.45*p.R,B=.45*p.R;
+ parts(p,70,(x,z)=>{const a2=(x-A)**2+z*z+1.5,b2=(x-B)**2+z*z+1.5;let vx=18*((x-A)/a2-(x-B)/b2),vz=18*(z/a2-z/b2);const m=Math.hypot(vx,vz);if(m>6){vx*=6/m;vz*=6/m}return[vx,vz]},()=>{const a=RN()*PI*2;return{x:A+Math.cos(a)*2,z:Math.sin(a)*2}},q=>Math.hypot(q.x-B,q.z)<1.6,0xe6f8ff);
+ for(let k=0;k<8;k++){const a=k/8*PI*2,c=Math.cos(a),s=Math.sin(a);wg.add(new THREE.ArrowHelper(new V3(c,0,s),new V3(wx+A+c*5,y+.5,wz+s*5),4.5,0x7ceaff,1.8,1.3),new THREE.ArrowHelper(new V3(-c,0,-s),new V3(wx+B+c*6,y+.5,wz+s*6),4.5,0xffd09a,1.8,1.3))}
+ const sp=new THREE.Mesh(new THREE.SphereGeometry(1.1,32,24),bm(0xbff3ff)),rg=new THREE.Mesh(new THREE.TorusGeometry(1,.12,16,64).rotateX(PI/2),bm(0xbff3ff,.8)),sk=new THREE.Mesh(new THREE.TorusGeometry(2.2,.22,20,80).rotateX(PI/2),bm(0xffb86b));
+ sp.position.set(wx+A,y+.7,wz);rg.position.set(wx+A,y+.1,wz);sk.position.set(wx+B,y+.1,wz);wg.add(sp,rg,sk);
+ hooks.push(t=>{const f=(t*.7)%1;rg.scale.setScalar(1+f*5);rg.material.opacity=.8*(1-f);sp.scale.setScalar(1+.15*Math.sin(t*5));sk.rotation.y=-t*2});
+ makeDemoLabel(wg,'SOURCE  ∇·F > 0','#8eeaff',wx+A,y+9,wz,26,6);makeDemoLabel(wg,'SINK  ∇·F < 0','#ffd3a1',wx+B,y+17,wz,26,6);makeDemoLabel(wg,'NET FLOW OUT  vs  NET FLOW IN','#f1f5e8',wx,y+26,wz,38,6.5)}
+// CURL pond: circulating water turns a paddle-wheel (∇×F points up, right-hand rule)
+{const p=PD[1],wx=p.x,wz=p.z+CZ,y=wy(p),w=.5;
+ parts(p,80,(x,z)=>[w*z,-w*x],()=>{const a=RN()*PI*2,r=3+RN()*10;return{x:Math.cos(a)*r,z:Math.sin(a)*r}},null,0xf6f0ff);
+ for(let k=0;k<8;k++){const a=k/8*PI*2,r=p.R*.65;wg.add(new THREE.ArrowHelper(new V3(Math.sin(a),0,-Math.cos(a)),new V3(wx+Math.cos(a)*r,y+.5,wz+Math.sin(a)*r),4.5,0xe0b8ff,1.8,1.3))}
+ const wh=new THREE.Group(),pm=new THREE.MeshStandardMaterial({color:0xd5a8ff,emissive:0x7946b8,emissiveIntensity:.35,roughness:.3});wh.position.set(wx+7,y+.6,wz);[0,PI/2].forEach(a=>{const b=new THREE.Mesh(new THREE.BoxGeometry(6.4,1,.5),pm);b.rotation.y=a;wh.add(b)});wh.add(new THREE.Mesh(new THREE.SphereGeometry(.9,32,20),pm));wg.add(wh);
+ hooks.push((t,d)=>{wh.rotation.y+=w*d});
+ wg.add(new THREE.ArrowHelper(new V3(0,1,0),new V3(wx+7,y+3,wz),9,0xd9a6ff,3,2.2));
+ makeDemoLabel(wg,'CURL  ∇×F ≠ 0','#e5c5ff',wx,y+19,wz,30,6.5);makeDemoLabel(wg,'WATER CIRCULATES · WHEEL SPINS','#f1e4ff',wx,y+11,wz+4,36,6)}
+}
+}
+setTimeout(()=>{const g=scenery();(function run(){if(!g.next().done)setTimeout(run,30);else sceneryReady=performance.now()})()},700);
+
+function addWaterFlow(group,points,colorIndex,particleCount=3,speed=.075,radius=.7){
+  if(points.length<3)return;
+  const curve=new THREE.CatmullRomCurve3(points,false,'centripetal',.35);
+  const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(96,points.length*6),radius,16,false),waterMaterials[colorIndex]);
+  tube.castShadow=false;group.add(tube);
+  const drops=[];
+  const geo=new THREE.SphereGeometry(radius*1.35,24,18);
+  for(let i=0;i<particleCount;i++){const bead=new THREE.Mesh(geo,dropMaterials[colorIndex]);bead.scale.set(1,1.25,1);bead.castShadow=false;group.add(bead);drops.push({mesh:bead,offset:i/particleCount})}
+  flowAnimations.push({curve,drops,speed,phase:Math.random()*.7,group});
+}
+function surfacePoint(x,z,offset=2.3){return new V3(x,gh(x,z)+offset,z)}
+function makeReliefPatch(group,cx,cz,spanX,spanZ,segments,profile,maxAbs,palette='hill'){
+  const positions=[],colors=[],indices=[];const base=new THREE.Color(palette==='gold' ? 0x8e875f : 0x416b4d);
+  const high=new THREE.Color(palette==='gold' ? 0xf1d78e : 0xd5d39a);
+  const low=new THREE.Color(0x395c5a);
+  for(let iz=0;iz<=segments;iz++)for(let ix=0;ix<=segments;ix++){
+    const x=cx-spanX/2+spanX*ix/segments,z=cz-spanZ/2+spanZ*iz/segments,extra=profile(x,z);
+    positions.push(x,gh(x,z)+extra+.65,z);
+    let col;if(palette==='gold'&&extra<0)col=low.clone().lerp(base,Math.max(0,Math.min(1,1+extra/maxAbs)));else col=base.clone().lerp(high,Math.max(0,Math.min(1,Math.abs(extra)/maxAbs)));
+    colors.push(col.r,col.g,col.b);
+    if(ix<segments&&iz<segments){const a=iz*(segments+1)+ix,b=a+1,d=a+segments+1,c=d+1;indices.push(a,d,b,b,d,c)}
+  }
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.setIndex(indices);geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,metalness:.015,side:THREE.DoubleSide}));mesh.receiveShadow=true;mesh.castShadow=true;group.add(mesh);return mesh;
+}
+function demoPoint(x,z,profile=()=>0,offset=2.2){return new V3(x,gh(x,z)+profile(x,z)+offset,z)}
+function makeDemoLabel(group,text,color,x,y,z,width=30,height=7){
+  const tex=cv(768,180,(g,w,h)=>{g.clearRect(0,0,w,h);g.fillStyle='rgba(5,22,23,.88)';g.strokeStyle=color;g.lineWidth=6;g.beginPath();g.roundRect(12,12,w-24,h-24,28);g.fill();g.stroke();g.fillStyle='#fff8e6';g.font='700 46px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText(text,w/2,h/2+2)});
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));sp.position.set(x,y,z);sp.scale.set(width,height,1);group.add(sp);return sp;
+}
+function addDemoRiver(group,points,colorIndex,width=2.2,speed=.085,count=4){
+  if(points.length<4)return;
+  const bedPts=points.map(p=>p.clone().add(new V3(0,-.38,0))),bedCurve=new THREE.CatmullRomCurve3(bedPts,false,'centripetal',.35);
+  const bedMat=new THREE.MeshStandardMaterial({color:0x183f45,roughness:.94,metalness:.02});
+  const bed=new THREE.Mesh(new THREE.TubeGeometry(bedCurve,Math.max(128,points.length*6),width,16,false),bedMat);group.add(bed);
+  const waterPts=points.map(p=>p.clone().add(new V3(0,.18,0)));addWaterFlow(group,waterPts,colorIndex,count,speed,Math.max(.55,width*.42));
+}
+function makePool(group,x,z,profile,color,radius=4,labelText=null){
+  const y=gh(x,z)+profile(x,z);const pool=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,1.1,96),new THREE.MeshPhysicalMaterial({color,transparent:true,opacity:.84,roughness:.14,metalness:.1,clearcoat:1,emissive:color,emissiveIntensity:.18}));pool.scale.y=.28;pool.position.set(x,y+.5,z);group.add(pool);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(radius+.5,.38,24,96),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));ring.rotation.x=PI/2;ring.position.set(x,y+1.1,z);group.add(ring);
+  const orb=new THREE.Mesh(new THREE.SphereGeometry(1.55,40,28),new THREE.MeshPhysicalMaterial({color:0xe6fbff,emissive:color,emissiveIntensity:.75,roughness:.15,clearcoat:1}));orb.position.set(x,y+2.5,z);group.add(orb);demoRotors.push({mesh:orb,kind:'pulse'});
+  if(labelText)makeDemoLabel(group,labelText,'#9be8ff',x,y+17,z,29,6);
+}
+function radialRiverPath(cx,cz,a,r0,r1,profile,steps=34,wave=0){const pts=[];for(let j=0;j<=steps;j++){const u=j/steps,d=r0+(r1-r0)*u,wiggle=Math.sin(u*Math.PI*2)*wave,x=cx+Math.cos(a)*d+Math.cos(a+Math.PI/2)*wiggle,z=cz+Math.sin(a)*d+Math.sin(a+Math.PI/2)*wiggle;pts.push(demoPoint(x,z,profile,2.35))}return pts;}
+function addDirectionArrow(group,point,direction,color,length=9){const d=direction.clone().normalize();const arrow=new THREE.ArrowHelper(d,point,length,color,2.8,1.8);group.add(arrow);return arrow;}
+function createOperatorDemos(){
+  if(demoGroups.length)return;
+  regions.forEach((r,index)=>{
+    const group=new THREE.Group();group.visible=false;wg.add(group);demoGroups.push(group);
+    const ground=gh(r.x,r.z),ringColor=new THREE.Color(r.color);
+    const halo=new THREE.Mesh(new THREE.TorusGeometry(index===2?31:25,.42,24,160),new THREE.MeshBasicMaterial({color:ringColor,transparent:true,opacity:.8}));halo.rotation.x=PI/2;halo.position.set(r.x,ground+2.2,r.z);group.add(halo);
+
+    if(index===0){
+      // GRADIENT: a raised, smooth hill with level contours, uphill arrows and downhill streams.
+      const cx=r.x+4,cz=r.z+24,sx=26,sz=37,peak=46;
+      const hill=(x,z)=>peak*Math.exp(-.5*((x-cx)/sx)**2-.5*((z-cz)/sz)**2);
+      makeReliefPatch(group,cx,cz,116,142,64,hill,peak,'hill');
+      // Equal-height contour lines: the gradient crosses them at right angles.
+      const contourMat=new THREE.MeshStandardMaterial({color:0xe0f4b6,emissive:0x6f9c4c,emissiveIntensity:.35,roughness:.55});
+      [7,13,20,27,34,40].forEach(level=>{const rad=Math.sqrt(-2*Math.log(level/peak)),pts=[];for(let j=0;j<=100;j++){const a=j/100*PI*2,x=cx+Math.cos(a)*sx*rad,z=cz+Math.sin(a)*sz*rad;pts.push(demoPoint(x,z,hill,1.05))}const c=new THREE.CatmullRomCurve3(pts,false,'centripetal',.25);group.add(new THREE.Mesh(new THREE.TubeGeometry(c,360,.32,16,false),contourMat))});
+      // Water runs away from the high point, down the hill's surface.
+      for(let k=0;k<8;k++){const a=k/8*PI*2;addDemoRiver(group,radialRiverPath(cx,cz,a,5,58,hill,38,.7),0,1.9,.07,3)}
+      // Several green arrows climb toward the summit, tangent to the hillside.
+      for(let k=0;k<8;k++){const a=k/8*PI*2,x=cx+Math.cos(a)*33,z=cz+Math.sin(a)*46,h=hill(x,z),gx=-(x-cx)/(sx*sx)*h,gz=-(z-cz)/(sz*sz)*h,dir=new V3(gx,gx*gx+gz*gz,gz).normalize();addDirectionArrow(group,demoPoint(x,z,hill,1.8),dir,0x8dff9f,13)}
+      makeDemoLabel(group,'∇h  ·  FASTEST UPHILL','#a9ffb5',cx,gh(cx,cz)+peak+18,cz,37,8);
+      makeDemoLabel(group,'LEVEL CONTOURS','#e3f2c0',cx+43,gh(cx+43,cz)+16,cz-11,27,6);
+
+    }else if(index===1){
+      // DIVERGENCE: branching rivers flow away from a spring and into a drain.
+      const flat=(x,z)=>0;makeReliefPatch(group,r.x,r.z,166,110,34,flat,1,'hill');
+      const sourceX=r.x-45,sinkX=r.x+45,cz=r.z;
+      makePool(group,sourceX,cz,flat,0x54dfff,5,null);
+      makePool(group,sinkX,cz,flat,0xf4b879,5,null);
+      // Positive divergence: water leaves the source and splits into outward branches.
+      for(let k=0;k<8;k++){const a=k/8*PI*2;addDemoRiver(group,radialRiverPath(sourceX,cz,a,5,31,flat,36,.9),1,2.15,.09,4);}
+      // Negative divergence: eight tributaries flow inward toward the sink.
+      for(let k=0;k<8;k++){const a=k/8*PI*2;addDemoRiver(group,radialRiverPath(sinkX,cz,a,31,5,flat,36,.65),3,2.05,.09,4);}
+      // Direction markers make source-outflow and sink-inflow unambiguous.
+      for(let k=0;k<4;k++){const a=k/4*PI*2;const sx0=sourceX+Math.cos(a)*17,sz0=cz+Math.sin(a)*17;addDirectionArrow(group,demoPoint(sx0,sz0,flat,3.7),new V3(Math.cos(a),0,Math.sin(a)),0x7ceaff,8);const tx=sinkX+Math.cos(a)*17,tz=cz+Math.sin(a)*17;addDirectionArrow(group,demoPoint(tx,tz,flat,3.7),new V3(-Math.cos(a),0,-Math.sin(a)),0xffd09a,8)}
+      makeDemoLabel(group,'NET FLOW OUT  ·  POSITIVE','#8eeaff',sourceX,ground+24,cz-25,38,7);
+      makeDemoLabel(group,'NET FLOW IN  ·  NEGATIVE','#ffd3a1',sinkX,ground+24,cz-25,38,7);
+
+    }else if(index===2){
+      // CURL: a river forms a circulating current around an island and spins a paddlewheel.
+      const cx=r.x,cz=r.z,flat=(x,z)=>0;
+      makeReliefPatch(group,cx,cz,104,104,32,flat,1,'hill');
+      const riverRadius=27,pts=[];for(let j=0;j<=120;j++){const a=j/120*PI*2,x=cx+Math.cos(a)*riverRadius,z=cz+Math.sin(a)*riverRadius;pts.push(demoPoint(x,z,flat,2.6))}addDemoRiver(group,pts,2,3.2,.095,8);
+      // A second narrow current reinforces that water is circulating, not merely following a bend.
+      const inner=[];for(let j=0;j<=100;j++){const a=-j/100*PI*2,x=cx+Math.cos(a)*18,z=cz+Math.sin(a)*18;inner.push(demoPoint(x,z,flat,2.6))}addDemoRiver(group,inner,2,1.35,.12,5);
+      for(let k=0;k<4;k++){const a=k/4*PI*2,x=cx+Math.cos(a)*riverRadius,z=cz+Math.sin(a)*riverRadius,dir=new V3(-Math.sin(a),0,Math.cos(a));addDirectionArrow(group,demoPoint(x,z,flat,4.2),dir,0xe7c3ff,9)}
+      const wheel=new THREE.Group();wheel.position.set(cx+18,gh(cx+18,cz)+3.7,cz);group.add(wheel);
+      const axle=new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,7,40),new THREE.MeshStandardMaterial({color:0xf1dcff,metalness:.25,roughness:.28,emissive:0x713ab4,emissiveIntensity:.3}));wheel.add(axle);
+      for(let k=0;k<8;k++){const a=k/8*PI*2,blade=new THREE.Mesh(new THREE.BoxGeometry(9,.85,1.4),new THREE.MeshStandardMaterial({color:0xd5a8ff,metalness:.18,roughness:.3,emissive:0x7946b8,emissiveIntensity:.28}));blade.position.set(Math.cos(a)*4.2,0,Math.sin(a)*4.2);blade.rotation.y=-a;wheel.add(blade)}
+      const hub=new THREE.Mesh(new THREE.SphereGeometry(2.1,40,28),new THREE.MeshPhysicalMaterial({color:0xf7eaff,emissive:0xa65cff,emissiveIntensity:.7,roughness:.18,clearcoat:1}));wheel.add(hub);demoRotors.push({mesh:wheel,kind:'spin'});
+      makeDemoLabel(group,'LOCAL ROTATION  ·  CURL','#e5c5ff',cx,gh(cx,cz)+24,cz-40,38,7);
+
+    }else{
+      // LAPLACIAN: place a mound and a bowl side by side, comparing each centre with its neighbours.
+      const moundX=r.x-31,bowlX=r.x+31,cz=r.z,amp=31,sx=18,sz=23;
+      const mound=(x,z)=>amp*Math.exp(-.5*((x-moundX)/sx)**2-.5*((z-cz)/sz)**2);
+      const bowl=(x,z)=>-amp*Math.exp(-.5*((x-bowlX)/sx)**2-.5*((z-cz)/sz)**2);
+      const relief=(x,z)=>mound(x,z)+bowl(x,z);
+      makeReliefPatch(group,r.x,cz,142,106,64,relief,amp,'gold');
+      // The top of a mound has negative Laplacian: water runs away from its higher centre.
+      for(let k=0;k<6;k++){const a=k/6*PI*2;addDemoRiver(group,radialRiverPath(moundX,cz,a,5,31,relief,32,.35),3,2.1,.08,4)}
+      // The bottom of a bowl has positive Laplacian: surrounding water flows inward.
+      for(let k=0;k<6;k++){const a=k/6*PI*2;addDemoRiver(group,radialRiverPath(bowlX,cz,a,31,5,relief,32,.35),1,2.1,.08,4)}
+      makeDemoLabel(group,'MOUND  ·  Δh < 0','#ffe7a8',moundX,gh(moundX,cz)+amp+17,cz-4,33,7);
+      makeDemoLabel(group,'BOWL  ·  Δh > 0','#a8e8ed',bowlX,gh(bowlX,cz)-amp+17,cz-4,33,7);
+      // Neighbour-height comparison rings make the averaging idea visible.
+      for(const [x,col] of [[moundX,0xffe2a1],[bowlX,0x9ce7ef]]){const ring=new THREE.Mesh(new THREE.TorusGeometry(25,.34,24,144),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.8}));ring.rotation.x=PI/2;ring.position.set(x,gh(x,cz)+relief(x,cz)+2.7,cz);group.add(ring)}
+    }
+  });
+}
+function showOperatorMenu(){
+  tourState='menu';tourSelected=-1;document.body.classList.remove('show-lesson');document.body.classList.add('tour','show-menu');
+  fieldGroup.visible=false;demoGroups.forEach(g=>g.visible=false);document.getElementById('gradCompass').style.display='none';
+  document.getElementById('lesson-hint').textContent='The ladybird will fly to the destination you choose';
+  cp.textContent='Choose one of the four operators';
+}
+function launchOperator(index){
+  if(index<0||index>3)return;
+  
+  const r=regions[index];tourSelected=index;stageIndex=index;insideStage=true;
+  fieldGroup.visible=false;
+  const focusZ=r.z+(index===0?22:0);tourFocus.set(r.x,gh(r.x,focusZ)+(index===0?22:8),focusZ);
+  document.body.classList.remove('show-menu','show-lesson');
+  document.getElementById('gradCompass').style.display=index===0?'block':'none';
+  const from=bug.position.clone(),to=r.land.clone(),delta=to.clone().sub(from),dist=delta.length();
+  if(dist<6){bug.position.copy(to);tourState='world';clearTimeout(worldEnterTimer);worldEnterTimer=setTimeout(()=>{worldEnterTimer=0;if(tourState==='world')WX.enter(index)},150);cp.textContent='At the '+r.name+' demonstration';return}
+  const hv=new V3(delta.x,0,delta.z),hl=hv.length();if(hl>1)hv.multiplyScalar(1/hl);else hv.set(0,0,1);
+  const lift=Math.max(34,Math.min(78,dist*.2)),clr=(v,m)=>{v.y=Math.max(v.y,gh(v.x,v.z)+m);return v};
+  const c1=clr(from.clone().lerp(to,.3).add(new V3(0,lift,0)),14);
+  const c2=clr(from.clone().lerp(to,.7).add(new V3(0,lift*.75,0)),14);
+  const c3=to.clone().addScaledVector(hv,-Math.min(24,hl*.22));c3.y=Math.max(to.y+Math.min(10,4+hl*.03),gh(c3.x,c3.z)+6);
+  tourCurve=new THREE.CatmullRomCurve3([from,c1,c2,c3,to],false,'centripetal',.32);
+  tourStart=_ck;tourDuration=Math.max(2.8,Math.min(4.6,dist/68));tourState='flying';
+  cp.textContent='The ladybird is flying to '+r.name;
+}
+function returnToChoices(){
+  clearTimeout(worldEnterTimer);worldEnterTimer=0;document.body.classList.remove('show-lesson');document.body.classList.add('show-menu');
+  WX.exit();tourState='menu';demoGroups.forEach(g=>g.visible=false);fieldGroup.visible=false;
+  document.getElementById('gradCompass').style.display='none';cp.textContent='Choose another operator';
+}
+document.querySelectorAll('#operatorMenu [data-op]').forEach(button=>button.addEventListener('click',()=>launchOperator(Number(button.dataset.op))));
+document.getElementById('backToChoices').addEventListener('click',returnToChoices);document.getElementById('back').addEventListener('click',()=>{window.location.assign('/')});
+function updateTourWings(t){
+  const flap=Math.sin(t*15)*.42;
+  W.forEach((wing,i)=>{wing.yw.rotation.y=1.35;wing.fl.rotation.z=flap*(i===0?1:-1);wing.gB.rotation.z=-.35+Math.sin(t*15+.5)*.14;wing.gC.rotation.z=.28+Math.sin(t*15+1)*.12});
+}
+function updateWater(t){if(window.__pondTick)window.__pondTick(Math.min(.05,dt),t);
+  for(const flow of flowAnimations){if(!flow.group.visible)continue;for(const drop of flow.drops){const u=(flow.phase+drop.offset+t*flow.speed)%1;drop.mesh.position.copy(flow.curve.getPointAt(u));}}
+  for(const rotor of demoRotors){if(rotor.kind==='pulse'){const s=1+.16*Math.sin(t*3.6);rotor.mesh.scale.setScalar(s)}else rotor.mesh.rotation.y=t*1.25;}
+}
+const tourLook=new V3(),tourCam=new V3(),tourTangent=new V3();
+function updateAutoTour(t){
+  updateWater(t);
+  if(tourState==='world'){WX.update(t);return}
+  if(tourState==='menu'){
+    // Wide view: the entire mountain remains visible behind the four choices.
+    tourCam.set(175,205,18);tourLook.set(0,62,CZ+280);
+    cam.position.lerp(tourCam,FK(.025));cam.lookAt(tourLook);
+    bug.rotation.y=Math.sin(t*.35)*.08;
+    return;
+  }
+  if(tourState==='flying'&&tourCurve){
+    const q=Math.max(0,Math.min(1,(t-tourStart)/tourDuration));
+    const ease=trap(q,.26,.24);tourCurve.getPointAt(ease,tmp);tourCurve.getTangentAt(ease,tourTangent).normalize();
+    tourTangent.y*=1-.94*sm(.78,1,ease);tourTangent.normalize();
+    bug.position.copy(tmp);bug.lookAt(tmp.clone().add(tourTangent));updateTourWings(t);
+    tourCam.copy(bug.position).addScaledVector(tourTangent,-36);tourCam.y+=18;
+    tourLook.copy(bug.position).addScaledVector(tourTangent,9);tourLook.y+=2;
+    cam.position.lerp(tourCam,FK(.075));cam.lookAt(tourLook);
+    if(q>=1){
+      const r=regions[tourSelected],oi=tourSelected;bug.position.copy(r.land);tourState='world';clearTimeout(worldEnterTimer);worldEnterTimer=setTimeout(()=>{worldEnterTimer=0;if(tourState==='world')WX.enter(oi)},220);
+      document.getElementById('lesson-hint').textContent=lessonData[tourSelected].hint;
+      cp.textContent='At the '+r.name+' demonstration';
+    }
+    return;
+  }
+  if(tourState==='lesson'){
+    const r=regions[tourSelected];if(!r)return;
+    // A pulled-back three-quarter view keeps the complete landform or river model in frame.
+    tourCam.set(tourFocus.x+150,tourFocus.y+120,tourFocus.z+150);
+    tourLook.set(tourFocus.x,tourFocus.y+5,tourFocus.z);
+    cam.position.lerp(tourCam,FK(.035));cam.lookAt(tourLook);updateTourWings(t);
+  }
+}
+let lastMapX=Infinity,lastMapZ=Infinity;function hudTick(){if(Math.hypot(pl.x-lastMapX,pl.z-lastMapZ)>1.5){lastMapX=pl.x;lastMapZ=pl.z;updateRegion()}else if(document.getElementById('gradCompass').style.display==='block')drawGradientCompass()}
+let _ck=0,_cl=performance.now();const SP=2.4,clk=()=>{const n=performance.now();_ck+=Math.min(.1,(n-_cl)/1000)*(phase<3?SP:1);_cl=n;return _ck};
+let lastLowTierRender=0;
+function renderFrame(){
+  if(document.hidden||graphicsLost)return;
+  perfTick();
+  if(QT.k<.5){const now=performance.now();if(now-lastLowTierRender<32)return;lastLowTierRender=now}
+  if(document.body.classList.contains('show-defs'))return;
+  const t=clk(),s=sm(.6,8.4,t),w=sm(.6,1.2,t)*(1-sm(7.6,8.4,t)),q=Math.max(0,Math.min(1,(t-10.5)/4.2)),fl=sm(0,.3,q)*(1-landR);
+const tw=landR>0?10.45-2.25*landR:t,e=sm(8.2,9.4,tw),U=sm(8.6,10.4,tw),fa=sm(10,10.5,tw),fs=Math.sin((t-10)*26),fc=Math.cos((t-10)*26);
+ely[1].rotation.set(.38*e,-.2*e,1.0*e);ely[-1].rotation.set(.38*e,.2*e,-1.0*e);
+const p=(a,b)=>{const x=Math.min(1,Math.max(0,(U-a)/(b-a)));return x*x*(3-2*x)};
+W.forEach((wg,i)=>{const o=i*.04;wg.yw.rotation.y=1.5+(.4-1.5)*p(o,.5+o)+.12*fa*fc;wg.fl.rotation.z=.2*U+.8*fa*fs;
+wg.gB.quaternion.setFromAxisAngle(D,-(PI-.12)*(1-p(.25+o,.8+o)));wg.gC.quaternion.setFromAxisAngle(D,(PI-.12)*(1-p(.5+o,1)))});
+const ws=s*PL*6.5,sw=Math.sin(ws*.5)*w,hy=2.2+s*17.4;
+legs.forEach(l=>{const a=ws+l.ph;l.pv.rotation.set(0,l.s*.34*Math.sin(a)*w,l.s*(.4*Math.max(0,-Math.cos(a))*w-.5*fl))});
+const D0=Math.max(40,30/cam.aspect)*(1-.35*sm(.6,8.4,t)),qa=Math.pow(q,1.5);
+if(phase===0){frame.position.set(.05*sw,hy,.86*rr(hy)+.03);
+bug.position.set(-12*Math.pow(q,1.6)/SC,(.45*D0*qa)/SC+.04*Math.abs(Math.sin(ws))*w,16*Math.pow(q,1.4)/SC);
+bug.rotation.set(-.55*sm(0,.5,q),.1*Math.cos(ws*.5)*w*(1-fl)-Math.atan2(19.2*Math.pow(q,.6),22.4*Math.pow(q,.4))*sm(0,.15,q),.35*sm(0,.5,q));}
+flight(t);frame.updateMatrixWorld(true);bug.getWorldPosition(bp);key.target.position.copy(bp);key.position.copy(bp).add(KO);key.target.updateMatrixWorld();
+if(phase===0){const th=.1+uTh,el=.12+uPh;tgt.set(1,6+10*s,0);cam.position.set(tgt.x+D0*Math.cos(el)*Math.sin(th),tgt.y+D0*Math.sin(el),D0*Math.cos(el)*Math.cos(th));cam.lookAt(tgt)}
+else if(phase>=3){/* play() owns the camera */}
+{const _s=t<.6?'Resting on the leaf':t<8.2?'Preparing for the ascent':t<10.4?'Wings unfolding':'Flying toward the mountain';if(cp._s!==_s){cp._s=_s;cp.textContent=_s}}
+cineUpd(t);camUpd(t);if(phase>=3){pl.x=bug.position.x;pl.y=bug.position.y;pl.z=bug.position.z;pl.yaw=bug.rotation.y;drawMap()}else drawMap();
+rn.render(scene,cam)}
+rn.setAnimationLoop(renderFrame);
+document.addEventListener('visibilitychange',()=>{const now=performance.now();_cl=now;_lf=now;_acc=0;_n=0;Object.keys(keys).forEach(k=>keys[k]=0);joy.x=joy.y=0;lookId=null;if(document.hidden||graphicsLost)rn.setAnimationLoop(null);else rn.setAnimationLoop(renderFrame)});
+addEventListener('pagehide',()=>{Object.keys(keys).forEach(k=>keys[k]=0);joy.x=joy.y=0;lookId=null},{passive:true});
+addEventListener('pageshow',()=>{if(!document.hidden&&!graphicsLost){_cl=_lf=performance.now();rn.setAnimationLoop(renderFrame)}},{passive:true});
+
+/* ===== runtime helpers: cinematic overlay + adaptive resolution ===== */
+const cineEl=document.getElementById('cine'),btEl=document.getElementById('bt'),bbEl=document.getElementById('bb');let _co=-1,_cb=-1,_lf=performance.now(),_acc=0,_n=0,_cd=0;
+function cineUpd(t){const ta=t-T1;let o=sm(-1.6,-.15,ta)*(1-sm(.2,2.8,ta)),b=sm(-1.2,.9,ta)*(1-sm(FD-.4,FD+LD+.8,ta));o=Math.round(o*100)/100;b=Math.round(b*100)/100;if(o!==_co){_co=o;cineEl.style.opacity=o}if(b!==_cb){_cb=b;btEl.style.transform=bbEl.style.transform='scaleY('+b+')'}}
+let FDT=1/60,sceneryReady=Infinity,_dmin=1e9;const FK=a=>1-Math.pow(1-a,FDT*60);
+function perfTick(){const n=performance.now(),d=n-_lf;_lf=n;FDT=Math.min(.05,Math.max(.004,d/1e3));
+if(n<sceneryReady+2500||document.body.classList.contains('show-defs')){_acc=0;_n=0;return}
+if(d>=250){_acc=0;_n=0;return}if(_n===0)_dmin=d;_acc+=Math.min(d,60);_n++;if(d<_dmin)_dmin=d;
+if(_n>=40){const avg=_acc/_n,fl=(m=>QT.touch?Math.min(m,Math.max(1,m*.6)):Math.min(1,m))(maxDpr(innerWidth,innerHeight)),lim=Math.max(24,_dmin*1.45);_acc=_n=0;if(n<_cd)return;
+if(avg>lim&&dprNow>fl+.01){dprNow=Math.max(fl,dprNow*.88);rn.setPixelRatio(dprNow);rn.setSize(Math.max(1,innerWidth),Math.max(1,innerHeight));_cd=n+1500}}}
+/* ===== Mathematical definitions of the operators ===== */
+const DEFS=[
+{n:'Gradient',c:'#75ed9a',sym:'∇f',chip:String.raw`\(\nabla f=\left(\dfrac{\partial f}{\partial x},\dfrac{\partial f}{\partial y}\right)\)`,
+ tex:String.raw`\[\nabla f=\left(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y},\frac{\partial f}{\partial z}\right),\qquad D_{\mathbf u}f=\nabla f\cdot\mathbf u,\qquad \|\nabla f\|=\max_{\|\mathbf u\|=1}D_{\mathbf u}f\]`,
+ txt:'Takes a scalar field f (here the hill height) and returns a vector field pointing in the direction of steepest increase. Its length is that steepest slope; it is perpendicular to the contour lines.'},
+{n:'Divergence',c:'#77d4ff',sym:'∇·F',chip:String.raw`\(\nabla\!\cdot\!\mathbf F=\dfrac{\partial P}{\partial x}+\dfrac{\partial Q}{\partial y}\)`,
+ tex:String.raw`\[\nabla\!\cdot\!\mathbf F=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}=\lim_{V\to0}\frac{1}{|V|}\oint_{\partial V}\mathbf F\cdot\mathbf n\,dS,\qquad \mathbf F=(P,Q,R)\]`,
+ txt:'Takes a vector field F and returns a scalar: the net outward flux per unit volume (area in 2-D). Positive = source, negative = sink, zero = inflow balances outflow.'},
+{n:'Curl',c:'#d4a0ff',sym:'∇×F',chip:String.raw`\(\left(\nabla\times\mathbf F\right)_z=\dfrac{\partial Q}{\partial x}-\dfrac{\partial P}{\partial y}\)`,
+ tex:String.raw`\[\nabla\times\mathbf F=\begin{vmatrix}\mathbf i&\mathbf j&\mathbf k\\ \partial_x&\partial_y&\partial_z\\ P&Q&R\end{vmatrix}=\left(\partial_yR-\partial_zQ,\ \partial_zP-\partial_xR,\ \partial_xQ-\partial_yP\right)\]\[(\nabla\times\mathbf F)\cdot\mathbf n=\lim_{A\to0}\frac{1}{A}\oint_{\partial A}\mathbf F\cdot d\mathbf r\]`,
+ txt:'Takes a vector field F and returns a vector: the local circulation (spin) per unit area, along the right-hand-rule axis. In the flat 2-D worlds only the z-component, ∂Q/∂x − ∂P/∂y, is non-zero.'},
+{n:'Laplacian',c:'#ffdf86',sym:'∇²f',chip:String.raw`\(\nabla^2 f=\dfrac{\partial^2 f}{\partial x^2}+\dfrac{\partial^2 f}{\partial y^2}\)`,
+ tex:String.raw`\[\nabla^2 f=\nabla\!\cdot\!(\nabla f)=\frac{\partial^2 f}{\partial x^2}+\frac{\partial^2 f}{\partial y^2}+\frac{\partial^2 f}{\partial z^2}\approx\frac{f(E)+f(W)+f(N)+f(S)-4f(P)}{\varepsilon^2}\]`,
+ txt:'Takes a scalar field f and returns a scalar: the divergence of the gradient. It compares the value at P with the average of its neighbours: negative on peaks, positive in bowls.'}];
+const dEl=document.getElementById('defs'),fEl=document.getElementById('fchip');
+let derivMathQueue=Promise.resolve();
+function clearMath(el){try{if(window.MathJax?.typesetClear)window.MathJax.typesetClear([el])}catch(err){console.warn('MathJax clear skipped',err)}}
+function typesetEl(el,n=0){
+ if(!el)return Promise.resolve();
+ const mj=window.MathJax;
+ if(mj?.typesetPromise&&mj?.startup?.promise){
+  derivMathQueue=derivMathQueue.catch(()=>{}).then(()=>mj.startup.promise).then(()=>mj.typesetPromise([el]));
+  return derivMathQueue.catch(err=>{console.error('Derivation maths could not be typeset',err)});
+ }
+ if(n<80){setTimeout(()=>typesetEl(el,n+1),150);return}
+ el.classList.add('math-unavailable');
+}
+function openDefs(cur){const body=dEl.querySelector('.body');clearMath(body);dEl.querySelector('.card').classList.remove('wide');body.innerHTML='<h2>The four operators</h2><div class="intro">All are built from the del operator, which differentiates in every direction at once:</div>'+String.raw`\[\nabla=\left(\frac{\partial}{\partial x},\frac{\partial}{\partial y},\frac{\partial}{\partial z}\right)\]`+DEFS.map((d,i)=>`<div class="op${i===cur?' cur':''}" style="--c:${d.c}"><h3>${d.n} · ${d.sym}</h3>${d.tex}<p>${d.txt}</p></div>`).join('');document.body.classList.add('show-defs');typesetEl(dEl)}
+function closeDefs(){document.body.classList.remove('show-defs')}
+function setChip(i){if(i<0){clearMath(fEl);fEl.classList.remove('on');return}clearMath(fEl);fEl.innerHTML=DEFS[i].chip;fEl.classList.add('on');typesetEl(fEl)}
+document.getElementById('menuDefs').onclick=()=>openDefs(-1);
+/* ===== Full derivations (opened by the "∇ Math" button inside a world) ===== */
+const COL={g:'#75ed9a',b:'#77d4ff',p:'#d4a0ff',y:'#ffdf86',w:'#f4f1df',o:'#ffb86b',m:'#8fae92'};
+const MKS='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'+Object.entries(COL).map(([k,c])=>`<marker id="mk${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('')+'</defs></svg>';
+const ar=(a,b,c,d,k='w',w=2.2,da='')=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${COL[k]}" stroke-width="${w}" stroke-linecap="round"${da?` stroke-dasharray="${da}"`:''} marker-end="url(#mk${k})"/>`;
+const ln=(a,b,c,d,k='m',w=1.4,da='')=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${COL[k]}" stroke-width="${w}" stroke-linecap="round"${da?` stroke-dasharray="${da}"`:''}/>`;
+const T=(x,y,s,k='w',an='middle',sz=12)=>`<text x="${x}" y="${y}" text-anchor="${an}" fill="${COL[k]}" font-size="${(sz*1.08).toFixed(1)}" font-weight="650" font-style="normal">${s}</text>`;
+const dot=(x,y,k='w',r=4.5,f=1)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f?COL[k]:'none'}" stroke="${COL[k]}" stroke-width="1.6"/>`;
+const arc=(d,k,w=2.2)=>`<path d="${d}" fill="none" stroke="${COL[k]}" stroke-width="${w}" stroke-linecap="round" marker-end="url(#mk${k})"/>`;
+const wheel=(x,y)=>ln(x-12,y-12,x+12,y+12,'p',2.6)+ln(x-12,y+12,x+12,y-12,'p',2.6)+dot(x,y,'p',3.5);
+let figSerial=0;
+const FIG=(h,body,cap)=>{const id='fig'+(++figSerial);return `<figure class="fig"><svg viewBox="0 0 520 ${h}" role="img" aria-label="Vector calculus derivation diagram"><defs><linearGradient id="${id}Surface" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#102f27"/><stop offset="1" stop-color="#061710"/></linearGradient><radialGradient id="${id}Glow" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#6da88a" stop-opacity=".13"/><stop offset="1" stop-color="#061710" stop-opacity="0"/></radialGradient><pattern id="${id}Grid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M26 0H0V26" fill="none" stroke="#c4e7cf" stroke-opacity=".055" stroke-width=".7"/></pattern></defs><rect width="520" height="${h}" fill="url(#${id}Surface)"/><rect width="520" height="${h}" fill="url(#${id}Glow)"/><rect width="520" height="${h}" fill="url(#${id}Grid)"/>${body}</svg><figcaption>${cap}</figcaption></figure>`};
+const STP=(n,t,h)=>`<div class="stp"><h4>Step ${n} · ${t}</h4>${h}</div>`;
+const RES=h=>`<div class="res">${h}</div>`;
+const EX=h=>`<div class="ex"><b>Worked example.</b> ${h}</div>`;
+const rad=(cx,cy,inw,k)=>{let s='';for(let i=0;i<8;i++){const a=i*PI/4,c=Math.cos(a),n=Math.sin(a),r0=inw?46:16,r1=inw?18:46;s+=ar(cx+c*r0,cy+n*r0,cx+c*r1,cy+n*r1,k,2)}return s+dot(cx,cy,'y',8,0)};
+const figG1=()=>{let b='';[30,60,90,120].forEach(r=>b+=`<circle cx="330" cy="150" r="${r}" fill="none" stroke="#6f8f72" stroke-width="1.2"/>`);
+ b+=T(330,154,'summit','m','middle',10)+T(20,30,'Top view of a hill: rings are contour lines (equal height)','m','start',11)
+ +ln(223,162,301,254,'y',1.6,'5 4')+ln(262,208,306,215,'y',5)+ln(315,162,306,215,'m',1.2,'3 3')
+ +ar(262,208,315,162,'g',3.2)+ar(262,208,323,218,'w',1.8)
+ +`<path d="M283 190 A28 28 0 0 1 290 213" fill="none" stroke="${COL.y}" stroke-width="1.6"/><path d="M269.6 201.5 L276 209 L268.5 215.6" fill="none" stroke="${COL.y}" stroke-width="1.3"/>`
+ +dot(262,208)+T(244,228,'P','w','middle',14)+T(322,156,'∇f','g','start',15)+T(330,226,'u','w','start',14)+T(304,200,'φ','y','start',13)+T(306,238,'D<tspan font-size="9" dy="3">u</tspan><tspan dy="-3">f</tspan>','y','middle',13)+T(300,268,'contour f = c','y','start',11)
+ +T(20,262,'green: ∇f (steepest uphill)','g','start',11)+T(20,278,'white: unit step u · yellow: D_u f = ‖∇f‖ cos φ','y','start',11);
+ return FIG(290,b,'At P the gradient ∇f is perpendicular to the contour through P. Walking along u gains height at the rate D<sub>u</sub>f, the shadow of ∇f on u.')};
+const figG2=()=>{let b=`<path d="M30 190 Q280 190 490 30" fill="none" stroke="${COL.g}" stroke-width="2.6"/>`+ln(30,200,490,200,'m',1.2)+T(260,216,'distance along the direction of ∇f','m','middle',11)
+ +ln(170,184.8,370,115.2,'y',1.8,'6 4')+ln(270,150,370,150,'w',1.6)+ln(370,150,370,115.2,'o',2.6)+dot(270,150)
+ +`<path d="M310 150 A40 40 0 0 0 307.8 136.8" fill="none" stroke="${COL.y}" stroke-width="1.6"/>`
+ +T(262,170,'P','w','end',13)+T(320,140,'α','y','start',13)+T(320,166,'run = 1','w','start',11)+T(378,136,'rise = ‖∇f‖','o','start',11)+T(380,96,'tangent line, slope = ‖∇f‖','y','start',11)+T(30,30,'Side view along the steepest direction','m','start',11);
+ return FIG(225,b,'Walking one unit of horizontal distance in the direction of ∇f raises you by ‖∇f‖, so the slope angle is α = arctan‖∇f‖.')};
+const figD1=()=>{let b=`<rect x="190" y="90" width="140" height="120" fill="rgba(119,212,255,.09)" stroke="${COL.b}" stroke-width="2"/>`;
+ [110,150,190].forEach(y=>b+=ar(330,y,384,y,'g',2.6)+ar(190,y,165,y,'g',2.6));[220,260,300].forEach(x=>b+=ar(x,90,x,50,'b',2.6)+ar(x,210,x,236,'b',2.6));
+ b+=T(392,154,'P(x+Δx/2, y)','g','start',11)+T(158,154,'P(x−Δx/2, y)','g','end',11)+T(260,40,'Q(x, y+Δy/2)','b')+T(260,256,'Q(x, y−Δy/2)','b')
+ +dot(260,150)+T(260,142,'(x, y)','w','middle',11)+T(260,172,'ΔA = Δx·Δy','y','middle',11)+T(212,150,'Δy','m','middle',11)+T(260,202,'Δx','m','middle',11)
+ +T(260,282,'Arrow length ∝ field strength: more water leaves on the right than enters on the left','m','middle',10.5);
+ return FIG(292,b,'Flux = Σ (F·n) × edge length over the four edges. Here P grows with x and Q grows with y, so the box loses more than it gains: positive divergence.')};
+const figD2=()=>{let b=rad(90,80,0,'b')+rad(260,80,1,'o');[-32,-16,0,16,32].forEach(dy=>b+=ar(392,80+dy,468,80+dy,'g',2.2));b+=dot(430,80,'y',8,0)
+ +T(90,150,'F = (x, y)','b','middle',11)+T(90,166,'∇·F = 2 > 0 · source','m','middle',10)+T(260,150,'F = (−x, −y)','o','middle',11)+T(260,166,'∇·F = −2 < 0 · sink','m','middle',10)+T(430,150,'F = (1, 0)','g','middle',11)+T(430,166,'∇·F = 0 · balanced','m','middle',10);
+ return FIG(176,b,'The yellow ring is a tiny patch of water carried by the flow: it grows, shrinks, or keeps its area. Divergence is that growth rate per unit area.')};
+const figC1=()=>{let b=`<rect x="190" y="90" width="140" height="120" fill="rgba(212,160,255,.08)" stroke="${COL.p}" stroke-width="1" stroke-dasharray="3 3"/>`
+ +ar(190,210,330,210,'p',3.2)+ar(330,210,330,90,'p',3.2)+ar(330,90,190,90,'p',3.2)+ar(190,90,190,210,'p',3.2)
+ +T(260,232,'+ P(x, y−Δy/2) Δx','p')+T(342,146,'+ Q(x+Δx/2, y)','p','start',11)+T(342,162,'× Δy','p','start',11)+T(260,76,'− P(x, y+Δy/2) Δx','p')+T(178,146,'− Q(x−Δx/2, y)','p','end',11)+T(178,162,'× Δy','p','end',11)
+ +arc('M282 150 A22 22 0 0 0 238 150','y',2)+arc('M238 150 A22 22 0 0 0 282 150','y',2)+T(260,155,'Γ','y','middle',14)+T(260,188,'counter-clockwise','m','middle',10.5)
+ +T(260,22,'Walk the loop counter-clockwise, adding F·(direction of travel) × length','m','middle',11);
+ return FIG(250,b,'Bottom and top edges feel P (with opposite signs because we walk opposite ways); right and left edges feel Q.')};
+const figC2=()=>{let b=arc('M122 80 A32 32 0 0 0 58 80','p',2.4)+arc('M58 80 A32 32 0 0 0 122 80','p',2.4)+arc('M106 80 A16 16 0 0 0 74 80','p',1.8)+arc('M74 80 A16 16 0 0 0 106 80','p',1.8)+wheel(90,80);
+ [-36,-18,18,36].forEach(dy=>{const v=-dy*1.1;b+=ar(260-v/2,80+dy,260+v/2,80+dy,'g',2.2)});b+=arc('M276 80 A16 16 0 0 1 244 80','y',2)+arc('M244 80 A16 16 0 0 1 276 80','y',2)+wheel(260,80)+rad(430,80,0,'b')+wheel(430,80);
+ b+=T(90,150,'F = (−ωy, ωx)','p','middle',11)+T(90,166,'∇×F = 2ω → spins CCW','m','middle',10)+T(260,150,'F = (y, 0)','g','middle',11)+T(260,166,'∇×F = −1 → spins CW','m','middle',10)+T(430,150,'F = (x, y)','b','middle',11)+T(430,166,'∇×F = 0 → no spin','m','middle',10);
+ return FIG(176,b,'A tiny paddle-wheel dropped into each flow. Rigid rotation turns it at ω; a shear (faster water on one side) also turns it; a pure source does not.')};
+const figL1=()=>{let b=`<path d="M40 60 Q130 240 220 60" fill="none" stroke="${COL.b}" stroke-width="2.6"/><path d="M300 160 Q390 -20 480 160" fill="none" stroke="${COL.y}" stroke-width="2.6"/>`
+ +ln(76,117.6,184,117.6,'m',1.4,'4 4')+dot(76,117.6,'w',4)+dot(184,117.6,'w',4)+dot(130,150,'b',5.5)+dot(130,117.6,'o',4,0)+ar(130,146,130,123,'o',2.2)
+ +T(62,110,'W','w','end',12)+T(198,110,'E','w','start',12)+T(130,170,'P','b','middle',13)+T(130,106,'avg(E, W)','o','middle',10)+T(130,22,'Bowl · ∇²f > 0','b','middle',13)+T(130,205,'centre BELOW its neighbours','m','middle',10.5)
+ +ln(336,102.4,444,102.4,'m',1.4,'4 4')+dot(336,102.4,'w',4)+dot(444,102.4,'w',4)+dot(390,70,'y',5.5)+dot(390,102.4,'o',4,0)+ar(390,74,390,97,'o',2.2)
+ +T(322,95,'W','w','end',12)+T(458,95,'E','w','start',12)+T(390,58,'P','y','middle',13)+T(390,120,'avg(E, W)','o','middle',10)+T(390,22,'Mound · ∇²f < 0','y','middle',13)+T(390,205,'centre ABOVE its neighbours','m','middle',10.5);
+ return FIG(220,b,'Orange arrow = (average of the neighbours) − (centre). It points up for a bowl (positive Laplacian) and down for a mound (negative).')};
+const figL2=()=>{let b=ln(160,115,360,115,'m',1.4,'4 4')+ln(260,35,260,195,'m',1.4,'4 4');
+ const nd=(x,y,w,k,l,lx,ly,an)=>dot(x,y,k,20,0)+T(x,y+5,w,k,'middle',14)+T(lx,ly,l,k,an,11);
+ b+=nd(260,115,'−4','y','P: f(x, y)',260,152,'middle')+nd(360,115,'+1','b','E: f(x+ε, y)',390,119,'start')+nd(160,115,'+1','b','W: f(x−ε, y)',130,119,'end')+nd(260,35,'+1','b','N: f(x, y+ε)',290,39,'start')+nd(260,195,'+1','b','S: f(x, y−ε)',290,199,'start')
+ +T(310,106,'ε','m','middle',12)+T(20,222,'∇²f ≈ (1·E + 1·W + 1·N + 1·S − 4·P) / ε²','m','start',11);
+ return FIG(232,b,'The five-point stencil: the weights sum to zero, so flat ground gives exactly 0.')};
+const DER=[
+()=>({title:'the steepest way up',lead:'You stand at a point P on a hillside of height z = f(x, y). Which way is steepest uphill, and how steep is it? We measure the slope in <i>every</i> direction, then pick the largest.',body:
+STP(1,'Choose a direction',String.raw`<p>A tiny step of length \(h\) in the direction of a unit vector \(\mathbf u\):</p>\[\mathbf u=(u_x,u_y)=(\cos\theta,\sin\theta),\qquad \|\mathbf u\|=1.\]`)
++STP(2,'Slope in that direction',String.raw`<p>Height gained per unit distance walked, as the step shrinks to zero, is the <b>directional derivative</b>:</p>\[D_{\mathbf u}f(P)=\lim_{h\to0}\frac{f(P+h\mathbf u)-f(P)}{h}.\]`)
++STP(3,'Reduce to one variable and use the chain rule',String.raw`<p>Let \(g(h)=f(x+hu_x,\;y+hu_y)\), the height along the walk. Then \(D_{\mathbf u}f=g'(0)\), and the chain rule gives</p>\[g'(h)=\frac{\partial f}{\partial x}\frac{d(x+hu_x)}{dh}+\frac{\partial f}{\partial y}\frac{d(y+hu_y)}{dh}=f_x\,u_x+f_y\,u_y .\]<p>(Equivalently, near \(P\): \(f(P+h\mathbf u)=f(P)+h(f_xu_x+f_yu_y)+o(h)\).) This is a dot product, so we name the vector of partial derivatives the <b>gradient</b>:</p>\[\nabla f=\left(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y}\right),\qquad D_{\mathbf u}f=\nabla f\cdot\mathbf u .\]`)
++STP(4,'Find the direction that maximises the slope',String.raw`<p>Let \(\varphi\) be the angle between \(\mathbf u\) and \(\nabla f\):</p>\[D_{\mathbf u}f=\|\nabla f\|\,\|\mathbf u\|\cos\varphi=\|\nabla f\|\cos\varphi .\]<p>Since \(-1\le\cos\varphi\le1\): at \(\varphi=0\) the slope is largest, \(+\|\nabla f\|\), and \(\mathbf u=\nabla f/\|\nabla f\|\); at \(\varphi=\pi\) it is steepest <i>descent</i>, \(-\|\nabla f\|\); at \(\varphi=\pi/2\) it is \(0\): you walk along a level line.</p>`+figG1())
++STP(5,'Why the gradient is perpendicular to contours',String.raw`<p>Take a path \(\mathbf r(s)=(x(s),y(s))\) that stays on one contour, \(f(\mathbf r(s))=c\). Differentiate with the chain rule:</p>\[\frac{d}{ds}f(\mathbf r(s))=\nabla f\cdot\mathbf r'(s)=0 .\]<p>So \(\nabla f\) is perpendicular to the contour's tangent \(\mathbf r'\). Where contours crowd together, the height changes quickly, so \(\|\nabla f\|\) is large.</p>`)
++STP(6,'What the length means',String.raw`<p>Moving one unit along \(\nabla f/\|\nabla f\|\) raises you by \(\|\nabla f\|\), so the slope angle is \(\alpha=\arctan\|\nabla f\|\), and the tangent plane is</p>\[z\approx f(P)+\nabla f(P)\cdot(\mathbf x-P).\]`+figG2())
++RES(String.raw`\[\boxed{\;\nabla f=\left(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y}\right)\;}\]<p>Direction: steepest ascent. Length \(\|\nabla f\|\): the steepest slope. Always \(\perp\) to contours; zero at peaks, pits and passes.</p>`)
++EX(String.raw`\(f=x^2+y^2\Rightarrow\nabla f=(2x,2y)\). At \(P=(1,2)\): \(\nabla f=(2,4)\), \(\|\nabla f\|=\sqrt{20}\approx4.47\), slope angle \(\arctan 4.47\approx77^\circ\); the best direction is \(\mathbf u=(1,2)/\sqrt5\). In this world, the green arrow under the ladybird is exactly \(\nabla f\); press <b>Top view</b> to see it cross the contours at right angles.`)}),
+()=>({title:'net outflow per unit area',lead:'The vector field <b>F = (P, Q)</b> is the velocity of flowing water. Does a tiny patch of water lose or gain fluid? We count how much crosses its boundary.',body:
+STP(1,'Flux through a short edge',String.raw`<p>Only the part of the velocity <i>perpendicular</i> to an edge carries water across it. For an edge of length \(\ell\) with outward unit normal \(\mathbf n\):</p>\[\text{flux}\approx(\mathbf F\cdot\mathbf n)\,\ell .\]`)
++STP(2,'A tiny box around (x, y)',String.raw`<p>Take a box \(\Delta x\times\Delta y\) centred at \((x,y)\). The outward normals are \(+\hat{\mathbf x},-\hat{\mathbf x},+\hat{\mathbf y},-\hat{\mathbf y}\), so</p>\[\begin{aligned}\text{right: }&\;P\!\left(x+\tfrac{\Delta x}{2},y\right)\Delta y\\\text{left: }&-P\!\left(x-\tfrac{\Delta x}{2},y\right)\Delta y\\\text{top: }&\;Q\!\left(x,y+\tfrac{\Delta y}{2}\right)\Delta x\\\text{bottom: }&-Q\!\left(x,y-\tfrac{\Delta y}{2}\right)\Delta x\end{aligned}\]`+figD1())
++STP(3,'Add the four edges and pair opposite ones',String.raw`\[\Phi=\Big[P(x+\tfrac{\Delta x}{2},y)-P(x-\tfrac{\Delta x}{2},y)\Big]\Delta y+\Big[Q(x,y+\tfrac{\Delta y}{2})-Q(x,y-\tfrac{\Delta y}{2})\Big]\Delta x .\]<p>Each bracket is the change of one function between two nearby places.</p>`)
++STP(4,'Taylor-expand each difference',String.raw`\[P\!\left(x\pm\tfrac{\Delta x}{2},y\right)=P\pm\tfrac{\Delta x}{2}\,\partial_xP+O(\Delta x^2)\;\Rightarrow\;P(x+\tfrac{\Delta x}{2},y)-P(x-\tfrac{\Delta x}{2},y)=\partial_xP\,\Delta x+O(\Delta x^3).\]<p>The same holds for \(Q\) in \(y\). Therefore</p>\[\Phi=\left(\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}\right)\Delta x\,\Delta y+\text{(smaller terms)}.\]`)
++STP(5,'Divide by the area and shrink the box',String.raw`\[\nabla\!\cdot\!\mathbf F=\lim_{\Delta A\to0}\frac{\Phi}{\Delta A}=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}.\]`+figD2())
++STP(6,'Why a patch of water grows',String.raw`<p>Water that leaves the box is exactly the volume by which a patch of fluid riding the flow expands. To first order</p>\[\frac{1}{A}\frac{dA}{dt}=\nabla\!\cdot\!\mathbf F ,\]<p>which is why the ring in this world grows where \(\nabla\!\cdot\!\mathbf F\gt0\), shrinks where it is \(\lt0\), and keeps its area where it is \(0\).</p>`)
++STP(7,'Three dimensions and the divergence theorem',String.raw`<p>A box has two more faces (front/back) carrying \(R\,\Delta x\Delta y\): \(\nabla\!\cdot\!\mathbf F=\partial_xP+\partial_yQ+\partial_zR\). Tile a region \(D\) with tiny boxes: flux out of one box through a shared face is flux into its neighbour, so interior faces cancel and only the outer boundary remains:</p>\[\iint_D\nabla\!\cdot\!\mathbf F\;dA=\oint_{\partial D}\mathbf F\cdot\mathbf n\;ds .\]`)
++RES(String.raw`\[\boxed{\;\nabla\!\cdot\!\mathbf F=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}\;}\]<p>\(\gt0\): net outflow (a <b>source</b>). \(\lt0\): net inflow (a <b>sink</b>). \(=0\): inflow balances outflow (incompressible).</p>`)
++EX(String.raw`\(\mathbf F=(x,y)\Rightarrow\nabla\!\cdot\!\mathbf F=1+1=2\) (source). \(\mathbf F=(-x,-y)\Rightarrow-2\) (sink). \(\mathbf F=(y,0)\Rightarrow0\) and \(\mathbf F=(-y,x)\Rightarrow0+0=0\): a shear or a swirl moves water around without creating or destroying any. Try the presets <b>Source</b>, <b>Sink</b> and <b>Swirl</b>.`)}),
+()=>({title:'the local spin of a flow',lead:'Drop a tiny paddle-wheel into the water flow <b>F = (P, Q)</b>. Does it turn, and how fast? We measure the circulation around a tiny loop.',body:
+STP(1,'Circulation along a short edge',String.raw`<p>Only the part of the velocity <i>along</i> an edge pushes the wheel's rim around it. For a short edge of length \(\ell\) with unit tangent \(\mathbf t\): contribution \(\approx(\mathbf F\cdot\mathbf t)\,\ell\). Around a closed loop:</p>\[\Gamma=\oint\mathbf F\cdot d\mathbf r .\]`)
++STP(2,'Walk counter-clockwise around the tiny box',String.raw`\[\begin{aligned}\text{bottom (}\to\text{): }&\;P\!\left(x,y-\tfrac{\Delta y}{2}\right)\Delta x\\\text{right (}\uparrow\text{): }&\;Q\!\left(x+\tfrac{\Delta x}{2},y\right)\Delta y\\\text{top (}\leftarrow\text{): }&-P\!\left(x,y+\tfrac{\Delta y}{2}\right)\Delta x\\\text{left (}\downarrow\text{): }&-Q\!\left(x-\tfrac{\Delta x}{2},y\right)\Delta y\end{aligned}\]<p>The minus signs appear because on the top edge we walk against the \(x\)-axis, and on the left edge against the \(y\)-axis.</p>`+figC1())
++STP(3,'Group the terms',String.raw`\[\Gamma=\Big[Q(x+\tfrac{\Delta x}{2},y)-Q(x-\tfrac{\Delta x}{2},y)\Big]\Delta y-\Big[P(x,y+\tfrac{\Delta y}{2})-P(x,y-\tfrac{\Delta y}{2})\Big]\Delta x .\]`)
++STP(4,'Taylor-expand each difference',String.raw`\[\Gamma=\frac{\partial Q}{\partial x}\Delta x\,\Delta y-\frac{\partial P}{\partial y}\Delta y\,\Delta x+\text{(smaller terms)}=\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)\Delta A .\]`)
++STP(5,'Circulation per unit area',String.raw`\[(\nabla\times\mathbf F)_z=\lim_{\Delta A\to0}\frac{\Gamma}{\Delta A}=\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}.\]<p><b>Reading it:</b> if northward flow strengthens as you go east (\(Q_x\gt0\)), the east side pushes up harder than the west side: counter-clockwise. If eastward flow strengthens going north (\(P_y\gt0\)), the top pushes right harder: clockwise, hence the minus sign.</p>`)
++STP(6,'Check with a rigid rotation',String.raw`<p>Water turning at angular speed \(\omega\) has \(\mathbf F=(-\omega y,\;\omega x)\), so \(P=-\omega y,\ Q=\omega x\):</p>\[\nabla\times\mathbf F=\frac{\partial(\omega x)}{\partial x}-\frac{\partial(-\omega y)}{\partial y}=\omega+\omega=2\omega .\]<p>So the paddle-wheel spins at <b>half the curl</b>, \(\tfrac12(\nabla\times\mathbf F)_z\), the number the ladybird's wheel uses here.</p>`+figC2())
++STP(7,'Three dimensions and Stokes\' theorem',String.raw`<p>Repeat with tiny loops in the \(yz\)- and \(zx\)-planes (cycle \(x\to y\to z\to x\)) for \(\mathbf F=(P,Q,R)\):</p>\[\nabla\times\mathbf F=\begin{vmatrix}\mathbf i&\mathbf j&\mathbf k\\\partial_x&\partial_y&\partial_z\\P&Q&R\end{vmatrix}=\big(\partial_yR-\partial_zQ,\;\partial_zP-\partial_xR,\;\partial_xQ-\partial_yP\big).\]<p>The vector points along the axis of rotation (right-hand rule); for any loop orientation \(\mathbf n\): \((\nabla\times\mathbf F)\cdot\mathbf n=\lim\Gamma_{\mathbf n}/A\). Tiling a surface with tiny loops, each shared edge is walked in opposite directions and cancels:</p>\[\iint_S(\nabla\times\mathbf F)\cdot\mathbf n\,dA=\oint_{\partial S}\mathbf F\cdot d\mathbf r .\]`)
++RES(String.raw`\[\boxed{\;(\nabla\times\mathbf F)_z=\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\;}\]<p>\(\gt0\): counter-clockwise spin (vector points up). \(\lt0\): clockwise. \(=0\): the wheel does not turn.</p>`)
++EX(String.raw`\(\mathbf F=(-y,x)\Rightarrow\nabla\times\mathbf F=1-(-1)=2\). \(\mathbf F=(y,0)\Rightarrow0-1=-1\): a pure shear, with no circular motion, still turns the wheel (clockwise). \(\mathbf F=(x,y)\Rightarrow0-0=0\): a source never spins it. Try the presets <b>Swirl</b>, <b>Shear</b> and <b>Source</b>.`)}),
+()=>({title:'compare the centre with its neighbours',lead:'Is the ground at P higher or lower than its surroundings, and by how much? Two independent routes give the same answer: (A) divergence of the gradient, (B) comparison with neighbouring heights.',body:
+STP(1,'Route A: divergence of the gradient',String.raw`<p>The gradient \(\nabla f=(f_x,f_y)\) is a vector field of uphill arrows. Apply the divergence formula with \(P=f_x\) and \(Q=f_y\):</p>\[\nabla^2f=\nabla\!\cdot\!(\nabla f)=\frac{\partial}{\partial x}\!\left(\frac{\partial f}{\partial x}\right)+\frac{\partial}{\partial y}\!\left(\frac{\partial f}{\partial y}\right)=\frac{\partial^2f}{\partial x^2}+\frac{\partial^2f}{\partial y^2}.\]<p>At the bottom of a bowl the uphill arrows point away from the centre (they spread out: \(\gt0\)); on a peak they point inward (they converge: \(\lt0\)).</p>`)
++STP(2,'Route B: a second derivative is a neighbour comparison',String.raw`<p>Taylor-expand the height a distance \(\varepsilon\) to each side:</p>\[f(x\pm\varepsilon)=f\pm\varepsilon f_x+\tfrac{\varepsilon^2}{2}f_{xx}\pm\tfrac{\varepsilon^3}{6}f_{xxx}+O(\varepsilon^4).\]<p>Add the two lines; the odd terms cancel:</p>\[f(x+\varepsilon)+f(x-\varepsilon)=2f(x)+\varepsilon^2f_{xx}+O(\varepsilon^4)\;\Rightarrow\;f_{xx}=\frac{2}{\varepsilon^2}\Big(\underbrace{\tfrac{f(E)+f(W)}{2}}_{\text{neighbour average}}-f(P)\Big)+O(\varepsilon^2).\]`+figL1())
++STP(3,'Add the second direction',String.raw`<p>Doing the same north and south and adding gives the five-point formula:</p>\[\nabla^2f(P)\approx\frac{f(E)+f(W)+f(N)+f(S)-4f(P)}{\varepsilon^2}=\frac{4}{\varepsilon^2}\Big(\overline{f}_{\text{nbrs}}-f(P)\Big).\]`+figL2())
++STP(4,'It does not depend on the axes',String.raw`<p>Average \(f\) over a whole circle of radius \(\varepsilon\). Expand \(f(P+\varepsilon\mathbf u)=f+\varepsilon\nabla f\cdot\mathbf u+\tfrac{\varepsilon^2}{2}(f_{xx}u_x^2+2f_{xy}u_xu_y+f_{yy}u_y^2)+\dots\) and average over \(\mathbf u\): \(\langle u\rangle=0\), \(\langle u_x^2\rangle=\langle u_y^2\rangle=\tfrac12\), \(\langle u_xu_y\rangle=0\). Hence</p>\[\overline{f}_{\text{circle}}=f(P)+\frac{\varepsilon^2}{4}\nabla^2f(P)+O(\varepsilon^4)\;\Rightarrow\;\nabla^2f=\lim_{\varepsilon\to0}\frac{4}{\varepsilon^2}\big(\overline{f}_{\text{circle}}-f(P)\big).\]`)
++STP(5,'Read the sign',String.raw`<p>\(\nabla^2f\gt0\): the centre is below its neighbours' average (a <b>bowl</b>, water collects). \(\nabla^2f\lt0\): above it (a <b>mound</b>, water runs off). \(=0\): balanced (flat ground or a saddle). Water flows downhill with velocity \(\mathbf v=-\nabla f\), so \(\nabla\!\cdot\!\mathbf v=-\nabla^2f\): a mound spreads water out, matching Route A. In three dimensions add \(f_{zz}\); heat and diffusion obey \(\partial_tf=\kappa\nabla^2f\).</p>`)
++RES(String.raw`\[\boxed{\;\nabla^2f=\nabla\!\cdot\!(\nabla f)=\frac{\partial^2f}{\partial x^2}+\frac{\partial^2f}{\partial y^2}\approx\frac{f(E)+f(W)+f(N)+f(S)-4f(P)}{\varepsilon^2}\;}\]`)
++EX(String.raw`\(f=x^2+y^2\Rightarrow f_{xx}+f_{yy}=2+2=4\). The stencil at the origin with \(\varepsilon=1\) gives \((1+1+1+1-0)/1=4\), exactly. \(f=-(x^2+y^2)\Rightarrow-4\) (mound). \(f=x^2-y^2\Rightarrow2-2=0\): a saddle is balanced, which is why the <b>Saddle</b> preset has \(\nabla^2f=0\) yet is not flat.`)})];
+function openDeriv(i){if(i<0||i>3){openDefs(-1);return}const d=DEFS[i],D=DER[i](),card=dEl.querySelector('.card'),body=dEl.querySelector('.body');card.classList.add('wide');clearMath(body);
+ body.innerHTML=MKS+`<div class="dv" style="--c:${d.c}"><button class="x" type="button" onclick="closeDefs()" aria-label="Close">✕</button><div class="dv-k">Full derivation · ${d.n}</div><h2>${d.sym}: ${D.title}</h2><p class="lead">${D.lead}</p>${G3.fig()}${D.body}<button class="alt" type="button" onclick="openDefs(${i})">All four definitions</button></div>`;
+ document.body.classList.add('show-defs');card.scrollTop=0;typesetEl(dEl);G3.mount(i)}
+/* ===== 3D geometry figures for the derivations (one shared offscreen renderer, blitted into 2D canvases) ===== */
+const G3=(()=>{
+const v=(x,y,z)=>new V3(x,y,z),M=(c,o=1)=>new THREE.MeshPhysicalMaterial({color:c,transparent:o<1,opacity:o,side:THREE.DoubleSide,depthWrite:o>=1,roughness:.62,metalness:.012,clearcoat:.16,clearcoatRoughness:.55}),
+LN=(()=>{const cg=new THREE.CylinderGeometry(1,1,1,12,1,true).translate(0,.5,0),sg=new THREE.SphereGeometry(1,12,8),Y=new THREE.Vector3(0,1,0);
+return(P,c,o=1,r=.0065)=>{const mt=new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,depthWrite:o>=1}),n=P.length-1,cy=new THREE.InstancedMesh(cg,mt,Math.max(1,n)),sp=new THREE.InstancedMesh(sg,mt,n+1),m=new THREE.Matrix4(),q=new THREE.Quaternion(),d=new THREE.Vector3(),k=new THREE.Vector3();
+for(let i=0;i<n;i++){d.subVectors(P[i+1],P[i]);const l=d.length()||1e-6;q.setFromUnitVectors(Y,d.divideScalar(l));cy.setMatrixAt(i,m.compose(P[i],q,k.set(r,l,r)))}
+q.identity();for(let i=0;i<=n;i++)sp.setMatrixAt(i,m.compose(P[i],q,k.set(r,r,r)));
+[cy,sp].forEach(x=>{x.frustumCulled=false;x.instanceMatrix.needsUpdate=true});const g=new THREE.Group();g.add(cy,sp);return g}})(),
+ball=(p,c,r=.08)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,32,24),M(c));m.position.copy(p);return m},
+arr=(a,b,c,r=.03)=>{const d=b.clone().sub(a),l=d.length(),h=Math.min(.32,l*.4),g=new THREE.Group(),dark=new THREE.Color(c).multiplyScalar(.72);g.add(new THREE.Mesh(new THREE.CylinderGeometry(r,r,l-h,32).translate(0,(l-h)/2,0),M(dark)),new THREE.Mesh(new THREE.ConeGeometry(r*3.2,h,40).translate(0,l-h/2,0),M(dark)));g.position.copy(a);g.quaternion.setFromUnitVectors(v(0,1,0),d.normalize());return g},
+ring=(r,z,c,o=1)=>LN(Array.from({length:129},(_,i)=>v(r*Math.cos(i/128*2*PI),r*Math.sin(i/128*2*PI),z)),c,o),
+contourRing=(r,z,c,rad=.018,o=.92)=>{const pts=Array.from({length:128},(_,i)=>v(r*Math.cos(i/128*2*PI),r*Math.sin(i/128*2*PI),z)),curve=new THREE.CatmullRomCurve3(pts,true,'centripetal',.25),mat=new THREE.MeshPhysicalMaterial({color:c,emissive:c,emissiveIntensity:.12,transparent:o<1,opacity:o,roughness:.42,metalness:.015,clearcoat:.22,depthWrite:o>=1});return new THREE.Mesh(new THREE.TubeGeometry(curve,384,rad,16,true),mat)},
+grid=r=>{const g=new THREE.GridHelper(2*r,Math.round(2*r*2),0x91b5b5,0x58747d);g.rotation.x=PI/2;const mats=Array.isArray(g.material)?g.material:[g.material];mats.forEach(m=>{if(m){m.transparent=true;m.opacity=.25;m.depthWrite=false}});return g},
+axes3D=(origin,len=1.35)=>{const g=new THREE.Group();[[v(1,0,0),0xb83b42],[v(0,1,0),0x278653],[v(0,0,1),0x315eb5]].forEach(([d,c])=>{const a=new THREE.ArrowHelper(d,v(0,0,0),len,c,.22,.12);g.add(a)});g.position.copy(origin);return g},
+base=()=>{const s=new THREE.Scene();s.add(new THREE.HemisphereLight(0xd9f1ec,0x203943,1.05));const d=new THREE.DirectionalLight(0xffedcf,1.35);d.position.set(-4,-5,8);s.add(d);const f=new THREE.DirectionalLight(0x8edbd1,.88);f.position.set(5,3,4);s.add(f);return s},
+surf=(fn,r,n,lo,hi)=>{const P=[],C=[],I=[],c=new THREE.Color(),stops=[{t:0,c:new THREE.Color(0x40358f)},{t:.16,c:new THREE.Color(0x365fc4)},{t:.32,c:new THREE.Color(0x32a7c7)},{t:.49,c:new THREE.Color(0x42b99a)},{t:.66,c:new THREE.Color(0xb4c95e)},{t:.82,c:new THREE.Color(0xf0b34e)},{t:1,c:new THREE.Color(0xe87965)}];for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){const x=-r+2*r*i/n,y=-r+2*r*j/n,z=fn(x,y),t=Math.min(1,Math.max(0,(z-lo)/(hi-lo)));let k=0;while(k<stops.length-2&&t>stops[k+1].t)k++;const a=stops[k],b=stops[k+1];c.copy(a.c).lerp(b.c,(t-a.t)/(b.t-a.t));P.push(x,y,z);C.push(c.r,c.g,c.b);if(i<n&&j<n){const a=j*(n+1)+i;I.push(a,a+1,a+n+1,a+1,a+n+2,a+n+1)}}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);g.computeVertexNormals();
+const o=new THREE.Group();o.add(new THREE.Mesh(g,new THREE.MeshPhysicalMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.74,metalness:.015,clearcoat:.12,clearcoatRoughness:.62})),new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xe1ebe2,wireframe:true,transparent:true,opacity:.055,depthWrite:false})));return o},
+f2=x=>x.toFixed(3),
+B=[
+/* GRADIENT: hill f = 2.2 exp(-(x²+y²)/4), exact partials, contour, tangent plane, run/rise triangle */
+()=>{const sc=base(),L=[],f=(x,y)=>2.2*Math.exp(-(x*x+y*y)/4),px=1.1,py=.7,z0=f(px,py),fx=-px/2*z0,fy=-py/2*z0,m=Math.hypot(fx,fy),ux=fx/m,uy=fy/m,S=v(px,py,z0),r0=Math.hypot(px,py),A=S.clone().add(v(ux,uy,0)),T=A.clone().add(v(0,0,m)),pl=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2.2),M(0x55b8d0,.34)),ang=Math.atan2(py,px)+1.2;
+pl.position.copy(S);pl.quaternion.setFromUnitVectors(v(0,0,1),v(-fx,-fy,1).normalize());
+sc.add(grid(3.4),surf(f,3.4,104,0,2.2),pl,ring(r0,0,0xe5d5ad,.28),LN([S,v(px,py,0)],0xe5ece8,.38),arr(v(px,py,0),v(px+ux*m*2.2,py+uy*m*2.2,0),0xa8d2bf,.035),LN([S,A],0xe4e9e2),LN([A,T],0xe2bda5),arr(S,T,0xa8d2bf,.04),ball(S,0xf4f0e4,.09));
+// Equal-height contours: every ring is an exact level set of the Gaussian hill.
+[.2,.34,.54,.8,1.12,1.5,1.9].forEach((level,i)=>{const radius=Math.sqrt(-4*Math.log(level/2.2)),cols=[0x8ce1d0,0x8ec9f0,0xc0a6f1,0xf1ce83];if(radius<3.35)sc.add(contourRing(radius,level+.026,cols[i%cols.length],.018,.96))});
+L.push([S.clone().add(v(0,0,.4)),'P','#f3f4e9'],[T.clone().add(v(0,0,.3)),'steepest ascent','#b5ddcb'],[v(px+ux*m*2.2,py+uy*m*2.2,.1),'∇f on the map','#b5ddcb'],[v(r0*Math.cos(ang),r0*Math.sin(ang),z0+.2),'contour f = c','#efdcad'],[S.clone().add(v(1.0,-.7,0)),'tangent plane','#b9d8e2'],[A.clone().add(v(.1,0,-.2)),'run = 1','#e8ede7'],[A.clone().add(v(-.2,0,m/2)),'rise = ‖∇f‖','#eac6ad']);
+return{sc,L,d:9.5,tgt:v(0,0,.9),th:-.7,ph:.5,cap:`Hill f = 2.2·e^(−(x²+y²)/4). At P = (${px}, ${py}): f = ${f2(z0)}, ∇f = (${f2(fx)}, ${f2(fy)}), ‖∇f‖ = ${f2(m)}, slope angle arctan‖∇f‖ = ${(Math.atan(m)*180/PI).toFixed(1)}°. The sea-glass arrow is the direction of steepest ascent: one unit of run (ivory) gains ‖∇f‖ of warm-peach rise. The mist-blue plane is z = f(P) + ∇f·(x − P); the soft-gold contour meets ∇f at 90°.`}},
+/* DIVERGENCE: cube Δ=2 in F = (x+2, y+2, z+2); flux through all six faces */
+()=>{const sc=base(),L=[],k=.42,bg=new THREE.BoxGeometry(2,2,2);
+const faceCols=[0x42b8c5,0x5279d1,0x8a69c8,0xe58a78,0x63b99a,0xe3b65b],faceColor=[];
+for(let face=0;face<6;face++){const c=new THREE.Color(faceCols[face]);for(let q=0;q<4;q++)faceColor.push(c.r,c.g,c.b)}
+bg.setAttribute('color',new THREE.Float32BufferAttribute(faceColor,3));
+const cubeMat=new THREE.MeshPhysicalMaterial({vertexColors:true,transparent:true,opacity:.72,side:THREE.DoubleSide,roughness:.38,metalness:.04,clearcoat:.5,depthWrite:false});
+sc.add(grid(2.6),new THREE.Mesh(bg,cubeMat),new THREE.LineSegments(new THREE.EdgesGeometry(bg),new THREE.LineBasicMaterial({color:0xe8fbf4,transparent:true,opacity:1})));
+// Fine face guides make the six flux surfaces easier to read in perspective.
+for(let face=0;face<3;face++)for(const sign of[-1,1])for(const k of[-.5,0,.5]){const a=(face+1)%3,b=(face+2)%3,p=[0,0,0],q=[0,0,0],u=[0,0,0],w=[0,0,0];p[face]=q[face]=u[face]=w[face]=sign*1.006;p[a]=-1;q[a]=1;p[b]=q[b]=k;u[a]=w[a]=k;u[b]=-1;w[b]=1;sc.add(LN([v(...p),v(...q)],0xc8ddda,.32),LN([v(...u),v(...w)],0xc8ddda,.32))}
+for(let a=0;a<3;a++)for(const s of[1,-1]){const e=[0,0,0];e[a]=1;const E=v(...e),c=E.clone().multiplyScalar(s),len=(s+2)*k,out=s>0;
+sc.add(arr(c.clone().addScaledVector(E,-len/2),c.clone().addScaledVector(E,len/2),out?0xe4bda5:0xa9c9d6,.04));
+L.push([c.clone().addScaledVector(E,s*(len/2+.3)),'PQR'[a]+(out?' out ':' in ')+(s+2),out?'#eac6ad':'#b9d8e2'])}
+L.push([v(0,-1.15,-1.15),'Δx','#edf1e9'],[v(1.15,0,-1.15),'Δy','#edf1e9'],[v(1.15,-1.15,0),'Δz','#edf1e9']);
+return{sc,L,d:8,tgt:v(0,0,0),th:-.8,ph:.45,cap:`F = (x+2, y+2, z+2) through a cube Δx = Δy = Δz = 2. Only the normal component crosses a face: warm peach = leaving (value 3 on each + face), mist blue = entering (value 1 on each − face). Flux per axis = (3 − 1)·area 4 = 8, so Φ = 24; volume V = 8; Φ/V = 3 = ∂P/∂x + ∂Q/∂y + ∂R/∂z. The field is linear, so the box gives the divergence with no error term.`}},
+/* CURL: swirl F = (−y, x, 0); loops in three coordinate planes, right-hand-rule normal, paddle-wheel */
+()=>{const sc=base(),L=[],sq=(f)=>[[-1,-1],[1,-1],[1,1],[-1,1],[-1,-1]].map(([a,b])=>f(a,b)),wh=new THREE.Group(),pl=new THREE.Mesh(new THREE.PlaneGeometry(2,2),M(0x7560cf,.48));
+pl.position.z=.02;sc.add(grid(2.6),pl);
+// Circular streamlines of F = (-y, x, 0) show the rotation around the z-axis.
+[.38,.72,1.06,1.4].forEach((r,i)=>sc.add(contourRing(r,.065,[0xb4a2f0,0x73d5d0,0xf0bd79,0x83b9ed][i],.014,.8)));
+for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++){if(!i&&!j)continue;const q=.22;sc.add(arr(v(i-(-j)*q/2,j-i*q/2,.03),v(i+(-j)*q/2,j+i*q/2,.03),[0x5bc6d1,0x8b79d4,0xe6a56d,0x71c5a1][(i-j+8)%4],.026))}
+sc.add(LN(sq((a,b)=>v(a,b,.04)),0xe5d4ad),LN(sq((a,b)=>v(0,a,b)),0xb9d8e2,.6),LN(sq((a,b)=>v(a,0,b)),0xe5bda7,.6),
+arr(v(-.3,-1,.04),v(.3,-1,.04),0xe5d4ad,.035),arr(v(1,-.3,.04),v(1,.3,.04),0xe5d4ad,.035),arr(v(.3,1,.04),v(-.3,1,.04),0xe5d4ad,.035),arr(v(1*-1,.3,.04),v(-1,-.3,.04),0xe5d4ad,.035),arr(v(0,0,0),v(0,0,1.7),0xbeb3d9,.045));
+[[1.5,.14,.14],[.14,1.5,.14]].forEach(d=>wh.add(new THREE.Mesh(new THREE.BoxGeometry(...d),M(0xece2c9))));wh.add(ball(v(0,0,0),0xffffff,.13));wh.position.z=.2;sc.add(wh);
+L.push([v(0,0,2.0),'(∇×F)ᶻ = 2  (right-hand rule: up)','#d0c5e6'],[v(1.5,-1.2,.1),'Γ = 8 around |x|,|y| ≤ 1','#efdfb9'],[v(0,1.15,1.15),'Γ(yz) = 0','#bdd9e0'],[v(1.15,0,1.15),'Γ(zx) = 0','#eac2ad']);
+return{sc,L,d:8.6,tgt:v(0,0,.5),th:-.8,ph:.55,tick:t=>{wh.rotation.z=t/1000},cap:`Swirl F = (−y, x, 0). Walk the square |x|,|y| ≤ 1 counter-clockwise: every edge has F·t = 1 and length 2, so Γ = 4·2 = 8, A = 4, Γ/A = 2 = ∂Q/∂x − ∂P/∂y = 1 − (−1). The same test with loops in the yz- and zx-planes gives Γ = 0, so ∇×F = (0, 0, 2) along the axis of rotation. The wheel turns at ½(∇×F)ᶻ = 1 rad/s.`}},
+/* LAPLACIAN: bowl f = 0.3(x²+y²); centre vs the four neighbours at distance ε */
+()=>{const sc=base(),L=[],a=.3,e=1.4,h=a*e*e,f=(x,y)=>a*(x*x+y*y),dk=new THREE.Mesh(new THREE.CircleGeometry(e,64),M(0xe9a978,.38)),N=[[e,0,'E'],[-e,0,'W'],[0,e,'N'],[0,-e,'S']];
+dk.position.z=h;sc.add(grid(2.4),surf(f,2.4,96,0,3.5),dk,arr(v(0,0,0),v(0,0,h),0xa8d2bf,.04),ball(v(0,0,0),0xf4f0e4,.1));
+// Concentric iso-height contours trace the bowl's equal-value level sets.
+[.18,.34,.54,.78,1.05,1.35,1.62].forEach((level,i)=>{const radius=Math.sqrt(level/a),cols=[0x8ce1d0,0x8ec9f0,0xc0a6f1,0xf1ce83];if(radius<2.4)sc.add(contourRing(radius,level+.025,cols[i%cols.length],.018,.94))});
+N.forEach(([x,y,n])=>{sc.add(ball(v(x,y,h),0xe6c3a7,.1),LN([v(x,y,h),v(x,y,0)],0xe2bda5,.35));L.push([v(x*1.12,y*1.12,h+.25),n+' = '+f2(h),'#eac6ad'])});
+L.push([v(0,0,-.3),'P = 0','#f2f3e9'],[v(-e*.75,e*.75,h+.28),'neighbour average','#eac6ad'],[v(0,0,h+.45),'gap = ¼ε²∇²f','#b5ddcb']);
+return{sc,L,d:9,tgt:v(0,0,1),th:-.8,ph:.5,cap:`Bowl f = 0.3(x² + y²), ε = ${e}. The four neighbours E, W, N, S are all at height aε² = ${f2(h)} and P is at 0. Average − centre = ${f2(h)} (sage-green gap). Five-point formula: (E + W + N + S − 4P)/ε² = ${f2(4*h/e/e)}; exact ∂²f/∂x² + ∂²f/∂y² = 0.6 + 0.6 = ${f2(4*a)}. They agree because f is quadratic, and ∇²f > 0 means the centre lies below its neighbours: a bowl.`}}];
+B.forEach((factory,i)=>{B[i]=()=>{const b=factory();b.sc.add(axes3D(v(-2.65,-2.65,0),1.05));(b.L=b.L||[]).push([v(-1.38,-2.65,0),'x','#ff9aa2'],[v(-2.65,-1.38,0),'y','#8ef0b5'],[v(-2.65,-2.65,1.33),'z','#8ccfff']);return b}});
+let R=null,cam=null,F=[],raf=0;
+function run(t){raf=0;if(!document.body.classList.contains('show-defs')){F=[];return}
+for(const f of F){if(!f.cv.isConnected)continue;const s=f.s;if(f.auto)f.th=s.th+.38*Math.sin(t/2400);
+const q=Math.cos(f.ph);cam.position.set(s.tgt.x+s.d*q*Math.cos(f.th),s.tgt.y+s.d*q*Math.sin(f.th),s.tgt.z+s.d*Math.sin(f.ph));cam.up.set(0,0,1);cam.lookAt(s.tgt);s.tick&&s.tick(t);
+const c=f.cv.getContext('2d'),W=1280,H=800;c.setTransform(2,0,0,2,0,0);
+const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#263f47');bg.addColorStop(.58,'#1b333b');bg.addColorStop(1,'#122831');c.fillStyle=bg;c.fillRect(0,0,W,H);
+const glow=c.createRadialGradient(W*.5,H*.43,20,W*.5,H*.5,W*.66);glow.addColorStop(0,'rgba(161,198,190,.15)');glow.addColorStop(1,'rgba(10,24,30,0)');c.fillStyle=glow;c.fillRect(0,0,W,H);
+// A faint technical grid sits behind the geometry, not over it.
+c.save();c.strokeStyle='rgba(205,225,223,.07)';c.lineWidth=1;for(let x=0;x<=W;x+=52){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke()}for(let y=0;y<=H;y+=52){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke()}c.restore();
+R.render(s.sc,cam);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(R.domElement,0,0,W,H);
+// Render crisp, high-resolution label chips over the 3D model.
+c.save();c.strokeStyle='rgba(210,229,226,.22)';c.lineWidth=2;c.strokeRect(10,10,W-20,H-20);
+c.textAlign='center';c.textBaseline='middle';c.font="650 25px Inter,'SF Pro Display','Segoe UI',system-ui,-apple-system,Roboto,sans-serif";c.lineJoin='round';
+for(const[p,txt,col]of s.L){const u=p.clone().project(cam);if(u.z>1||u.x < -1.05||u.x>1.05||u.y < -1.05||u.y>1.05)continue;const x=(u.x*.5+.5)*W,y=(-u.y*.5+.5)*H,tw=c.measureText(txt).width,padX=12,padY=7,rw=tw+padX*2,rh=34;
+c.shadowColor='rgba(5,17,22,.48)';c.shadowBlur=20;c.fillStyle='rgba(13,31,37,.91)';c.strokeStyle='rgba(222,235,231,.28)';c.lineWidth=1.5;c.beginPath();c.roundRect(x-rw/2,y-rh/2,rw,rh,10);c.fill();c.stroke();
+c.shadowBlur=0;c.lineWidth=4;c.strokeStyle='rgba(5,17,22,.92)';c.strokeText(txt,x,y);c.fillStyle=col;c.fillText(txt,x,y)}c.restore()}
+raf=requestAnimationFrame(run)}
+function mount(i){const cv=dEl.querySelector('canvas.c3d');if(!cv||!B[i])return;
+if(!R){R=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});R.setPixelRatio(2);R.setSize(1280,800,false);R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.04;R.setClearColor(0x000000,0);cam=new THREE.PerspectiveCamera(36,1.6,.1,100)}
+cv.width=2560;cv.height=1600;const s=B[i](),f={cv,s,th:s.th,ph:s.ph,auto:1,dr:null};cv.nextElementSibling.innerHTML='<b>3D · drag to rotate.</b> '+s.cap;
+cv.addEventListener('pointerdown',e=>{f.dr=[e.clientX,e.clientY];f.auto=0;cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(!f.dr)return;f.th-=(e.clientX-f.dr[0])*.01;f.ph=Math.max(.05,Math.min(1.5,f.ph+(e.clientY-f.dr[1])*.008));f.dr=[e.clientX,e.clientY]});
+['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>f.dr=null));
+F=[f];if(!raf)raf=requestAnimationFrame(run)}
+return{mount,fig:()=>'<figure class="fig f3"><canvas class="c3d" width="1280" height="800"></canvas><figcaption></figcaption></figure>'}})();
+document.getElementById('wm').onclick=()=>openDeriv(tourSelected);
+
+window.openDefs=openDefs;window.closeDefs=closeDefs;
+document.getElementById('defsClose').onclick=closeDefs;
+dEl.addEventListener('pointerdown',e=>{e.stopPropagation();if(e.target===dEl)closeDefs()});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeDefs()});
+/* ===== FOUR ROAMABLE WORLDS (editable maths) ===== */
+const WX=(()=>{
+const S=10,R=8,N=QT.k<.5?64:QT.k<.9?80:128,OFF=[[-3000,0,0],[3000,0,800],[0,0,-3000],[0,0,4800]],UPV=new V3(0,1,0),ZV=new V3(0,0,1),TUP=new V3(0,0,-1); // Top-view screen-up follows mathematical +Y (world -Z).
+const FN={sin:Math.sin,cos:Math.cos,tan:Math.tan,exp:Math.exp,sqrt:Math.sqrt,abs:Math.abs,ln:Math.log,log:Math.log,tanh:Math.tanh,atan:Math.atan,sign:Math.sign,min:Math.min,max:Math.max,atan2:Math.atan2};
+function cmp(src){const c=src.toLowerCase().replace(/\s+/g,''),T=c.match(/\d*\.?\d+(?:e[+-]?\d+)?|atan2|[a-z]+|[-+*/^(),]/g);if(!T||T.join('')!==c)throw 0;let p=0;
+const E=()=>{let a=M();while(T[p]=='+'||T[p]=='-'){const o=T[p++],b=M(),l=a;a=o=='+'?(x,y)=>l(x,y)+b(x,y):(x,y)=>l(x,y)-b(x,y)}return a};
+const M=()=>{let a=U();while(p<T.length&&/^[*\/\d.a-z(]/.test(T[p])){const o=(T[p]=='*'||T[p]=='/')?T[p++]:'*',b=U(),l=a;a=o=='*'?(x,y)=>l(x,y)*b(x,y):(x,y)=>l(x,y)/b(x,y)}return a};
+const U=()=>{if(T[p]=='-'){p++;const a=U();return(x,y)=>-a(x,y)}if(T[p]=='+'){p++;return U()}return P()};
+const P=()=>{const a=Q();if(T[p]=='^'){p++;const b=U();return(x,y)=>Math.pow(a(x,y),b(x,y))}return a};
+const Q=()=>{const t=T[p++];if(t==undefined)throw 0;if(t=='('){const a=E();if(T[p++]!=')')throw 0;return a}if(/^[\d.]/.test(t)){const n=+t;return()=>n}if(t=='x')return x=>x;if(t=='y')return(x,y)=>y;if(t=='pi')return()=>Math.PI;if(t=='e')return()=>Math.E;const f=FN[t];if(!f||T[p++]!='(')throw 0;const a=[E()];while(T[p]==','){p++;a.push(E())}if(T[p++]!=')')throw 0;return(x,y)=>f(...a.map(g=>g(x,y)))};
+const r=E();if(p<T.length)throw 0;return r}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),n2=v=>isFinite(v)?(v<0?'−':'')+Math.abs(v).toFixed(2):'–',$=id=>document.getElementById(id);
+const dX=(f,x,y,h=.01)=>(f(x+h,y)-f(x-h,y))/(2*h),dY=(f,x,y,h=.01)=>(f(x,y+h)-f(x,y-h))/(2*h),lap=(f,x,y,h=.05)=>(f(x+h,y)+f(x-h,y)+f(x,y+h)+f(x,y-h)-4*f(x,y))/(h*h);
+const CR=[0x2c6a96,0x2f8f7a,0x4aa24a,0xc6c25a,0xa6794a,0xf2f0e8].map(h=>new THREE.Color(h)),CN=new THREE.Color(0x3b7dd8),CO=new THREE.Color(0xdfe6d2),CP=new THREE.Color(0xe0503a);
+const ramp=(t,c)=>{t=clamp(t,0,.999)*5;const i=t|0;return c.copy(CR[i]).lerp(CR[i+1],t-i)},dvc=(v,c)=>{v=clamp(v,-1,1);return c.copy(CO).lerp(v<0?CN:CP,Math.abs(v))};
+const VP=[['Source','x','y'],['Sink','-x','-y'],['Saddle flow','x','-y'],['Shear','y','0'],['Swirl','-y','x'],['Mixed','x/3+sin(y)','cos(x)-y/4']],SP=[['Weird hill','2*exp(-(x^2+y^2)/8)+0.8*sin(x)*cos(y/1.5)+0.9*exp(-((x-3.5)^2+(y+2.5)^2)/2)'],['Two peaks','2.2*exp(-((x-3)^2+y^2)/4)+1.8*exp(-((x+3)^2+(y-1)^2)/3)'],['Saddle','(x^2-y^2)/12'],['Ripples','1.5*cos(1.2*sqrt(x^2+y^2))*exp(-(x^2+y^2)/40)'],['Bowl','(x^2+y^2)/14']];
+const PRE=[SP,VP,[VP[4],VP[3],VP[0],VP[1],VP[2],VP[5]],SP],TT=['Gradient world · ∇f','Divergence world · ∇·F','Curl world · ∇×F','Laplacian world · ∇²f'];
+const F1=s=>`<b>1 · Water flows.</b> The vector field F = (P, Q) is the water’s velocity at every point: colour‑coded arrows show it (green = slow, red = fast) and dense animated streamlines flow along it. Where you are: F = (${n2(s.P)}, ${n2(s.Q)}).`;
+const STEPS=[[
+s=>`<b>1 · A hill is a function.</b> Every map point (x, y) has a height z = f(x, y). You are at (${n2(s.x)}, ${n2(s.y)}), height <b>${n2(s.z)}</b>. Walk around and watch it change.`,
+s=>`<b>2 · Slope toward +x.</b> Freeze y, nudge x east: how fast does the height change? That rate is the partial derivative ∂f/∂x = <b>${n2(s.fx)}</b> (positive = uphill to the east).`,
+s=>`<b>3 · Slope toward +y.</b> Freeze x, nudge y north: ∂f/∂y = <b>${n2(s.fy)}</b>.`,
+s=>`<b>4 · Pack both into one arrow.</b> ∇f = (∂f/∂x, ∂f/∂y) = <b>(${n2(s.fx)}, ${n2(s.fy)})</b>. That is the green arrow lying on the ground at the ladybird, and the white disc is the tangent plane it climbs.`,
+s=>`<b>5 · What the arrow means.</b> It points the steepest way <i>uphill</i>. Its length |∇f| = <b>${n2(s.m)}</b> means the ground rises ${n2(s.m)} per 1 step that way (a ${n2(Math.atan(s.m)*180/PI)}° slope). On peaks, pits and passes ∇f ≈ 0, so the arrow shrinks.`,
+s=>`<b>6 · Why contours?</b> A contour joins points of equal height, so walking along it gains nothing: the slope that way is 0. So ∇f is always <b>perpendicular to the contours</b>, and longer where they crowd together. Press <b>Top view</b> to see the arrows cross the lines at right angles.`],
+[F1,
+s=>`<b>2 · East–west stretching.</b> ∂P/∂x = <b>${n2(s.Px)}</b>: does eastward flow speed up as you go east? If so, water is being pulled apart sideways.`,
+s=>`<b>3 · North–south stretching.</b> ∂Q/∂y = <b>${n2(s.Qy)}</b>: the same question for northward flow.`,
+s=>`<b>4 · Add them.</b> ∇·F = ∂P/∂x + ∂Q/∂y = <b>${n2(s.div)}</b>. Positive: more leaves than enters (a <i>source</i>, red floor). Negative: more enters (a <i>sink</i>, blue). Zero: balanced.`,
+s=>`<b>5 · Watch the ring.</b> It is a tiny patch of water carried by the flow. It <b>grows</b> where ∇·F > 0, <b>shrinks</b> where ∇·F < 0 and keeps its area where ∇·F = 0. Divergence is the patch’s growth rate per unit area. Now try other presets.`],
+[F1,
+s=>`<b>2 · Does northward flow change as you go east?</b> ∂Q/∂x = <b>${n2(s.Qx)}</b>. If it grows eastward, the east side pushes up harder than the west side: a counter‑clockwise twist.`,
+s=>`<b>3 · Does eastward flow change as you go north?</b> ∂P/∂y = <b>${n2(s.Py)}</b>. If it grows northward, the north side pushes right harder: a clockwise twist, so we subtract it.`,
+s=>`<b>4 · Combine.</b> (∇×F)<sub>z</sub> = ∂Q/∂x − ∂P/∂y = <b>${n2(s.curl)}</b>. Positive = counter‑clockwise (points up, right‑hand rule); negative = clockwise. Red floor = counter‑clockwise, blue = clockwise.`,
+s=>`<b>5 · Paddle‑wheel test.</b> The wheel under the ladybird spins at half the curl: ½(∇×F)<sub>z</sub> = <b>${n2(s.curl/2)}</b> rad per time unit. Straight flow can still twist the wheel (try <b>Shear</b>), while a pure source never does.`],
+[s=>`<b>1 · Same hill, new question.</b> Is your spot higher or lower than its surroundings? The white sphere is the centre P (height <b>${n2(s.z)}</b>); the four amber spheres are E, W, N, S, each ε = 0.8 away.`,
+s=>`<b>2 · Measure the neighbours.</b> E = ${n2(s.E)}, W = ${n2(s.W)}, N = ${n2(s.N)}, S = ${n2(s.S)}, and P = ${n2(s.z)}.`,
+s=>`<b>3 · Compare.</b> Neighbour average = ${n2(s.avg)}. Average − centre = <b>${n2(s.avg-s.z)}</b>. Positive: you sit lower than your surroundings (a bowl). Negative: higher (a bump).`,
+s=>`<b>4 · Scale it.</b> ∇²f ≈ (E+W+N+S − 4P)/ε² = <b>${n2(s.est)}</b>. The exact value ∂²f/∂x² + ∂²f/∂y² = <b>${n2(s.lap)}</b>; the estimate improves as ε shrinks.`,
+s=>`<b>5 · Read the colours.</b> Blue ground: ∇²f < 0 (peak‑like). Red: ∇²f > 0 (bowl‑like). It is the divergence of the gradient, ∇·(∇f). Edit f and watch the colours; the Saddle has ∇²f = 0 yet is not flat.`]];
+const LIVE=[s=>`∇f = (${n2(s.fx)}, ${n2(s.fy)})   |∇f| = ${n2(s.m)}`,s=>`∇·F = ${n2(s.div)} → ${s.div>.05?'source':s.div<-.05?'sink':'balanced'}`,s=>`∇×F = ${n2(s.curl)} → ${s.curl>.05?'counter‑clockwise':s.curl<-.05?'clockwise':'no spin'}`,s=>`∇²f ≈ ${n2(s.lap)} → ${s.lap<-.05?'peak‑like':s.lap>.05?'bowl‑like':'balanced'}`];
+function mkMat(ce){const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,side:THREE.DoubleSide});m.extensions=Object.assign({},m.extensions||{},{derivatives:true});m.customProgramCacheKey=()=>'wx'+ce;
+m.onBeforeCompile=s=>{s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying float vH;').replace('#include <begin_vertex>','#include <begin_vertex>\nvH=position.y;');
+s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nvarying float vH;').replace('#include <color_fragment>','#include <color_fragment>\n'+(ce?'float q=vH/5.;float fw=fwidth(q);float l=1.-smoothstep(0.,fw*1.6,abs(fract(q+.5)-.5));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.04,.07,.05),l*.8);':''))};return m}
+function mkA(col){const g=new THREE.Group(),m=new THREE.MeshBasicMaterial({color:col});g.s=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,1,32).translate(0,.5,0),m);g.h=new THREE.Mesh(new THREE.ConeGeometry(1.5,3,48).translate(0,1.5,0),m);g.add(g.s,g.h);return g}
+function setA(g,o,d,l){g.position.copy(o);g.quaternion.setFromUnitVectors(UPV,d);g.s.scale.y=Math.max(.1,l-3);g.h.position.y=Math.max(.1,l-3)}
+const SM=QT.k<.5?480:QT.k<.9?850:1200,SK=QT.k<.5?7:9,VG=QT.k<.5?49:QT.k<.9?65:97,NA=QT.k<.5?12:16;let VX=0,VY=0;
+const CO2=new THREE.Color(0x070c15),CN2=new THREE.Color(0x2a56a8),CP2=new THREE.Color(0xa63a2c),dvd=(v,c)=>{v=clamp(v,-1,1);return c.copy(CO2).lerp(v<0?CN2:CP2,Math.abs(v)*.8)};
+const AC=[0x187b61,0x9a9b16,0xb83c25].map(h=>new THREE.Color(h));
+function vel(w,x,y){const u=(clamp(x,-R,R)+R)/(2*R)*(VG-1),v=(clamp(y,-R,R)+R)/(2*R)*(VG-1),i=Math.min(u|0,VG-2),j=Math.min(v|0,VG-2),a=u-i,b=v-j,f=w.vf,k=(j*VG+i)*2,l=k+VG*2,c0=(1-a)*(1-b),c1=a*(1-b),c2=(1-a)*b,c3=a*b;VX=f[k]*c0+f[k+2]*c1+f[l]*c2+f[l+2]*c3;VY=f[k+1]*c0+f[k+3]*c1+f[l+1]*c2+f[l+3]*c3}
+function mkIA(){const g=new THREE.Group(),mt=new THREE.MeshBasicMaterial({color:0xffffff});g.sh=new THREE.InstancedMesh(new THREE.CylinderGeometry(.3,.3,1,24).translate(0,.5,0),mt,NA*NA);g.hd=new THREE.InstancedMesh(new THREE.ConeGeometry(1,2.4,40).translate(0,1.2,0),mt,NA*NA);[g.sh,g.hd].forEach(m=>{m.frustumCulled=false;m.renderOrder=3;m.setColorAt(0,new THREE.Color(1,1,1));g.add(m)});return g}
+function iarr(w){const o=new THREE.Object3D(),c=new THREE.Color(),q=new THREE.Quaternion(),d=new V3(),b=new V3(),L=[];let mx=1e-9;
+for(let i=0;i<NA;i++)for(let j=0;j<NA;j++){const x=-7.5+i,y=-7.5+j,p=w.P(x,y),r=w.Q(x,y),m=Math.hypot(p,r);if(isFinite(m))mx=Math.max(mx,m);L.push([x,y,p,r,m])}
+L.forEach(([x,y,p,r,m],k)=>{const ok=isFinite(m)&&m>1e-9,t=ok?m/mx:0,len=ok?2.8+5.5*t:0,hs=Math.min(1.35,len/3.4),sl=Math.max(.05,len-2.4*hs);
+t<.5?c.copy(AC[0]).lerp(AC[1],t*2):c.copy(AC[1]).lerp(AC[2],t*2-1);if(ok)d.set(p,0,-r).normalize();q.setFromUnitVectors(UPV,ok?d:UPV);b.set(x*S,1.5,-y*S);
+o.position.copy(b);o.quaternion.copy(q);o.scale.set(1,ok?sl:0,1);o.updateMatrix();w.ia.sh.setMatrixAt(k,o.matrix);w.ia.sh.setColorAt(k,c);
+o.position.copy(b).addScaledVector(d,sl);o.scale.setScalar(ok?hs:0);o.updateMatrix();w.ia.hd.setMatrixAt(k,o.matrix);w.ia.hd.setColorAt(k,c)});
+[w.ia.sh,w.ia.hd].forEach(m=>{m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true})}
+function mkSL(){const pos=new Float32Array(SM*SK*6),col=new Float32Array(SM*SK*8),idx=[];for(let i=0;i<SM;i++)for(let k=0;k<SK-1;k++){const a=(i*SK+k)*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}
+const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(col,4));geo.setIndex(idx);
+const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));mesh.frustumCulled=false;mesh.renderOrder=2;
+const hx=[],hy=[],ag=[];for(let i=0;i<SM;i++){hx.push((Math.random()*2-1)*R);hy.push((Math.random()*2-1)*R);ag.push(Math.random()*7)}return{mesh,geo,hx,hy,ag}}
+function stepSL(w,dt){const s=w.sl,pa=s.geo.attributes.position,ca=s.geo.attributes.color,ks=w.ks,vm=w.vm;
+for(let i=0;i<SM;i++){let x=s.hx[i],y=s.hy[i];vel(w,x,y);const m0=Math.hypot(VX,VY);x+=VX*ks*dt;y+=VY*ks*dt;s.ag[i]+=dt;
+if(!(Math.abs(x)<R&&Math.abs(y)<R)||s.ag[i]>5){x=(Math.random()*2-1)*R;y=(Math.random()*2-1)*R;s.ag[i]=Math.random()*.3}s.hx[i]=x;s.hy[i]=y;
+const L=.25+1.5*m0/vm,ds=L/(SK-1),fa=clamp(Math.min(s.ag[i]*2,(5-s.ag[i])*2),0,1);let qx=x,qy=y,dx=1,dy=0;
+for(let k=0;k<SK;k++){vel(w,qx,qy);const m=Math.hypot(VX,VY);if(m>1e-6){dx=VX/m;dy=VY/m}
+const f=k/(SK-1),hw=.25*(1-.5*f),j=(i*SK+k)*2,X=qx*S,Z=-qy*S,al=Math.pow(1-f,1.2)*fa*.6;
+pa.setXYZ(j,X-dy*hw,1.2,Z-dx*hw);pa.setXYZ(j+1,X+dy*hw,1.2,Z+dx*hw);ca.setXYZW(j,.3,.7,.98,al);ca.setXYZW(j+1,.3,.7,.98,al);qx-=dx*ds;qy-=dy*ds}}
+pa.needsUpdate=ca.needsUpdate=true}
+// A camera-facing label texture keeps the axis names crisp at every viewing angle.
+const _axT={};
+function axisTag(letter,color,subtitle='AXIS'){const key=letter+'|'+color+'|'+subtitle;let t=_axT[key];
+if(!t){const c=document.createElement('canvas');c.width=2048;c.height=1152;const x=c.getContext('2d');x.scale(4,4);x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.clearRect(0,0,512,288);
+x.shadowColor=color;x.shadowBlur=25;x.fillStyle='rgba(4,15,22,.97)';x.beginPath();x.roundRect(20,20,472,248,62);x.fill();
+x.shadowBlur=0;x.lineWidth=6;x.strokeStyle=color;x.stroke();
+x.fillStyle='#f4fbff';x.textAlign='center';x.textBaseline='middle';x.font='800 154px system-ui, sans-serif';x.lineJoin='round';x.strokeStyle='rgba(2,10,14,.88)';x.lineWidth=3;x.strokeText(letter,256,114);x.fillText(letter,256,114);
+x.fillStyle=color;x.font='800 45px system-ui, sans-serif';x.letterSpacing='5px';x.fillText(subtitle,259,222);
+t=_axT[key]=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=ANISO;t.generateMipmaps=true;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter}
+const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:true,depthWrite:false,toneMapped:false,sizeAttenuation:true}));sp.scale.set(6.5,3.66,1);sp.renderOrder=42;return sp}
+function makeWorldAxes(){
+ const root=new THREE.Group();root.name='Right-handed XYZ coordinate frame';
+ const mats={};
+ [[0xff6473,'x'],[0x70f0a5,'y'],[0x68cfff,'z']].forEach(([color,key])=>{
+   mats[key]={
+     core:new THREE.MeshBasicMaterial({color,transparent:true,opacity:.98,depthTest:true,depthWrite:false,toneMapped:false}),
+     glow:new THREE.MeshBasicMaterial({color,transparent:true,opacity:.19,depthTest:true,depthWrite:false,toneMapped:false}),
+     soft:new THREE.MeshBasicMaterial({color,transparent:true,opacity:.36,depthTest:true,depthWrite:false,toneMapped:false})
+   };
+ });
+ // Scene convention: mathematical X -> world +X, mathematical Y -> world -Z,
+ // mathematical Z -> world +Y. Consequently X cross Y = Z (right-handed).
+ const WORLD_UP=new V3(0,1,0);
+ function beam(a,b,r,mat){
+   const d=b.clone().sub(a),len=d.length();
+   const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,32,1),mat);
+   m.position.copy(a).add(b).multiplyScalar(.5);
+   m.quaternion.setFromUnitVectors(WORLD_UP,d.normalize());
+   m.renderOrder=35;root.add(m);return m;
+ }
+ function cone(tip,dir,r,h,mat){
+   const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,48),mat);
+   m.position.copy(tip).addScaledVector(dir,h*.5);
+   m.quaternion.setFromUnitVectors(WORLD_UP,dir);
+   m.renderOrder=36;root.add(m);return m;
+ }
+ const axes=[
+   {key:'x',dir:new V3(1,0,0),len:70,neg:70},
+   {key:'y',dir:new V3(0,0,-1),len:70,neg:70},
+   {key:'z',dir:new V3(0,1,0),len:58,neg:30}
+ ];
+ for(const a of axes){
+   const neg=a.dir.clone().multiplyScalar(-a.neg),zero=new V3(),tip=a.dir.clone().multiplyScalar(a.len);
+   beam(neg,zero,a.key==='z'?.34:.42,mats[a.key].glow);
+   beam(neg,zero,a.key==='z'?.105:.13,mats[a.key].soft);
+   beam(zero,tip,a.key==='z'?.48:.56,mats[a.key].glow);
+   beam(zero,tip,a.key==='z'?.16:.19,mats[a.key].core);
+   cone(tip,a.dir,a.key==='z'?1.45:1.55,4.4,mats[a.key].glow);
+   cone(tip,a.dir,a.key==='z'?1.0:1.05,3.6,mats[a.key].core);
+   const color={x:'#ff6473',y:'#70f0a5',z:'#68cfff'}[a.key];
+   const label=axisTag(a.key.toUpperCase(),color,a.key.toUpperCase()+' AXIS');
+   label.position.copy(tip).addScaledVector(a.dir,7.8);
+   if(a.key==='x')label.position.y+=3.6;
+   else if(a.key==='y'){label.position.x+=4.2;label.position.y+=3.6}
+   else label.position.x+=4.2;
+   root.add(label);
+ }
+ // Keep the mathematical X-Y reference plane clear: no background grid.
+ // Axis beams, measurement ticks, and the origin marker remain visible.
+ // Measurement ticks lie in the appropriate perpendicular direction for each axis.
+ const tickMat=new THREE.MeshBasicMaterial({color:0xd6e7e8,transparent:true,opacity:.62,depthTest:true,depthWrite:false,toneMapped:false});
+ for(let n=-60;n<=60;n+=10){
+   if(n===0)continue;
+   // X axis: tick across the horizontal Y direction (-world Z).
+   beam(new V3(n,0,-.9),new V3(n,0,.9),.075,tickMat);
+   // Y axis: tick across horizontal X.
+   beam(new V3(-.9,0,-n),new V3(.9,0,-n),.075,tickMat);
+   // Z axis: short crossbar in the horizontal plane.
+   beam(new V3(-.85,n,0),new V3(.85,n,0),.075,tickMat);
+ }
+ // Origin marker sits at the intersection of the three positive/negative axes.
+ const halo1=new THREE.Mesh(new THREE.TorusGeometry(3.6,.13,24,160).rotateX(PI/2),new THREE.MeshBasicMaterial({color:0xffe5a0,transparent:true,opacity:.86,depthTest:true,depthWrite:false,toneMapped:false}));
+ halo1.position.y=.28;halo1.renderOrder=38;root.add(halo1);
+ const halo2=new THREE.Mesh(new THREE.TorusGeometry(5.1,.055,16,160).rotateX(PI/2),new THREE.MeshBasicMaterial({color:0xffc86d,transparent:true,opacity:.42,depthTest:true,depthWrite:false,toneMapped:false}));
+ halo2.position.y=.32;halo2.renderOrder=37;root.add(halo2);
+ const outer=new THREE.Mesh(new THREE.SphereGeometry(1.8,40,28),new THREE.MeshBasicMaterial({color:0xffd984,transparent:true,opacity:.2,depthTest:true,depthWrite:false,toneMapped:false}));outer.renderOrder=39;root.add(outer);
+ const core=new THREE.Mesh(new THREE.SphereGeometry(.92,40,28),new THREE.MeshBasicMaterial({color:0xfff2c2,depthTest:true,depthWrite:false,toneMapped:false}));core.renderOrder=40;root.add(core);
+ const origin=axisTag('O','#ffe19a','ORIGIN');origin.scale.set(4.6,2.59,1);origin.position.set(5.2,4.5,-5.2);root.add(origin);
+ return root;
+}
+// Keep the coordinate frame at the mathematical reference plane, not at the graph height.
+// Depth testing lets elevated parts of the surface naturally cover the axes and grid.
+function worldOriginHeight(w){return .04}
+function build(mi){const g=new THREE.Group();g.position.set(...OFF[mi]);scene.add(g);
+const geo=new THREE.PlaneGeometry(2*R*S,2*R*S,N,N).rotateX(-PI/2),cnt=geo.attributes.position.count;geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(cnt*3),3));
+const w={mi,g,geo,vals:new Float32Array(cnt),x:0,y:-5,vx:0,vz:0,hd:new V3(0,0,-1),nn:new V3(0,1,0),ex:PRE[mi][0].slice(1),arr:null,av:true,s:{}};
+g.add(new THREE.Mesh(geo,mkMat(mi%3==0)));const fl=new THREE.Mesh(new THREE.CircleGeometry(2500,40).rotateX(-PI/2),new THREE.MeshStandardMaterial({color:mi==1||mi==2?0x0a1018:0x23463a,roughness:1}));fl.position.y=-62;g.add(fl);
+if(mi%3==0)w.f=cmp(w.ex[0]);else{w.P=cmp(w.ex[0]);w.Q=cmp(w.ex[1])}
+w.axes=makeWorldAxes();w.axes.position.set(0,worldOriginHeight(w),0);g.add(w.axes);
+if(mi==1||mi==2){w.ia=mkIA();g.add(w.ia)}if(mi==0){w.arr=[];for(let i=0;i<9;i++)for(let j=0;j<9;j++){const a=new THREE.ArrowHelper(new V3(0,1,0),new V3(),6,mi?0x397f9c:0x4d8f28,2,1.4);a.u={x:-7+i*1.75,y:-7+j*1.75};g.add(a);w.arr.push(a)}}
+if(mi==0){w.ga=mkA(0x168b45);w.dc=new THREE.Mesh(new THREE.CircleGeometry(6,64),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false}));g.add(w.ga,w.dc)}
+if(mi==3)w.sp=[0xffffff,0xffb347,0xffb347,0xffb347,0xffb347].map(c=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1.1,32,24),new THREE.MeshBasicMaterial({color:c}));g.add(m);return m});
+if(mi==1||mi==2){w.sl=mkSL();g.add(w.sl.mesh);
+if(mi==1){w.rg=new THREE.Group();w.rg.add(new THREE.Mesh(new THREE.TorusGeometry(4,.4,24,96).rotateX(PI/2),new THREE.MeshBasicMaterial({color:0xfff2c0})),new THREE.Mesh(new THREE.CircleGeometry(4,32).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0xffe08a,transparent:true,opacity:.4,depthWrite:false})));g.add(w.rg)}
+else{w.wh=new THREE.Group();for(let k=0;k<4;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(8,.8,1.5),new THREE.MeshBasicMaterial({color:k%2?0xffe08a:0xd5a8ff}));b.rotation.y=k*PI/4;w.wh.add(b)}w.wh.add(new THREE.Mesh(new THREE.SphereGeometry(1.4,32,20),new THREE.MeshBasicMaterial({color:0xffffff})));g.add(w.wh)}}
+rebuild(w);arrows(w);return w}
+function rebuild(w){const P=w.geo.attributes.position,C=w.geo.attributes.color,c=new THREE.Color(),mi=w.mi,v=w.vals;let lo=1e9,hi=-1e9;
+for(let i=0;i<P.count;i++){const x=P.getX(i)/S,y=-P.getZ(i)/S;let h=0,u;if(mi%3==0){h=w.f(x,y);if(!isFinite(h))h=0;h=clamp(h,-5,6);u=mi?lap(w.f,x,y):h}else u=mi==1?dX(w.P,x,y)+dY(w.Q,x,y):dX(w.Q,x,y)-dY(w.P,x,y);if(!isFinite(u))u=0;P.setY(i,h*S);v[i]=u;lo=Math.min(lo,u);hi=Math.max(hi,u)}
+const sc=Math.max(.5,Math.abs(lo),Math.abs(hi));for(let i=0;i<P.count;i++){mi==0?ramp((v[i]-lo)/Math.max(1e-6,hi-lo),c):(mi==3?dvc:dvd)(v[i]/sc,c);C.setXYZ(i,c.r,c.g,c.b)}
+P.needsUpdate=C.needsUpdate=true;w.geo.computeVertexNormals();
+if(mi==1||mi==2){if(!w.vf)w.vf=new Float32Array(VG*VG*2);let vm=1e-6;for(let j=0;j<VG;j++)for(let i=0;i<VG;i++){const x=-R+2*R*i/(VG-1),y=-R+2*R*j/(VG-1);let p=w.P(x,y),q=w.Q(x,y);if(!isFinite(p+q))p=q=0;w.vf[(j*VG+i)*2]=p;w.vf[(j*VG+i)*2+1]=q;vm=Math.max(vm,Math.hypot(p,q))}w.vm=vm;w.ks=3.5/vm}}
+function arrows(w){if(w.ia)return iarr(w);if(!w.arr)return;for(const a of w.arr){const{x,y}=a.u;let d,len,h=0;if(w.mi==0){const gx=dX(w.f,x,y),gy=dY(w.f,x,y),m=gx*gx+gy*gy;d=new V3(gx,m,-gy);len=Math.min(14,4+Math.sqrt(m)*5);h=clamp(w.f(x,y),-5,6)*S}else{const p=w.P(x,y),q=w.Q(x,y);d=new V3(p,0,-q);len=Math.min(14,2+Math.hypot(p,q)*1.2)}
+if(!isFinite(d.x+d.y+d.z+h+len)||d.lengthSq()<1e-9){a.visible=false;continue}a.visible=w.av;a.setDirection(d.normalize());a.setLength(len,len*.35,len*.2);a.position.set(x*S,h+1.5,-y*S)}}
+let cur=null,pt=0,top=false,cy=0,cpi=.5,cd=42,stp=0,lastUi=0,dr=null,enterTimer=0;const fd=document.createElement('div');fd.id='fade';document.body.appendChild(fd);
+const m4b=new THREE.Matrix4(),tA=new V3(),tB=new V3(),tC=new V3(),ST=[];
+let stT=-1,dwell=9,lastHtml='',fading=0,fresh=1;
+const ONE=[
+s=>`Slope here: <b>∇f = (${n2(s.fx)}, ${n2(s.fy)})</b> — the arrow points steepest uphill (|∇f| = ${n2(s.m)}).`,
+s=>`Water here: <b>∇·F = ${n2(s.div)}</b> — ${s.div>.05?'more flows out than in (a source)':s.div<-.05?'more flows in than out (a sink)':'inflow and outflow balance'}.`,
+s=>`Water here: <b>∇×F = ${n2(s.curl)}</b> — ${s.curl>.05?'it spins counter‑clockwise':s.curl<-.05?'it spins clockwise':'the paddle‑wheel doesn’t turn'}.`,
+s=>`Height here: <b>∇²f ≈ ${n2(s.lap)}</b> — ${s.lap<-.05?'higher than its neighbours (a peak)':s.lap>.05?'lower than its neighbours (a bowl)':'about level with its neighbours'}.`];
+let zoomT=1;
+function paint(){if(!cur||fading)return;const h=ONE[cur.mi](cur.s);if(h===lastHtml)return;lastHtml=h;const el=$('ws');el.innerHTML=h;if(fresh){fresh=0;dwell=Math.max(6,Math.min(15,3+el.textContent.length/18))}}
+function dots(){$('wd').innerHTML=STEPS[cur.mi].map((_,i)=>`<button type="button" data-i="${i}" aria-label="Lesson part ${i+1}"></button>`).join('')}
+function step(i,fade){if(!cur)return;const L=STEPS[cur.mi].length;stp=(i+L)%L;stT=-1;fresh=1;lastHtml='';[...$('wd').children].forEach((b,k)=>b.classList.toggle('on',k==stp));
+if(!fade){paint();return}
+fading=1;$('ws').classList.add('sw');setTimeout(()=>{fading=0;paint();$('ws').classList.remove('sw')},230)}
+function closeEq(){document.body.classList.remove('eq-open');$('wx').classList.remove('on')}
+function chips(w){const k=PRE[w.mi].findIndex(p=>p.slice(1).every((s,j)=>s===w.ex[j]));[...$('wc').children].forEach((b,i)=>b.classList.toggle('on',k>=0?i==k:!!b.dataset.c))}
+function apply(w){try{const c=w.in.map(e=>cmp(e.value));if(w.mi%3==0){if(!isFinite(c[0](0,0)+c[0](1,1)))throw 0;w.f=c[0]}else{w.P=c[0];w.Q=c[1]}w.in.forEach(e=>e.classList.remove('bad'));w.ex=w.in.map(e=>e.value);rebuild(w);arrows(w);if(w.axes)w.axes.position.y=worldOriginHeight(w);chips(w)}catch(err){w.in.forEach(e=>e.classList.add('bad'))}}
+function live(w){const x=w.x,y=w.y,s={x,y};if(w.mi%3==0){const f=w.f;s.z=f(x,y);s.fx=dX(f,x,y);s.fy=dY(f,x,y);s.m=Math.hypot(s.fx,s.fy);if(w.mi==3){const e=.8;s.E=f(x+e,y);s.W=f(x-e,y);s.N=f(x,y+e);s.S=f(x,y-e);s.avg=(s.E+s.W+s.N+s.S)/4;s.est=4*(s.avg-s.z)/(e*e);s.lap=lap(f,x,y)}}
+else{s.P=w.P(x,y);s.Q=w.Q(x,y);s.Px=dX(w.P,x,y);s.Qy=dY(w.Q,x,y);s.Qx=dX(w.Q,x,y);s.Py=dY(w.P,x,y);s.div=s.Px+s.Qy;s.curl=s.Qx-s.Py}return s}
+function setup(mi){const w=ST[mi]||(ST[mi]=build(mi));cur=w;ST.forEach(o=>o&&(o.g.visible=o===w));w.x=0;w.y=-5;w.vx=w.vz=0;top=false;zoomT=0;cd=210;cpi=1.1;cy=.9;$('wv').textContent='Top view';
+document.body.classList.add('world');$('gradCompass').style.display='none';$('wt').textContent=TT[mi];
+$('wi').innerHTML=(mi%3==0?'<label>f(x, y) = <input spellcheck="false" autocomplete="off" autocapitalize="off"></label>':'<label>P = <input spellcheck="false" autocomplete="off" autocapitalize="off"></label><label>Q = <input spellcheck="false" autocomplete="off" autocapitalize="off"></label>');
+$('wc').innerHTML=PRE[mi].map((p,i)=>`<button type="button" data-i="${i}">${p[0]}</button>`).join('')+'<button type="button" data-c="1">✎ Custom</button>';
+w.in=[...document.querySelectorAll('#wi input')];w.in.forEach((e,j)=>{e.value=w.ex[j];e.addEventListener('keydown',ev=>ev.stopPropagation());e.addEventListener('input',()=>apply(w))});
+$('wf').style.display=(w.arr||w.ia)?'':'none';$('wf').classList.toggle('on',!!w.av);$('wv').classList.remove('on');w.s=live(w);pt=0;closeEq();$('eq').classList.remove('custom');dots();chips(w);step(0);setChip(mi)}
+function enter(mi){if(!Number.isInteger(mi)||mi<0||mi>3)return;clearTimeout(enterTimer);fd.style.opacity=1;enterTimer=setTimeout(()=>{enterTimer=0;if(tourState!=='world')return;setup(mi);fd.style.opacity=0},480)}
+function exit(){clearTimeout(enterTimer);enterTimer=0;fd.style.opacity=0;if(!cur)return;cur=null;top=false;document.body.classList.remove('world');ST.forEach(o=>o&&(o.g.visible=false));cam.up.copy(UPV);bug.quaternion.identity();setChip(-1);const r=regions[tourSelected];if(r)bug.position.copy(r.land);document.body.classList.remove('eq-open')}
+function update(t){const w=cur;if(!w)return;const dt=Math.min(.05,Math.max(.001,t-pt)),mi=w.mi,o=OFF[mi],g0=mi%3==0;pt=t;
+let ix=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x,iz=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-joy.y;const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}
+const sp=keys.ShiftLeft||keys.ShiftRight?8:4.2,k=1-Math.exp(-9*dt);w.vx+=((-Math.sin(cy)*iz+Math.cos(cy)*ix)*sp-w.vx)*k;w.vz+=((-Math.cos(cy)*iz-Math.sin(cy)*ix)*sp-w.vz)*k;
+w.x=clamp(w.x+w.vx*dt,-R+.4,R-.4);w.y=clamp(w.y-w.vz*dt,-R+.4,R-.4);
+const h=g0?(clamp(w.f(w.x,w.y),-5,6)||0):0,px=w.x*S,py=h*S,pz=-w.y*S,s=w.s=live(w),n=new V3(0,1,0);if(g0)n.set(-s.fx,1,s.fy).normalize();if(!isFinite(n.x+n.y+n.z))n.set(0,1,0);
+w.nn.lerp(n,Math.min(1,dt*8)).normalize();if(Math.hypot(w.vx,w.vz)>.15)w.hd.set(w.vx,0,w.vz).normalize();
+tA.copy(w.hd).addScaledVector(w.nn,-w.hd.dot(w.nn)).normalize();tB.crossVectors(w.nn,tA);m4b.makeBasis(tB,w.nn,tA);bug.quaternion.setFromRotationMatrix(m4b);
+bug.position.set(o[0]+px,o[1]+py+(g0?3.4:6.5)+.5*Math.sin(t*3),o[2]+pz);updateTourWings(t);
+if(mi==0){const d=new V3(s.fx,s.m*s.m,-s.fy);w.ga.visible=d.lengthSq()>1e-6;if(w.ga.visible)setA(w.ga,tC.set(px,py+1.4,pz),d.normalize(),clamp(5+s.m*7,5,24));w.dc.position.set(px,py+.6,pz);w.dc.quaternion.setFromUnitVectors(ZV,w.nn)}
+if(mi==3)[[0,0],[.8,0],[-.8,0],[0,.8],[0,-.8]].forEach(([a,b],i)=>w.sp[i].position.set((w.x+a)*S,(clamp(w.f(w.x+a,w.y+b),-5,6)||0)*S+1.6,-(w.y+b)*S));
+if(mi==1||mi==2){stepSL(w,dt);
+if(mi==1){w.rg.position.set(px,1.4,pz);w.rg.scale.setScalar(clamp(Math.exp(clamp(s.div,-4,4)*.5*((t%3)/3*2)),.3,3))}else{w.wh.position.set(px,2.2,pz);w.wh.rotation.y+=s.curl/2*dt}}
+if(zoomT<1){zoomT=Math.min(1,zoomT+dt/3.6);const e=1-Math.pow(1-zoomT,3);cd=210+(42-210)*e;cpi=1.1+(.5-1.1)*e;cy=.9*(1-e)}
+const originY=w.axes?w.axes.position.y:0,hT=clamp(86/(Math.tan(cam.fov*PI/360)*Math.min(1,cam.aspect)),90,260),ctr=tC.set(o[0],originY,o[2]);let tp;
+if(top)tp=new V3(o[0],originY+hT,o[2]);else{const b=bug.position;tp=new V3(b.x+Math.sin(cy)*Math.cos(cpi)*cd,b.y+Math.sin(cpi)*cd+2,b.z+Math.cos(cy)*Math.cos(cpi)*cd);if(g0)tp.y=Math.max(tp.y,o[1]+(clamp(w.f((tp.x-o[0])/S,-(tp.z-o[2])/S),-5,6)||0)*S+5)}
+cam.position.lerp(tp,FK(top?.1:.2));cam.up.lerp(top?TUP:UPV,FK(.12));if(top)cam.lookAt(ctr);else cam.lookAt(bug.position.x,bug.position.y-1,bug.position.z);
+if(t-lastUi>.12){lastUi=t;$('wl').textContent=LIVE[mi](s);paint()}
+if(stT<0)stT=t;else if(document.body.classList.contains('eq-open'))stT+=dt;}
+rn.domElement.addEventListener('pointerdown',e=>{if(cur){dr=[e.clientX,e.clientY,e.pointerId];closeEq()}});
+['pointerup','pointercancel'].forEach(n=>addEventListener(n,e=>{if(dr&&e.pointerId===dr[2])dr=null}));
+addEventListener('pointermove',e=>{if(!dr||!cur||e.pointerId!==dr[2])return;zoomT=1;cy-=(e.clientX-dr[0])*.006;cpi=clamp(cpi+(e.clientY-dr[1])*.005,.12,1.45);dr=[e.clientX,e.clientY,dr[2]]});
+rn.domElement.addEventListener('wheel',e=>{zoomT=1;if(cur)cd=clamp(cd*(1+e.deltaY*.001),14,90)},{passive:true});
+$('wv').onclick=()=>{top=!top;$('wv').textContent=top?'3D view':'Top view';$('wv').classList.toggle('on',top)};
+$('wf').onclick=()=>{if(cur&&cur.ia){cur.av=!cur.av;cur.ia.visible=cur.av}if(cur&&cur.arr){cur.av=!cur.av;cur.arr.forEach(a=>a.visible=cur.av)}if(cur)$('wf').classList.toggle('on',!!cur.av)};
+$('wx').onclick=()=>{const o=document.body.classList.toggle('eq-open');$('wx').classList.toggle('on',o)};
+$('wd').onclick=e=>{const b=e.target.closest('button');if(b&&cur)step(+b.dataset.i,1)};
+$('wq').onclick=()=>returnToChoices();
+$('wc').onclick=e=>{const b=e.target.closest('button');if(!b||!cur)return;if(b.dataset.c){$('eq').classList.toggle('custom');return}PRE[cur.mi][+b.dataset.i].slice(1).forEach((s,j)=>cur.in[j].value=s);apply(cur)};
+return{enter,exit,update}})();
+})();
+}
+</script></body></html>

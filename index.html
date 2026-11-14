@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -1453,7 +1454,14 @@
                     { name: "Catenary Curve ⛓️", url: "./projects/Math/catenary_curve.html", subnodes: [] },
                     { name: "Quadratic Equation 🧮", url: "./projects/Math/quadratic_equation.html", subnodes: [] },
                     { name: "Gaussian Integral 🔔", url: "./projects/Math/gaussian_integral.html", subnodes: [] },
-                    { name: "Div, Grad, Curl and Laplacian ∇", url: "./projects/Math/div_grad_curl_laplacian.html", subnodes: [] }
+                    { name: "Div, Grad, Curl and Laplacian ∇", url: "./projects/Math/div_grad_curl_laplacian.html", subnodes: [] },
+                    {
+                        name: "Geometry of ∫√tan(x) dx",
+                        prefix: "Geometry of ",
+                        latex: "\\int \\sqrt{\\tan(x)}\\,dx",
+                        url: "./projects/Math/geometry_of_integral_sqrt_tanx.html",
+                        subnodes: []
+                    }
                 ]
             },
             physics: {
@@ -1557,7 +1565,7 @@
             }
 
             const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            container.className = 'space-y-2 sm:space-y-2.5 flex flex-col justify-center h-full max-h-[85vh] overflow-y-auto no-scrollbar py-1 transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = category.nodes.map((node, idx) => {
                 const isExpanded = idx === expandedProjL2Index;
@@ -1565,9 +1573,13 @@
                     ? 'bg-amber-600 text-white border-amber-500 font-bold shadow-md shadow-amber-600/30 scale-105 z-20' 
                     : 'bg-slate-900 text-slate-200 border-amber-500/30 hover:border-amber-400 hover:text-amber-300 shadow-sm z-10';
                 
+                const labelHTML = (node.latex && window.katex)
+                    ? `${node.prefix || ''}<span class="inline-block align-middle">${katex.renderToString(node.latex, { throwOnError: false })}</span>`
+                    : node.name;
+
                 return `
-                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
-                        <span class="truncate">${node.name}</span>
+                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                        <span class="truncate py-0.5">${labelHTML}</span>
                     </button>
                 `;
             }).join('');

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nicomachus’s Theorem — Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#070d19;--panel:rgba(13,21,38,.86);--line:rgba(251,191,36,.26);--gold:#fbbf24;--gold2:#fcd34d;--cyan:#22d3ee;--mute:#94a3b8;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 50% 20%,#14264a 0%,var(--bg) 75%);color:#e2e8f0;font-family:Inter,system-ui,sans-serif;line-height:1.6}
+body.home .der-only{display:none!important}body.der .home-only{display:none!important}
+.top{position:fixed;top:0;left:0;right:0;z-index:5;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 6px;display:flex;justify-content:space-between;font:700 11px 'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);pointer-events:none}
+.backlink{pointer-events:auto;color:var(--gold2);text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:5px 12px;margin:-4px 0;transition:.2s}.backlink:hover{border-color:var(--gold);box-shadow:0 0 14px rgba(251,191,36,.35)}
+#view{position:fixed;left:0;right:0;top:calc(40px + env(safe-area-inset-top,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+#geo{position:absolute;left:0;right:0;top:0;bottom:0;transition:bottom .8s cubic-bezier(.16,1,.3,1)}
+body.der #geo{bottom:54%}
+#gl{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+.hud{position:absolute;left:12px;right:12px;top:4px;display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:2}
+.nctl{display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 6px;font:700 13px 'JetBrains Mono',monospace;color:var(--mute)}
+.nctl input{width:46px;text-align:center;background:transparent;border:0;outline:0;color:var(--gold2);font:700 18px 'JetBrains Mono',monospace;-moz-appearance:textfield}
+.nctl input::-webkit-outer-spin-button,.nctl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.nctl button{width:34px;height:34px;padding:0;font-size:18px;border-radius:10px}
+.cap{position:absolute;left:14px;right:14px;top:58px;text-align:center;pointer-events:none;font-size:clamp(14px,3.8vw,19px);color:#fff;text-shadow:0 2px 14px #000}
+#eqs{position:absolute;left:0;right:0;top:46%;bottom:0;opacity:0;visibility:hidden;transform:translateY(30px);transition:opacity .5s,transform .7s cubic-bezier(.16,1,.3,1),visibility .5s}
+body.der #eqs{opacity:1;visibility:visible;transform:none;transition-delay:.25s}
+.pane{position:absolute;inset:0;overflow-y:auto;padding:4px 16px 14px;opacity:0;visibility:hidden;transform:translateX(34px);transition:opacity .45s,transform .55s cubic-bezier(.16,1,.3,1),visibility .45s}
+.pane.before{transform:translateX(-34px)}.pane.active{opacity:1;visibility:visible;transform:none}
+.in{max-width:680px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
+.num{display:flex;align-items:center;gap:10px;font:700 11px 'JetBrains Mono',monospace;letter-spacing:.16em;color:var(--gold);text-transform:uppercase}
+.num i{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+h2{margin:4px 0 6px;font-size:19px;color:#fff;line-height:1.25}
+p{margin:6px 0;color:#cbd5e1;font-size:14.5px}b{color:var(--gold2);font-weight:600}
+.eq{margin:8px 0;padding:4px;overflow-x:auto;overflow-y:hidden;text-align:center;color:#f8fafc}
+.eq mjx-container{margin:0!important}
+.boxed{border:1px solid var(--gold);border-radius:14px;background:rgba(251,191,36,.1)}
+.boxed.on{animation:glow 2.6s ease-in-out .6s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 6px rgba(251,191,36,.15)}50%{box-shadow:0 0 26px rgba(251,191,36,.5)}}
+.ln{opacity:0;transform:translateY(12px) scale(.98);filter:blur(7px);transition:opacity .8s,transform .9s cubic-bezier(.16,1,.3,1),filter .8s}
+.ln.on{opacity:1;transform:none;filter:none}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(7,13,25,.9);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.bar{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:10px}
+button{font:700 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;border-radius:12px;padding:13px 16px;cursor:pointer;border:1px solid rgba(251,191,36,.3);background:rgba(15,23,42,.7);color:#cbd5e1;transition:.2s}
+button:hover{border-color:var(--gold);color:var(--gold2)}
+.gold{background:var(--gold);color:#090d16;border-color:var(--gold);box-shadow:0 0 22px rgba(251,191,36,.45)}
+.gold:hover{background:var(--gold2);color:#090d16}
+#go{flex:1;padding:16px;font-size:13px}
+.dots{flex:1;display:flex;justify-content:center;gap:7px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(251,191,36,.25);transition:.3s}
+.dots i.a{background:var(--gold);box-shadow:0 0 10px var(--gold);transform:scale(1.35)}
+</style>
+</head>
+<body class="home">
+<div class="top"><span>Nicomachus’s Theorem</span><a id="ml" class="backlink" href="/">← Back</a></div>
+<div id="view">
+  <div id="geo">
+    <canvas id="gl"></canvas>
+    <div class="hud">
+      <div class="nctl">n<button id="dec" aria-label="Decrease n">−</button><input id="ninp" type="number" min="1" max="8" value="4" inputmode="numeric" aria-label="n"><button id="inc" aria-label="Increase n">+</button></div>
+      <button id="rp">↺ Replay</button>
+    </div>
+    <div class="cap" id="cm"></div>
+  </div>
+  <div id="eqs"></div>
+</div>
+<nav><div class="bar">
+  <button id="go" class="gold home-only">Derivation →</button>
+  <button id="back" class="der-only">← Prev</button>
+  <div class="dots der-only" id="dots"></div>
+  <button id="next" class="gold der-only">Next →</button>
+</div></nav>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},V3=THREE.Vector3,PI=Math.PI;
+var COL=[0x38bdf8,0xa78bfa,0xfbbf24,0xfb7185,0x34d399,0xf472b6,0xfb923c,0x60a5fa],GOLD=0xfbbf24,CY=0x22d3ee,BL=0x1e3a8a,TH=.28;
+var KINDS=['stair','gnomon','split','cube','fit','full'];
+var n=4,mode='home',cur=0,timers=[],panes=[];
+function T(m){return m*(m+1)/2}
+function cl(x){return Math.max(0,Math.min(1,x))}
+function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+
+/* slab layout for cube k folded into the gnomon around T(k-1) */
+function slabs(k,o){
+  var P=k*(k-1)/2,out=[],h,s,tx,tz,idx,full,half=k/2,rem;
+  function add(w,d,s,x,z,rot,dz){out.push({w:w,d:d,s:s,tx:o+x,tz:o+z,rot:rot,dz:dz})}
+  if(k%2){h=(k-1)/2;
+    for(s=0;s<k;s++){
+      if(s===0){tx=P+k/2;tz=P+k/2}else if(s<=h){tx=P+k/2;tz=(s-1)*k+k/2}else{idx=s-h-1;tx=idx*k+k/2;tz=P+k/2}
+      add(k,k,s,tx,tz,0,0)}
+  }else{full=k/2-1;rem=full*k;s=0;
+    add(k,k,s++,P+k/2,P+k/2,0,0);
+    for(idx=0;idx<full;idx++)add(k,k,s++,P+k/2,idx*k+k/2,0,0);
+    for(idx=0;idx<full;idx++)add(k,k,s++,idx*k+k/2,P+k/2,0,0);
+    add(k,half,k-1,P+k/2,rem+half/2,0,-half/2);
+    add(k,half,k-1,rem+half/2,P+k/2,1,half/2);
+  }
+  return out;
+}
+
+/* ---------------- three.js ---------------- */
+var gl=(function(){
+  var cv=$('gl'),cap=$('cm'),R,sc,cam,G,b=null,t0=0,yaw=0,pitch=0,vy=0,vp=0,hx=0,hy=0,thx=0,thy=0,touched=false,rad=0,tRad=30,look=new V3(),tLook=new V3(),lw=0,lh=0,lastCap='',first=true,dx=null,dy=0;
+  function box(w,h,d,col,op){
+    var g=new THREE.BoxGeometry(w*.97,h,d*.97),m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.45,metalness:.15,transparent:true,opacity:op||.96}));
+    m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.5})));return m}
+  function flip(g,e){g.position.y=(1-e)*4;g.rotation.y=PI*(1-e)}
+  function ringOf(S){var h=S/2,r=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new V3(-h,.03,-h),new V3(h,.03,-h),new V3(h,.03,h),new V3(-h,.03,h)]),new THREE.LineBasicMaterial({color:GOLD,transparent:true,opacity:0}));G.add(r);return r}
+
+  function layers(ks,base,full){
+    var S=T(n),o=-S/2,zc=S/2+n/2+1.5,sw=-1.1,items=[],cx,P=T(n-1);
+    ks.forEach(function(k){sw+=k+1.1});cx=-sw/2;
+    ks.forEach(function(k,ki){
+      slabs(k,o).forEach(function(d){
+        var m=box(d.w,1,d.d,COL[(k-1)%8]),sp=new V3(cx+k/2,d.s+.5,zc+d.dz);m.position.copy(sp);G.add(m);
+        items.push({m:m,sp:sp,tp:new V3(d.tx,TH/2,d.tz),rot:d.rot,k:k,st:(ki+d.s/k)/ks.length});
+      });cx+=k+1.1;});
+    if(base&&P>0){var bm=box(P,TH,P,BL,.9);bm.position.set(o+P/2,TH/2,o+P/2);G.add(bm)}
+    var ring=ringOf(S);
+    return{dur:full?8500+n*600:7000,delay:1000,w:Math.max(S,sw),h:S+n+3,look:[0,0,zc*.4],grid:S,anim:function(p){
+      items.forEach(function(it){var e=ease(cl((p-it.st*.5)/.5));
+        it.m.position.lerpVectors(it.sp,it.tp,e);it.m.position.y+=Math.sin(e*PI)*(it.k*.9+1.2);
+        it.m.scale.y=1+(TH-1)*e;it.m.rotation.y=it.rot*e*PI/2;it.m.material.opacity=.96-.1*e});
+      ring.material.opacity=cl((p-.85)/.15);
+      if(p<.02)return full?'Solid cubes 1³, 2³, … n³':'A cube of side k = '+n;
+      if(p<.98)return full?'Each cube slices into slabs that glide into place':'Its k slabs glide into the gnomon';
+      return full?'Σk³ = '+(S*S)+' = '+S+'²':'k slabs fill the gnomon exactly';}};
+  }
+  var BUILD={
+    stair:function(){
+      var a=new THREE.Group(),b2=new THREE.Group(),i,j,m;G.add(a,b2);
+      for(i=1;i<=n;i++)for(j=0;j<i;j++){
+        m=box(1,TH,1,GOLD);m.position.set(j+.5-(n+1)/2,TH/2,i-1+.5-n/2);a.add(m);
+        m=box(1,TH,1,CY);m.position.set(n-j+.5-(n+1)/2,TH/2,n-i+.5-n/2);b2.add(m)}
+      return{dur:3800,delay:900,w:n+1,h:n+2,look:[0,0,0],grid:n+1,anim:function(p){flip(b2,ease(cl((p-.1)/.8)));return '2·Tₙ = n(n+1): two staircases make a rectangle'}};
+    },
+    gnomon:function(){
+      var P=T(n-1),o=-T(n)/2,pc=[],m;
+      if(P>0){m=box(P,TH,P,BL,.92);m.position.set(o+P/2,TH/2,o+P/2);G.add(m)}
+      m=box(n,TH,n,GOLD);m.position.set(o+P+n/2,TH/2,o+P+n/2);pc.push(m);
+      if(P>0){m=box(n,TH,P,0xf59e0b);m.position.set(o+P+n/2,TH/2,o+P/2);pc.push(m);
+        m=box(P,TH,n,0xf59e0b);m.position.set(o+P/2,TH/2,o+P+n/2);pc.push(m)}
+      pc.forEach(function(x){G.add(x)});
+      return{dur:3600,delay:800,w:T(n)+1,h:T(n)+3,look:[0,0,0],grid:T(n),anim:function(p){
+        pc.forEach(function(x,i){var e=ease(cl((p-i*.22)/.4));x.position.y=TH/2+(1-e)*9;x.material.opacity=.96*cl(e*2)});
+        return 'A gnomon of width k wraps the square of side T(k−1)'}};
+    },
+    split:function(){
+      var A=new THREE.Group(),B=new THREE.Group(),x,z,m;G.add(A,B);
+      for(z=0;z<n;z++)for(x=0;x<n;x++){
+        m=box(1,TH,1,x<=z?GOLD:CY);m.position.set(x+.5-n/2,TH/2,z+.5-n/2);(x<=z?A:B).add(m)}
+      return{dur:3800,delay:900,w:n+1,h:n+2,look:[0,0,0],grid:n+1,anim:function(p){flip(B,ease(cl((p-.1)/.8)));return 'Tₖ + Tₖ₋₁ = k²: two staircases tile a k × k square'}};
+    },
+    cube:function(){
+      var ss=[],s,m;
+      for(s=0;s<n;s++){m=box(n,1,n,COL[s%8]);G.add(m);ss.push(m)}
+      return{dur:4200,delay:900,w:n*1.6+2,h:n*2.4,look:[0,n*.7,0],grid:n+2,anim:function(p){
+        var g=ease(cl((p-.15)/.5))*1.3,f=ease(cl((p-.6)/.35));
+        ss.forEach(function(x,i){x.scale.y=1-(1-TH)*f;x.position.y=i*(1+g)+.5*x.scale.y});
+        return 'k³ = k · k²: a cube is k slabs of area k²'}};
+    },
+    fit:function(){return layers([n],true,false)},
+    full:function(){var ks=[],k;for(k=1;k<=n;k++)ks.push(k);return layers(ks,false,true)}
+  };
+  function init(){
+    R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));
+    cam=new THREE.PerspectiveCamera(42,1,.1,300);sc=new THREE.Scene();G=new THREE.Group();sc.add(G);
+    sc.add(new THREE.HemisphereLight(0xcfe3ff,0x101a33,.9));var dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(8,18,10);sc.add(dl);
+    function rel(){dx=null;cv.style.cursor='grab'}
+    cv.addEventListener('pointerdown',function(e){dx=e.clientX;dy=e.clientY;touched=true;vy=vp=0;cv.style.cursor='grabbing';cv.setPointerCapture(e.pointerId)});
+    cv.addEventListener('pointermove',function(e){
+      if(dx!==null){var mx=e.clientX-dx,my=e.clientY-dy;dx=e.clientX;dy=e.clientY;
+        vy=-mx*.008;vp=my*.006;yaw+=vy;pitch=Math.max(-.5,Math.min(.9,pitch+vp));}
+      else if(e.pointerType==='mouse'){var r=cv.getBoundingClientRect();thx=((e.clientX-r.left)/r.width-.5)*.5;thy=((e.clientY-r.top)/r.height-.5)*.25}
+    });
+    cv.addEventListener('pointerup',rel);cv.addEventListener('pointercancel',rel);
+    cv.addEventListener('pointerleave',function(){thx=0;thy=0});
+    requestAnimationFrame(frame);
+  }
+  function build(kind){
+    if(!R)init();
+    while(G.children.length)G.remove(G.children[0]);
+    var B=BUILD[kind](),gh=new THREE.GridHelper(B.grid,B.grid,0x2a3f6e,0x1a2a4d);gh.position.y=-.01;G.add(gh);
+    b=B;t0=performance.now();tLook.set(B.look[0],B.look[1],B.look[2]);
+    if(first){look.copy(tLook);first=false}lastCap='';
+  }
+  function frame(now){
+    requestAnimationFrame(frame);if(!b)return;
+    var w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+    if(w!==lw||h!==lh){lw=w;lh=h;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+    var c=b.anim(cl((now-t0-b.delay)/b.dur));if(c!==lastCap){cap.textContent=c;lastCap=c}
+    tRad=Math.max(1.56*b.w/cam.aspect,1.1*b.h+4);if(!rad)rad=tRad;
+    rad+=(tRad-rad)*.06;look.lerp(tLook,.06);
+    if(dx===null){yaw+=vy;pitch=Math.max(-.5,Math.min(.9,pitch+vp));vy*=.92;vp*=.92}
+    hx+=(thx-hx)*.08;hy+=(thy-hy)*.08;
+    var a=(touched?0:.35*Math.sin(now*.0002))+yaw+hx,el=.55+pitch+hy,dist=rad*1.176;
+    cam.position.set(look.x+Math.sin(a)*Math.cos(el)*dist,look.y+Math.sin(el)*dist,look.z+Math.cos(a)*Math.cos(el)*dist);cam.lookAt(look);
+    R.render(sc,cam);
+  }
+  return{build:build,replay:function(){t0=performance.now();yaw=0;pitch=0;vy=0;vp=0;touched=false}};
+})();
+
+/* ---------------- derivation panes ---------------- */
+function paneData(){
+  var N=n,Tn=T(N),Tp=T(N-1),cubes=[],k;for(k=1;k<=N;k++)cubes.push(k*k*k);
+  var par=N%2?String.raw`Each arm takes \(\tfrac{k-1}{2}=${(N-1)/2}\) whole slabs.`:String.raw`Each arm takes \(\tfrac k2-1=${N/2-1}\) whole slabs plus one half slab (\(k\times\tfrac k2\)).`;
+  return [
+  ['Step 1 · Triangular numbers','Two staircases make a rectangle',String.raw`<p class="ln">Copy the staircase \(1+2+\cdots+n\), turn it half a revolution, and the two lock into an \(n\times(n+1)\) rectangle.</p><div class="eq ln">\[2T_n=n(n+1)\]</div><div class="eq boxed ln">\[T_n=\frac{n(n+1)}{2}\]</div><div class="eq ln">\[T_{${N}}=\frac{${N}\cdot${N+1}}{2}=${Tn}\]</div>`],
+  ['Step 2 · One layer','A gnomon wraps a square',String.raw`<p class="ln">Around a square of side \(T_{k-1}\) wrap an L-shaped border of width \(k\). Shown for \(k=${N}\): the square has side \(T_{${N-1}}=${Tp}\).</p><div class="eq boxed ln">\[T_k^{2}-T_{k-1}^{2}=k^3\]</div><div class="eq ln">\[T_{${N}}^2-T_{${N-1}}^2=${Tn}^2-${Tp}^2=${Tn*Tn-Tp*Tp}=${N}^3\]</div>`],
+  ['Step 3 · Why it holds','Two staircases tile a square',String.raw`<p class="ln">\(T_k\) and \(T_{k-1}\) fit together into a \(k\times k\) square, and differ by one row of \(k\):</p><div class="eq ln">\[T_k+T_{k-1}=k^2,\qquad T_k-T_{k-1}=k\]</div><div class="eq ln">\[T_{${N}}+T_{${N-1}}=${Tn}+${Tp}=${N*N}\]</div><div class="eq boxed ln">\[T_k^2-T_{k-1}^2=(T_k-T_{k-1})(T_k+T_{k-1})=k\cdot k^2=k^3\]</div>`],
+  ['Step 4 · The cube','A cube is k slabs',String.raw`<p class="ln">Slice a cube of side \(k\) into \(k\) layers of thickness 1. Each is a flat \(k\times k\) square.</p><div class="eq boxed ln">\[k^3=\underbrace{k^2+\cdots+k^2}_{k\text{ slabs}}\]</div><div class="eq ln">\[${N}^3=${N}\cdot${N*N}=${N*N*N}\]</div>`],
+  ['Step 5 · The fit','Slabs fill the gnomon exactly',String.raw`<p class="ln">One slab fills the corner; the other \(k-1\) fill two arms of length \(T_{k-1}\).</p><div class="eq boxed ln">\[k^2+2k\,T_{k-1}=k^2+k^2(k-1)=k^3\]</div><p class="ln">${par}</p><div class="eq ln">\[${N*N}+2\cdot${N}\cdot${Tp}=${N*N*N}\]</div>`],
+  ['Step 6 · Telescoping','All layers form one square',String.raw`<p class="ln">Add the layer identity for \(k=1,\dots,n\); neighbouring terms cancel:</p><div class="eq ln">\[\sum_{k=1}^{n}k^3=\sum_{k=1}^{n}\left(T_k^2-T_{k-1}^2\right)=T_n^2-T_0^2\]</div><div class="eq boxed ln">\[1^3+2^3+\cdots+n^3=\left(\frac{n(n+1)}{2}\right)^2\]</div><div class="eq ln">\[${cubes.join('+')}=${Tn*Tn}=${Tn}^2\]</div>`]];
+}
+function makePanes(){
+  var box=$('eqs');box.innerHTML='';panes=[];
+  paneData().forEach(function(d){var p=document.createElement('div');p.className='pane';
+    p.innerHTML='<div class="in"><div class="num"><i></i>'+d[0]+'</div><h2>'+d[1]+'</h2>'+d[2]+'</div>';box.appendChild(p);panes.push(p)});
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([box]).catch(function(){});
+}
+function runLines(p){
+  timers.forEach(clearTimeout);timers=[];
+  var ls=[].slice.call(p.querySelectorAll('.ln'));ls.forEach(function(l){l.classList.remove('on')});
+  ls.forEach(function(l,i){timers.push(setTimeout(function(){l.classList.add('on')},400+i*700))});
+  p.scrollTop=0;
+}
+var dots=$('dots');KINDS.forEach(function(){dots.appendChild(document.createElement('i'))});
+function go(i){
+  cur=i;
+  panes.forEach(function(p,j){p.classList.toggle('active',j===i);p.classList.toggle('before',j<i)});
+  [].forEach.call(dots.children,function(d,j){d.classList.toggle('a',j===i)});
+  $('next').textContent=i===KINDS.length-1?'Finish ↺':'Next →';
+  gl.build(KINDS[i]);runLines(panes[i]);
+}
+function setMode(m){
+  mode=m;document.body.className=m==='home'?'home':'der';timers.forEach(clearTimeout);
+  if(m==='home'){gl.build('full')}else go(0);
+}
+function setN(v){
+  v=Math.round(+v);if(!(v>=1))v=n;v=Math.max(1,Math.min(8,v));$('ninp').value=v;
+  if(v===n&&panes.length)return;n=v;makePanes();
+  if(mode==='home')gl.build('full');else go(cur);
+}
+$('ninp').addEventListener('change',function(){setN(this.value)});
+$('ninp').addEventListener('keydown',function(e){if(e.key==='Enter')this.blur()});
+$('dec').onclick=function(){setN(n-1)};$('inc').onclick=function(){setN(n+1)};
+$('rp').onclick=function(){gl.replay()};
+$('go').onclick=function(){setMode('der')};
+$('back').onclick=function(){if(cur>0)go(cur-1);else setMode('home')};
+$('next').onclick=function(){if(cur<KINDS.length-1)go(cur+1);else setMode('home')};
+document.addEventListener('keydown',function(e){if(mode!=='der'||e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight')$('next').onclick();if(e.key==='ArrowLeft')$('back').onclick()});
+makePanes();setMode('home');
+})();
+</script>
+</body>
+</html>

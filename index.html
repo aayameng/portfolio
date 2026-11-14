@@ -658,7 +658,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
                     <div id="proj-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
                     </div>
-                    <div id="proj-l2-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                    <div id="proj-l2-nodes-col" class="space-y-2 sm:space-y-2.5 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
                     </div>
                     <div id="proj-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
                     </div>
@@ -1461,6 +1461,13 @@
                         latex: "\\int \\sqrt{\\tan(x)}\\,dx",
                         url: "./projects/Math/geometry_of_integral_sqrt_tanx.html",
                         subnodes: []
+                    },
+                    {
+                        name: "Sum of Cubes",
+                        prefix: "",
+                        latex: "\\sum_{k=1}^{n} k^3 = \\left(\\sum_{k=1}^{n} k\\right)^2",
+                        url: "./projects/Math/sum_of_cubes.html",
+                        subnodes: []
                     }
                 ]
             },
@@ -1559,13 +1566,13 @@
             if (!container) return;
 
             if (!expandedProjCategoryKey) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'space-y-2 sm:space-y-2.5 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
                 container.innerHTML = '';
                 return;
             }
 
             const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-            container.className = 'space-y-2 sm:space-y-2.5 flex flex-col justify-center h-full max-h-[85vh] overflow-y-auto no-scrollbar py-1 transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            container.className = 'space-y-2 sm:space-y-2 flex flex-col justify-center h-full max-h-[85vh] overflow-y-auto no-scrollbar py-1 transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
 
             container.innerHTML = category.nodes.map((node, idx) => {
                 const isExpanded = idx === expandedProjL2Index;
@@ -1578,7 +1585,7 @@
                     : node.name;
 
                 return `
-                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
+                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${activeStyle}">
                         <span class="truncate py-0.5">${labelHTML}</span>
                     </button>
                 `;

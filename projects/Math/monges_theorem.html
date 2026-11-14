@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monge’s Theorem Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1220;--am:#ffc107;--ln:rgba(255,193,7,.38);--mint:#7cffb2;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--am);font-family:"Space Mono",ui-monospace,Menlo,Consolas,monospace;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#c,#t{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#t{z-index:1;opacity:0;pointer-events:none;transition:opacity .5s}
+#t.on{opacity:1;pointer-events:auto}
+#dock{position:fixed;z-index:2;left:0;right:0;bottom:0;padding:0 10px calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none;display:flex;justify-content:center}
+body.run #dock{display:none}
+#panel{pointer-events:auto;width:100%;max-width:520px;background:rgba(14,22,39,.95);border:1px solid var(--ln);border-radius:26px;box-shadow:0 0 28px rgba(255,193,7,.14),0 20px 50px rgba(0,0,0,.5);backdrop-filter:blur(10px);padding:14px 16px 16px;max-height:58vh;overflow:auto}
+.hd{display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--am);box-shadow:0 0 12px var(--am);flex:none}
+.hd b{flex:1;font-size:clamp(13px,4.2vw,19px);letter-spacing:.1em}
+button{font:inherit;cursor:pointer;color:var(--am)}
+.sq{width:42px;height:42px;border:0;border-radius:12px;background:var(--am);color:#1a1200;font-size:22px;box-shadow:0 0 18px rgba(255,193,7,.4)}
+.chev{background:none;border:0;font-size:24px;transition:transform .2s}
+.c .chev{transform:rotate(180deg)}
+.c #body{display:none}
+#body{margin-top:12px;border-top:1px solid var(--ln);padding-top:12px}
+#status{margin:0;font-size:11.5px;letter-spacing:.05em;color:#d9a808;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.row button,.wide{background:#151d2e;border:1px solid var(--ln);border-radius:14px;padding:12px;letter-spacing:.08em;font-size:13px}
+.row button:active,.wide:active{background:#2a2410}
+.wide{width:100%;font-size:14px;font-weight:700;margin-top:12px;border-color:var(--am);background:#2a2410;box-shadow:0 0 16px rgba(255,193,7,.22)}
+#mini{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 20px);max-width:520px;flex-direction:column;align-items:stretch;gap:9px;padding:11px 12px 14px 14px;background:rgba(14,22,39,.95);backdrop-filter:blur(10px);border:1px solid var(--ln);border-radius:26px;overflow:hidden;box-shadow:0 0 28px rgba(255,193,7,.14),0 20px 50px rgba(0,0,0,.5)}
+#mini .dot{width:9px;height:9px;margin-right:9px}
+#mini[hidden]{display:none}
+#cap{flex:1;min-width:0;font-size:clamp(10px,3vw,12.5px);line-height:1.4;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffe08a}
+#mini button{display:grid;place-items:center;background:none;border:0;border-radius:10px;width:28px;height:28px;padding:0;color:var(--am)}
+.mt{display:flex;align-items:center}
+.mb{display:grid;grid-template-columns:1fr 46px 1fr;gap:8px}
+#mini .mb button{width:auto;height:40px;display:flex;align-items:center;justify-content:center;gap:7px;background:#151d2e;border:1px solid var(--ln);border-radius:14px;font-size:12px;font-weight:700;letter-spacing:.08em}
+#mini .mb button:active{background:#2a2410}
+#back{position:fixed;z-index:5;top:calc(10px + env(safe-area-inset-top,0px));right:12px;padding:10px 16px;background:var(--am);color:#1a1200;border-radius:14px;font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;box-shadow:0 0 18px rgba(255,193,7,.4)}
+#back:active{transform:scale(.96)}
+#mini button:active{background:#2a2410}
+#mini svg{width:14px;height:14px;fill:currentColor}
+#mini #x{opacity:.65}
+#pg{position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:rgba(255,193,7,.18)}
+#pg:after{content:"";position:absolute;inset:0;width:var(--w,0%);background:var(--mint);border-radius:2px;transition:width .4s}
+</style></head><body>
+<canvas id="c"></canvas>
+<a id="back" href="/">← BACK</a>
+<div id="dock"><div id="panel">
+ <div class="hd"><i class="dot"></i><b>MONGE’S THEOREM</b><button id="reset" class="sq" aria-label="Clear all">↺</button><button id="fold" class="chev" aria-label="Collapse">⌄</button></div>
+ <div id="body">
+  <p id="status"></p>
+  <div class="row"><button id="undo">UNDO</button><button id="rand">RANDOM</button></div>
+  <button id="prove" class="wide">▶ PROVE MONGE’S THEOREM</button>
+ </div>
+</div></div>
+<div id="mini" hidden><i id="pg"></i><div class="mt"><i class="dot"></i><span id="cap"></span><button id="x" aria-label="Exit proof"></button></div><div class="mb"><button id="pv" aria-label="Previous"></button><button id="pl" aria-label="Pause or play"></button><button id="nx" aria-label="Next"></button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=i=>document.getElementById(i),cv=$("c"),g=cv.getContext("2d"),P=$("panel");
+const PR=[[0,1],[1,2],[0,2]],N="ABC",TF=Math.tan(Math.PI/8),V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const SC=[0xff7f5c,0x35c9b8,0xa98bff],SH=["#ff7f5c","#35c9b8","#a98bff"];
+const CAP=["Each circle lifts into a sphere.","Cone wraps A and B; apex is E(AB).","Cone wraps B and C; apex is E(BC).","Cone wraps A and C; apex is E(AC).","All three apexes lie on the page.","A flat lid rests on top of all three.","Lid grazes each pair, so it holds E.","Page and lid meet in one line. Q.E.D."];
+const IC={pv:`<svg viewBox="0 0 16 16"><path d="M12 2.5v11L5 8zM3 3h2v10H3z"/></svg>`,nx:`<svg viewBox="0 0 16 16"><path d="M4 2.5v11L11 8zM11 3h2v10h-2z"/></svg>`,pa:`<svg viewBox="0 0 16 16"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>`,pl:`<svg viewBox="0 0 16 16"><path d="M4.5 2.5v11l9-5.5z"/></svg>`,rp:`<svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v3h-3"/></svg>`,x:`<svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`};
+let W,H,D,C=[],drag=null,note="",run=0,si=0,qi=0,sub=0,t0=0,lt=0,auto=1,RN,CA,T,M,cur,goal,V2;
+function size(){D=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;
+ if(RN){RN.setPixelRatio(Math.min(D,2));RN.setSize(W,H);CA.aspect=W/H;CA.updateProjectionMatrix()}}
+addEventListener("resize",size);size();
+const tx=(s,x,y,f,col)=>{g.font=f+"px 'Space Mono',monospace";g.fillStyle=col;g.fillText(s,x,y)};
+function calc(){for(const[i,j]of PR)if(Math.abs(C[i].r-C[j].r)<1)return{eq:1};return{}}
+function sync(){const n=C.length;$("status").textContent=note||(n<3?`DRAG ON THE PAGE TO DRAW A CIRCLE · ${n}/3`:"3/3 · DRAG A CENTRE TO MOVE, A RIM TO RESIZE. THEN PROVE.")}
+function msg(m){note=m;sync();clearTimeout(msg.t);msg.t=setTimeout(()=>{note="";sync()},2600)}
+const bad=(n,ig)=>C.some(o=>o!==ig&&Math.hypot(n.x-o.x,n.y-o.y)<n.r+o.r+2),blk=()=>{if(!note)msg("CIRCLES CAN’T OVERLAP · KEEP THEM APART")};
+
+/* ---------- 2D drawing page ---------- */
+function draw2(){
+ g.setTransform(D,0,0,D,0,0);g.fillStyle="#0b1220";g.fillRect(0,0,W,H);
+ g.fillStyle="rgba(255,193,7,.13)";
+ for(let x=14;x<W;x+=28)for(let y=14;y<H;y+=28)g.fillRect(x,y,2,2);
+ const top=P.getBoundingClientRect().top,all=drag&&drag.m=="new"&&drag.r>2?[...C,{x:drag.x,y:drag.y,r:drag.r}]:C;
+ if(!all.length){g.textAlign="center";tx("DRAG ANYWHERE TO DRAW A CIRCLE",W/2,(top+60)/2,13,"rgba(255,193,7,.6)");g.textAlign="left"}
+ all.forEach((c,i)=>{
+  g.beginPath();g.arc(c.x,c.y,c.r,0,7);const col=i>=C.length&&bad(c)?"#ff6b6b":SH[i];g.fillStyle=col+"44";g.fill();
+  g.shadowColor=col;g.shadowBlur=12;g.strokeStyle=col;g.lineWidth=2.5;g.stroke();g.shadowBlur=0;
+  g.fillStyle=col;g.beginPath();g.arc(c.x,c.y,5,0,7);g.fill();
+  tx(N[i],c.x+9,c.y-9,14,"#fff3c4")})}
+
+/* ---------- 3D helpers ---------- */
+const bar=(a,b,w,col)=>{const v=b.clone().sub(a),m=new THREE.Mesh(new THREE.BoxGeometry(v.length(),w,w),new THREE.MeshBasicMaterial({color:col}));
+ m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(V(1,0,0),v.normalize());return m};
+function lab(s,col,h){const c=document.createElement("canvas");c.width=256;c.height=128;const x=c.getContext("2d");
+ x.font="700 76px 'Space Mono',monospace";x.textAlign="center";x.textBaseline="middle";x.lineWidth=8;x.strokeStyle="#0b1220";x.strokeText(s,128,66);x.fillStyle=col;x.fillText(s,128,66);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(h*2,h,1);sp.renderOrder=9;return sp}
+const td=()=>({x:0,y:0,z:0,d:H/2/TF,az:0,el:1.56});
+function initGL(){
+ RN=new THREE.WebGLRenderer({antialias:true});RN.setClearColor(0x0b1220);RN.domElement.id="t";document.body.insertBefore(RN.domElement,$("dock"));
+ T=new THREE.Scene();CA=new THREE.PerspectiveCamera(45,W/H,1,40000);
+ T.add(new THREE.HemisphereLight(0xdfe8ff,0x1b2440,.7));const dl=new THREE.DirectionalLight(0xffffff,.65);dl.position.set(-400,900,500);T.add(dl);const rl=new THREE.DirectionalLight(0x8fb4ff,.25);rl.position.set(500,300,-600);T.add(rl);size();
+ const el=RN.domElement,ptr=new Map(),zoom=f=>{cur.d=goal.d=Math.max(20,Math.min(9000,cur.d*f))};
+ el.onpointerdown=e=>{el.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY])};
+ el.onpointermove=e=>{const p=ptr.get(e.pointerId);if(!p)return;
+  if(ptr.size==1){const dx=e.clientX-p[0],dy=e.clientY-p[1];cur.az-=dx*.007;goal.az-=dx*.007;cur.el=goal.el=Math.max(.06,Math.min(1.56,cur.el+dy*.007))}
+  else{const q=[...ptr.entries()].find(([k])=>k!=e.pointerId)[1],d0=Math.hypot(p[0]-q[0],p[1]-q[1]),d1=Math.hypot(e.clientX-q[0],e.clientY-q[1]);if(d1>5)zoom(d0/d1)}
+  p[0]=e.clientX;p[1]=e.clientY};
+ el.onpointerup=el.onpointercancel=e=>ptr.delete(e.pointerId);
+ el.onwheel=e=>{e.preventDefault();zoom(Math.exp(e.deltaY*.001))}}
+
+/* ---------- build the 3D construction ---------- */
+function build(){
+ if(M)T.remove(M.G);
+ const G=new THREE.Group(),o=C.map(c=>({x:c.x-W/2,z:c.y-H/2,r:c.r})),mx=o.reduce((a,c)=>a+c.x,0)/3,mz=o.reduce((a,c)=>a+c.z,0)/3,
+ s=Math.max(...o.map(c=>Math.hypot(c.x-mx,c.z-mz)+c.r)),
+ E=PR.map(([i,j])=>{const a=o[i],b=o[j],d=a.r-b.r;return{x:(a.r*b.x-b.r*a.x)/d,z:(a.r*b.z-b.r*a.z)/d}});
+ M={G,o,E,s,sp:[],lb:[],pg:[],dt:[],rg:[]};T.add(G);
+ const pl=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x16223a,transparent:true,opacity:.6,depthWrite:false}));pl.position.y=-.5;
+ const gr=new THREE.GridHelper(9000,180,0xffc107,0xffc107);gr.material.transparent=true;gr.material.opacity=.12;G.add(pl,gr);
+ o.forEach((c,i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,48,32),new THREE.MeshPhongMaterial({color:SC[i],shininess:90,specular:0x555a66}));
+  m.position.set(c.x,0,c.z);G.add(m);M.sp.push(m);const l=lab(N[i],"#fff3c4",s*.16);G.add(l);M.lb.push(l)});
+ PR.forEach(([i,j],k)=>{const a=o[i],b=o[j],e=E[k],q=new THREE.Group(),da=Math.hypot(a.x-e.x,a.z-e.z),db=Math.hypot(b.x-e.x,b.z-e.z),far=da>db?a:b,df=Math.max(da,db);
+  q.position.set(e.x,0,e.z);
+  let rr=null;if(Math.min(da/a.r,db/b.r)>1){
+   const al=Math.asin(far.r/df),L=Math.sqrt(df*df-far.r*far.r)*1.12,h=L*Math.cos(al),dx=(far.x-e.x)/df,dz=(far.z-e.z)/df,
+   gm=new THREE.ConeGeometry(L*Math.sin(al),h,48,1,true).translate(0,-h/2,0),cg=new THREE.Group();
+   cg.add(new THREE.Mesh(gm,new THREE.MeshBasicMaterial({color:0xffe3a0,transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false})),new THREE.Mesh(gm,new THREE.MeshBasicMaterial({color:0xffe3a0,wireframe:true,transparent:true,opacity:.3})));
+   cg.quaternion.setFromUnitVectors(V(0,-1,0),V(dx,0,dz));q.add(cg);
+   for(const u of[-1,1])q.add(bar(V(0,0,0),V((dx*Math.cos(al)-u*dz*Math.sin(al))*L,0,(u*dx*Math.sin(al)+dz*Math.cos(al))*L),s*.006,0xffd54a));
+   rr=[a,b].map(c=>{const d=Math.hypot(c.x-e.x,c.z-e.z),wx=(e.x-c.x)/d,wz=(e.z-c.z)/d,k2=c.r*c.r/d,R=c.r*Math.sqrt(d*d-c.r*c.r)/d,rx=c.x+wx*k2,rz=c.z+wz*k2,
+    ring=new THREE.Mesh(new THREE.TorusGeometry(R,s*.007,10,72),new THREE.MeshBasicMaterial({color:0xffffff}));
+    ring.position.set(rx-e.x,0,rz-e.z);ring.quaternion.setFromUnitVectors(V(0,0,1),V(wx,0,wz));q.add(ring);
+    for(const u of[-1,1]){const t=new THREE.Mesh(new THREE.SphereGeometry(s*.014,12,10),new THREE.MeshBasicMaterial({color:0xffffff}));t.position.set(rx-e.x-wz*R*u,0,rz-e.z+wx*R*u);q.add(t)}
+    return{x:rx,z:rz,R,wx,wz}})}
+  const dm=new THREE.Mesh(new THREE.SphereGeometry(s*.025,16,12),new THREE.MeshBasicMaterial({color:0x7cffb2}));q.add(dm);M.dt.push(dm);
+  const l=lab("E("+N[i]+N[j]+")","#7cffb2",s*.1);l.position.set(0,s*.1,0);q.add(l);M.rg.push(rr);G.add(q);M.pg.push(q)});
+ M.q=[[-1,0],[-1,1],[0,0]];PR.forEach((_,k)=>{M.q.push([k+1,0]);if(M.rg[k])M.q.push([k+1,1],[k+1,2])});M.q.push([4,0],[5,0],[6,0],[7,0]);
+ /* the lid: plane n·p=d touching all three spheres from above */
+ const[p0,p1,p2]=o,A1=p1.x-p0.x,B1=p1.z-p0.z,A2=p2.x-p0.x,B2=p2.z-p0.z,e1=p0.r-p1.r,e2=p0.r-p2.r,dd=A1*B2-A2*B1;
+ if(Math.abs(dd)>1e-6){const nx=(e1*B2-e2*B1)/dd,nz=(A1*e2-A2*e1)/dd,qq=nx*nx+nz*nz;
+  if(qq<1){const ny=Math.sqrt(1-qq),n=V(nx,ny,nz),d=nx*p0.x+nz*p0.z+p0.r,k=d-nx*mx-nz*mz,lg=new THREE.Group(),pq=new THREE.Group(),pg2=new THREE.PlaneGeometry(s*5,s*5),
+   pm=new THREE.Mesh(pg2,new THREE.MeshBasicMaterial({color:0x7cffb2,transparent:true,opacity:.16,side:THREE.DoubleSide,depthWrite:false}));
+   pq.position.set(mx+nx*k,ny*k,mz+nz*k);pq.quaternion.setFromUnitVectors(V(0,0,1),n);
+   pq.add(pm,new THREE.LineSegments(new THREE.EdgesGeometry(pg2),new THREE.LineBasicMaterial({color:0x7cffb2})));lg.add(pq);
+   o.forEach(c=>{const t=new THREE.Mesh(new THREE.SphereGeometry(s*.02,12,10),new THREE.MeshBasicMaterial({color:0xffffff}));t.position.set(c.x+nx*c.r,ny*c.r,c.z+nz*c.r);lg.add(t)});
+   G.add(lg);M.lid=lg;M.n=n;M.lm=pm.material}}
+ /* page ∩ lid = the line through the farthest pair of apexes */
+ let bi=[0,1],bd=0;PR.forEach(([i,j])=>{const d=Math.hypot(E[i].x-E[j].x,E[i].z-E[j].z);if(d>bd){bd=d;bi=[i,j]}});
+ if(bd>1e-6){const A=E[bi[0]],B=E[bi[1]],ux=(B.x-A.x)/bd,uz=(B.z-A.z)/bd;
+  M.la=[A.x,A.z,ux,uz];M.ln=bar(V(A.x-ux*4000,0,A.z-uz*4000),V(A.x+ux*4000,0,A.z+uz*4000),s*.007,0x7cffb2);G.add(M.ln)}}
+
+/* ---------- camera shots: one per step ---------- */
+function fit(p,az,el,k){const n=p.length,x=p.reduce((a,q)=>a+q[0],0)/n,z=p.reduce((a,q)=>a+q[1],0)/n,s=Math.max(30,...p.map(q=>Math.hypot(q[0]-x,q[1]-z)+q[2]));
+ return{x,y:0,z,d:s*k/(TF*Math.min(1,W/H)),az,el}}
+function shot(i,sub){const{o,E,s}=M,all=o.map(c=>[c.x,c.z,c.r]);
+ if(sub){const r=M.rg[i-1][sub-1];return fit([[r.x,r.z,r.R*1.5]],Math.atan2(r.wx*.6-r.wz*.8,r.wz*.6+r.wx*.8),.35,1.2)}
+ if(i==0)return fit(all,.5,.8,1.25);
+ if(i<4||i==6){const k=i==6?0:i-1,[a,b]=PR[k].map(j=>o[j]),e=E[k],az=Math.atan2(-((a.z+b.z)/2-e.z),(a.x+b.x)/2-e.x);
+  return i==6?fit([[e.x,e.z,0],[a.x,a.z,a.r]],az,.3,1.2):fit([[e.x,e.z,0],[a.x,a.z,a.r],[b.x,b.z,b.r]],az,.45,1.25)}
+ if(i==4)return fit([...all,...E.map(q=>[q.x,q.z,0])],.2,1.05,1.1);
+ if(i==5)return fit(o.map(c=>[c.x,c.z,c.r+s*.3]),.9,.38,1.2);
+ return td()}
+const CAP2=["Outer tangents of each pair meet at E.","Monge: the three E points are collinear."];
+function v2(){const ch=Math.max(120,H-$("mini").getBoundingClientRect().top+10),xs=M.E.map(q=>q.x+W/2),ys=M.E.map(q=>q.z+H/2),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),m=40;
+ return{k:Math.min(1.5,(W-2*m)/Math.max(x1-x0,1),(H-ch-2*m)/Math.max(y1-y0,1)),cx:(x0+x1)/2,cy:(y0+y1)/2,ay:(H-ch)/2}}
+const st3=()=>{const{k,cx,cy,ay}=V2;return{x:cx-W/2,y:0,z:cy-H/2+(H/2-ay)/k,d:H/2/TF/k,az:0,el:1.56}};
+function draw2p(ts){
+ const p=Math.max(0,Math.min(1,(ts-t0)/(sub?1300:2200))),e=1-Math.pow(1-p,3),zu=sub?1:e,k=1+(V2.k-1)*zu,cx=W/2+(V2.cx-W/2)*zu,cy=H/2+(V2.cy-H/2)*zu,sy=H/2+(V2.ay-H/2)*zu,ox0=W/2-k*cx,oy0=sy-k*cy,ln=(a,b,c,d)=>{g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.stroke()};
+ g.setTransform(D,0,0,D,0,0);g.fillStyle="#0b1220";g.fillRect(0,0,W,H);g.fillStyle="rgba(255,193,7,.13)";
+ let sp=28*k;while(sp<10)sp*=2;const gx=(ox0%sp+sp)%sp,gy=(oy0%sp+sp)%sp;
+ for(let x=gx;x<W;x+=sp)for(let y=gy;y<H;y+=sp)g.fillRect(x,y,2,2);
+ g.setTransform(D*k,0,0,D*k,D*ox0,D*oy0);
+ C.forEach((c,i)=>{g.beginPath();g.arc(c.x,c.y,c.r,0,7);g.fillStyle=SH[i]+"44";g.fill();g.shadowColor=SH[i];g.shadowBlur=12;g.strokeStyle=SH[i];g.lineWidth=2.5/k;g.stroke();g.shadowBlur=0;g.fillStyle=SH[i];g.beginPath();g.arc(c.x,c.y,5/k,0,7);g.fill();tx(N[i],c.x+9/k,c.y-9/k,14/k,"#fff3c4")});
+ g.globalAlpha=sub?1:e;g.strokeStyle="#ffd54a";g.lineWidth=1.8/k;
+ PR.forEach(([i,j],n)=>{const a=M.o[i],b=M.o[j],q=M.E[n],da=Math.hypot(a.x-q.x,a.z-q.z),db=Math.hypot(b.x-q.x,b.z-q.z),far=da>db?a:b,df=Math.max(da,db),al=Math.asin(far.r/df),L=Math.sqrt(df*df-far.r*far.r)*1.1,th=Math.atan2(far.z-q.z,far.x-q.x);
+  for(const s of[-1,1]){const t=th+s*al;ln(q.x+W/2,q.z+H/2,q.x+W/2+Math.cos(t)*L,q.z+H/2+Math.sin(t)*L)}});
+ if(sub&&M.la){const[ax,az,ux,uz]=M.la,L=(W+H)/k*e,X=ax+W/2,Y=az+H/2;g.strokeStyle="#7cffb2";g.lineWidth=3.5/k;g.shadowColor="#7cffb2";g.shadowBlur=14;ln(X-ux*L,Y-uz*L,X+ux*L,Y+uz*L);g.shadowBlur=0}
+ M.E.forEach((q,n)=>{const x=q.x+W/2,y=q.z+H/2;g.fillStyle="#7cffb2";g.shadowColor="#7cffb2";g.shadowBlur=10;g.beginPath();g.arc(x,y,6.5/k,0,7);g.fill();g.shadowBlur=0;tx("E("+N[PR[n][0]]+N[PR[n][1]]+")",x+9/k,y-9/k,13/k,"#cfe")});
+ g.globalAlpha=1}
+function go(q){qi=q;[si,sub]=M.q[q];const i=si;t0=performance.now();V2=v2();RN.domElement.classList.toggle("on",i>=0);if(i<0)goal=cur;else{if(i==0&&!sub)cur=st3();goal=shot(i,sub);goal.az=cur.az+Math.atan2(Math.sin(goal.az-cur.az),Math.cos(goal.az-cur.az))}
+ $("cap").textContent=si<0?CAP2[sub]:sub?`Cone touches sphere ${N[PR[i-1][sub-1]]} along a circle.`:!M.lid&&(i==5||i==6)?["No flat lid fits these circles.","Algebra still puts all E on one line."][i-5]:CAP[i];
+ $("pg").style.setProperty("--w",(q+1)/M.q.length*100+"%");$("nx").innerHTML=q==M.q.length-1?"REPLAY "+IC.rp:"NEXT "+IC.nx}
+
+function draw3(ts,dt){
+ const p=Math.max(0,Math.min(1,(ts-t0)/1300)),e=1-Math.pow(1-p,3),k=1-Math.exp(-dt*2.6),{o,s}=M;
+ for(const q of["x","y","z","az","el"])cur[q]+=(goal[q]-cur[q])*k;cur.d=Math.exp(Math.log(cur.d)+(Math.log(goal.d)-Math.log(cur.d))*k);
+ M.sp.forEach((m,i)=>{const sy=si?1:Math.max(.02,e);m.scale.set(o[i].r,o[i].r*sy,o[i].r);M.lb[i].position.set(o[i].x,o[i].r*sy+s*.14,o[i].z)});
+ M.pg.forEach((q,i)=>{q.visible=si>=i+1;q.scale.setScalar(si==i+1&&!sub?Math.max(.001,e):1);M.dt[i].scale.setScalar(si==4||si==6?1+.5*Math.abs(Math.sin(ts/260)):1)});
+ if(M.lid){const f=si==5?e:1;M.lid.visible=si>=5;M.lid.position.copy(M.n).multiplyScalar((1-f)*s*1.5);M.lm.opacity=.16*f}
+ if(M.ln){M.ln.visible=si>=5;M.ln.scale.set(si==5?Math.max(.001,e):1,si==7?3:1,si==7?3:1)}
+ CA.position.set(cur.x+cur.d*Math.cos(cur.el)*Math.sin(cur.az),cur.y+cur.d*Math.sin(cur.el),cur.z+cur.d*Math.cos(cur.el)*Math.cos(cur.az));
+ CA.lookAt(cur.x,cur.y,cur.z);RN.render(T,CA)}
+
+function frame(ts){
+ if(run){const dt=Math.min(.1,(ts-lt)/1000);lt=ts;if(auto&&qi<M.q.length-1&&ts-t0>5000)go(qi+1);si<0?draw2p(ts):draw3(ts,dt)}else{draw2();lt=ts}
+ requestAnimationFrame(frame)}
+
+/* ---------- 2D input ---------- */
+cv.onpointerdown=e=>{if(run)return;
+ const x=e.clientX,y=e.clientY;cv.setPointerCapture(e.pointerId);
+ for(let i=C.length-1;i>=0;i--){const c=C[i];
+  if(Math.hypot(x-c.x,y-c.y)<24){drag={m:"mv",c,dx:c.x-x,dy:c.y-y};return}}
+ if(C.length==3){const c=C.find(c=>Math.abs(Math.hypot(x-c.x,y-c.y)-c.r)<16);
+  if(c)drag={m:"rs",c};else msg("MAX 3 CIRCLES · UNDO OR CLEAR FIRST");return}
+ drag={m:"new",x,y,r:0}};
+cv.onpointermove=e=>{if(!drag)return;const x=e.clientX,y=e.clientY;
+ if(drag.m=="mv"){const n={x:x+drag.dx,y:y+drag.dy,r:drag.c.r};if(bad(n,drag.c))blk();else{drag.c.x=n.x;drag.c.y=n.y}}
+ else if(drag.m=="rs"){const n={x:drag.c.x,y:drag.c.y,r:Math.max(10,Math.hypot(x-drag.c.x,y-drag.c.y))};if(bad(n,drag.c))blk();else drag.c.r=n.r}
+ else drag.r=Math.hypot(x-drag.x,y-drag.y)};
+cv.onpointerup=cv.onpointercancel=()=>{
+ if(drag&&drag.m=="new"&&drag.r>=12){const n={x:drag.x,y:drag.y,r:drag.r};if(bad(n))msg("CIRCLES CAN’T OVERLAP · KEEP THEM APART");else{C.push(n);sync()}}
+ drag=null};
+$("undo").onclick=()=>{C.pop();sync()};
+$("reset").onclick=()=>{C=[];sync()};
+$("fold").onclick=()=>P.classList.toggle("c");
+$("rand").onclick=()=>{
+ const top=P.getBoundingClientRect().top,m=Math.min(W,top-70),cy=(70+top)/2,a=Math.random()*6.3;
+ C=[0,1,2].map(i=>{const t=a+i*2.1;return{x:W/2+Math.cos(t)*m*.27,y:cy+Math.sin(t)*m*.27,r:m*(.09+.06*i)+Math.random()*8}});sync()};
+
+/* ---------- proof controls ---------- */
+$("prove").onclick=()=>{
+ if(C.length<3){msg(`DRAW ${3-C.length} MORE CIRCLE${C.length==2?"":"S"} FIRST`);return}
+ if(calc().eq){msg("TWO RADII ARE EQUAL · DRAG A RIM TO RESIZE");return}
+ try{if(!RN)initGL()}catch(err){msg("3D IS UNAVAILABLE ON THIS DEVICE");return}
+ build();cur=td();run=1;document.body.classList.add("run");$("mini").hidden=false;go(0)};
+$("x").onclick=()=>{run=0;document.body.classList.remove("run");$("mini").hidden=true;RN.domElement.classList.remove("on")};
+$("pv").onclick=()=>go(Math.max(0,qi-1));
+$("nx").onclick=()=>{if(qi==M.q.length-1){cur=td();go(0)}else go(qi+1)};
+$("pl").onclick=()=>{auto=!auto;$("pl").innerHTML=auto?IC.pa:IC.pl};
+Object.entries({pv:IC.pv+" PREV",pl:IC.pa,nx:"NEXT "+IC.nx,x:IC.x}).forEach(([k,v])=>$(k).innerHTML=v);
+sync();requestAnimationFrame(frame);
+</script></body></html>

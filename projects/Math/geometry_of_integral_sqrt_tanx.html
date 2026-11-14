@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>∫√tan x dx — Step by Step</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script>window.MathJax={svg:{fontCache:'global'}}</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+:root{box-sizing:border-box;--bg:#eef1f8;--panel:#fff;--ink:#101a33;--dim:#55607f;--line:#d3d9ea;--track:#cdd5ea;--acc:#8a5a00;--btn:#ffc107;--btn-ink:#101a33;--bar:#eef1f8ea;--sh:0 1px 2px #10183312,0 14px 34px -18px #10183355;color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1020;--panel:#111a35;--ink:#e9edf9;--dim:#9aa6c9;--line:#26325c;--track:#222d55;--acc:#ffc94d;--bar:#0a1020ea;--sh:0 14px 34px -18px #000;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a1020;--panel:#111a35;--ink:#e9edf9;--dim:#9aa6c9;--line:#26325c;--track:#222d55;--acc:#ffc94d;--bar:#0a1020ea;--sh:0 14px 34px -18px #000;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Newsreader,Georgia,'Times New Roman',serif;padding-bottom:150px;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:18px 14px 0;position:relative}
+h1{margin:4px 0 6px;font-size:clamp(28px,8vw,38px);font-weight:600;line-height:1.1;letter-spacing:-.015em}
+.sub{margin:0 0 16px;color:var(--dim);font-style:italic}
+h1{min-height:1.5em}
+.c mjx-container{color:var(--ink)}
+svg#sv{width:100%;height:auto;display:block;border:1px solid #2a3a6c;border-radius:20px;box-shadow:var(--sh);background-color:#0a1226;background-image:radial-gradient(circle at 50% 40%,#16255a,#0a1226 78%);cursor:zoom-in;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+svg#sv text{font-family:Newsreader,Georgia,'Times New Roman',serif;font-style:italic;font-size:calc(16px / var(--zz,1));font-variant-numeric:tabular-nums lining-nums;paint-order:stroke;stroke:#0a1226;stroke-width:calc(4px / var(--zz,1));stroke-linejoin:round}
+.card{margin-top:16px;padding:18px 18px 14px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh)}
+h2{display:flex;gap:12px;align-items:center;margin:0 0 4px;font-size:22px;font-weight:600;line-height:1.2;letter-spacing:-.01em}
+.n{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--btn);color:var(--btn-ink);font-size:16px}
+.p:not(.on){position:absolute;left:0;right:0;height:0;overflow:hidden;visibility:hidden}
+.r{opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.r.on{opacity:1;transform:none}
+.c{margin:10px 0 4px;padding-left:12px;border-left:3px solid var(--btn);color:var(--dim);font-size:16px;line-height:1.5}
+mjx-container[display=true]{margin:.7em 0!important;overflow-x:auto;overflow-y:hidden;color:var(--ink);font-size:16px;scrollbar-width:thin}
+.geo{margin:12px 0 4px;padding:10px 14px 8px;border-radius:14px;background:color-mix(in srgb,var(--btn) 11%,transparent);border:1px solid color-mix(in srgb,var(--btn) 35%,transparent);font-size:15.5px;line-height:1.45}
+.geo b{display:block;margin-bottom:2px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--acc)}
+.geo ul{margin:0;padding-left:18px}.geo li{margin:5px 0}.geo mjx-container{font-size:15px!important}
+.k{display:inline-block;width:10px;height:10px;margin-right:5px;border-radius:50%;background:var(--c)}
+.stage{position:relative}
+.zc{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.zc button,.scrub button{width:34px;height:34px;padding:0;border-radius:10px;border:1px solid #2a3a6c;background:#0f1a3acc;color:#e9dfb8;font:600 17px/1 system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.zc button:active,.scrub button:active{transform:scale(.94)}
+.scrub{display:flex;align-items:center;gap:10px;margin-top:10px}
+.scrub button{flex:none;background:var(--panel);color:var(--ink);border-color:var(--line);font-size:12px}
+.scrub input{flex:1;min-width:0;accent-color:var(--btn)}
+.hint{margin-top:6px;font:12px/1.3 system-ui,sans-serif;color:var(--dim);text-align:center}
+#g0 line,#g1 line{vector-effect:non-scaling-stroke;stroke:#1b2a5c;stroke-width:1}
+#g1 line{stroke:#16224d;opacity:clamp(0,calc((var(--z,1) - 1.4) / 1.6),1)}
+#w{filter:drop-shadow(0 0 2.5px rgba(255,214,120,.3))}
+#w line,#w polyline,#w path,#w circle[fill=none]{vector-effect:non-scaling-stroke;stroke-linecap:round}
+#w circle:not([fill=none]){stroke:#fff;stroke-opacity:.55;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.home{position:absolute;top:18px;right:14px;z-index:6;display:inline-flex;align-items:center;gap:6px;padding:9px 15px 9px 12px;border:0;border-radius:999px;background:linear-gradient(180deg,#ffd54a,#ffc107 55%,#f2b000);color:#101a33;font:600 16px/1 Newsreader,Georgia,serif;cursor:pointer;box-shadow:0 1px 0 #fff6 inset,0 6px 16px -6px #b98200cc;transition:transform .15s,box-shadow .15s}
+.home svg{width:18px;height:18px;flex:none}
+.home:hover{box-shadow:0 1px 0 #fff6 inset,0 9px 20px -6px #b98200}
+.home:active{transform:scale(.95)}
+main>h1{padding-right:104px}
+footer{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 14px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bar);border-top:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#pg,.bar{display:flex;gap:8px;width:100%;max-width:640px}
+.seg{position:relative;flex:1;height:24px;padding:0;border:0;background:none;cursor:pointer}
+.seg:after{content:"";position:absolute;left:0;right:0;top:10px;height:4px;border-radius:2px;background:var(--track);transition:background .3s}
+.seg.done:after{background:var(--acc);opacity:.55}
+.seg.on:after{background:var(--btn)}
+.ctl{flex:1;padding:14px 16px;font:600 17px/1 Newsreader,Georgia,'Times New Roman',serif;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:14px;cursor:pointer}
+#nx{flex:1.4;color:var(--btn-ink);background:var(--btn);border-color:var(--btn)}
+#rp{flex:none;min-width:92px}
+.ctl:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media(min-width:900px){main{max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}h1,.sub{grid-column:1/-1}.stage{position:sticky;top:18px}.card{margin-top:0}}
+@media(prefers-reduced-motion:reduce){.r{transition:none;transform:none}.seg:after{transition:none}}
+</style></head><body><main><button class='home' id='hm' aria-label='Home: back to step 1'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 11.5 12 4l9 7.5'/><path d='M5.5 10v9.5h4.5v-6h4v6h4.5V10'/></svg>Home</button>
+<h1>\(\int\sqrt{\tan x}\,dx\)</h1><p class="sub">Geometry + complex poles, step by step, with every construction explained</p>
+<div class='stage'><svg id='sv' viewBox='-250 -250 500 500' role='img' aria-label='Animated geometric construction. Scroll or pinch to zoom, drag to pan.'></svg><div class='zc'><button id='zi' aria-label='Zoom in'>+</button><button id='zo' aria-label='Zoom out'>−</button><button id='zr' aria-label='Reset view'>⟲</button></div><div class='scrub'><button id='pl' aria-label='Play or pause'>❚❚</button><input id='sc' type='range' min='0' max='1000' value='0' aria-label='Scrub the construction'></div><div class='hint'>Scroll or pinch to zoom · drag to pan · double-tap to zoom · drag the slider to scrub</div></div>
+<div class="card"><h2 id="ttl"></h2>
+
+<section class="p" data-t="1 · Make it rational">
+<div class="r">\[\tan x=u^2\;\Rightarrow\;\sqrt{\tan x}=u,\qquad x=\arctan u^2\]</div>
+<div class="r">\[\sec^2x\,dx=2u\,du,\qquad\sec^2x=1+\tan^2x=1+u^4\]</div>
+<div class="r">\[dx=\frac{2u\,du}{1+u^4}\]</div>
+<div class="r">\[\sqrt{\tan x}\,dx=u\cdot\frac{2u\,du}{1+u^4}=\frac{2u^2}{1+u^4}\,du\]</div>
+<div class="r">\[\int_0^x\!\sqrt{\tan t}\,dt=\int_0^u\frac{2s^2}{1+s^4}\,ds,\qquad x:0\to\tfrac{\pi}{2}\;\Leftrightarrow\;u:0\to\infty\]</div>
+<div class="r">\[u^2=\tau^2-(\tau-1)^2=2\tau-1=\tan x\]</div>
+<div class="r">\[a\cos\theta=b\sin\theta=u,\qquad a\sin\theta=1,\qquad b\cos\theta=\tan x\]</div>
+<div class="r">\[u^2=(a\cos\theta)(b\sin\theta)=ab\sin\theta\cos\theta=(a\sin\theta)(b\cos\theta)=1\cdot\tan x\]</div>
+<p class="r c">Draw a semicircle on a diameter of length \(1+\tan x\), so its radius is \(\tau=\tfrac{1+\tan x}{2}\). Where the segments \(1\) and \(\tan x\) meet, Pythagoras gives the height \(u=\sqrt{1\cdot\tan x}\). Joining the top to both ends gives a right triangle (legs \(a,b\), angle \(\theta\) at the top) whose altitude is \(u\); multiplying its trigonometry gives the same result. Drawn upright, \(u\) is still a real length.</p><div class="r geo"><b>Geometry on the canvas</b><ul><li><i class="k" style="--c:#ffc107"></i>the unit segment and <i class="k" style="--c:#5aa7ff"></i>the segment \(\tan x=u^2\) (drawn as 2.25) are laid end to end, so the diameter is \(1+\tan x\).</li><li>The cream semicircle has its centre at the midpoint (radius \(\tau\), dashed). By <b style='display:inline;font-size:inherit;letter-spacing:0;text-transform:none;color:inherit'>Thales’ theorem</b> every point of it sees the diameter at \(90^\circ\).</li><li><i class="k" style="--c:#ff6b8a"></i>the perpendicular at the junction meets the arc at height \(u\). In the right triangle the altitude to the hypotenuse is the geometric mean: \(u^2=1\cdot\tan x\). Pythagoras in the centre triangle gives the same.</li><li>Small squares mark the right angles at the foot and apex; \(\theta\) is the angle between leg \(a\) and the altitude.</li></ul></div></section>
+
+<section class="p" data-t="2 · Rotate by 45°">
+<div class="r">\[U=u\,e^{i\pi/4}\;\Rightarrow\;U^2=i\,u^2,\qquad U^4=u^4e^{i\pi}=-u^4\]</div>
+<div class="r">\[dU=e^{i\pi/4}\,du\]</div>
+<div class="r">\[1+u^4=1-U^4=(1-U^2)(1+U^2)=-(U-1)(U+1)(U-i)(U+i)\]</div>
+<div class="r">\[u^4=-1\;\Rightarrow\;u=e^{i\pi/4+ik\pi/2}\;\Rightarrow\;U=e^{i\pi/2+ik\pi/2}\in\{i,-1,-i,1\}\]</div>
+<p class="r c">The four poles of the integrand sit at \(u=e^{\pm i\pi/4},\,e^{\pm 3i\pi/4}\). Turning the plane by \(45^\circ\) moves them to \(\pm1,\pm i\), and \(u\), a real number that starts on the real axis, now runs along the \(45^\circ\) line through \(U\).</p><div class="r geo"><b>Geometry on the canvas</b><ul><li><i class="k" style="--c:#ff6b8a"></i>the four poles of \(1/(1+u^4)\) are the corners of a square inscribed in the unit circle, at \(45^\circ,135^\circ,225^\circ,315^\circ\).</li><li>A rotation about the origin is rigid: lengths and angles do not change, so the square simply turns until its corners sit on the axes at \(1,i,-1,-i\).</li><li>The dashed real axis becomes the <i class="k" style="--c:#ffc107"></i>gold ray at \(45^\circ\). The white point \(U=u\,e^{i\pi/4}\) slides along it and stays exactly \(u\) from the origin.</li></ul></div></section>
+
+<section class="p" data-t="3 · One pole: stretch + turn">
+<div class="r">\[U-P=r\,e^{i\theta}\;\Rightarrow\;U=P+r\,e^{i\theta}\]</div>
+<div class="r">\[dU=e^{i\theta}\,dr+i\,r\,e^{i\theta}\,d\theta=e^{i\theta}\,(dr+i\,r\,d\theta)\]</div>
+<div class="r">\[\frac{dU}{U-P}=\frac{e^{i\theta}(dr+i\,r\,d\theta)}{r\,e^{i\theta}}\]</div>
+<div class="r">\[\boxed{\frac{dU}{U-P}=\frac{dr}{r}+i\,d\theta}\]</div>
+<div class="r">\[\operatorname{Re}\frac{dU}{U-P}=\frac{dr}{r}\ \text{(stretch)},\qquad\operatorname{Im}\frac{dU}{U-P}=d\theta\ \text{(turn)}\]</div>
+<div class="r">\[\text{scale the small triangle by }\tfrac1r:\qquad\text{hypotenuse }\frac{dU}{r},\quad ST=\frac{dr}{r},\quad TU'=i\,d\theta\]</div>
+<p class="r c">Split the small step \(dU\) into a part along the radius (\(dr\), gold) and a part along the circle around \(P\) (\(r\,d\theta\), blue). Shrinking this triangle by \(1/r\) puts it on the unit circle around \(P\), at the tip of the unit vector \(\hat e_r\): its legs are \(ST=dr/r\) and \(TU'=i\,d\theta\). Equivalently, \(d\ln(U-P)=d\ln r+i\,d\theta\).</p><div class="r geo"><b>Geometry on the canvas</b><ul><li><i class="k" style="--c:#ffc107"></i>\(P\) is one pole. The blue dashed arc is the circle of radius \(r\) about \(P\) through \(U\): moving along it changes only \(\theta\); moving along the ray \(PU\) changes only \(r\).</li><li>The white step \(dU\) splits into a <i class="k" style="--c:#ffc107"></i>radial leg \(dr\) and a <i class="k" style="--c:#5aa7ff"></i>tangential leg \(r\,d\theta\): a right triangle, because a circle’s tangent is perpendicular to its radius.</li><li>Shrinking by \(1/r\) moves a copy to the unit circle about \(P\), with vertices \(S,T,U'\). Shrinking keeps every angle, and the quarter-turn of the tangent leg supplies the factor \(i\).</li><li>So real part = relative stretch along the ray, imaginary part = turn around \(P\).</li></ul></div></section>
+
+<section class="p" data-t="4 · Every pole pushes U">
+<div class="r">\[P_1=1,\;P_2=-1,\;P_3=i,\;P_4=-i,\qquad U-P_k=r_k\,e^{i\theta_k},\quad\hat e_k=e^{i\theta_k}\]</div>
+<div class="r">\[dU=\hat e_k\,(dr_k+i\,r_k\,d\theta_k)\qquad(k=1,2,3,4)\]</div>
+<div class="r">\[dU=\frac14\sum_{k=1}^{4}\hat e_k\,(dr_k+i\,r_k\,d\theta_k)\]</div>
+<div class="r">\[a_k=\frac{dU}{U-P_k}=\frac{dr_k}{r_k}+i\,d\theta_k\]</div>
+<p class="r c">Each pole gets its own unit circle, and \(\hat e_k\) points from the pole to \(U\). Any single pole is enough to push \(U\) forward, so the four little vectors \(a_k\) are the relative changes of the same \(dU\) seen from each pole. We can now add them in whatever combination is useful.</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>Each pole has its own unit circle and a dashed ray to \(U\): <i class="k" style="--c:#ffc107"></i>\(+1\), <i class="k" style="--c:#5aa7ff"></i>\(-1\), <i class="k" style="--c:#ff6b8a"></i>\(+i\), <i class="k" style="--c:#7be0a6"></i>\(-i\).</li><li>The step \(dU\) is the same arrow everywhere, but each pole splits it differently into radial and tangential parts, so each pole gets its own shrunk triangle at \(S_k=P_k+\hat e_k\).</li><li>The shrunk hypotenuse is \(a_k=dU/(U-P_k)\). A near pole (\(\pm1\) or \(+i\) region) gives a long \(a_k\); a far pole gives a short one. \(U\) is drawn at \(u=2\) here so the four triangles stay apart.</li></ul></div></section>
+
+<section class="p" data-t="5 · Choose A and B">
+<div class="r">\[\frac{dU}{U-1}-\frac{dU}{U+1}=\frac{2\,dU}{U^2-1},\qquad\frac{dU}{U-i}-\frac{dU}{U+i}=\frac{2i\,dU}{U^2+1}\]</div>
+<div class="r">\[A=\operatorname{Re}\Big(\frac{dU}{U-1}-\frac{dU}{U+1}\Big)=\frac{dr_1}{r_1}-\frac{dr_2}{r_2}\]</div>
+<div class="r">\[B=\operatorname{Im}\Big(\frac{dU}{U-i}-\frac{dU}{U+i}\Big)=d\theta_3+d\theta_4=d\varphi\]</div>
+<div class="r">\[\theta_3=\arg(U-i)+\tfrac{\pi}{2},\qquad\theta_4=\tfrac{\pi}{2}-\arg(U+i)\qquad\text{interior angles at }i\text{ and }-i\]</div>
+<div class="r">\[\frac{2\,dU}{U^2-1}=\frac{2e^{i\pi/4}\,du}{iu^2-1}=\frac{2e^{i\pi/4}(-1-iu^2)}{1+u^4}\,du=\frac{\sqrt2\,[(u^2-1)-i(u^2+1)]}{1+u^4}\,du\]</div>
+<div class="r">\[\frac{2i\,dU}{U^2+1}=\frac{2i\,e^{i\pi/4}\,du}{1+iu^2}=\frac{\sqrt2\,[(u^2-1)+i(u^2+1)]}{1+u^4}\,du\]</div>
+<div class="r">\[A=\frac{\sqrt2\,(u^2-1)}{1+u^4}\,du,\qquad B=\frac{\sqrt2\,(u^2+1)}{1+u^4}\,du\]</div>
+<div class="r">\[A+B=\frac{2\sqrt2\,u^2}{1+u^4}\,du\;\Rightarrow\;\boxed{\int\!\sqrt{\tan x}\,dx=\frac1{\sqrt2}\Big(\int A+\int B\Big)}\]</div>
+<p class="r c">The two complex differentials are conjugates: they share the real part \(A\) and have opposite imaginary parts \(\mp B\). This choice of \(a_k\) came from trying a few combinations: it needs the least scaffolding to get back to the original integral, though other combinations work too.</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>Four rays join \(U\) to the poles. Their lengths are <i class="k" style="--c:#ffc107"></i>\(r_1\), <i class="k" style="--c:#5aa7ff"></i>\(r_2\) (for \(\pm1\)); their directions give the angles <i class="k" style="--c:#ff6b8a"></i>\(\theta_3\), <i class="k" style="--c:#7be0a6"></i>\(\theta_4\) (for \(\pm i\)).</li><li>\(A\) uses the pair on the real axis: it measures how much the ratio \(r_1/r_2\) changes. \(B\) uses the pair on the imaginary axis: it measures how much the angle \(\varphi=\theta_3+\theta_4\) turns.</li><li>Taking a difference for \(\pm1\) and a sum of angles for \(\pm i\) cancels the unwanted real or imaginary parts by symmetry.</li></ul></div></section>
+
+<section class="p" data-t="6 · Project onto the u-axis">
+<div class="r">\[A+B=\operatorname{Re}\Big(\frac{dU}{U-1}-\frac{dU}{U+1}\Big)+\operatorname{Im}\Big(\frac{dU}{U-i}-\frac{dU}{U+i}\Big)=\Big(\frac{dr_1}{r_1}-\frac{dr_2}{r_2}\Big)+d\varphi\]</div>
+<div class="r">\[PQ=A\cos45^\circ+B\sin45^\circ=\frac{A+B}{\sqrt2}\]</div>
+<div class="r">\[PQ=\frac{\sqrt2\,(u^2-1)+\sqrt2\,(u^2+1)}{\sqrt2\,(1+u^4)}\,du=\frac{2u^2}{1+u^4}\,du=\sqrt{\tan x}\,dx\]</div>
+<div class="r">\[\boxed{\int\!\sqrt{\tan x}\,dx=\int_0^u\frac{2u^2\,du}{1+u^4}=\frac{\int A+\int B}{\sqrt2}}\]</div>
+<p class="r c">Put \(A\) along the real axis and \(B\) along the imaginary axis, then project \(A+iB\) onto the \(45^\circ\) line where \(u\) lives. The projection of a sum is the sum of the projections, so the length \(PQ\) is exactly the original differential \(\sqrt{\tan x}\,dx\). We already know the answer's format: \(\int A\) is a log and \(\int B\) is an angle. The next two steps build each one from scratch.</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>\(A\) is drawn along the real axis (<i class="k" style="--c:#ffc107"></i>gold) and \(B\) upward from its tip (<i class="k" style="--c:#ff6b8a"></i>pink); the white arrow is \(A+iB\).</li><li>The dashed \(U\)-axis is the \(45^\circ\) line. Dotted perpendiculars drop from the tip of \(A\) and from the tip of \(A+iB\) onto it.</li><li>The projection of \(A\) is <i class="k" style="--c:#ffc107"></i>\(A\cos45^\circ\); the projection of \(iB\) is <i class="k" style="--c:#ff6b8a"></i>\(B\sin45^\circ\). Laid end to end they form \(PQ=(A+B)/\sqrt2\), because projection is additive.</li></ul></div></section>
+
+<section class="p" data-t="7 · B is an angle">
+<div class="r">\[h=u\cos45^\circ=u\sin45^\circ=\frac{u}{\sqrt2},\qquad U-i=h+i(h-1),\qquad U+i=h+i(h+1)\]</div>
+<div class="r">\[\tan\theta_3=\frac{h}{1-h},\qquad\tan\theta_4=\frac{h}{1+h}\]</div>
+<div class="r">\[\tan(\theta_3+\theta_4)=\frac{\tan\theta_3+\tan\theta_4}{1-\tan\theta_3\tan\theta_4}=\frac{2h/(1-h^2)}{(1-2h^2)/(1-h^2)}=\frac{2h}{1-2h^2}=\frac{\sqrt2\,u}{1-u^2}\]</div>
+<div class="r">\[r_4^2=h^2+(1+h)^2,\qquad\sin\theta_4=\frac{h}{r_4},\qquad\cos\theta_4=\frac{1+h}{r_4}\]</div>
+<div class="r">\[CD=2\sin\theta_4=\frac{\sqrt2\,u}{r_4},\qquad UC=r_4-2\cos\theta_4=\frac{u^2-1}{r_4}\]</div>
+<div class="r">\[\tan(\pi-\varphi)=\frac{CD}{UC}=\frac{\sqrt2\,u}{u^2-1}\;\Rightarrow\;\tan\varphi=\frac{\sqrt2\,u}{1-u^2}\]</div>
+<div class="r">\[\boxed{\int B=\varphi=\arctan\frac{\sqrt2\,u}{1-u^2}}\quad(0\le u&lt;1)\]</div>
+<div class="r">\[\varphi\big|_{u=1}=\tfrac{\pi}{2},\qquad\varphi=\pi+\arctan\frac{\sqrt2\,u}{1-u^2}\quad(u&gt;1)\]</div>
+<p class="r c">Triangle \((i,\,U,\,-i)\) has angles \(\theta_3,\theta_4\) at the poles and \(\pi-\varphi\) at \(U\). Check: \(u=1\) puts \(U\) on the unit circle, the chord from \(i\) to \(-i\) is a diameter, so the angle at \(U\) is \(\pi/2\) and \(\varphi=\pi/2\). Past \(u=1\) the arctangent is continued so \(\varphi\) keeps rising to \(\pi\). Second proof: drop the perpendicular from the pole \(D=i\) to the line through \(-i\) and \(U\), meeting it at \(C\). In the right triangle at \(C\), the diameter \(2\) gives \(CD=2\sin\theta_4\) and \(UC=r_4-2\cos\theta_4\); their ratio is \(\tan(\pi-\varphi)\).</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>The triangle \((i,\,U,\,-i)\) has angle <i class="k" style="--c:#ff6b8a"></i>\(\theta_3\) at \(i\), <i class="k" style="--c:#7be0a6"></i>\(\theta_4\) at \(-i\) and <i class="k" style="--c:#ffc107"></i>\(\pi-\varphi\) at \(U\). Angles of a triangle add to \(\pi\), so \(\varphi=\theta_3+\theta_4\).</li><li>The dashed horizontal from \(U\) to the axis has length \(h=u/\sqrt2\). It cuts two right triangles with vertical legs \(1-h\) and \(1+h\), which give \(\tan\theta_3\) and \(\tan\theta_4\).</li><li>Second proof: the perpendicular from \(i\) meets line \((-i,U)\) at \(C\) (right-angle mark). \(CD=2\sin\theta_4\), \(UC=r_4-2\cos\theta_4\).</li><li>Here \(u=1.35\), so \(U\) lies just outside the unit circle and the angle at \(U\) is below \(90^\circ\). At \(u=1\) it is exactly \(90^\circ\) (Thales), so \(\varphi=\pi/2\).</li></ul></div></section>
+
+<section class="p" data-t="8 · A is a logarithm">
+<div class="r">\[r\to r\Big(1+\frac{dr}{r}\Big)\;\Rightarrow\;\prod\Big(1+\frac{dr}{r}\Big)=e^{\int dr/r}\]</div>
+<div class="r">\[r_2=1\cdot\prod\Big(1+\frac{dr_1}{r_1}\Big)\cdot\prod\Big(1+\frac{dr_2}{r_2}-\frac{dr_1}{r_1}\Big)=e^{\int dr_1/r_1}\,e^{\int(dr_2/r_2-dr_1/r_1)}\]</div>
+<div class="r">\[\frac{r_2}{r_1}=e^{\int(dr_2/r_2-dr_1/r_1)}=e^{-\int A}\]</div>
+<div class="r">\[\int A=\ln r_1-\ln r_2=\ln\frac{r_1}{r_2}\quad\Big(\text{zero at }u=0,\ \text{where }r_1=r_2=1\Big)\]</div>
+<div class="r">\[r_1^2=\Big(\tfrac{u}{\sqrt2}-1\Big)^2+\tfrac{u^2}{2}=u^2-\sqrt2\,u+1\]</div>
+<div class="r">\[r_2^2=\Big(\tfrac{u}{\sqrt2}+1\Big)^2+\tfrac{u^2}{2}=u^2+\sqrt2\,u+1\]</div>
+<div class="r">\[\boxed{\int A=\frac12\ln\frac{u^2-\sqrt2\,u+1}{u^2+\sqrt2\,u+1}}\]</div>
+<p class="r c">Seen from \(r_1\) as the unit, \(r_2\) is built by the factor \(1+\big(\tfrac{dr_2}{r_2}-\tfrac{dr_1}{r_1}\big)\). The unit circles around \(\pm1\) hold the scaled triangles \(dr_1/r_1\) and \(dr_2/r_2\), and their difference is \(A\). Check by differentiating: the common denominator is \((u^2+1)^2-2u^2=1+u^4\) and the numerator collapses to \(2\sqrt2\,(u^2-1)\), so the derivative is \(\tfrac{\sqrt2\,(u^2-1)}{1+u^4}\), exactly \(A/du\).</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>\(U\) runs out along the \(45^\circ\) line. <i class="k" style="--c:#ffc107"></i>\(r_1\) and <i class="k" style="--c:#5aa7ff"></i>\(r_2\) join it to \(+1\) and \(-1\); at \(u=0\) both equal 1.</li><li>Law of cosines at the origin: the ray makes \(45^\circ\) with the axis towards \(+1\) and \(135^\circ\) towards \(-1\), so \(r_{1,2}^2=1+u^2\mp\sqrt2\,u\).</li><li>The small triangles on the unit circles about \(\pm1\) hold \(dr_1/r_1\) and \(dr_2/r_2\); stacking their differences multiplies lengths, so the total is the logarithm \(\ln(r_1/r_2)\), drawn as the gold bar.</li></ul></div></section>
+
+<section class="p" data-t="9 · Assemble">
+<div class="r">\[\int\!\sqrt{\tan x}\,dx=\frac1{\sqrt2}\Big[\arctan\frac{\sqrt2\,u}{1-u^2}+\frac12\ln\frac{u^2-\sqrt2\,u+1}{u^2+\sqrt2\,u+1}\Big]+C\]</div>
+<div class="r">\[\frac{d}{du}\,\frac1{\sqrt2}\Big[\varphi+\ln\frac{r_1}{r_2}\Big]=\frac{\sqrt2\,(u^2+1)+\sqrt2\,(u^2-1)}{\sqrt2\,(1+u^4)}=\frac{2u^2}{1+u^4}\]</div>
+<div class="r">\[u=\sqrt{\tan x},\qquad u:0\to\infty\;\Rightarrow\;\ln\frac{r_1}{r_2}\to\ln1=0,\quad\varphi\to\pi\]</div>
+<div class="r">\[\int_0^{\pi/2}\!\sqrt{\tan x}\,dx=\frac1{\sqrt2}\,(0+\pi)\]</div>
+<div class="r">\[\boxed{\int_0^{\pi/2}\!\sqrt{\tan x}\,dx=\frac{\pi}{\sqrt2}}\]</div>
+<p class="r c">Watch the bars: the log part \(\ln(r_1/r_2)\) dies away, the angle part \(\varphi\) climbs to \(\pi\), and the sum divided by \(\sqrt2\) lands on \(\pi/\sqrt2\approx2.2214\).</p><div class="r geo"><b>Geometry on the canvas</b><ul><li>As \(U\) flies off to infinity along the \(45^\circ\) line, the distances \(r_1,r_2\) become almost equal: the <i class="k" style="--c:#ffc107"></i>gold bar \(\ln(r_1/r_2)\to0\).</li><li>The angle at \(U\) in triangle \((i,U,-i)\) shrinks to \(0\), so <i class="k" style="--c:#ff6b8a"></i>\(\varphi\) climbs to \(\pi\).</li><li>The white bar \(\Sigma=(A+B)/\sqrt2\) is the area under the curve so far, ending at \(\pi/\sqrt2\) (dashed marker).</li></ul></div></section>
+</div></main>
+<footer><nav id="pg" aria-label="Steps"></nav><div class="bar"><button id="pv" class="ctl">Back</button><button id="rp" class="ctl">Replay</button><button id="nx" class="ctl">Next</button></div></footer>
+<script>
+const S2=Math.SQRT2,K=120,u0=1.2,ux=u0/S2,vx=2/S2,G='#ffc107',Bl='#5aa7ff',Pk='#ff6b8a',Gr='#7be0a6',DM='#2a3560',TX='#e9dfb8',PI=Math.PI;
+const f=n=>(+n).toFixed(1),Q=(x,y)=>f(x*K)+','+f(-y*K),sm=v=>v*v*v*(v*(v*6-15)+10),cl=(x,a,b)=>sm(Math.max(0,Math.min(1,(x-a)/(b-a)))),ease=sm;
+const ln=(a,b,c,d,col=G,w=2,x='')=>`<line x1="${f(a*K)}" y1="${f(-b*K)}" x2="${f(c*K)}" y2="${f(-d*K)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${x}/>`;
+const dot=(x,y,col=G,r=5)=>`<circle cx="${f(x*K)}" cy="${f(-y*K)}" r="${r}" style="r:calc(${r}px / var(--zz,1))" fill="${col}"/>`;
+const tx=(x,y,s,col=TX,dx=8,dy=-8)=>`<text x="${f(x*K+dx)}" y="${f(-y*K+dy)}" fill="${col}" font-size="15" font-family="monospace">${s}</text>`;
+const cir=(x,y,r,col=DM,e='')=>`<circle cx="${f(x*K)}" cy="${f(-y*K)}" r="${f(r*K)}" fill="none" stroke="${col}" stroke-width="1.5" ${e}/>`;
+const arc=(cx,cy,r,a0,a1,col,w=3)=>{const d=a1-a0;return Math.abs(d)<.01?'':`<path d="M${Q(cx+r*Math.cos(a0),cy+r*Math.sin(a0))} A${f(r*K)},${f(r*K)} 0 ${Math.abs(d)>PI?1:0} ${d>0?0:1} ${Q(cx+r*Math.cos(a1),cy+r*Math.sin(a1))}" fill="none" stroke="${col}" stroke-width="${w}"/>`};
+const base=()=>ln(-2,0,2,0,DM,1)+ln(0,-2,0,2,DM,1)+cir(0,0,1,'#6b5410');
+const rt=(px,py,Ux,Uy,dx,dy,k,c1=G,c2=Bl,lab=0)=>{const r=Math.hypot(Ux-px,Uy-py),ex=(Ux-px)/r,ey=(Uy-py)/r,sx=px+ex,sy=py+ey,a=(dx*ex+dy*ey)/r*k,b=(dy*ex-dx*ey)/r*k,mx=sx+a*ex,my=sy+a*ey;return cir(px,py,1,DM)+ln(px,py,sx,sy,'#9a9272',1.5)+dot(sx,sy,'#9a9272',3)+ln(sx,sy,mx-b*ey,my+b*ex,'#fff',1.5)+ln(sx,sy,mx,my,c1,3)+ln(mx,my,mx-b*ey,my+b*ex,c2,3)+(lab?tx(sx,sy,'S',TX,-16,16)+tx(mx,my,'T',TX,6,16)+tx(mx-b*ey,my+b*ex,'U′',TX,8,-4):'')};
+const Aof=u=>.5*Math.log((u*u-S2*u+1)/(u*u+S2*u+1)),Bof=u=>Math.atan2(S2*u,1-u*u);
+const SC=[
+t=>{const X=x=>x-1.6,Y=y=>y-.7,a1=cl(t,0,.1),a2=cl(t,.1,.25),b=cl(t,.25,.65),c=cl(t,.65,.9);
+let p=[...Array(41)].map((_,i)=>{const g=PI-PI*b*i/40;return Q(X(1.625+1.625*Math.cos(g)),Y(1.625*Math.sin(g)))}).join(' ');
+return ln(X(0),Y(0),X(a1),Y(0),G,4)+ln(X(1),Y(0),X(1+2.25*a2),Y(0),Bl,4)+`<polyline points="${p}" fill="none" stroke="#e9dfb8" stroke-width="2"/>`+ln(X(1),Y(0),X(1),Y(1.5*c),Pk,4)+dot(X(1),Y(1.5*c),Pk)+
+(a1>.9?tx(X(.5),Y(0),'1',G,-4,24):'')+(a2>.9?tx(X(2.1),Y(0),'tan x = u²',Bl,-30,24):'')+(c>.9?tx(X(1),Y(.75),'u = √tan x',Pk,10,4)+ln(X(1.625),Y(0),X(1.625),Y(1.625),TX,1.5,'stroke-dasharray="4 4"')+dot(X(1.625),Y(0),TX,4)+tx(X(1.625),Y(.8),'τ',TX,6,0)+`<polyline points="${Q(X(1)-.1,Y(0))} ${Q(X(1)-.1,Y(.1))} ${Q(X(1),Y(.1))}" fill="none" stroke="${TX}" stroke-width="1.5"/>`:'')+(b>.9?tx(-1.9,-1.7,'u² = 1 · tan x',G,0,0):'')+((d)=>{if(d<=0)return'';const o=[X(1),Y(1.5)],L=[X(0),Y(0)],R=[X(3.25),Y(0)],m=(p,q)=>[p[0]+(q[0]-p[0])*d,p[1]+(q[1]-p[1])*d],A1=m(L,o),B1=m(R,o);return ln(L[0],L[1],A1[0],A1[1],TX,2)+ln(R[0],R[1],B1[0],B1[1],TX,2)+(d>.95?`<polyline points="${Q(o[0]-.0832,o[1]-.1248)} ${Q(o[0]+.0416,o[1]-.208)} ${Q(o[0]+.1248,o[1]-.0832)}" fill="none" stroke="${TX}" stroke-width="1.5"/>`+arc(o[0],o[1],.3,-2.1588,-PI/2,Pk,2.5)+tx(o[0],o[1],'θ',Pk,-20,42)+tx(X(.5),Y(.75),'a',TX,-16,0)+tx(X(2.1),Y(.75),'b',TX,8,-4):'')})(cl(t,.88,1))},
+t=>{const r=PI/4*ease(t);let s=base()+ln(0,0,2,0,'#9a9272',1,'stroke-dasharray="4 4"')+ln(0,0,2*Math.cos(r),2*Math.sin(r),G,2.5)+arc(0,0,.5,0,r,G);
+const L=['+i','−1','−i','+1'];for(let k=0;k<4;k++){const g=PI/4+r+k*PI/2;s+=dot(Math.cos(g),Math.sin(g),Pk,6)+(t>.9?tx(Math.cos(g),Math.sin(g),L[k],TX,8,-8):'')}
+return s+dot(u0*Math.cos(r),u0*Math.sin(r),'#fff',6)+tx(u0*Math.cos(r),u0*Math.sin(r),'U',TX,10,16)+(t>.7?tx(.74*Math.cos(r/2),.74*Math.sin(r/2),'π/4',G,-8,5):'')},
+t=>{const r=Math.hypot(vx-1,vx),er=[(vx-1)/r,vx/r],a=cl(t,0,.3),l=.45*cl(t,.3,.6),d=[l/S2,l/S2],dr=d[0]*er[0]+d[1]*er[1],R=[vx+dr*er[0],vx+dr*er[1]],T=[vx+d[0],vx+d[1]],th=Math.atan2(vx,vx-1),c=cl(t,.6,.85);
+return base()+dot(-1,0,'#5a5230',4)+dot(0,1,'#5a5230',4)+dot(0,-1,'#5a5230',4)+arc(1,0,r,th-.4,th+.4,'#6f86d6',1.5)+ln(1,0,1+(vx-1)*a,vx*a,TX,2)+arc(1,0,.3,0,th*a,Pk)+dot(1,0,G,7)+tx(1,0,'P',G,8,18)+dot(vx,vx,'#fff',6)+tx(vx,vx,'U',TX,-16,-10)+
+ln(vx,vx,vx+d[0],vx+d[1],'#fff',3)+(c>0?ln(vx,vx,vx+(R[0]-vx)*c,vx+(R[1]-vx)*c,G,4)+ln(R[0],R[1],R[0]+(T[0]-R[0])*c,R[1]+(T[1]-R[1])*c,Bl,4):'')+(a>.9?tx(1+.42*Math.cos(th/2),.42*Math.sin(th/2),'θ',Pk,-4,5)+tx((1+vx)/2,vx/2,'r',TX,8,4):'')+(l>.1?tx(T[0],T[1],'dU',TX,6,-4):'')+(c>.9?tx(R[0],R[1],'dr',G,6,16)+tx(R[0]+(T[0]-R[0])/2,R[1]+(T[1]-R[1])/2,'r dθ',Bl,-62,-6):'')+((q)=>q>0?rt(1,0,vx,vx,d[0],d[1],q,G,Bl,1)+tx(1+er[0],er[1],'ê',TX,8,-8)+tx(-2,-1.7,'unit circle: ST = dr/r, TU′ = i dθ',TX,0,0):'')(cl(t,.85,1))},
+t=>{const h=vx,dd=.3/S2,P=[[1,0,G,'+1'],[-1,0,Bl,'−1'],[0,1,Pk,'+i'],[0,-1,Gr,'−i']];let s=base();
+P.forEach((p,i)=>{const q=cl(t,i*.2,i*.2+.3),r=Math.hypot(h-p[0],h-p[1]);s+=rt(p[0],p[1],h,h,dd,dd,q)+ln(p[0],p[1],h,h,p[2],1.2,'stroke-dasharray="3 4"')+dot(p[0],p[1],p[2],6)+tx(p[0],p[1],p[3],p[2],8,i==3?20:-8)+(q>.9?tx(p[0]+(h-p[0])/r,p[1]+(h-p[1])/r,'a'+'₁₂₃₄'[i],p[2],8,-6):'')});
+return s+ln(h,h,h+dd,h+dd,'#fff',3)+dot(h,h,'#fff',6)+tx(h,h,'U',TX,8,-10)+tx(h+dd,h+dd,'dU',TX,6,-4)+tx(-2,-1.7,'a = dU/(U−P) = dr/r + i dθ',TX,0,0)+tx(-2,1.85,'unit circle round each pole',TX,0,0)},
+t=>{const P=[[1,0,G,'+1 r₁'],[-1,0,Bl,'−1 r₂'],[0,1,Pk,'+i θ₃'],[0,-1,Gr,'−i θ₄']];let s=base();
+P.forEach((p,k)=>{const q=cl(t,k*.22,k*.22+.2);s+=ln(ux,ux,ux+(p[0]-ux)*q,ux+(p[1]-ux)*q,p[2],2.5)+dot(p[0],p[1],p[2],6)+tx(p[0],p[1],p[3],p[2],8,k==3?20:k==2?-14:-8)});
+return s+dot(ux,ux,'#fff',6)+tx(ux,ux,'U',TX,8,-10)+tx(-2,2,'A ← poles ±1',G,0,0)+tx(-2,1.85,'B ← poles ±i',Pk,0,0)},
+t=>{const k=1.7*S2/(1+u0**4),A=k*(u0*u0-1),B=k*(u0*u0+1),m=(A+B)/2,s1=cl(t,0,.15),s2=cl(t,.15,.3),s3=cl(t,.3,.45),s4=cl(t,.45,.6),s5=cl(t,.6,.85),e=A/2;
+return ln(-2,0,2,0,DM,1)+ln(0,-2,0,2,DM,1)+ln(-.3,-.3,-.3+2.3*s4,-.3+2.3*s4,'#9a9272',1,'stroke-dasharray="4 4"')+ln(0,0,A*s1,0,G,4)+(s2>0?ln(A,0,A,B*s2,Pk,4):'')+(s3>0?ln(0,0,A*s3,B*s3,'#fff',2.5):'')+
+(s5>0?ln(A,0,A+(e-A)*s5,e*s5,'#9a9272',1.2,'stroke-dasharray="3 3"')+ln(A,B,A+(m-A)*s5,B+(m-B)*s5,'#9a9272',1.2,'stroke-dasharray="3 3"')+ln(0,0,e*s5,e*s5,G,6)+ln(e,e,e+(m-e)*s5,e+(m-e)*s5,Pk,6)+dot(0,0,'#fff',5)+(s5>.9?dot(m,m,'#fff',5)+tx(m,m,'Q',TX,10,-8)+tx(0,0,'P',TX,-16,18)+tx(e,e,'A cos 45°',G,-92,-4)+tx((e+m)/2,(e+m)/2,'B sin 45°',Pk,10,6):''):'')+
+(s1>.9?tx(A/2,0,'A',G,-4,22):'')+(s2>.9?tx(A,B/2,'B',Pk,10,0):'')+(s3>.9?tx(A,B,'A + iB',TX,10,-8):'')+tx(1.6,1.6,'U-axis',TX,-58,-12)+tx(-2,-1.45,'PQ = A cos 45° + B sin 45° = (A + B)/√2',G,0,0)},
+t=>{const h=1.35/S2,d3=Math.atan2(h-1,h)+PI/2,d4=PI/2-Math.atan2(h+1,h),a1=Math.atan2(1-h,-h),a2=Math.atan2(-1-h,-h);let dd=a2-a1;while(dd>PI)dd-=2*PI;while(dd<-PI)dd+=2*PI;
+const l=cl(t,0,.2),p3=cl(t,.25,.5),p4=cl(t,.5,.75),pu=cl(t,.75,.95);
+return base()+ln(0,1,0,-1,'#6f7fb8',1.5,'stroke-dasharray="5 5"')+ln(h,h,0,h,'#6f7fb8',1.5,'stroke-dasharray="4 4"')+ln(0,1,h*l,1+(h-1)*l,Pk,3)+ln(0,-1,h*l,-1+(h+1)*l,Gr,3)+
+arc(0,1,.35,-PI/2,-PI/2+d3*p3,Pk)+arc(0,-1,.35,PI/2,PI/2-d4*p4,Gr)+arc(h,h,.3,a1,a1+dd*pu,G)+dot(0,1,Pk,6)+dot(0,-1,Gr,6)+dot(h,h,'#fff',6)+tx(0,1,'i',Pk,-16,-6)+tx(0,-1,'−i',Gr,-24,16)+tx(h,h,'U',TX,8,-10)+
+tx(h/2,h,'u/√2',TX,-18,-8)+tx(0,(1+h)/2,'1−u/√2',TX,-70,0)+tx(0,(h-1)/2,'1+u/√2',TX,-70,0)+(p3>.9?tx(.55*Math.sin(d3/2),1-.55*Math.cos(d3/2),'θ₃',Pk,-6,5):'')+(p4>.9?tx(.55*Math.sin(d4/2),-1+.55*Math.cos(d4/2),'θ₄',Gr,-4,5):'')+(pu>.9?tx(h,h,'π−φ',G,-72,36):'')+tx(-2,-1.85,'φ = θ₃+θ₄ = '+((d3*p3+d4*p4)*180/PI).toFixed(1)+'°',G,0,0)+((e)=>{if(e<=0)return'';const r2=h*h+(h+1)**2,m=2*(h+1)/r2,C=[m*h,-1+m*(h+1)],w=Math.sqrt(r2),v=[h/w,(h+1)/w],g=[-C[0],1-C[1]],gl=Math.hypot(g[0],g[1]),n=[g[0]/gl,g[1]/gl];return ln(0,1,C[0]*e,1+(C[1]-1)*e,'#fff',1.5,'stroke-dasharray="4 3"')+(e>.9?dot(C[0],C[1],'#fff',5)+`<polyline points="${Q(C[0]+.12*n[0],C[1]+.12*n[1])} ${Q(C[0]+.12*(n[0]+v[0]),C[1]+.12*(n[1]+v[1]))} ${Q(C[0]+.12*v[0],C[1]+.12*v[1])}" fill="none" stroke="${TX}" stroke-width="1.5"/>`+tx(C[0],C[1],'C',TX,-18,18)+tx(C[0]/2,(1+C[1])/2,'CD',TX,-30,-2)+tx((C[0]+h)/2,(C[1]+h)/2,'UC',TX,10,10):'')})(cl(t,.8,1))},
+t=>{const s=u0*ease(t),cx=s/S2,A=Aof(s);
+return base()+ln(0,0,cx,cx,'#fff',1.5)+ln(cx,cx,1,0,G,3)+ln(cx,cx,-1,0,Bl,3)+dot(1,0,G,6)+dot(-1,0,Bl,6)+dot(cx,cx,'#fff',6)+tx(1,0,'r₁',G,8,20)+tx(-1,0,'r₂',Bl,-26,20)+
+tx(-2,-1.45,'r₁ = '+Math.hypot(cx-1,cx).toFixed(3)+'   r₂ = '+Math.hypot(cx+1,cx).toFixed(3),TX,0,0)+tx(-2,-1.7,'∫A = ln(r₁/r₂) = '+A.toFixed(3),G,0,0)+ln(0,-1.95,A,-1.95,G,9)+rt(1,0,cx,cx,.2,.2,1,G,'#9a9272')+rt(-1,0,cx,cx,.2,.2,1,Bl,'#9a9272')+tx(-2,1.85,'dr₁/r₁ (gold) − dr₂/r₂ (blue) = A',TX,0,0)},
+t=>{const u=Math.tan(1.5*ease(t)),e=Math.min(u,1.9)/S2,x0=-130,A=Aof(u),B=Bof(u),Sm=(A+B)/S2;
+const bar=(v,y,c,n)=>`<rect x="${Math.min(x0,x0+v*60)}" y="${y}" width="${Math.abs(v*60)}" height="14" rx="4" fill="${c}"/><text x="-245" y="${y+12}" fill="${c}" font-size="15" font-family="monospace">${n}</text><text x="118" y="${y+12}" fill="${TX}" font-size="14" font-family="monospace">${v.toFixed(3)}</text>`;
+return `<g transform="translate(0,-75) scale(.55)">`+base()+ln(0,0,2*Math.cos(PI/4),2*Math.sin(PI/4),G,2.5)+dot(e,e,'#fff',8)+`</g>`+tx(-2,.9,'u = '+u.toFixed(2),TX,0,0)+
+bar(A,60,G,'A')+bar(B,100,Pk,'B')+bar(Sm,140,'#fff','Σ')+`<line x1="${x0+2.2214*60}" y1="50" x2="${x0+2.2214*60}" y2="165" stroke="${G}" stroke-dasharray="4 4"/><text x="${x0+2.2214*60-52}" y="185" fill="${G}" font-size="14" font-family="monospace">π/√2 = 2.2214</text><text x="-245" y="215" fill="${TX}" font-size="13" font-family="monospace">Σ = (A+B)/√2 = ∫₀ˣ √tan x dx</text>`}
+];
+const sv=document.getElementById('sv'),ps=[...document.querySelectorAll('.p')],DUR=matchMedia('(prefers-reduced-motion:reduce)').matches?200:6800;let cur=0,raf,t0;
+function declutter(){const P=[];sv.querySelectorAll('text').forEach(e=>{e.removeAttribute('transform');const b=e.getBBox();let best=null;
+for(const dy of [0,-12,12,-24,24,-36,36,-48,48]){for(const dx of [0,-16,16,-32,32]){const x=b.x+dx,y=b.y+dy;if(x<-244||x+b.width>244||y<-246||y+b.height>246)continue;
+if(!P.some(o=>x<o.x+o.w+3&&x+b.width+3>o.x&&y<o.y+o.h+2&&y+b.height+2>o.y)){best=[dx,dy];break}}if(best)break}
+best=best||[0,0];if(best[0]||best[1])e.setAttribute('transform','translate('+best+')');P.push({x:b.x+best[0],y:b.y+best[1],w:b.width,h:b.height})})}
+let tm=0,vb={x:-250,y:-250,w:500};
+const GR=(()=>{let a='',b='';for(let i=-300;i<=300;i+=15){const l='<line x1="'+i+'" y1="-300" x2="'+i+'" y2="300"/><line x1="-300" y1="'+i+'" x2="300" y2="'+i+'"/>';if(i%60)b+=l;else a+=l}return '<g id="g1">'+b+'</g><g id="g0">'+a+'</g>'})();
+function frame(n){const t=Math.min(1,(n-t0)/DUR);draw(t);if(t<1)raf=requestAnimationFrame(frame);else pl.textContent='▶'}
+function draw(t){tm=t;sv.innerHTML=GR+'<g id="w">'+SC[cur](t)+'</g>';declutter();sc.value=t*1000;const rs=[...ps[cur].querySelectorAll('.r')];rs.forEach((e,i)=>e.classList.toggle('on',t>=.06+.86*i/rs.length||t>=1))}
+function go(n){cur=Math.max(0,Math.min(8,n));cancelAnimationFrame(raf);ps.forEach((p,i)=>{p.classList.toggle('on',i==cur);if(i!=cur)p.querySelectorAll('.r').forEach(e=>e.classList.remove('on'))});
+const [k,nm]=ps[cur].dataset.t.split(' · ');ttl.innerHTML='<span class="n">'+k+'</span>'+nm;[...pg.children].forEach((b,i)=>{b.classList.toggle('on',i==cur);b.classList.toggle('done',i<cur)});document.getElementById('pv').disabled=cur==0;document.getElementById('nx').disabled=cur==8;tm=0;resetVB();pl.textContent='❚❚';t0=performance.now();raf=requestAnimationFrame(frame);window.scrollTo({top:0,behavior:'smooth'})}
+pv.onclick=()=>go(cur-1);nx.onclick=()=>go(cur+1);rp.onclick=()=>{const s={...vb};go(cur);vb=s;setVB()};
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')go(cur+1);if(e.key=='ArrowLeft')go(cur-1)});
+pg.innerHTML=ps.map((_,i)=>'<button class="seg" aria-label="Step '+(i+1)+'"></button>').join('');[...pg.children].forEach((b,i)=>b.onclick=()=>go(i));
+function setVB(){const z=500/vb.w;sv.setAttribute('viewBox',vb.x+' '+vb.y+' '+vb.w+' '+vb.w);sv.style.setProperty('--z',z);sv.style.setProperty('--zz',Math.pow(z,.7));sv.style.touchAction=z>1.01?'none':'pan-y';sv.style.cursor=z>1.01?'grab':'zoom-in';draw(tm)}
+function clampVB(){vb.x=Math.max(-250,Math.min(250-vb.w,vb.x));vb.y=Math.max(-250,Math.min(250-vb.w,vb.y))}
+function zoomAt(f,sx,sy){const w=Math.max(62,Math.min(500,vb.w/f)),k=w/vb.w;vb.x=sx-(sx-vb.x)*k;vb.y=sy-(sy-vb.y)*k;vb.w=w;clampVB();setVB()}
+function resetVB(){vb={x:-250,y:-250,w:500};setVB()}
+const toS=(cx,cy)=>{const r=sv.getBoundingClientRect();return[vb.x+(cx-r.left)/r.width*vb.w,vb.y+(cy-r.top)/r.height*vb.w]},mid=()=>[vb.x+vb.w/2,vb.y+vb.w/2],pts=new Map();let lastD=0,lastTap=0,moved=0;
+sv.addEventListener('wheel',e=>{e.preventDefault();const[p,q]=toS(e.clientX,e.clientY);zoomAt(Math.exp(-e.deltaY*.002),p,q)},{passive:false});
+sv.addEventListener('pointerdown',e=>{pts.set(e.pointerId,[e.clientX,e.clientY]);sv.setPointerCapture(e.pointerId);lastD=0;moved=0});
+sv.addEventListener('pointermove',e=>{const o=pts.get(e.pointerId);if(!o)return;pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size==2){const[a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(lastD){const[p,q]=toS((a[0]+b[0])/2,(a[1]+b[1])/2);zoomAt(d/lastD,p,q)}lastD=d;moved=9}else if(vb.w<499){const k=vb.w/sv.getBoundingClientRect().width;vb.x-=(e.clientX-o[0])*k;vb.y-=(e.clientY-o[1])*k;clampVB();setVB();moved+=Math.abs(e.clientX-o[0])+Math.abs(e.clientY-o[1])}});
+const rel=e=>{pts.delete(e.pointerId);lastD=0};sv.addEventListener('pointercancel',rel);
+sv.addEventListener('pointerup',e=>{rel(e);if(moved<6&&!pts.size){const n=Date.now();if(n-lastTap<320){const[p,q]=toS(e.clientX,e.clientY);vb.w<499?resetVB():zoomAt(2.5,p,q);lastTap=0}else lastTap=n}});
+zi.onclick=()=>zoomAt(1.6,...mid());zo.onclick=()=>zoomAt(1/1.6,...mid());zr.onclick=resetVB;
+const stop=()=>{cancelAnimationFrame(raf);pl.textContent='▶'};
+sc.oninput=()=>{stop();draw(sc.value/1000)};
+pl.onclick=()=>{if(pl.textContent=='❚❚')return stop();pl.textContent='❚❚';t0=performance.now()-(tm>=1?0:tm)*DUR;raf=requestAnimationFrame(frame)};
+addEventListener('keydown',e=>{if(e.key=='+'||e.key=='=')zi.click();if(e.key=='-')zo.click();if(e.key=='0')zr.click()});
+hm.onclick=()=>go(0);
+go(0);
+</script></body></html>

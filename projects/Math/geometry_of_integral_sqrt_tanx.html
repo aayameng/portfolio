@@ -62,7 +62,7 @@ footer{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direct
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 @media(min-width:900px){main{max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}h1,.sub{grid-column:1/-1}.stage{position:sticky;top:18px}.card{margin-top:0}}
 @media(prefers-reduced-motion:reduce){.r{transition:none;transform:none}.seg:after{transition:none}}
-</style></head><body><main><button class='home' id='hm' aria-label='Home: back to step 1'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 11.5 12 4l9 7.5'/><path d='M5.5 10v9.5h4.5v-6h4v6h4.5V10'/></svg>Home</button>
+</style></head><body><main><button class='home' id='hm' aria-label='Home'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 11.5 12 4l9 7.5'/><path d='M5.5 10v9.5h4.5v-6h4v6h4.5V10'/></svg>Home</button>
 <h1>\(\int\sqrt{\tan x}\,dx\)</h1><p class="sub">Geometry + complex poles, step by step, with every construction explained</p>
 <div class='stage'><svg id='sv' viewBox='-250 -250 500 500' role='img' aria-label='Animated geometric construction. Scroll or pinch to zoom, drag to pan.'></svg><div class='zc'><button id='zi' aria-label='Zoom in'>+</button><button id='zo' aria-label='Zoom out'>−</button><button id='zr' aria-label='Reset view'>⟲</button></div><div class='scrub'><button id='pl' aria-label='Play or pause'>❚❚</button><input id='sc' type='range' min='0' max='1000' value='0' aria-label='Scrub the construction'></div><div class='hint'>Scroll or pinch to zoom · drag to pan · double-tap to zoom · drag the slider to scrub</div></div>
 <div class="card"><h2 id="ttl"></h2>
@@ -223,6 +223,6 @@ const stop=()=>{cancelAnimationFrame(raf);pl.textContent='▶'};
 sc.oninput=()=>{stop();draw(sc.value/1000)};
 pl.onclick=()=>{if(pl.textContent=='❚❚')return stop();pl.textContent='❚❚';t0=performance.now()-(tm>=1?0:tm)*DUR;raf=requestAnimationFrame(frame)};
 addEventListener('keydown',e=>{if(e.key=='+'||e.key=='=')zi.click();if(e.key=='-')zo.click();if(e.key=='0')zr.click()});
-hm.onclick=()=>go(0);
+hm.onclick=()=>{location.href='/'};
 go(0);
 </script></body></html>

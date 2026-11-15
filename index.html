@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -1471,7 +1470,8 @@
                     },
                     { name: "Monge's Theorem 📐", url: "./projects/Math/monges_theorem.html", subnodes: [] },
                     { name: "Dirichlet Integral in 3 variables ∭", url: "./projects/Math/dirichlet_integral_in_3_variables.html", subnodes: [] },
-                    { name: "n-ball (volume and surface area) 🌐", url: "./projects/Math/n_ball_volume_and_surface_area.html", subnodes: [] }
+                    { name: "n-ball (volume and surface area) 🌐", url: "./projects/Math/n_ball_volume_and_surface_area.html", subnodes: [] },
+                    { name: "Bessel Function 〰️", url: "./projects/Math/bessel_function.html", subnodes: [] }
                 ]
             },
             physics: {
@@ -1538,6 +1538,7 @@
             setTimeout(drawProjSVGConnections, 50);
         }
 
+        // Render Level 1 category buttons (CAD, Math, Physics) with dynamic option counts
         function renderProjL1Nodes() {
             const container = document.getElementById('proj-l1-nodes-col');
             if (!container) return;
@@ -1549,13 +1550,20 @@
 
             container.innerHTML = categories.map(c => {
                 const isExpanded = expandedProjCategoryKey === c.key;
+                const count = Array.isArray(c.nodes) ? c.nodes.length : 0;
                 const borderStyle = isExpanded 
                     ? 'border-amber-500 bg-amber-600 text-white shadow-lg shadow-amber-500/30 scale-105 z-20' 
                     : 'border-amber-500/30 bg-slate-900 text-slate-100 hover:border-amber-400 hover:scale-102 shadow-sm';
+                const badgeStyle = isExpanded
+                    ? 'bg-amber-700/80 text-amber-100 border-amber-300/40'
+                    : 'bg-amber-500/15 text-amber-300 border-amber-500/30';
 
                 return `
                     <button onclick="toggleProjCategory('${c.key}')" id="proj-category-${c.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
-                        <span class="truncate tracking-wide">${c.name}</span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="truncate tracking-wide">${c.name}</span>
+                            <span class="px-1.5 py-0.5 rounded-full border text-[10px] leading-none font-mono font-bold flex-shrink-0 ${badgeStyle}">${count}</span>
+                        </div>
                         <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
                             ${isExpanded ? '▼' : '→'}
                         </span>

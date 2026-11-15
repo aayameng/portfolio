@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dirichlet’s integral, step by step</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>window.MathJax={svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#0a1020;--bg2:#101a33;--panel:rgba(15,24,46,.78);--ink:#e9eef9;--muted:#9aa8c7;--gold:#ffc400;--gold2:#ffe27a;--line:rgba(255,196,0,.28);--tint:rgba(255,196,0,.07);--onGold:#1a1400;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f2e7;--bg2:#ebe4d0;--panel:rgba(255,255,255,.72);--ink:#14213d;--muted:#55627f;--gold:#b07d00;--gold2:#8a6100;--line:rgba(176,125,0,.38);--tint:rgba(176,125,0,.08);--onGold:#fff;color-scheme:light}}
+:root[data-theme="light"]{--bg:#f6f2e7;--bg2:#ebe4d0;--panel:rgba(255,255,255,.72);--ink:#14213d;--muted:#55627f;--gold:#b07d00;--gold2:#8a6100;--line:rgba(176,125,0,.38);--tint:rgba(176,125,0,.08);--onGold:#fff;color-scheme:light}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;overflow:hidden;color:var(--ink);font:400 16px/1.6 Inter,system-ui,sans-serif;
+background:radial-gradient(900px 520px at 12% -10%,var(--bg2),transparent 70%),radial-gradient(700px 420px at 100% 110%,var(--tint),transparent 70%),radial-gradient(circle,color-mix(in srgb,var(--muted) 24%,transparent) 1px,transparent 1.3px) 0 0/30px 30px,var(--bg)}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.9rem 1.25rem .6rem}
+h1{margin:0;font:600 1.5rem/1.1 Fraunces,Georgia,serif;letter-spacing:-.01em;background:linear-gradient(100deg,var(--gold2),var(--gold) 55%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header small{display:block;margin-top:.25rem;font-size:.82rem;color:var(--muted)}
+#ctr{font:500 .95rem Fraunces,Georgia,serif;color:var(--muted);white-space:nowrap}
+#ctr b{color:var(--gold);font-weight:600}
+.hr{display:flex;align-items:center;gap:.9rem}
+.back{padding:.45rem 1rem;border:1px solid var(--line);border-radius:999px;color:var(--gold);font:600 .85rem Inter,sans-serif;text-decoration:none;white-space:nowrap;transition:background .2s,box-shadow .2s}
+.back:hover{background:var(--tint);box-shadow:0 0 14px var(--tint)}
+.back:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;padding:0 1rem 1rem}
+#stage,#panel{border:1px solid var(--line);border-radius:20px;min-height:0}
+#stage{position:relative;overflow:hidden;background:radial-gradient(70% 60% at 50% 42%,var(--tint),transparent 75%),linear-gradient(180deg,color-mix(in srgb,var(--bg2) 75%,transparent),color-mix(in srgb,var(--bg) 35%,transparent));box-shadow:inset 0 0 60px var(--tint),0 12px 40px rgba(0,0,0,.25)}
+#stage canvas{display:block;width:100%;height:100%}
+#hint{position:absolute;left:.9rem;bottom:.7rem;font-size:.75rem;color:var(--muted);pointer-events:none}
+#panel{overflow:auto;padding:1.3rem 1.5rem;background:var(--panel);backdrop-filter:blur(10px)}
+.step{display:none;max-width:60ch}
+.step.on{display:block;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tag{display:inline-block;margin:0;padding:.2rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--tint);font-size:.78rem;font-weight:600;color:var(--gold)}
+h2{margin:.2rem 0 .7rem;font:600 1.6rem/1.2 Fraunces,Georgia,serif;letter-spacing:-.01em}
+p{margin:.55rem 0;color:var(--muted)}
+p b{color:var(--ink);font-weight:600}
+.math{margin:.8rem 0;padding:.5rem .9rem;border-left:3px solid var(--gold);background:var(--tint);border-radius:0 12px 12px 0;overflow-x:auto;overflow-y:hidden}
+.math.key{border:1px solid var(--gold);border-radius:12px;box-shadow:0 0 22px var(--tint)}
+mjx-container{color:var(--ink);margin:.25em 0!important}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%}
+nav{display:flex;align-items:center;gap:.8rem;padding:.75rem 1rem;border-top:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px)}
+.btn{min-width:7.5rem;padding:.8rem 1.4rem;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--gold);font:600 .95rem Inter,sans-serif;cursor:pointer;transition:background .2s,box-shadow .2s,opacity .2s}
+.btn:hover:not(:disabled){background:var(--tint);box-shadow:0 0 14px var(--tint)}
+.btn.go{background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:var(--gold);color:var(--onGold);box-shadow:0 4px 22px color-mix(in srgb,var(--gold) 40%,transparent)}
+.btn.go:hover:not(:disabled){background:linear-gradient(180deg,var(--gold2),var(--gold));filter:brightness(1.1)}
+.btn:disabled{opacity:.3;cursor:default}
+.btn:focus-visible,.dot:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+#dots{flex:1;display:flex;justify-content:center;gap:.5rem}
+.dot{width:9px;height:9px;padding:0;border:0;border-radius:5px;background:var(--line);cursor:pointer;transition:width .3s,background .3s}
+.dot.on{width:28px;background:var(--gold)}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:minmax(200px,38%) 1fr}#panel{padding:1rem 1.1rem}h2{font-size:1.35rem}}
+@media (max-width:480px){.btn{min-width:5.2rem;padding:.8rem .9rem}#dots{gap:.35rem}.dot.on{width:20px}h1{font-size:1.2rem}header small{display:none}}
+@media (prefers-reduced-motion:reduce){.step.on{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Dirichlet’s integral</h1><small>Mass of the solid under the plane x + y + z = 1</small></div>
+  <div class="hr"><div id="ctr"></div><a class="back" href="/" target="_top">← Back</a></div>
+</header>
+
+<main>
+  <section id="stage" aria-label="3D view"><div id="hint">Drag to rotate · pinch or scroll to zoom · double-click to reset</div></section>
+  <section id="panel">
+
+    <article class="step">
+      <p class="tag">Step 1 of 9 · The domain</p>
+      <h2>A plane cuts the three axes</h2>
+      <p>The plane meets the axes one unit from the origin, at <b>\((1,0,0)\)</b>, <b>\((0,1,0)\)</b> and <b>\((0,0,1)\)</b>. With the three coordinate planes it fences in a tetrahedron.</p>
+      <div class="math">$$x+y+z=1$$</div>
+      <p>Everything in the first octant below the plane is the solid we will weigh.</p>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 2 of 9 · The density</p>
+      <h2>Density under the plane</h2>
+      <p>Each point of the solid <b>\(V\)</b> carries a density \(\rho=x^{l-1}y^{m-1}z^{n-1}\). The picture uses \(l=m=n=2\), so \(\rho=xyz\): dots crowd together and turn gold where the solid is densest, and thin out toward the faces.</p>
+      <div class="math">$$I=\iiint_V x^{l-1}y^{m-1}z^{n-1}\,dx\,dy\,dz,\qquad V:\ x,y,z\ge 0,\ x+y+z\le 1$$</div>
+      <p>The integral \(I\) adds up all that density: the total mass of \(V\).</p>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 3 of 9 · The bounds</p>
+      <h2>Three nested sweeps</h2>
+      <p>The <b>white needle</b> rises in \(z\) from the floor to the plane. The <b>teal sheet</b> is the slice at one value of \(x\), swept by needles in \(y\). Sliding the sheet along \(x\) fills the solid.</p>
+      <div class="math">$$I=\int_0^1 x^{l-1}\!\left(\int_0^{1-x} y^{m-1}\!\left(\int_0^{1-x-y} z^{n-1}\,dz\right)dy\right)dx$$</div>
+      <p>So \(0\le z\le 1-x-y\), then \(0\le y\le 1-x\), then \(0\le x\le 1\).</p>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 4 of 9 · Inner integral</p>
+      <h2>The needle: integrate in z</h2>
+      <p>Fix \(x\) and \(y\). The needle climbs from \(z=0\) to the plane at \(z=1-x-y\), collecting \(z^{n-1}\) on the way.</p>
+      <div class="math">$$\int_0^{1-x-y} z^{n-1}\,dz=\left[\frac{z^n}{n}\right]_0^{1-x-y}=\frac{(1-x-y)^n}{n}$$</div>
+      <p>Each needle now weighs one number that depends only on \(x\) and \(y\):</p>
+      <div class="math">$$I=\frac1n\int_0^1 x^{l-1}\int_0^{1-x} y^{m-1}(1-x-y)^n\,dy\,dx$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 5 of 9 · Middle integral</p>
+      <h2>The sheet: integrate in y</h2>
+      <p>Freeze \(x\). Needles sweep the sheet from \(y=0\) to \(y=1-x\). Substitute \(y=(1-x)u\) so the limits become \(0\) to \(1\):</p>
+      <div class="math">$$\int_0^{1-x} y^{m-1}(1-x-y)^n\,dy=(1-x)^{m+n}\int_0^1 u^{m-1}(1-u)^n\,du=(1-x)^{m+n}B(m,n+1)$$</div>
+      <p>Since \(\Gamma(n+1)=n\,\Gamma(n)\), the \(\tfrac1n\) from the last step cancels:</p>
+      <div class="math key">$$\frac1n B(m,n+1)=\frac{\Gamma(m)\Gamma(n+1)}{n\,\Gamma(m+n+1)}=\frac{\Gamma(m)\Gamma(n)}{\Gamma(m+n+1)}$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 6 of 9 · Outer integral</p>
+      <h2>The slab: integrate in x</h2>
+      <p>Slide the sheet from \(x=0\) to \(x=1\). The bright dots are the mass collected so far. One more Beta integral remains:</p>
+      <div class="math">$$I=\frac{\Gamma(m)\Gamma(n)}{\Gamma(m+n+1)}\int_0^1 x^{l-1}(1-x)^{m+n}\,dx=\frac{\Gamma(m)\Gamma(n)}{\Gamma(m+n+1)}\,B(l,\,m+n+1)$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 7 of 9 · Result</p>
+      <h2>The total mass</h2>
+      <p>Write the last Beta function in Gamma form. The factors \(\Gamma(m+n+1)\) cancel:</p>
+      <div class="math">$$I=\frac{\Gamma(m)\Gamma(n)}{\Gamma(m+n+1)}\cdot\frac{\Gamma(l)\Gamma(m+n+1)}{\Gamma(l+m+n+1)}$$</div>
+      <div class="math key">$$I=\frac{\Gamma(l)\,\Gamma(m)\,\Gamma(n)}{\Gamma(l+m+n+1)}$$</div>
+      <p>For the pictured density, \(l=m=n=2\): \(I=\dfrac{1\cdot1\cdot1}{\Gamma(7)}=\dfrac{1}{720}\).</p>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 8 of 9 · Why factorials?</p>
+      <h2>Where the factorials come from</h2>
+      <p>Take the plainest case: density 1, so \(l=m=n=1\). The sheet sweeping across the solid is the same one as before. Each integration raises the power by one and divides by the new power:</p>
+      <div class="math">$$\begin{aligned}\int_0^{1-x-y}dz&=\frac{1-x-y}{1}\\ \int_0^{1-x}\frac{1-x-y}{1}\,dy&=\frac{(1-x)^2}{1\cdot 2}\\ \int_0^{1}\frac{(1-x)^2}{1\cdot 2}\,dx&=\frac{1}{1\cdot 2\cdot 3}=\frac{1}{3!}\end{aligned}$$</div>
+      <p>That is the tetrahedron’s volume, \(\tfrac16\). Every integration piles one more factor onto the denominator, and that pile is a factorial. With the density \(x^{l-1}y^{m-1}z^{n-1}\) the powers start higher, and for whole numbers the same staircase gives:</p>
+      <div class="math key">$$I=\frac{(l-1)!\,(m-1)!\,(n-1)!}{(l+m+n)!}$$</div>
+      <p>The Gamma function is this factorial extended to any real exponent. The rule \(\Gamma(s+1)=s\,\Gamma(s)\) says “divide by the new power”, and \(\Gamma(k+1)=k!\). Swap each factorial for a Gamma and you get the formula from the last step.</p>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 9 of 9 · Factorials only</p>
+      <h2>The full derivation, no Gamma</h2>
+      <p>For whole numbers \(l,m,n\) the Gamma function isn’t needed. One lemma does the heavy lifting: integrate by parts once, moving a power from \((1-u)\) onto \(u\).</p>
+      <div class="math">$$\int_0^1 u^{a}(1-u)^{b}\,du=\frac{b}{a+1}\int_0^1 u^{a+1}(1-u)^{b-1}\,du$$</div>
+      <p>Repeat \(b\) times, until no \((1-u)\) is left:</p>
+      <div class="math key">$$\int_0^1 u^{a}(1-u)^{b}\,du=\frac{b!}{(a+1)(a+2)\cdots(a+b)}\cdot\frac{1}{a+b+1}=\frac{a!\,b!}{(a+b+1)!}\qquad(\ast)$$</div>
+      <p><b>z:</b> the needle, as before.</p>
+      <div class="math">$$\int_0^{1-x-y}z^{n-1}\,dz=\frac{(1-x-y)^n}{n}$$</div>
+      <p><b>y:</b> substitute \(y=(1-x)u\), then use \((\ast)\) with \(a=m-1,\ b=n\). Since \(n!/n=(n-1)!\):</p>
+      <div class="math">$$\frac1n\int_0^{1-x}y^{m-1}(1-x-y)^n\,dy=\frac{(1-x)^{m+n}}{n}\cdot\frac{(m-1)!\,n!}{(m+n)!}=(1-x)^{m+n}\,\frac{(m-1)!\,(n-1)!}{(m+n)!}$$</div>
+      <p><b>x:</b> use \((\ast)\) again, with \(a=l-1,\ b=m+n\):</p>
+      <div class="math">$$I=\frac{(m-1)!\,(n-1)!}{(m+n)!}\int_0^1 x^{l-1}(1-x)^{m+n}\,dx=\frac{(m-1)!\,(n-1)!}{(m+n)!}\cdot\frac{(l-1)!\,(m+n)!}{(l+m+n)!}$$</div>
+      <p>The \((m+n)!\) cancels:</p>
+      <div class="math key">$$I=\frac{(l-1)!\,(m-1)!\,(n-1)!}{(l+m+n)!}$$</div>
+      <p>Check: \(l=m=n=2\) gives \(\dfrac{1\cdot1\cdot1}{6!}=\dfrac{1}{720}\), matching the picture.</p>
+    </article>
+
+  </section>
+</main>
+
+<nav>
+  <button class="btn" id="prev">Previous</button>
+  <div id="dots"></div>
+  <button class="btn go" id="next">Next</button>
+</nav>
+
+<script>
+const $=s=>document.querySelector(s), P=(x,y,z)=>new THREE.Vector3(x,z,-y), GOLD=0xffc400; /* right-handed: x right, y into the screen, z up (x cross y = z) */
+const stage=$('#stage'), steps=[...document.querySelectorAll('.step')], last=steps.length-1;
+const I=3*Math.PI/4, A=.9553; /* true isometric: looking down the (1,1,1) diagonal */
+/* camera per step: [angle around, tilt, distance, look-at point in scene coordinates] */
+const V=[
+ [I,A,5.2,[.35,.35,-.35]],
+ [I,A,4.1,[.3,.3,-.3]],
+ [I,A,3.2,[.25,.25,-.22]],
+ [.95,1.2,2.4,[.25,.27,-.2]],
+ [1.2,1.25,3,[.3,.25,-.25]],
+ [.35,1.2,3.4,[.4,.25,-.25]],
+ [I,A,4.4,[.3,.3,-.3]],
+ [I,A,4.2,[.3,.3,-.3]],
+ [I,A,4.4,[.3,.3,-.3]]
+];
+let step=0, th=I, ph=A, rad=5.2, zoom=1, free=false;
+const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI, zoomBy=f=>{zoom=Math.min(2.2,Math.max(.35,zoom*f))};
+
+/* ---------- scene ---------- */
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(28,1,.1,50), tgt=new THREE.Vector3(.35,.35,-.35), goal=new THREE.Vector3();
+
+function label(txt,col,sc,it){
+  const c=document.createElement('canvas'); c.width=256; c.height=96;
+  const g=c.getContext('2d'); g.font=it?"italic 600 60px Fraunces,Georgia,serif":"600 38px Inter,sans-serif"; g.shadowColor=col; g.shadowBlur=14; g.fillStyle=col; g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,128,48);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));
+  s.scale.set(sc,sc*.375,1); return s;
+}
+const glow=(()=>{const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d'), r=g.createRadialGradient(32,32,0,32,32,32); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.3,'rgba(255,255,255,.6)'); r.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=r; g.fillRect(0,0,64,64); return new THREE.CanvasTexture(c)})();
+const grid=new THREE.GridHelper(1.4,14,0x4a63b0,0x2c3b72); grid.position.set(.7,0,-.7); grid.material.transparent=true; grid.material.opacity=.55; scene.add(grid);
+
+const axC={x:0xff6b6b,y:0x5be0a0,z:0x6aa8ff};
+[['x',[1,0,0]],['y',[0,1,0]],['z',[0,0,1]]].forEach(([k,d])=>{
+  const dir=P(...d), m=new THREE.MeshBasicMaterial({color:axC[k]}), q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
+  const sh=new THREE.Mesh(new THREE.CylinderGeometry(.009,.009,1.2,8),m); sh.quaternion.copy(q); sh.position.copy(dir).multiplyScalar(.6);
+  const hd=new THREE.Mesh(new THREE.ConeGeometry(.04,.14,16),m); hd.quaternion.copy(q); hd.position.copy(dir).multiplyScalar(1.27);
+  const l=label(k,'#'+axC[k].toString(16),.46,true); l.position.copy(dir).multiplyScalar(1.5);
+  scene.add(sh,hd,l);
+});
+[[1,0,0],[0,1,0],[0,0,1]].forEach(v=>{
+  const m=new THREE.Mesh(new THREE.SphereGeometry(.035,16,16),new THREE.MeshBasicMaterial({color:GOLD}));
+  m.position.copy(P(...v)); scene.add(m);
+  const hs=new THREE.Sprite(new THREE.SpriteMaterial({map:glow,color:GOLD,transparent:true,opacity:.85,depthWrite:false})); hs.scale.set(.3,.3,1); hs.position.copy(m.position); scene.add(hs);
+  const l=label('('+v.join(',')+')','#ffe27a',.66); l.position.copy(P(...v)).add(new THREE.Vector3(0,.13,0)); scene.add(l);
+});
+
+const O=P(0,0,0),X=P(1,0,0),Y=P(0,1,0),Z=P(0,0,1);
+const plane=new THREE.Mesh(new THREE.BufferGeometry().setFromPoints([X,Y,Z]),new THREE.MeshBasicMaterial({color:GOLD,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+const lat=[]; for(const c of [.2,.4,.6,.8]) lat.push(P(c,1-c,0),P(c,0,1-c),P(1-c,c,0),P(0,c,1-c),P(1-c,0,c),P(0,1-c,c));
+scene.add(plane,new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lat),new THREE.LineBasicMaterial({color:0xffe27a,transparent:true,opacity:.22})),new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([X,Y,Z]),new THREE.LineBasicMaterial({color:0xffe27a})));
+const faces=new THREE.Mesh(new THREE.BufferGeometry().setFromPoints([O,X,Y,O,X,Z,O,Y,Z]),new THREE.MeshBasicMaterial({color:0x4d7cff,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+scene.add(faces,new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([O,X,O,Y,O,Z,Y,Z,Z,X,X,Y].slice(0,12)),new THREE.LineBasicMaterial({color:0x7f9cff,transparent:true,opacity:.6})));
+
+/* density cloud: points sampled with probability proportional to rho = xyz */
+const pts=[];
+while(pts.length<1700){
+  const a=[0,0,0,0].map(()=>-Math.log(Math.random())), s=a[0]+a[1]+a[2]+a[3];
+  const x=a[0]/s,y=a[1]/s,z=a[2]/s,r=27*x*y*z;
+  if(Math.random()<r) pts.push([x,y,z,r]);
+}
+pts.sort((p,q)=>p[0]-q[0]);
+const pos=new Float32Array(pts.length*3), col=new Float32Array(pts.length*3), c0=new THREE.Color(0x4d7cff), c1=new THREE.Color(GOLD), cc=new THREE.Color();
+pts.forEach((p,i)=>{const v=P(p[0],p[1],p[2]); pos.set([v.x,v.y,v.z],i*3); cc.copy(c0).lerp(c1,Math.sqrt(p[3])); col.set([cc.r,cc.g,cc.b],i*3)});
+const pa=new THREE.BufferAttribute(pos,3), ca=new THREE.BufferAttribute(col,3);
+const geo=()=>{const g=new THREE.BufferGeometry(); g.setAttribute('position',pa); g.setAttribute('color',ca); return g};
+const pm=sz=>new THREE.PointsMaterial({size:sz,map:glow,vertexColors:true,transparent:true,depthWrite:false});
+const dim=new THREE.Points(geo(),pm(.07)), hot=new THREE.Points(geo(),pm(.11));
+scene.add(dim,hot);
+
+/* needle and sheet */
+const needle=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,1,10),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true}));
+const tip=new THREE.Mesh(new THREE.SphereGeometry(.034,16,16),new THREE.MeshBasicMaterial({color:GOLD,transparent:true}));
+const sa=new THREE.BufferAttribute(new Float32Array(12),3), sg=new THREE.BufferGeometry(), sl=new THREE.BufferGeometry();
+sg.setAttribute('position',sa); sg.setIndex([0,1,2,0,2,3]); sl.setAttribute('position',sa);
+const sheet=new THREE.Mesh(sg,new THREE.MeshBasicMaterial({color:0x35e0c2,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+const sheetL=new THREE.LineLoop(sl,new THREE.LineBasicMaterial({color:0x7ff5df,transparent:true}));
+sheet.frustumCulled=sheetL.frustumCulled=false;
+const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glow,color:GOLD,transparent:true,depthWrite:false})); halo.scale.set(.34,.34,1);
+scene.add(needle,tip,halo,sheet,sheetL);
+
+function setNeedle(x,y,h){needle.scale.set(1,Math.max(h,1e-4),1); needle.position.copy(P(x,y,h/2)); tip.position.copy(P(x,y,h)); halo.position.copy(tip.position)}
+function setSheet(x,y){
+  [P(x,0,0),P(x,y,0),P(x,y,1-x-y),P(x,0,1-x)].forEach((v,i)=>sa.setXYZ(i,v.x,v.y,v.z)); sa.needsUpdate=true;
+}
+
+/* per-step targets: plane, faces, dim cloud, hot cloud, needle, sheet */
+const T=[
+ {p:.36,f:0,d:0,h:0,n:0,s:0},
+ {p:.12,f:.1,d:1,h:0,n:0,s:0},
+ {p:.1,f:.08,d:.45,h:0,n:1,s:1},
+ {p:.08,f:.07,d:.35,h:0,n:1,s:0},
+ {p:.08,f:.07,d:.35,h:0,n:1,s:1},
+ {p:.08,f:.07,d:.22,h:1,n:0,s:1},
+ {p:.26,f:.1,d:1,h:0,n:0,s:0},
+ {p:.2,f:.22,d:0,h:0,n:0,s:1},
+ {p:.26,f:.1,d:1,h:0,n:0,s:0}
+];
+const cur={p:0,f:0,d:0,h:0,n:0,s:0};
+
+function frame(ms){
+  requestAnimationFrame(frame);
+  const t=ms/1000, k=(t%4.5)/4.5, e=Math.min(k/.8,1), s=e*e*(3-2*e), g=T[step];
+  for(const q in cur) cur[q]+=(g[q]-cur[q])*.09;
+  plane.material.opacity=cur.p+(step==6?.07*Math.sin(t*2.5):0);
+  faces.material.opacity=cur.f;
+  dim.material.opacity=cur.d; dim.visible=cur.d>.01;
+  hot.material.opacity=cur.h; hot.visible=cur.h>.01;
+  needle.visible=tip.visible=halo.visible=cur.n>.01; needle.material.opacity=tip.material.opacity=cur.n; halo.material.opacity=.85*cur.n;
+  sheet.visible=sheetL.visible=cur.s>.01; sheet.material.opacity=.3*cur.s; sheetL.material.opacity=cur.s;
+  let x=.25,y=.2,h=1-x-y;
+  if(step==3) h*=s;
+  if(step==4){x=.3; y=s*(1-x); h=1-x-y}
+  if(step==5){x=s; y=1-x; let n=0; while(n<pts.length&&pts[n][0]<x) n++; hot.geometry.setDrawRange(0,n)}
+  if(step==7){x=s; y=1-x}
+  setNeedle(x,y,h); setSheet(x,y);
+  const v=V[step], kk=.07;
+  rad+=(v[2]*zoom-rad)*kk; tgt.lerp(goal.set(v[3][0],v[3][1],v[3][2]),kk);
+  if(!free){th+=wrap(v[0]-th)*kk; ph+=(v[1]-ph)*kk}
+  cam.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));
+  cam.lookAt(tgt); renderer.render(scene,cam);
+}
+
+/* ---------- interaction ---------- */
+const cv=renderer.domElement; cv.style.touchAction='none';
+const ptr=new Map(); let pd=0;
+cv.onpointerdown=e=>{ptr.set(e.pointerId,[e.clientX,e.clientY]); cv.setPointerCapture(e.pointerId); $('#hint').style.opacity=0; pd=0};
+cv.onpointermove=e=>{
+  const o=ptr.get(e.pointerId); if(!o)return;
+  ptr.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptr.size==2){const [a,b]=[...ptr.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(pd)zoomBy(pd/d); pd=d; return}
+  free=true; th-=(e.clientX-o[0])*.008; ph=Math.min(2.6,Math.max(.3,ph-(e.clientY-o[1])*.008));
+};
+cv.onpointerup=cv.onpointercancel=e=>{ptr.delete(e.pointerId); pd=0};
+cv.onwheel=e=>{e.preventDefault(); zoomBy(Math.exp(e.deltaY*.0015))};
+cv.ondblclick=()=>{free=false; zoom=1};
+new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight; if(!w||!h)return; renderer.setSize(w,h); cam.aspect=w/h; cam.fov=w/h<1?45:28; cam.updateProjectionMatrix()}).observe(stage);
+
+const dots=steps.map((_,i)=>{const b=document.createElement('button'); b.className='dot'; b.setAttribute('aria-label','Go to step '+(i+1)); b.onclick=()=>go(i); $('#dots').appendChild(b); return b});
+function go(n){
+  step=Math.max(0,Math.min(last,n)); free=false; zoom=1;
+  steps.forEach((el,i)=>el.classList.toggle('on',i==step));
+  dots.forEach((d,i)=>d.classList.toggle('on',i==step));
+  $('#prev').disabled=step==0; $('#next').textContent=step==last?'Start over':'Next';
+  $('#ctr').innerHTML='<b>'+(step+1)+'</b> / '+steps.length; $('#panel').scrollTop=0;
+}
+$('#prev').onclick=()=>go(step-1);
+$('#next').onclick=()=>go(step==last?0:step+1);
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')$('#next').click(); if(e.key=='ArrowLeft')$('#prev').click()});
+/* Back goes to "/" of the top-level site, even when this page is shown inside a frame */
+$('.back').onclick=e=>{
+  e.preventDefault();
+  const ao=location.ancestorOrigins, url=((ao&&ao.length)?ao[ao.length-1]:location.origin)+'/';
+  try{top.location.href=url}catch(_){}
+  setTimeout(()=>{location.href=url},200);
+};
+go(0); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

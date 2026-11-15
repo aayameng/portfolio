@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Volume and surface area of the n-ball</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="text/plain" id="dtdata">
+=0
+# What is an n-ball?
+All points whose distance from the origin is at most r. In coordinates:
+$ B_n=\{x\in\mathbb R^n:\ x_1^2+\cdots+x_n^2\le r^2\}
+For n = 1, 2, 3 this is a segment, a disk and a solid ball.
+# What we want
+The size V_n(r) of B_n (length, area, volume, …). Three values are already known:
+$ V_1=2r,\qquad V_2=\pi r^2,\qquad V_3=\tfrac43\pi r^3
+Next: why these are true, then the formula for every n.
+=1
+# Cut the disk into thin rings
+@ .1,1
+Choose radii 0 = s₀ < s₁ < … < s_N = r. Each ring has width ds and sits at distance s from the centre.
+$ \text{disk}=\bigcup_k \text{ring}_k,\qquad \text{width}=ds
+# Unroll one ring
+@ .5,1
+A ring of radius s is almost a straight strip: length = circumference 2πs, width = ds.
+$ dA=\underbrace{2\pi s}_{\text{length}}\cdot\underbrace{ds}_{\text{width}}
+# Stack the strips
+@ 1,1
+Strip length grows linearly with s, so stacking by radius gives a triangle with base 2πr and height r.
+$ A=\tfrac12\cdot\text{base}\cdot\text{height}=\tfrac12\,(2\pi r)\,r=\pi r^2
+# The same thing as an integral
+@ 1,1
+Adding all strips is integration. Read backwards, the circumference is the growth rate of the area.
+$ A(r)=\int_0^r 2\pi s\,ds=\Big[\pi s^2\Big]_0^r=\pi r^2
+$ C=\frac{dA}{dr}=2\pi r
+=2
+# Slice the ball at height z
+@ .5
+A horizontal plane at height z cuts a disk. Pythagoras gives its radius:
+$ \rho^2+z^2=r^2\ \Rightarrow\ \rho=\sqrt{r^2-z^2}
+# Area of each slice
+@ .25
+By the 2D result, a disk of radius ρ has area πρ².
+$ A(z)=\pi\rho^2=\pi(r^2-z^2)
+# Add up the slices
+@ 1
+$ V=\int_{-r}^{r}\pi(r^2-z^2)\,dz=\pi\Big[r^2z-\tfrac{z^3}{3}\Big]_{-r}^{r}=\pi\Big(2r^3-\tfrac{2r^3}{3}\Big)=\tfrac43\pi r^3
+# Surface from the volume
+A skin of thickness dr has volume S·dr, so the surface is the derivative of the volume. Thin cones from the centre (⅓ · base · height) agree:
+$ S=\frac{dV}{dr}=4\pi r^2,\qquad V=\tfrac13\,S\,r=\tfrac13(4\pi r^2)\,r=\tfrac43\pi r^3
+=3
+# One stretch factor per axis
+@ 0,0
+Replace each coordinate by x_i = r·y_i. Then Σx_i² ≤ r² becomes Σy_i² ≤ 1, so y runs over the unit ball.
+$ x_i=r\,y_i\ \Rightarrow\ dx_i=r\,dy_i
+# 1D, 2D, 3D: try each
+@ 1,0
+A length is multiplied by r, an area by r·r, a volume by r·r·r. Switch 1D / 2D / 3D with the buttons on the figure.
+# Count the factors
+@ 1,2
+$ V_n(r)=\int_{|x|\le r}dx_1\cdots dx_n=r^n\!\int_{|y|\le1}dy_1\cdots dy_n=\alpha_n\,r^n
+$ \alpha_1=2,\quad\alpha_2=\pi,\quad\alpha_3=\tfrac{4\pi}{3}
+Only α_n depends on n. Finding it is the goal.
+=4
+# Shell = difference of two balls
+@ .45,1
+The shell between r and r+dr is the big ball minus the small one:
+$ dV=V_n(r+dr)-V_n(r)=\alpha\big[(r+dr)^n-r^n\big]
+# Expand, keep the first-order term
+@ .45,1
+$ (r+dr)^n=r^n+n\,r^{n-1}dr+O(dr^2)\ \Rightarrow\ dV=\alpha\,n\,r^{n-1}\,dr
+# See it in 1D, 2D, 3D
+Switch dimension with the buttons on the figure and drag the slider.
+@ .6,2
+$ n=1:\ 2\,dr,\qquad n=2:\ 2\pi r\,dr,\qquad n=3:\ 4\pi r^2\,dr
+# Meaning
+@ .6,2
+Surface area × thickness, so the surface area is the derivative:
+$ S_{n-1}(r)=\frac{dV}{dr}=\alpha\,n\,r^{n-1}
+=5
+# What is still unknown
+$ V_n(r)=\alpha_n r^n,\qquad \alpha_n=V_n(1)=\,?
+# Two independent routes
+Route A uses analysis: one integral over all of ℝⁿ evaluated two ways. Route B uses geometry: square the coordinates so the ball becomes a simplex. Both end at the same α_n.
+=6
+# Factor the integrand
+@ .5,0
+Since e^(a+b) = eᵃ·eᵇ, the integrand is a product of one-variable functions, so the n-fold integral is a product of n equal integrals:
+$ I=\int_{\mathbb R^n}e^{-(x_1^2+\cdots+x_n^2)}dx=\prod_{i=1}^n\int_{-\infty}^{\infty}e^{-x_i^2}dx_i=J^n
+# Square J in 2D
+$ J^2=\iint_{\mathbb R^2}e^{-(x^2+y^2)}\,dx\,dy
+# Use rings
+@ .5,0
+The integrand depends only on r, so it is constant on each ring of area 2πr dr:
+$ J^2=\int_0^\infty e^{-r^2}\,2\pi r\,dr=\pi\Big[-e^{-r^2}\Big]_0^\infty=\pi
+# Result
+$ J=\sqrt\pi\ \Rightarrow\ I=\pi^{n/2}
+=7
+# Same integral, shells in n dimensions
+@ .6,0
+Value on a shell is e^(−r²); shell volume is α n r^(n−1) dr. Sweep the radius:
+$ I=\int_0^\infty e^{-r^2}\,\alpha n r^{n-1}dr
+# Substitute t = r²
+@ 1,0
+$ r=\sqrt t,\quad dr=\frac{dt}{2\sqrt t},\quad r^{n-1}=t^{\frac{n-1}{2}}
+$ \int_0^\infty r^{n-1}e^{-r^2}dr=\tfrac12\int_0^\infty t^{\frac n2-1}e^{-t}dt=\tfrac12\,\Gamma\!\left(\tfrac n2\right)
+# Gamma function
+@ 1,0
+$ \Gamma(s):=\int_0^\infty t^{s-1}e^{-t}dt\ \Rightarrow\ I=\frac{\alpha n}{2}\,\Gamma\!\left(\tfrac n2\right)
+=8
+# Equate the two values of I
+$ \pi^{n/2}=\frac{\alpha n}{2}\Gamma\!\left(\tfrac n2\right)\ \Rightarrow\ \alpha=\frac{2\pi^{n/2}}{n\,\Gamma(n/2)}
+# Integration by parts
+$ \Gamma(s+1)=\int_0^\infty t^se^{-t}dt=\big[-t^se^{-t}\big]_0^\infty+s\int_0^\infty t^{s-1}e^{-t}dt=s\,\Gamma(s)
+# Simplify
+With s = n/2: nΓ(n/2) = 2Γ(n/2+1), so
+$ \alpha_n=\frac{\pi^{n/2}}{\Gamma\!\left(\tfrac n2+1\right)}
+# Check
+Γ(½) = √π, Γ(1) = 1, Γ(3/2) = √π/2:
+$ \alpha_1=2,\quad\alpha_2=\pi,\quad\alpha_3=\frac{\pi^{3/2}}{3\sqrt\pi/4}=\tfrac{4\pi}{3}
+=9
+# Symmetry
+Flipping the sign of any x_i maps the ball onto itself, so it splits into 2ⁿ equal pieces, one per orthant. Keep the piece with every x_i ≥ 0.
+$ V_n=2^n\int_{R}dx_1\cdots dx_n,\qquad R:\ x_i\ge0,\ \sum x_i^2\le1
+=10
+# Substitute u_i = x_i²
+@ ,,0
+Every point (x, y, z) slides to (x², y², z²): the curved patch flattens onto a plane.
+$ x_i=\sqrt{u_i},\qquad dx_i=\frac{du_i}{2\sqrt{u_i}}
+# The region becomes a simplex
+@ ,,1
+$ \sum x_i^2\le1\iff u_1+\cdots+u_n\le1,\quad u_i\ge0
+A triangle for n = 2, a tetrahedron for n = 3.
+=11
+# Collect the factors
+Each dx_i brings a factor ½ and u_i^(−1/2); the ½'s cancel the 2ⁿ.
+$ V_n=2^n\!\int_{\sum u_i\le1}\prod_{i=1}^n\frac{du_i}{2\sqrt{u_i}}=\int_{\sum u_i\le1}u_1^{-\frac12}\cdots u_n^{-\frac12}\,du
+# The density
+Dots crowd toward the faces u_i = 0 where 1/√u_i is large; the total stays finite.
+=12
+# Dirichlet integral
+Over the simplex with exponents a_i (integrand u^(a−1)):
+$ D=\int_{\sum u_i\le1}\prod u_i^{a_i-1}du=\frac{\Gamma(a_1)\cdots\Gamma(a_n)}{\Gamma(a_1+\cdots+a_n+1)}
+# Why it holds
+Let G(s) be the integral over Σu ≤ s. Scaling u = sv gives G(s) = D·s^A with A = Σa_i. Integrate e^(−Σu)·∏u^(a−1) over the whole orthant two ways:
+$ \prod_i\Gamma(a_i)=\int_0^\infty e^{-s}G'(s)\,ds=D\,A\,\Gamma(A)=D\,\Gamma(A+1)
+# Apply with every a_i = ½
+$ V_n=\frac{\Gamma(\tfrac12)^n}{\Gamma\!\left(\tfrac n2+1\right)}
+=13
+# Find Γ(½) from a disk
+Only Γ(½) is unknown. Use n = 2, where the answer is known: the unit disk has area π.
+$ \pi=V_2=\frac{\Gamma(\frac12)^2}{\Gamma(2)}=\Gamma(\tfrac12)^2\ \Rightarrow\ \Gamma(\tfrac12)=\sqrt\pi
+$ V_n=\frac{\pi^{n/2}}{\Gamma\!\left(\frac n2+1\right)}
+Both routes agree.
+=14
+# Cones from the centre
+Cut the ball into thin cones: tips at the centre, bases tiny patches of the sphere. A cone of base b and height r has volume (1/n)·b·r.
+$ V_n=\frac rn\,S_{n-1}
+# Shells agree
+$ S_{n-1}=\frac{dV_n}{dr}=n\alpha_nr^{n-1}\ \Rightarrow\ S_{n-1}(r)=\frac{2\pi^{n/2}}{\Gamma(n/2)}\,r^{n-1}
+# A hidden pattern
+$ \frac{V_n}{V_{n-2}}=\pi\frac{\Gamma(\frac n2)}{\Gamma(\frac n2+1)}=\frac{2\pi}{n}
+$ V_n=\frac{2\pi}{n}V_{n-2},\qquad S_{n-1}(1)=2\pi\,V_{n-2}(1)
+=15
+# The formula
+$ V_n=\frac{\pi^{n/2}}{\Gamma\!\left(\tfrac n2+1\right)}
+# First values
+$ V_1=2,\ V_2=\pi,\ V_3=\tfrac{4\pi}{3},\ V_4=\tfrac{\pi^2}{2},\ V_5=\tfrac{8\pi^2}{15},\ V_6=\tfrac{\pi^3}{6}
+The volume peaks at n = 5, then shrinks: Γ(n/2+1) outgrows π^(n/2).
+# Third route: slicing
+Cut at x_n = t: the slice is an (n−1)-ball of radius √(1−t²).
+$ V_n=V_{n-1}\int_{-1}^{1}(1-t^2)^{\frac{n-1}{2}}dt
+$ n=3:\ \pi\int_{-1}^1(1-t^2)dt=\tfrac{4\pi}{3}
+=16
+# Volume and surface
+$ V_n(r)=V_nr^n,\qquad S_{n-1}=nV_n
+Volume peaks at n = 5 (≈ 5.26); surface peaks at n = 7 (≈ 33.07).
+# Skin of the ball
+$ \frac{V_n(1)-V_n(1-\varepsilon)}{V_n(1)}=1-(1-\varepsilon)^n
+In high dimensions almost all the volume sits in a thin skin.
+# Ball versus cube
+$ \frac{V_n}{2^n}=\frac{\pi^{n/2}}{2^n\,\Gamma(\frac n2+1)}
+52% at n = 3, 0.25% at n = 10: the cube is almost all corners.
+=17
+# Why S is the derivative of V
+Grow the ball from r to r + dr. The new layer is a thin shell. Unrolled it is almost flat: base = the surface area S, height = dr. So its volume is S·dr.
+$ V(r+dr)-V(r)\approx S(r)\,dr\ \Rightarrow\ S(r)=\lim_{dr\to0}\frac{V(r+dr)-V(r)}{dr}=\frac{dV}{dr}
+# Why V is the integral of S
+Build the ball from nested shells: the shell at radius s has volume S(s)·ds. Add them from the centre out to r and the sum becomes an integral.
+$ V(r)=\sum S(s)\,ds\ \longrightarrow\ \int_0^rS(s)\,ds
+Both statements are the fundamental theorem of calculus: differentiating and integrating undo each other.
+# Check n = 1, 2, 3
+$ n=1:\ \tfrac{d}{dr}(2r)=2,\qquad \int_0^r2\,ds=2r
+$ n=2:\ \tfrac{d}{dr}(\pi r^2)=2\pi r,\qquad \int_0^r2\pi s\,ds=\pi r^2
+$ n=3:\ \tfrac{d}{dr}\big(\tfrac43\pi r^3\big)=4\pi r^2,\qquad \int_0^r4\pi s^2ds=\tfrac43\pi r^3
+Differentiating lowers the exponent and multiplies by it; integrating raises the exponent and divides by it.
+# The odd one out: n = 0
+A 0-ball is a single point. Its "volume" is a count, 1 at every radius, so its derivative (the "surface") is 0: a point has an empty boundary. Integrating 0 gives only a constant, and here that constant is 1. For n ≥ 1 we have V(0) = 0, so no constant is needed.
+$ V_0=1,\qquad S_{-1}=\frac{dV_0}{dr}=0
+For n = 1 the "surface" is 2: the two endpoints of the segment, counted.
+# Extend the table to every n
+Scaling gave V_n(r) = α_n rⁿ, so one calculation covers every n:
+$ \frac{d}{dr}\big(\alpha_nr^n\big)=n\alpha_nr^{n-1},\qquad \int_0^r n\alpha_ns^{n-1}ds=\alpha_nr^n
+$ \alpha_n=\frac{\pi^{n/2}}{\Gamma\!\left(\frac n2+1\right)}\ \Rightarrow\ S_{n-1}(r)=\frac{2\pi^{n/2}}{\Gamma\!\left(\frac n2\right)}\,r^{n-1}
+At n = 0: α₀ = π⁰/Γ(1) = 1 and 1/Γ(0) = 0, so the formula also gives the point (V = 1, S = 0).
+# The table at r = 1
+Volume peaks at n = 5, surface at n = 7; S = n·V in every row.
+<div class="tw"><table class="tb"><thead><tr><th>n</th><th>V<sub>n</sub>(1)</th><th>S<sub>n−1</sub>(1) = n·V<sub>n</sub></th></tr></thead><tbody><tr><td>0</td><td>1.0000</td><td>0.0000</td></tr><tr><td>1</td><td>2.0000</td><td>2.0000</td></tr><tr><td>2</td><td>3.1416</td><td>6.2832</td></tr><tr><td>3</td><td>4.1888</td><td>12.5664</td></tr><tr><td>4</td><td>4.9348</td><td>19.7392</td></tr><tr><td>5</td><td>5.2638</td><td>26.3189</td></tr><tr><td>6</td><td>5.1677</td><td>31.0063</td></tr><tr><td>7</td><td>4.7248</td><td>33.0734</td></tr><tr><td>8</td><td>4.0587</td><td>32.4697</td></tr></tbody></table></div>
+</script>
+<script>window.MathJax={svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#0a1020;--bg2:#101a33;--panel:rgba(15,24,46,.78);--ink:#e9eef9;--muted:#9aa8c7;--gold:#ffc400;--gold2:#ffe27a;--line:rgba(255,196,0,.28);--tint:rgba(255,196,0,.07);--onGold:#1a1400;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f2e7;--bg2:#ebe4d0;--panel:rgba(255,255,255,.72);--ink:#14213d;--muted:#55627f;--gold:#b07d00;--gold2:#8a6100;--line:rgba(176,125,0,.38);--tint:rgba(176,125,0,.08);--onGold:#fff;color-scheme:light}}
+:root[data-theme="light"]{--bg:#f6f2e7;--bg2:#ebe4d0;--panel:rgba(255,255,255,.72);--ink:#14213d;--muted:#55627f;--gold:#b07d00;--gold2:#8a6100;--line:rgba(176,125,0,.38);--tint:rgba(176,125,0,.08);--onGold:#fff;color-scheme:light}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;overflow:hidden;color:var(--ink);font:400 16px/1.6 Inter,system-ui,sans-serif;
+background:radial-gradient(900px 520px at 12% -10%,var(--bg2),transparent 70%),radial-gradient(700px 420px at 100% 110%,var(--tint),transparent 70%),radial-gradient(circle,color-mix(in srgb,var(--muted) 24%,transparent) 1px,transparent 1.3px) 0 0/30px 30px,var(--bg)}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.9rem 1.25rem .6rem}
+h1{margin:0;font:600 1.5rem/1.1 Fraunces,Georgia,serif;letter-spacing:-.01em;background:linear-gradient(100deg,var(--gold2),var(--gold) 55%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header small{display:block;margin-top:.25rem;font-size:.82rem;color:var(--muted)}
+#ctr{font:500 .95rem Fraunces,Georgia,serif;color:var(--muted);white-space:nowrap}
+#ctr b{color:var(--gold);font-weight:600}
+.hr{display:flex;align-items:center;gap:.9rem}
+.back{padding:.45rem 1rem;border:1px solid var(--line);border-radius:999px;color:var(--gold);font:600 .85rem Inter,sans-serif;text-decoration:none;white-space:nowrap;transition:background .2s,box-shadow .2s}
+.back:hover{background:var(--tint);box-shadow:0 0 14px var(--tint)}
+.back:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;padding:0 1rem 1rem}
+#stage,#panel{border:1px solid var(--line);border-radius:20px;min-height:0}
+#stage{position:relative;overflow:hidden;background:radial-gradient(70% 60% at 50% 42%,var(--tint),transparent 75%),linear-gradient(180deg,color-mix(in srgb,var(--bg2) 75%,transparent),color-mix(in srgb,var(--bg) 35%,transparent));box-shadow:inset 0 0 60px var(--tint),0 12px 40px rgba(0,0,0,.25)}
+#stage canvas{display:block;width:100%;height:100%}
+#geo{position:absolute;inset:0;pointer-events:none}.watch{color:var(--gold);font-size:.85rem;font-style:italic}
+#capx{position:absolute;z-index:2;left:.8rem;right:.8rem;top:.6rem;font:500 .9rem/1.4 Inter,sans-serif;color:var(--ink);pointer-events:none}#ctl{position:absolute;z-index:2;left:.8rem;right:.8rem;bottom:.6rem;display:flex;gap:.6rem;align-items:center}#ctl input{flex:1;accent-color:var(--gold)}#dimb{display:none;gap:.3rem}#dimb button{padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--gold);font:600 .8rem Inter,sans-serif;cursor:pointer}#dimb button.on{background:var(--gold);color:var(--onGold)}
+#hint{position:absolute;left:.9rem;bottom:.7rem;font-size:.75rem;color:var(--muted);pointer-events:none}
+#panel{overflow:auto;padding:1.3rem 1.5rem;background:var(--panel);backdrop-filter:blur(10px)}
+.step{display:none;max-width:60ch}
+.step.on{display:block;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tag{display:inline-block;margin:0;padding:.2rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--tint);font-size:.78rem;font-weight:600;color:var(--gold)}
+h2{margin:.2rem 0 .7rem;font:600 1.6rem/1.2 Fraunces,Georgia,serif;letter-spacing:-.01em}
+p{margin:.55rem 0;color:var(--muted)}
+p b{color:var(--ink);font-weight:600}
+.math{margin:.8rem 0;padding:.5rem .9rem;border-left:3px solid var(--gold);background:var(--tint);border-radius:0 12px 12px 0;overflow-x:auto;overflow-y:hidden}
+.math.key{border:1px solid var(--gold);border-radius:12px;box-shadow:0 0 22px var(--tint)}
+mjx-container{color:var(--ink);margin:.25em 0!important}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%}
+nav{display:flex;align-items:center;gap:.8rem;padding:.75rem 1rem;border-top:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px)}
+.btn{min-width:7.5rem;padding:.8rem 1.4rem;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--gold);font:600 .95rem Inter,sans-serif;cursor:pointer;transition:background .2s,box-shadow .2s,opacity .2s}
+.btn:hover:not(:disabled){background:var(--tint);box-shadow:0 0 14px var(--tint)}
+.btn.go{background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:var(--gold);color:var(--onGold);box-shadow:0 4px 22px color-mix(in srgb,var(--gold) 40%,transparent)}
+.btn.go:hover:not(:disabled){background:linear-gradient(180deg,var(--gold2),var(--gold));filter:brightness(1.1)}
+.btn:disabled{opacity:.3;cursor:default}
+.btn:focus-visible,.dot:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+#dots{flex:1;display:flex;justify-content:center;gap:.5rem}
+.dot{width:9px;height:9px;padding:0;border:0;border-radius:5px;background:var(--line);cursor:pointer;transition:width .3s,background .3s}
+.dot.on{width:28px;background:var(--gold)}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:.6rem 0}.tabs button{padding:.4rem .8rem;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--gold);font:600 .8rem Inter,sans-serif;cursor:pointer}.tabs button.on{background:var(--gold);color:var(--onGold)}#chart{width:100%;height:230px;display:block}#epsw{display:none;font-size:.85rem;color:var(--muted)}#epsw input{width:100%;accent-color:var(--gold)}
+.pick{display:grid;gap:.6rem;margin-top:.8rem}.pick button{text-align:left;padding:.8rem 1rem;border:1px solid var(--line);border-radius:14px;background:var(--tint);color:var(--ink);font:500 .9rem Inter,sans-serif;cursor:pointer}.pick button b{display:block;color:var(--gold)}.pick button span{color:var(--muted);font-size:.82rem}.pick button.on{border-color:var(--gold);box-shadow:0 0 14px var(--tint)}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:minmax(260px,46%) 1fr}#panel{padding:1rem 1.1rem}h2{font-size:1.35rem}}
+@media (max-width:480px){.dot{width:7px;height:7px}.btn{min-width:5.2rem;padding:.8rem .9rem}#dots{gap:.35rem}.dot.on{width:20px}h1{font-size:1.2rem}header small{display:none}}
+@media (prefers-reduced-motion:reduce){.step.on{animation:none}}
+</style>
+<style>
+.tw{overflow-x:auto;margin:.8rem 0}
+.tb{width:100%;border-collapse:collapse;font-size:.9rem}
+.tb th{padding:.45rem .5rem;text-align:left;color:var(--gold);font:600 .78rem Inter,sans-serif;border-bottom:1px solid var(--gold)}
+.tb td{padding:.35rem .5rem;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:middle}
+.tb td:first-child{font:600 1rem Fraunces,Georgia,serif;color:var(--gold);white-space:nowrap}
+.tb td small{display:block;font:400 .68rem Inter,sans-serif;color:var(--muted)}
+.tb tr.ext td{background:var(--tint)}
+.tb tr.gen td{border-top:2px solid var(--gold);border-bottom:0;background:var(--tint)}
+.tb mjx-container{margin:0!important}
+#gw{position:absolute;inset:0;z-index:3;display:none;flex-direction:column;gap:.4rem;padding:.6rem .7rem;background:var(--bg);overflow:hidden}
+#gw .tabs{margin:0;flex-wrap:nowrap;overflow-x:auto;flex:none}#gw .tabs button{white-space:nowrap}
+#gw .tw{margin:0;flex:none}
+#gbox{position:relative;flex:1;min-height:90px}
+#gbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#gfoot{flex:none;font-size:.8rem;line-height:1.35;max-height:36%;overflow:auto}#gfoot p{margin:.2rem 0}
+#gw[data-m=r] #chart,#gw[data-m=r] #epsw,#gw[data-m=r] #cap{display:none!important}
+#gw[data-m=c] #gc2,#gw[data-m=c] .tw,#gw[data-m=c] #gcap{display:none!important}
+#nt th{cursor:pointer;text-align:center;padding:.3rem .35rem}#nt td{text-align:center;padding:.25rem .35rem;font:500 .72rem Inter,sans-serif;cursor:pointer}
+#nt td:first-child{text-align:left;font:600 .72rem Inter,sans-serif;color:var(--muted);cursor:default}
+#nt .sel{background:var(--gold)!important;color:var(--onGold)!important}
+</style>
+<style>
+#gctl{margin:.4rem 0}#gctl .tabs{margin:.4rem 0;flex-wrap:nowrap;overflow-x:auto}#gctl .tabs button{white-space:nowrap}#gctl .tw{margin:.4rem 0}#gctl #epsw{display:none}
+body:has(#gw[data-m=c]) #gctl .tw{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Volume &amp; surface of the n-ball</h1><small>Derived from scratch, with graphs</small></div>
+  <div class="hr"><div id="ctr"></div><a class="back" href="/">← Back</a></div>
+</header>
+
+<main>
+  <section id="stage" aria-label="3D view"><div id="capx"></div><div id="ctl"><div id="dimb"><button>1D</button><button>2D</button><button>3D</button></div><input id="sl" type="range" min="0" max="1000" value="0" aria-label="Animation progress"></div><div id="hint">Drag to rotate · pinch or scroll to zoom · double-click to reset</div></section>
+  <section id="panel">
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Start</p>
+      <h2>From circles to n dimensions</h2>
+      <p class="watch">Goal: volume and surface of the n-ball.</p>
+      <div class="math">$$B_n=\{x\in\mathbb R^n:\ x_1^2+\cdots+x_n^2\le r^2\}$$</div>
+      <div class="math">$$A=\pi r^2,\quad V=\tfrac43\pi r^3\ \Rightarrow\ V_n=\,?$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · 2D</p>
+      <h2>2D: area from rings</h2>
+      <p class="watch">Rings → strips → triangle.</p>
+      <div class="math">$$dA=2\pi s\,ds$$</div>
+      <div class="math">$$A=\int_0^r2\pi s\,ds=\pi r^2$$</div>
+      <div class="math">$$A=\tfrac12\,C\,r=\tfrac12(2\pi r)\,r$$</div>
+      <div class="math key">$$C=\frac{dA}{dr}=2\pi r$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · 3D</p>
+      <h2>3D: volume from slices</h2>
+      <p class="watch">Stack disks of area A(z).</p>
+      <div class="math">$$A(z)=\pi(r^2-z^2)$$</div>
+      <div class="math">$$V=\int_{-r}^{r}\pi(r^2-z^2)\,dz=\tfrac43\pi r^3$$</div>
+      <div class="math key">$$S=\frac{dV}{dr}=4\pi r^2,\qquad V=\tfrac13\,S\,r$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Scaling</p>
+      <h2>Scaling: V = α rⁿ</h2>
+      <p class="watch">Stretch every axis by r.</p>
+      <div class="math">$$x_i=r\,y_i\ \Rightarrow\ dx_i=r\,dy_i$$</div>
+      <div class="math">$$V_n(r)=r^n\!\int_{|y|\le1}\!dy=\alpha\,r^n$$</div>
+      <div class="math key">$$\alpha_1=2,\quad\alpha_2=\pi,\quad\alpha_3=\tfrac{4\pi}{3}$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Shells</p>
+      <h2>Shell: dV = α n rⁿ⁻¹ dr</h2>
+      <p class="watch">Shell ≈ surface × thickness.</p>
+      <div class="math">$$dV=\alpha\big[(r+dr)^n-r^n\big]=\alpha\,n\,r^{n-1}dr$$</div>
+      <div class="math key">$$n=1:\ 2\,dr\quad n=2:\ 2\pi r\,dr\quad n=3:\ 4\pi r^2dr$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Choose a route</p>
+      <h2>Find α for every n</h2>
+      <p class="watch">Two routes, one answer.</p>
+      <div class="pick"><button data-pick="1"><b>Route A · Gaussian</b><span>One integral, two ways.</span></button><button data-pick="2"><b>Route B · Simplex</b><span>Square coordinates.</span></button></div>
+    </article>
+
+    <article class="step" data-m="1">
+      <p class="tag">Step 0 of 0 · Route A · 1</p>
+      <h2>A1 · Gaussian by factoring</h2>
+      <div class="math">$$I=\int_{\mathbb R^n}e^{-|x|^2}dx=J^n,\quad J=\int_{-\infty}^{\infty}e^{-x^2}dx$$</div>
+      <div class="math">$$J^2=\iint e^{-(x^2+y^2)}=2\pi\!\int_0^\infty\!re^{-r^2}dr=\pi$$</div>
+      <div class="math key">$$I=\pi^{n/2}$$</div>
+    </article>
+
+    <article class="step" data-m="1">
+      <p class="tag">Step 0 of 0 · Route A · 2</p>
+      <h2>A2 · Same integral by shells</h2>
+      <p class="watch">Constant on each ring: value × shell.</p>
+      <div class="math">$$I=\int_0^\infty e^{-r^2}\,\alpha n r^{n-1}dr$$</div>
+      <div class="math">$$t=r^2:\quad\int_0^\infty r^{n-1}e^{-r^2}dr=\tfrac12\,\Gamma\!\left(\tfrac n2\right)$$</div>
+      <div class="math key">$$I=\frac{\alpha n}{2}\,\Gamma\!\left(\tfrac n2\right)$$</div>
+    </article>
+
+    <article class="step" data-m="1">
+      <p class="tag">Step 0 of 0 · Route A · 3</p>
+      <h2>A3 · Solve for α</h2>
+      <div class="math">$$\pi^{n/2}=\frac{\alpha n}{2}\Gamma\!\left(\tfrac n2\right)\ \Rightarrow\ \alpha=\frac{2\pi^{n/2}}{n\,\Gamma(n/2)}$$</div>
+      <div class="math">$$\Gamma(s+1)=s\,\Gamma(s)\ \Rightarrow\ n\Gamma(\tfrac n2)=2\Gamma(\tfrac n2+1)$$</div>
+      <div class="math key">$$V_n=\frac{\pi^{n/2}r^n}{\Gamma\!\left(\tfrac n2+1\right)}$$</div>
+    </article>
+
+    <article class="step" data-m="2">
+      <p class="tag">Step 0 of 0 · Route B · 1</p>
+      <h2>B1 · One orthant</h2>
+      <div class="math">$$V_n=2^n\!\int_{x_i\ge0,\ |x|\le1}dx_1\cdots dx_n$$</div>
+    </article>
+
+    <article class="step" data-m="2">
+      <p class="tag">Step 0 of 0 · Route B · 2</p>
+      <h2>B2 · Square every coordinate</h2>
+      <div class="math">$$u_i=x_i^2,\qquad dx_i=\frac{du_i}{2\sqrt{u_i}}$$</div>
+      <div class="math">$$|x|^2\le1\iff u_1+\cdots+u_n\le1$$</div>
+    </article>
+
+    <article class="step" data-m="2">
+      <p class="tag">Step 0 of 0 · Route B · 3</p>
+      <h2>B3 · A density appears</h2>
+      <div class="math">$$V_n=2^n\!\int_{\sum u_i\le1}\prod_i\frac{du_i}{2\sqrt{u_i}}$$</div>
+      <div class="math key">$$V_n=\int_{\sum u_i\le1}u_1^{-\frac12}\cdots u_n^{-\frac12}\,du$$</div>
+    </article>
+
+    <article class="step" data-m="2">
+      <p class="tag">Step 0 of 0 · Route B · 4</p>
+      <h2>B4 · Dirichlet integral</h2>
+      <div class="math">$$\int_{\sum u_i\le1}\prod u_i^{a_i-1}du=\frac{\prod\Gamma(a_i)}{\Gamma(\sum a_i+1)}$$</div>
+      <div class="math">$$a_i=\tfrac12:\quad V_n=\frac{\Gamma(\frac12)^n}{\Gamma(\frac n2+1)}$$</div>
+    </article>
+
+    <article class="step" data-m="2">
+      <p class="tag">Step 0 of 0 · Route B · 5</p>
+      <h2>B5 · Find Γ(½)</h2>
+      <div class="math">$$\pi=V_2=\frac{\Gamma(\frac12)^2}{\Gamma(2)}=\Gamma(\tfrac12)^2$$</div>
+      <div class="math key">$$\Gamma(\tfrac12)=\sqrt\pi$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Surface area</p>
+      <h2>Surface area</h2>
+      <p class="watch">Cones from the centre.</p>
+      <div class="math">$$S_{n-1}=\frac{dV_n}{dr}=n\alpha_n r^{n-1},\qquad V_n=\frac rn\,S_{n-1}$$</div>
+      <div class="math key">$$S_{n-1}(r)=\frac{2\pi^{n/2}}{\Gamma(n/2)}\,r^{n-1}$$</div>
+      <div class="math">$$V_n=\frac{2\pi}{n}V_{n-2}$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Result</p>
+      <h2>The volume of the n-ball</h2>
+      <p class="watch">Peaks at n = 5, then falls to 0.</p>
+      <div class="math key">$$V_n=\frac{\pi^{n/2}}{\Gamma\!\left(\tfrac n2+1\right)}$$</div>
+      <div class="math">$$V_1=2,\ V_2=\pi,\ V_3=\tfrac{4\pi}3,\ V_4=\tfrac{\pi^2}2,\ V_5=\tfrac{8\pi^2}{15}$$</div>
+      <div class="math">$$V_n=V_{n-1}\int_{-1}^{1}(1-t^2)^{\frac{n-1}2}dt$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Explore</p>
+      <h2>Graphs and hidden patterns</h2>
+      <div class="tabs"><button class="on">Volume &amp; surface</button><button>Skin of the ball</button><button>Ball vs cube</button></div>
+      <canvas id="chart"></canvas>
+      <label id="epsw">Skin thickness ε = <b id="ev">5</b>% <input id="eps" type="range" min="1" max="30" value="5"></label>
+      <p id="cap"></p>
+      <div class="math key">$$V_n(r)=\frac{\pi^{n/2}}{\Gamma\!\left(\frac n2+1\right)}\,r^n,\qquad S_{n-1}(r)=n\,V_n(r)/r$$</div>
+      <div class="math">$$V_n=\tfrac{2\pi}{n}V_{n-2},\qquad S_{n-1}(1)=n\,V_n(1)$$</div>
+    </article>
+
+    <article class="step">
+      <p class="tag">Step 0 of 0 · Table</p>
+      <h2>Surface ⇄ volume, every n</h2>
+      <p class="watch">Pick n in the table: the graph above and the math follow.</p>
+      <div class="math key">$$S_{n-1}(r)=\frac{dV_n}{dr},\qquad V_n(r)=\int_0^rS_{n-1}(s)\,ds$$</div>
+      <div class="math" id="selm"></div>
+      <div class="math">$$\frac{d}{dr}\big(\alpha_nr^n\big)=n\alpha_nr^{n-1},\qquad\int_0^rn\alpha_ns^{n-1}ds=\alpha_nr^n$$</div>
+    </article>
+
+  </section>
+</main>
+
+<nav>
+  <button class="btn" id="prev">Previous</button>
+  <div id="dots"></div>
+  <button class="btn go" id="next">Next</button>
+</nav>
+
+<script>
+const $=s=>document.querySelector(s), P=(x,y,z)=>new THREE.Vector3(x,z,-y), GOLD=0xffc400; /* right-handed: x right, y into the screen, z up */
+const stage=$('#stage'), steps=[...document.querySelectorAll('.step')], last=steps.length-1;
+const I=3*Math.PI/4, A=.9553;
+/* camera per step: [angle around, tilt, distance, look-at point] */
+const cB=[I,A,5.2,[0,0,0]], cD=[I,.45,3.8,[0,0,0]];
+const V=[[I,A,5.4,[0,0,0]],cD,cB,cB,cD,cB,cB,cB,cB,[I,A,3.8,[.4,.4,-.4]],[I,A,4.2,[.35,.35,-.35]],[I,A,3.6,[.28,.28,-.28]],[2.2,1,3.6,[.28,.28,-.28]],cD,cB,cB,[I,A,6,[0,0,0]]];
+let step=0, th=I, ph=A, rad=5.4, zoom=1, free=false, mt=0, lastMt=-1;
+const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI, zoomBy=f=>{zoom=Math.min(2.2,Math.max(.35,zoom*f))};
+
+/* ---------- scene ---------- */
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(28,1,.1,50), tgt=new THREE.Vector3(0,0,0), goal=new THREE.Vector3();
+
+function label(txt,col,sc,it){
+  const c=document.createElement('canvas'); c.width=256; c.height=96;
+  const g=c.getContext('2d'); g.font=it?"italic 600 60px Fraunces,Georgia,serif":"600 38px Inter,sans-serif"; g.shadowColor=col; g.shadowBlur=14; g.fillStyle=col; g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,128,48);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));
+  s.scale.set(sc,sc*.375,1); return s;
+}
+const glow=(()=>{const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d'), r=g.createRadialGradient(32,32,0,32,32,32); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.3,'rgba(255,255,255,.6)'); r.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=r; g.fillRect(0,0,64,64); return new THREE.CanvasTexture(c)})();
+const grid=new THREE.GridHelper(2.4,24,0x4a63b0,0x2c3b72); grid.material.transparent=true; grid.material.opacity=.45; scene.add(grid);
+
+const axC={x:0xff6b6b,y:0x5be0a0,z:0x6aa8ff};
+[['x',[1,0,0]],['y',[0,1,0]],['z',[0,0,1]]].forEach(([k,d])=>{
+  const dir=P(...d), m=new THREE.MeshBasicMaterial({color:axC[k]}), q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),dir);
+  const sh=new THREE.Mesh(new THREE.CylinderGeometry(.009,.009,1.2,8),m); sh.quaternion.copy(q); sh.position.copy(dir).multiplyScalar(.6);
+  const hd=new THREE.Mesh(new THREE.ConeGeometry(.04,.14,16),m); hd.quaternion.copy(q); hd.position.copy(dir).multiplyScalar(1.27);
+  const l=label(k,'#'+axC[k].toString(16),.46,true); l.position.copy(dir).multiplyScalar(1.5);
+  scene.add(sh,hd,l);
+});
+[[1,0,0],[0,1,0],[0,0,1]].forEach(v=>{
+  const m=new THREE.Mesh(new THREE.SphereGeometry(.03,16,16),new THREE.MeshBasicMaterial({color:GOLD}));
+  m.position.copy(P(...v)); scene.add(m);
+  const hs=new THREE.Sprite(new THREE.SpriteMaterial({map:glow,color:GOLD,transparent:true,opacity:.8,depthWrite:false})); hs.scale.set(.26,.26,1); hs.position.copy(m.position); scene.add(hs);
+});
+
+/* the ball */
+const sphere=new THREE.Mesh(new THREE.SphereGeometry(1,48,32),new THREE.MeshBasicMaterial({color:0x4d7cff,transparent:true,depthWrite:false}));
+const wire=new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.SphereGeometry(1,24,16)),new THREE.LineBasicMaterial({color:0x7f9cff,transparent:true}));
+scene.add(sphere,wire);
+
+/* the octant patch of the sphere: every vertex has a sphere position S0 and slides to its squares */
+const n=16, S0=[], idx=[], ix={};
+for(let j=0;j<=n;j++) for(let i=0;i+j<=n;i++){ix[i+','+j]=S0.length/3; const w=[i,j,n-i-j], l=Math.hypot(...w); S0.push(w[0]/l,w[1]/l,w[2]/l)}
+for(let j=0;j<n;j++) for(let i=0;i+j<n;i++){
+  idx.push(ix[i+','+j],ix[(i+1)+','+j],ix[i+','+(j+1)]);
+  if(i+j<n-1) idx.push(ix[(i+1)+','+j],ix[(i+1)+','+(j+1)],ix[i+','+(j+1)]);
+}
+const sp=new THREE.BufferAttribute(new Float32Array(S0.length),3), pg=new THREE.BufferGeometry();
+pg.setAttribute('position',sp); pg.setIndex(idx);
+const patch=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({color:GOLD,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+const pw=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({color:0xffe27a,wireframe:true,transparent:true}));
+patch.frustumCulled=pw.frustumCulled=false; scene.add(patch,pw);
+
+/* uniform points inside the octant of the ball; squaring them gives the density u^(-1/2) */
+const N=1500, A0=new Float32Array(N*3), pp=new Float32Array(N*3), cl=new Float32Array(N*3), c0=new THREE.Color(0x4d7cff), c1=new THREE.Color(GOLD), cc=new THREE.Color();
+for(let k=0;k<N;){const x=Math.random(),y=Math.random(),z=Math.random(); if(x*x+y*y+z*z<=1){A0.set([x,y,z],3*k); cc.copy(c0).lerp(c1,1-Math.min(1,9*x*y*z)); cl.set([cc.r,cc.g,cc.b],3*k); k++}}
+const pa=new THREE.BufferAttribute(pp,3), cg=new THREE.BufferGeometry(); cg.setAttribute('position',pa); cg.setAttribute('color',new THREE.BufferAttribute(cl,3));
+const cloud=new THREE.Points(cg,new THREE.PointsMaterial({size:.07,map:glow,vertexColors:true,transparent:true,depthWrite:false})); cloud.frustumCulled=false; scene.add(cloud);
+
+function morph(m){
+  for(let i=0;i<N;i++){const x=A0[3*i],y=A0[3*i+1],z=A0[3*i+2]; pp[3*i]=x+(x*x-x)*m; pp[3*i+1]=z+(z*z-z)*m; pp[3*i+2]=-(y+(y*y-y)*m)}
+  pa.needsUpdate=true;
+  for(let i=0;i<S0.length/3;i++){const x=S0[3*i],y=S0[3*i+1],z=S0[3*i+2]; sp.setXYZ(i,x+(x*x-x)*m,z+(z*z-z)*m,-(y+(y*y-y)*m))}
+  sp.needsUpdate=true;
+}
+
+/* the simplex it lands on, and the unit disk for n = 2 */
+const O=P(0,0,0),X=P(1,0,0),Y=P(0,1,0),Z=P(0,0,1);
+const faces=new THREE.Mesh(new THREE.BufferGeometry().setFromPoints([O,X,Y,O,X,Z,O,Y,Z]),new THREE.MeshBasicMaterial({color:0x4d7cff,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+const edges=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([O,X,O,Y,O,Z,Y,Z,Z,X,X,Y]),new THREE.LineBasicMaterial({color:0x7f9cff,transparent:true}));
+const disk=new THREE.Mesh(new THREE.CircleGeometry(1,72).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:GOLD,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+const ring=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:97},(_,i)=>P(Math.cos(i/96*6.2832),Math.sin(i/96*6.2832),0))),new THREE.LineBasicMaterial({color:0xffe27a,transparent:true}));
+scene.add(faces,edges,disk,ring);
+
+/* per-step targets: sphere, sphere wire, octant patch, point cloud, simplex faces, disk */
+const tb0={s:.2,w:.4,o:0,c:0,f:0,d:0}, tk={s:.04,w:.12,o:0,c:0,f:0,d:.4};
+const T=[tb0,tk,tb0,tb0,tk,tb0,tb0,tb0,tb0,{s:.05,w:.16,o:.38,c:1,f:0,d:0},{s:.04,w:.08,o:.38,c:1,f:.12,d:0},{s:0,w:0,o:.4,c:1,f:.12,d:0},{s:0,w:0,o:.4,c:1,f:.12,d:0},tk,{s:.1,w:.35,o:.45,c:0,f:0,d:0},tb0,{s:.1,w:.3,o:0,c:0,f:0,d:0}];
+T[17]=T[16];V[17]=V[16];
+const cur={s:0,w:0,o:0,c:0,f:0,d:0};
+
+/* 2D construction canvas + extra 3D constructions (slices, cones) */
+const gc=document.createElement('canvas'); gc.id='geo'; stage.appendChild(gc); const g2=gc.getContext('2d'); let C={}, st0=0;
+const tx=(q,x,y,c,z=13)=>{g2.fillStyle=c;g2.textAlign='center';g2.font='600 '+z+'px Inter,sans-serif';g2.fillText(q,x,y)};
+const circ=(x,y,r,f,k,d)=>{g2.beginPath();g2.arc(x,y,r,0,7);if(f){g2.fillStyle=f;g2.fill()}if(k){g2.strokeStyle=k;g2.setLineDash(d||[]);g2.lineWidth=2;g2.stroke();g2.setLineDash([])}};
+const ann=(x,y,r1,r0,a)=>{g2.beginPath();g2.arc(x,y,r1,0,7);g2.arc(x,y,r0,0,7,true);g2.globalAlpha=a;g2.fillStyle=C.g;g2.fill('evenodd');g2.globalAlpha=1};
+const bar=(x1,y1,x2,y2,c,w)=>{g2.strokeStyle=c;g2.lineWidth=w||2;g2.beginPath();g2.moveTo(x1,y1);g2.lineTo(x2,y2);g2.stroke()};
+let fp=0,fauto=true,fdim=1;const sl=$('#sl'),db=[...document.querySelectorAll('#dimb button')];
+const E=x=>x*x*(3-2*x),K=(x,a,b)=>Math.min(1,Math.max(0,(x-a)/(b-a)));
+const ball=(x,y,r)=>{const q=g2.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);q.addColorStop(0,'#ffe27a');q.addColorStop(1,'#b07d00');return q};
+const FIG={
+1:{cap:p=>p<.34?'Cut the disk into thin rings, each of width ds.':p<.67?'Unroll each ring into a straight strip. A ring of radius s has length 2πs.':'Stack the strips by radius: a triangle with base 2πr and height r. Area = ½ · 2πr · r = πr².',
+ draw:(p,d,x,y,w,h)=>{const N=8,R=Math.min(w*.22,h*.46),cx=x+w*.24,cy=y+h/2,bx=x+w*.54,bw=w*.42,th=h-18,u=E(K(p,.34,.67)),v=K(p,.67,1);
+  for(let k=0;k<N;k++){const a=k%2?.65:.35,sw=bw*(k+.5)/N*u;ann(cx,cy,R*(k+1)/N,R*k/N,a*(1-.6*u));g2.globalAlpha=a;g2.fillStyle=C.g;g2.fillRect(bx+(bw-sw)/2,y+th*k/N,sw,th/N-2);g2.globalAlpha=1}
+  circ(cx,cy,R,0,C.i);bar(cx,cy,cx+R,cy,C.i);tx('r',cx+R/2,cy-6,C.i,15);
+  if(v>0){g2.globalAlpha=v;g2.setLineDash([5,4]);g2.strokeStyle=C.i;g2.beginPath();g2.moveTo(bx+bw/2,y);g2.lineTo(bx,y+th);g2.lineTo(bx+bw,y+th);g2.closePath();g2.stroke();g2.setLineDash([]);tx('base 2πr',bx+bw/2,y+h-2,C.i,14);tx('r',bx-10,y+th/2,C.i,15);g2.globalAlpha=1}}},
+2:{cap:p=>{const z=(2*p-1)*.95;return 'Slice at height z = '+z.toFixed(2)+': a disk of radius √(1−z²) = '+Math.sqrt(1-z*z).toFixed(2)+' and area π(1−z²) = '+(1-z*z).toFixed(2)+'π (taking r = 1).'}},
+3:{dims:1,cap:(p,d)=>{const r=1+1.5*p;return 'Stretch by r = '+r.toFixed(2)+'. '+['A segment’s length is multiplied by r = '+r.toFixed(2)+'.','A disk’s area is multiplied by r² = '+(r*r).toFixed(2)+'.','A ball’s volume is multiplied by r³ = '+(r**3).toFixed(2)+'.'][d]},
+ draw:(p,d,x,y,w,h)=>{const r=1+1.5*p,cx=x+w/2,cy=y+h/2-6,a=Math.min(w*.4,h*.42)/2.5,ra=a*r;
+  if(d==0){bar(cx-ra,cy,cx+ra,cy,C.g,8);g2.setLineDash([4,4]);bar(cx-a,cy-18,cx+a,cy-18,C.i);g2.setLineDash([])}
+  else if(d==1){g2.globalAlpha=.45;circ(cx,cy,ra,C.g);g2.globalAlpha=1;circ(cx,cy,a,0,C.i,[4,4])}
+  else{circ(cx,cy,ra,ball(cx,cy,ra));circ(cx,cy,a,0,C.i,[4,4])}
+  tx('dashed outline = the unit shape',cx,y+h-2,C.m,12)}},
+4:{dims:1,cap:(p,d)=>['The shell between r and r+dr is two tiny segments of length dr, so dV = 2 · dr.','The shell is a ring: circumference 2πr times width dr, so dV = 2πr · dr.','The shell is a thin skin: surface area 4πr² times thickness dr, so dV = 4πr² · dr.'][d],
+ draw:(p,d,x,y,w,h)=>{const s=.3+.55*p,dr=.12,cx=x+w/2,cy=y+h/2-6,R=Math.min(w*.45,h*.45);
+  if(d==0){bar(cx-R,cy,cx+R,cy,C.m);g2.fillStyle=C.g;g2.fillRect(cx+R*s,cy-12,R*dr,24);g2.fillRect(cx-R*(s+dr),cy-12,R*dr,24)}
+  else{g2.globalAlpha=d==2?.3:.12;circ(cx,cy,R,d==2?C.b:C.g);g2.globalAlpha=1;ann(cx,cy,R*(s+dr),R*s,.95)}
+  bar(cx,cy+(d?0:6),cx+R*s,cy+(d?0:6),C.i);tx('r',cx+R*s/2,cy+(d?-7:22),C.i,15);tx('dr',cx+R*(s+dr/2),cy+(d?26:-18),C.i,14)}},
+7:{cap:p=>{const s=2*p;return 'At radius r = '+s.toFixed(2)+' the brightness is e^(−r²) = '+Math.exp(-s*s).toFixed(3)+', the same all the way round that ring.'},
+ draw:(p,d,x,y,w,h)=>{const R=Math.min(w*.22,h*.46),cx=x+w*.24,cy=y+h/2,N=24,s=2*p,px=x+w*.54,pw=w*.42,ph=h-18;
+  for(let k=0;k<N;k++){const a=2*k/N;ann(cx,cy,R*(k+1)/N,R*k/N,Math.exp(-a*a)*.95+.03)}
+  circ(cx,cy,Math.max(R*s/2,1),0,C.i);bar(px,y+ph,px+pw,y+ph,C.m);g2.beginPath();
+  for(let i=0;i<=60;i++){const q=2*i/60,xx=px+pw*q/2,yy=y+ph*(1-Math.exp(-q*q));i?g2.lineTo(xx,yy):g2.moveTo(xx,yy)}g2.strokeStyle=C.g;g2.lineWidth=2.5;g2.stroke();
+  const mx=px+pw*s/2,my=y+ph*(1-Math.exp(-s*s));bar(mx,y+ph,mx,my,C.i);circ(mx,my,4,C.i);tx('e^(−r²) vs radius r',px+pw/2,y+h-2,C.m,12)}},
+14:{cap:()=>'Thin cones from the centre to tiny patches of the sphere fill the ball. Each has volume ⅓ × (patch area) × r.'}};
+function geoDraw(t){const f=FIG[step],W=stage.clientWidth,H=stage.clientHeight,d=Math.min(devicePixelRatio,2),dw=f&&f.draw;
+ if(gc.width!=W*d||gc.height!=H*d){gc.width=W*d;gc.height=H*d}
+ g2.setTransform(d,0,0,d,0,0);g2.clearRect(0,0,W,H);
+ $('#capx').style.display=f?'block':'none';$('#ctl').style.display=f&&step!=14?'flex':'none';$('#dimb').style.display=f&&f.dims?'flex':'none';
+ cv.style.opacity=dw&&!(f.dims&&fdim==2)?0:1;$('#hint').style.visibility=f?'hidden':'visible';
+ if(!f)return;
+ if(fauto){const c=(Math.max(0,t-st0)%10)/10;fp=step==1?(c<.6?c/.6:c<.85?1:1-E((c-.85)/.15)):.5-.5*Math.cos(c*6.2832)}
+ $('#capx').textContent=f.cap(fp,fdim);db.forEach((b,i)=>b.classList.toggle('on',i==fdim));
+ if(!dw)return;const q=getComputedStyle(document.documentElement),c=k=>q.getPropertyValue(k).trim();C={g:c('--gold'),i:c('--ink'),m:c('--muted'),b:'#6aa8ff'};
+ f.draw(fp,fdim,12,Math.max(64,$('#capx').offsetHeight+16),W-24,H-Math.max(64,$('#capx').offsetHeight+16)-48)}
+sl.oninput=()=>{fauto=false;fp=sl.value/1000};
+db.forEach((b,i)=>b.onclick=()=>{fdim=i;fauto=true;fp=0;st0=performance.now()/1000});
+const slice=new THREE.Mesh(disk.geometry,disk.material.clone()), sring=new THREE.LineLoop(ring.geometry,ring.material.clone()), stack=new THREE.Group();
+for(let k=-5;k<=5;k++){const z=k*.18,r=Math.sqrt(1-z*z),l=new THREE.LineLoop(ring.geometry,new THREE.LineBasicMaterial({color:0xffe27a,transparent:true,opacity:.4}));l.position.y=z;l.scale.set(r,1,r);stack.add(l)}
+const ba=[];for(let k=0;k<=24;k++){const a=k/24*Math.PI/2,c=Math.cos(a),n=Math.sin(a);for(const p of [[c,n,0],[c,0,n],[0,c,n]])ba.push(O,P(...p))}
+const fan=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ba),new THREE.LineBasicMaterial({color:GOLD,transparent:true,opacity:.5}));
+scene.add(slice,sring,stack,fan);
+function extras(t){const on=step==2;slice.visible=sring.visible=stack.visible=on;
+ if(on){const z=(2*fp-1)*.95,r=Math.sqrt(1-z*z);slice.position.y=sring.position.y=z;slice.scale.set(r,1,r);sring.scale.set(r,1,r);slice.material.opacity=.45;sring.material.opacity=1}
+ fan.visible=step==14;fan.material.opacity=.35+.25*Math.sin(t*2)}
+function frame(ms){
+  requestAnimationFrame(frame);
+  const t=ms/1000, k=(t%4.5)/4.5, e=Math.min(k/.8,1), s=e*e*(3-2*e), g=T[step];
+  const dt=Math.min(.05,t-(window._pt||t));window._pt=t;const f9=1-Math.pow(1-.09,dt*60);for(const q in cur) cur[q]+=(g[q]-cur[q])*f9;
+  const tm=window.pm!=null?window.pm:step==10?.5-.5*Math.cos(t*.7):(step==11||step==12?1:0); mt+=(tm-mt)*(step==10?.2:.07);
+  if(Math.abs(mt-lastMt)>1e-4){morph(mt); lastMt=mt}
+  sphere.material.opacity=cur.s+(step==15?.05*Math.sin(t*2.5):0); sphere.visible=cur.s>.01;
+  wire.material.opacity=cur.w; wire.visible=cur.w>.01;
+  patch.material.opacity=cur.o; pw.material.opacity=Math.min(1,cur.o*1.5); patch.visible=pw.visible=cur.o>.01;
+  cloud.material.opacity=cur.c; cloud.visible=cur.c>.01;
+  faces.material.opacity=cur.f*mt; faces.visible=cur.f*mt>.003;
+  edges.material.opacity=.6*mt*Math.min(1,cur.f*8); edges.visible=edges.material.opacity>.01;
+  disk.material.opacity=cur.d; ring.material.opacity=Math.min(1,cur.d*2.2); disk.visible=ring.visible=cur.d>.01;
+  const v=V[step], kk=1-Math.pow(1-.07,dt*60);
+  rad+=(v[2]*zoom-rad)*kk; tgt.lerp(goal.set(v[3][0],v[3][1],v[3][2]),kk);
+  if(!free){th+=wrap(v[0]+.14*Math.sin(t*.45)-th)*kk; ph+=(v[1]-ph)*kk}
+  cam.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));
+  cam.lookAt(tgt); renderer.render(scene,cam); extras(t); geoDraw(t);
+}
+
+/* ---------- interaction ---------- */
+const cv=renderer.domElement; cv.style.touchAction='none';
+const ptr=new Map(); let pd=0;
+cv.onpointerdown=e=>{ptr.set(e.pointerId,[e.clientX,e.clientY]); cv.setPointerCapture(e.pointerId); $('#hint').style.opacity=0; pd=0};
+cv.onpointermove=e=>{
+  const o=ptr.get(e.pointerId); if(!o)return;
+  ptr.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptr.size==2){const [a,b]=[...ptr.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(pd)zoomBy(pd/d); pd=d; return}
+  free=true; th-=(e.clientX-o[0])*.008; ph=Math.min(2.6,Math.max(.3,ph-(e.clientY-o[1])*.008));
+};
+cv.onpointerup=cv.onpointercancel=e=>{ptr.delete(e.pointerId); pd=0};
+cv.onwheel=e=>{e.preventDefault(); zoomBy(Math.exp(e.deltaY*.0015))};
+cv.ondblclick=()=>{free=false; zoom=1};
+new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight; if(!w||!h)return; renderer.setSize(w,h); cam.aspect=w/h; cam.fov=w/h<1?45:28; cam.updateProjectionMatrix()}).observe(stage);
+
+let route=0, seq=[]; const dots=[];
+function build(){
+  seq=steps.map((_,i)=>i).filter(i=>{const m=steps[i].dataset.m; return !m||+m==route});
+  $('#dots').innerHTML=''; dots.length=0;
+  seq.forEach((o,p)=>{const b=document.createElement('button'); b.className='dot'; b.setAttribute('aria-label','Go to step '+(p+1)); b.onclick=()=>go(o); $('#dots').appendChild(b); dots.push(b)});
+}
+function go(o){
+  step=o; st0=performance.now()/1000; fauto=true; fp=0; free=false; zoom=1; const p=seq.indexOf(o), n=seq.length;
+  steps.forEach((el,i)=>el.classList.toggle('on',i==o));
+  dots.forEach((d,i)=>d.classList.toggle('on',i==p));
+  const t=steps[o].querySelector('.tag'); t.textContent='Step '+(p+1)+' of '+n+t.dataset.t;
+  $('#prev').disabled=p==0; $('#next').disabled=o==5&&!route; $('#next').textContent=p==n-1?'Start over':'Next';
+  $('#ctr').innerHTML='<b>'+(p+1)+'</b> / '+n; $('#panel').scrollTop=0; if(o==16)draw();
+}
+const move=d=>go(seq[Math.max(0,Math.min(seq.length-1,seq.indexOf(step)+d))]);
+$('#prev').onclick=()=>move(-1); $('#next').onclick=()=>step==seq[seq.length-1]?go(0):move(1);
+const pk=[...document.querySelectorAll('.pick button')];
+pk.forEach(b=>b.onclick=()=>{route=+b.dataset.pick; pk.forEach(x=>x.classList.toggle('on',x==b)); build(); move(1)});
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')$('#next').click(); if(e.key=='ArrowLeft')$('#prev').click()});
+const Vn=[1,2];for(let k=2;k<=50;k++)Vn[k]=2*Math.PI/k*Vn[k-2];
+let cm=0;const cv2=$('#chart'),gx=cv2.getContext('2d');
+function draw(){
+  const W=cv2.clientWidth,H=cv2.clientHeight,d=devicePixelRatio||1; if(!W)return;
+  cv2.width=W*d;cv2.height=H*d;gx.setTransform(d,0,0,d,0,0);
+  const st=getComputedStyle(document.documentElement),c=k=>st.getPropertyValue(k).trim(),e=$('#eps').value/100,G=c('--gold'),Bl='#6aa8ff';
+  const M=[{N:20,a:0,b:36,f:[n=>Vn[n],n=>n*Vn[n]],col:[G,Bl],lab:v=>v},
+   {N:50,a:0,b:1,f:[n=>1-Math.pow(1-e,n)],col:[G],lab:v=>Math.round(v*100)+'%'},
+   {N:30,a:-16,b:0,f:[n=>Math.log10(Vn[n]/Math.pow(2,n))],col:[G],lab:v=>'1e'+v}][cm];
+  const L=42,T=10,B=22,pw=W-L-12,ph=H-T-B,X=n=>L+(n-1)/(M.N-1)*pw,Y=v=>T+ph*(1-(v-M.a)/(M.b-M.a));
+  gx.font='11px Inter,sans-serif';gx.textAlign='right';gx.lineWidth=1;
+  for(let i=0;i<=4;i++){const v=M.a+(M.b-M.a)*i/4;gx.strokeStyle=c('--line');gx.beginPath();gx.moveTo(L,Y(v));gx.lineTo(W-12,Y(v));gx.stroke();gx.fillStyle=c('--muted');gx.fillText(M.lab(v),L-5,Y(v)+4)}
+  gx.textAlign='center';for(let n=0;n<=M.N;n+=5){const m=n||1;gx.fillText(m,X(m),H-6)} gx.fillText('n',W-6,H-6);
+  M.f.forEach((f,j)=>{gx.strokeStyle=gx.fillStyle=M.col[j];gx.lineWidth=2.5;gx.beginPath();for(let n=1;n<=M.N;n++){n>1?gx.lineTo(X(n),Y(f(n))):gx.moveTo(X(n),Y(f(n)))}gx.stroke();if(M.N<=30)for(let n=1;n<=M.N;n++){gx.beginPath();gx.arc(X(n),Y(f(n)),3,0,7);gx.fill()}});
+  if(!cm){gx.textAlign='left';gx.fillStyle=G;gx.fillText('V: volume of unit ball',L+8,T+14);gx.fillStyle=Bl;gx.fillText('S: surface of unit sphere in n-space',L+8,T+30)}
+  $('#ev').textContent=Math.round(e*100);$('#epsw').style.display=cm==1?'block':'none';
+  $('#cap').textContent=['Volume peaks at n = 5 (about 5.26), then both curves collapse toward 0. Surface area, which is n times the volume, peaks later, at n = 7 (about 33.07).',
+   'The share of volume within '+Math.round(e*100)+'% of the surface is 1−(1−ε)ⁿ. At n = 20 that is '+Math.round(100*(1-Math.pow(1-e,20)))+'%: in high dimensions almost everything is skin.',
+   'The unit ball fills πⁿ/²/(2ⁿΓ(n/2+1)) of its enclosing cube: 52% at n = 3 but only 0.25% at n = 10. The cube is almost all corners.'][cm];
+}
+const tb=[...document.querySelectorAll('.tabs button')];tb.forEach((b,i)=>b.onclick=()=>{cm=i;tb.forEach((x,j)=>x.classList.toggle('on',i==j));draw()});
+$('#eps').oninput=draw;addEventListener('resize',draw);matchMedia('(prefers-color-scheme:dark)').onchange=draw;
+steps.forEach(el=>{const t=el.querySelector('.tag'); t.dataset.t=t.textContent.replace('Step 0 of 0','')});
+build(); go(0); requestAnimationFrame(frame);
+</script>
+<style>
+#capx{top:.7rem;padding:.55rem .85rem;border:1px solid var(--line);border-radius:14px;background:var(--panel);backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(0,0,0,.18)}
+#ctl{padding:.4rem .6rem;border:1px solid var(--line);border-radius:999px;background:var(--panel);backdrop-filter:blur(10px)}
+#sl,#rp{display:none!important}#ctl{padding:0!important;border:0!important;background:none!important;backdrop-filter:none!important;justify-content:center}
+#capx{left:.8rem;right:.8rem;width:fit-content;max-width:calc(100% - 1.6rem);margin:0 auto;text-align:center;font-size:.88rem;padding:.4rem .9rem}
+#rp{flex:none;width:2rem;height:2rem;border:0;border-radius:50%;background:var(--gold);color:var(--onGold);font:700 1.05rem/1 Inter,sans-serif;cursor:pointer;transition:transform .4s cubic-bezier(.3,.7,.2,1)}
+#rp:hover{transform:rotate(-200deg)}
+#pbar{flex:none;height:3px;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold));box-shadow:0 0 12px var(--gold);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes mathin{from{opacity:0}to{opacity:1}}
+.step.on .math{animation:mathin .8s cubic-bezier(.3,.7,.2,1) .2s both}
+.math.key{background:linear-gradient(120deg,var(--tint),transparent 80%)}
+@media (prefers-reduced-motion:reduce){.step.on .math{animation:none}#pbar{transition:none}}
+*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#stage canvas{transition:opacity .4s ease}
+#capx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 .95rem Fraunces,Georgia,serif;color:var(--gold2)}
+.dbtn{float:right;margin:.1rem 0 0 .6rem;padding:.3rem .85rem;border:1px solid var(--gold);border-radius:999px;background:var(--tint);color:var(--gold);font:600 .8rem Inter,sans-serif;cursor:pointer;transition:background .2s,color .2s}
+.dbtn:hover{background:var(--gold);color:var(--onGold)}
+#dt{position:fixed;inset:0;z-index:100;overflow-y:auto;overscroll-behavior:contain;background:radial-gradient(900px 520px at 12% -10%,var(--bg2),transparent 70%),var(--bg);opacity:0;visibility:hidden;transform:translateY(28px);transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1),visibility 0s .45s}
+#dt.on{opacity:1;visibility:visible;transform:none;transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+.dh{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:calc(.8rem + env(safe-area-inset-top,0px)) 1.2rem .8rem;background:var(--bg);border-bottom:1px solid var(--line)}
+.dh b{font:600 1.1rem Fraunces,Georgia,serif;color:var(--gold)}
+#dx{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:1rem;cursor:pointer}
+#dc{max-width:860px;margin:0 auto;padding:1rem 1rem calc(3rem + env(safe-area-inset-bottom,0px))}
+.dcard{margin:0 0 1rem;padding:1.1rem 1.3rem;border:1px solid var(--line);border-radius:20px;background:var(--panel)}
+.dcard h3{display:flex;align-items:center;gap:.7rem;margin:0 0 .5rem;font:600 1.15rem Fraunces,Georgia,serif}
+.dcard h3 i{display:grid;place-items:center;flex:none;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--gold);color:var(--onGold);font:700 .85rem Inter,sans-serif}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin-top:.8rem}
+.figs figure{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:radial-gradient(70% 60% at 50% 42%,var(--tint),transparent 75%),var(--bg2)}
+.figs canvas{display:block;width:100%;height:auto}
+.figs figcaption{padding:.4rem .6rem;text-align:center;font:500 .85rem Fraunces,Georgia,serif;color:var(--gold2);border-top:1px solid var(--line);min-height:2rem}
+html,body{height:100%;-webkit-text-size-adjust:100%}body{height:100vh;height:100dvh}
+.dot{position:relative}.dot::after{content:'';position:absolute;inset:-12px -3px}
+.dhint{margin:0 0 .8rem;text-align:center;font-size:.8rem;color:var(--muted)}
+.fctl{padding:.1rem .8rem .5rem}.fctl input{width:100%;margin:0;accent-color:var(--gold)}
+.figs{grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}
+@media (min-width:1500px){html{font-size:18px}}
+@media (max-width:820px){header{padding:.6rem .9rem .4rem}main{gap:.6rem;padding:0 .6rem .6rem}nav{padding:.5rem .7rem}.btn{padding:.7rem 1rem;min-width:6rem}#panel{padding:.9rem 1rem}h1{font-size:1.25rem}}
+@media (max-width:520px){.dcard{padding:.9rem 1rem;border-radius:16px}.dh b{font-size:1rem}.dh{padding-left:.9rem;padding-right:.9rem}#dc{padding-left:.6rem;padding-right:.6rem}.math{padding:.4rem .6rem}#capx{font-size:.8rem}}
+@media (orientation:landscape) and (max-height:520px){header small{display:none}header{padding:.35rem 1rem .2rem}h1{font-size:1.1rem}main{grid-template-columns:1.1fr 1fr;grid-template-rows:1fr;gap:.6rem}nav{padding:.3rem .8rem}.btn{padding:.45rem 1rem}h2{font-size:1.2rem}.step p{margin:.35rem 0}}
+@media (prefers-reduced-motion:reduce){#dt,#dt.on{transition:none}}
+#dbody{max-width:1180px;margin:0 auto;padding:0 .8rem calc(3rem + env(safe-area-inset-bottom,0px))}
+#dbody #dc{max-width:none;margin:0;padding:.8rem 0}
+#dfig{position:sticky;z-index:3;padding:.6rem 0 .3rem;background:linear-gradient(var(--bg) 88%,transparent)}
+#dfig #stage{width:100%;height:clamp(230px,38vh,400px)}
+#dsl{display:none;width:100%;margin:.55rem 0 0;accent-color:var(--gold)}
+.dcard.act{border-color:var(--gold);box-shadow:0 0 26px var(--tint)}.dcard{transition:border-color .3s,box-shadow .3s}
+@media (min-width:900px),(orientation:landscape) and (min-width:640px){#dbody:not(.nofig){display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.2rem;align-items:start}#dfig #stage{height:min(68vh,620px)}#dbody:not(.nofig) #dc{padding-bottom:40vh}}
+@media (orientation:landscape) and (max-height:520px){#dfig #stage{height:min(72vh,420px)}}
+</style>
+<script>
+/* ===== polish layer ===== */
+const TAU=Math.PI*2,lerp=(a,b,t)=>a+(b-a)*t,bgc=()=>getComputedStyle(document.body).backgroundColor;
+{const fm=new THREE.ShaderMaterial({uniforms:{op:{value:.2}},transparent:true,depthWrite:false,
+ vertexShader:'varying vec3 n,v;void main(){n=normalize(normalMatrix*normal);vec4 p=modelViewMatrix*vec4(position,1.);v=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',
+ fragmentShader:'uniform float op;varying vec3 n,v;void main(){float f=pow(1.-abs(dot(n,v)),2.2);float l=.5+.5*dot(n,normalize(vec3(-.4,.8,.5)));vec3 c=mix(vec3(.2,.35,.8)*(.5+l*.6),vec3(.7,.86,1.),f);gl_FragColor=vec4(c,min(1.,(.3+.9*f)*op*2.4));}'});
+ Object.defineProperty(fm,'opacity',{get(){return fm.uniforms.op.value},set(x){fm.uniforms.op.value=x}});
+ sphere.material=fm;
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glow,color:0x4d7cff,transparent:true,opacity:0,depthWrite:false}));halo.scale.set(3.4,3.4,1);scene.add(halo);
+ (function h(){halo.material.opacity=.3*Math.min(1,cur.s*4);requestAnimationFrame(h)})()}
+/* 2D: disk -> rings -> unrolled strips -> triangle */
+FIG[1].cap=p=>p<.26?'Cut the disk into thin rings, each of width ds.':p<.74?'Unroll each ring into a straight strip. A ring of radius s has length 2πs.':'Stack the strips by radius: a triangle with base 2πr and height r. Area = ½ · 2πr · r = πr².';
+FIG[1].draw=(p,d,x,y,w,h)=>{
+ const N=9,M=60,R=Math.min(w*.21,h*.38),cx=x+w*.23,cy=y+h/2-6,bx=x+w*.52,bw=w*.44,th=h-40,cut=E(K(p,0,.2)),v=E(K(p,.76,.95)),bg=C.bg||"#0a1020";
+ for(let k=0;k<N;k++){
+  const u=E(K(p,.26+.26*k/N,.46+.26*k/N)),r0=R*k/N+cut*R/N*.12,r1=R*(k+1)/N-cut*R/N*.12,len=bw*(k+.5)/N,yt=y+th*k/N,yb=yt+th/N-2;
+  const pt=(r,i,yy)=>{const a=-Math.PI/2+TAU*i/M;return[lerp(cx+r*Math.cos(a),bx+bw/2-len/2+len*i/M,u),lerp(cy+r*Math.sin(a),yy,u)]};
+  g2.beginPath();
+  for(let i=0;i<=M;i++){const q=pt(r1,i,yb);i?g2.lineTo(q[0],q[1]):g2.moveTo(q[0],q[1])}
+  for(let i=M;i>=0;i--){const q=pt(r0,i,yt);g2.lineTo(q[0],q[1])}
+  g2.closePath();g2.globalAlpha=.3+.6*k/(N-1);g2.fillStyle=C.g;g2.fill();g2.globalAlpha=1;g2.strokeStyle=bg;g2.lineWidth=1.2;g2.stroke()}
+ const o=1-E(K(p,.26,.6));
+ if(o>0){g2.globalAlpha=o;circ(cx,cy,R,0,C.i);bar(cx,cy,cx+R,cy,C.i);tx('r',cx+R/2,cy-7,C.i,15);g2.globalAlpha=1}
+ if(v>0){g2.globalAlpha=v;g2.setLineDash([6,5]);g2.strokeStyle=C.i;g2.lineWidth=1.5;g2.beginPath();g2.moveTo(bx+bw/2,y);g2.lineTo(bx,y+th);g2.lineTo(bx+bw,y+th);g2.closePath();g2.stroke();g2.setLineDash([]);
+  tx('base 2πr',bx+bw/2,y+th+17,C.i,13);tx('r',bx-12,y+th/2,C.i,15);
+  g2.globalAlpha=1}};
+/* 2D: scaling */
+FIG[3].draw=(p,d,x,y,w,h)=>{const r=1+1.5*p,cx=x+w/2,cy=y+h/2-10,a=Math.min(w*.4,h*.42)/2.5,ra=a*r,f=[r,r*r,r**3][d];
+ g2.save();g2.shadowColor=C.g;g2.shadowBlur=28;g2.lineCap='round';
+ if(d==0)bar(cx-ra,cy,cx+ra,cy,C.g,10);else{g2.globalAlpha=d==1?.8:1;circ(cx,cy,ra,ball(cx,cy,ra));g2.globalAlpha=1}
+ g2.restore();
+ if(d==0){g2.setLineDash([5,5]);bar(cx-a,cy-22,cx+a,cy-22,C.i,1.5);g2.setLineDash([])}else circ(cx,cy,a,0,C.i,[5,5]);
+ tx('× r'+['','²','³'][d]+' = × '+f.toFixed(2),cx,y+h-26,C.g,20)};
+{const f=FIG[4].draw;FIG[4].draw=(...a)=>{g2.save();g2.shadowColor=C.g;g2.shadowBlur=16;f(...a);g2.restore()}}
+/* controls, progress bar, chart reveal */
+const rp=document.createElement('button');rp.id='rp';rp.textContent='↻';rp.title='Replay';rp.setAttribute('aria-label','Replay animation');
+rp.onclick=()=>{fauto=true;fp=0;st0=performance.now()/1000};$('#ctl').prepend(rp);
+const pb=document.createElement('div');pb.id='pbar';document.querySelector('header').after(pb);
+const reveal=()=>cv2.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],{duration:1000,easing:'cubic-bezier(.3,.7,.2,1)'});
+tb.forEach(b=>b.addEventListener('click',reveal));
+{const g0=go;go=function(o){g0(o);pb.style.width=((seq.indexOf(o)+1)/seq.length*100)+'%';if(o==16)reveal()}}
+FIG[1].cap=p=>p<.26?'Slice the disk into thin rings':p<.74?'Unroll each ring into a strip':'Stack them: ½ · 2πr · r = πr²';
+FIG[2].cap=p=>{const z=(2*p-1)*.95;return 'Slice at height z = '+z.toFixed(2)+' · area = '+(1-z*z).toFixed(2)+'π'};
+FIG[3].cap=p=>'Stretch by r = '+(1+1.5*p).toFixed(2)+' (dashed = original)';
+FIG[4].cap=(p,d)=>['Two tiny segments: dV = 2 dr','Circumference × width: dV = 2πr dr','Surface × thickness: dV = 4πr² dr'][d];
+FIG[7].cap=p=>{const s=2*p;return 'r = '+s.toFixed(2)+' · brightness = '+Math.exp(-s*s).toFixed(2)+' all round the ring'};
+FIG[14].cap=()=>'Thin cones from the centre fill the ball: V = ⅓ · S · r';
+/* ===== scaling & shells v2: expressive 1D/2D canvas + real 3D scene ===== */
+const arrow=(x1,y1,x2,y2,c)=>{bar(x1,y1,x2,y2,c,2.5);const a=Math.atan2(y2-y1,x2-x1);g2.fillStyle=c;g2.beginPath();g2.moveTo(x2,y2);g2.lineTo(x2-9*Math.cos(a-.4),y2-9*Math.sin(a-.4));g2.lineTo(x2-9*Math.cos(a+.4),y2-9*Math.sin(a+.4));g2.fill()};
+FIG[3].draw=(p,d,x,y,w,h)=>{const r=1+1.5*p,cx=x+w/2,cy=y+h/2-8,a=Math.min(w*.4,h*.42)/2.5,ra=a*r,f=[r,r*r,r**3][d];
+ if(d==0){g2.save();g2.shadowColor=C.g;g2.shadowBlur=22;g2.lineCap='round';bar(cx-ra,cy,cx+ra,cy,C.g,9);[-1,1].forEach(q=>circ(cx+q*ra,cy,7,'#ffe27a'));g2.restore();[-1,1].forEach(q=>arrow(cx+q*(ra+10),cy,cx+q*(ra+26),cy,C.i));g2.setLineDash([5,5]);bar(cx-a,cy-28,cx+a,cy-28,C.m,1.5);g2.setLineDash([]);tx('original',cx,cy-36,C.m,12)}
+ else if(d==1){const c=a/3;g2.save();g2.shadowColor=C.g;g2.shadowBlur=22;circ(cx,cy,ra,0,C.g);g2.restore();g2.save();g2.beginPath();g2.arc(cx,cy,ra,0,7);g2.clip();g2.globalAlpha=.2;g2.fillStyle=C.g;g2.fillRect(cx-ra,cy-ra,2*ra,2*ra);g2.globalAlpha=.5;g2.strokeStyle=C.g;g2.lineWidth=1;g2.beginPath();for(let k=-9;k<=9;k++){g2.moveTo(cx+k*c,cy-ra);g2.lineTo(cx+k*c,cy+ra);g2.moveTo(cx-ra,cy+k*c);g2.lineTo(cx+ra,cy+k*c)}g2.stroke();g2.restore();circ(cx,cy,a,0,C.m,[5,5]);arrow(cx,cy,cx+ra,cy,C.i);arrow(cx,cy,cx,cy-ra,C.i);tx('r',cx+ra/2,cy+17,C.i,14);tx('r',cx-12,cy-ra/2,C.i,14)}
+ g2.save();g2.shadowColor=C.g;g2.shadowBlur=14;tx('× r'+['','²','³'][d]+' = × '+f.toFixed(2),cx,y+h-4,C.g,20);g2.restore()};
+FIG[4].draw=(p,d,x,y,w,h)=>{if(d==2)return;const s=.25+.6*p,dr=.13,R=Math.min(w*.3,h*.4),cy=y+h/2-8,cx=d?x+w*.28:x+w/2;
+ g2.save();g2.shadowColor=C.g;g2.shadowBlur=18;
+ if(d==0){const L=Math.min(w*.42,R*1.7);g2.globalAlpha=.25;g2.lineCap='round';bar(cx-L*s,cy,cx+L*s,cy,C.g,16);g2.globalAlpha=1;g2.fillStyle=C.g;g2.fillRect(cx+L*s,cy-18,L*dr,36);g2.fillRect(cx-L*(s+dr),cy-18,L*dr,36);g2.restore();bar(cx-L,cy+34,cx+L,cy+34,C.m,1.5);tx('r',cx+L*s/2,cy-26,C.i,14);tx('dr',cx+L*(s+dr/2),cy-26,C.i,13);tx('dr',cx-L*(s+dr/2),cy-26,C.i,13);return}
+ g2.globalAlpha=.16;circ(cx,cy,R*s,C.g);g2.globalAlpha=1;ann(cx,cy,R*(s+dr),R*s,1);g2.restore();circ(cx,cy,R,0,C.m,[4,5]);bar(cx,cy,cx+R*s,cy,C.i);tx('r',cx+R*s/2,cy-7,C.i,14);tx('dr',cx+R*(s+dr/2),cy+22,C.i,13);
+ const sx=x+w*.52,sw=w*.4*(s/.85),th=Math.max(10,R*dr);g2.save();g2.shadowColor=C.g;g2.shadowBlur=18;g2.fillStyle=C.g;g2.fillRect(sx,cy-th/2,sw,th);g2.restore();tx('2πr',sx+sw/2,cy-th/2-9,C.i,14);tx('dr',sx+sw+16,cy+4,C.i,13);tx('the ring, unrolled',sx+w*.2,cy+th/2+24,C.m,12)};
+const sA=new THREE.Group(),sB=new THREE.Group(),gm=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,depthWrite:false}),arr=[];scene.add(sA,sB);
+[P(1,0,0),P(0,1,0),P(0,0,1)].forEach(dir=>{const g=new THREE.CylinderGeometry(.018,.018,1,10);g.translate(0,.5,0);const m=new THREE.Mesh(g,gm(GOLD,1));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);const t=new THREE.Mesh(new THREE.SphereGeometry(.06,16,12),gm(0xffe27a,1));sA.add(m,t);arr.push([m,t,dir])});
+const w2=new THREE.LineSegments(wire.geometry,new THREE.LineBasicMaterial({color:GOLD,transparent:true,opacity:.4}));sA.add(w2);
+const shO=new THREE.Mesh(new THREE.SphereGeometry(1,64,40,0,Math.PI*1.5),new THREE.MeshBasicMaterial({color:GOLD,transparent:true,opacity:.6,side:THREE.DoubleSide,depthWrite:false})),shI=new THREE.Mesh(shO.geometry,shO.material.clone());shI.material.opacity=.3;sB.add(shO,shI);sB.rotation.y=-Math.PI/2;
+const T3={s:.3,w:.4,o:0,c:0,f:0,d:0},T4={s:.06,w:.22,o:0,c:0,f:0,d:0};
+(function loop(){const e3=fdim==2;sA.visible=step==3&&e3;sB.visible=step==4&&e3;
+ if(step==3&&e3){const r=1+1.5*fp;sphere.scale.setScalar(r);w2.scale.setScalar(r);arr.forEach(([m,t,d])=>{m.scale.y=r;t.position.copy(d).multiplyScalar(r)});zoom=1+.55*(r-1)}else sphere.scale.setScalar(1);
+ if(step==4&&e3){const s=.25+.6*fp;shI.scale.setScalar(s);shO.scale.setScalar(s+.13)}
+ V[4]=e3?cB:cD;T[3]=T3;T[4]=e3?T4:tk;requestAnimationFrame(loop)})();
+
+Object.defineProperty(CanvasRenderingContext2D.prototype,'shadowBlur',{get(){return 0},set(v){}});
+let gS=-1,gF=-1,capT='',cn=0,cvO=-1;const capx=$('#capx'),ctl=$('#ctl'),dimb=$('#dimb'),hint=$('#hint');
+geoDraw=function(t){const f=FIG[step],W=stage.clientWidth,H=stage.clientHeight,d=Math.min(devicePixelRatio,2),dw=f&&f.draw;
+ if(gc.width!=W*d||gc.height!=H*d){gc.width=W*d;gc.height=H*d}
+ g2.setTransform(d,0,0,d,0,0);g2.clearRect(0,0,W,H);
+ if(gS!=step){gS=step;capx.style.display=f?'block':'none';const o=f&&f.dims?'flex':'none';ctl.style.display=dimb.style.display=o;hint.style.visibility=f?'hidden':'visible'}
+ const o=dw&&!(f.dims&&fdim==2)?0:1;if(o!=cvO){cvO=o;cv.style.opacity=o}
+ if(!f)return;
+ if(fauto){const c=(Math.max(0,t-st0)%10)/10;fp=step==1?(c<.6?c/.6:c<.85?1:1-E((c-.85)/.15)):.5-.5*Math.cos(c*6.2832)}
+ const q=f.cap(fp,fdim);if(q!=capT){capT=q;capx.textContent=q}
+ if(gF!=fdim){gF=fdim;db.forEach((b,i)=>b.classList.toggle('on',i==fdim))}
+ if(!dw)return;
+ if(!(cn++%30)){const z=getComputedStyle(document.documentElement),c=k=>z.getPropertyValue(k).trim();C={g:c('--gold'),i:c('--ink'),m:c('--muted'),b:'#6aa8ff',bg:getComputedStyle(document.body).backgroundColor}}
+ f.draw(fp,fdim,12,64,W-24,H-64-48)};
+FIG[1].cap=p=>p<.26?'dA = 2πs · ds':p<.74?'strip length = 2πs':'A = ½ · 2πr · r = πr²';
+FIG[2].cap=p=>{const z=(2*p-1)*.95;return 'A(z) = π(1−z²) = '+(1-z*z).toFixed(2)+'π   ·   V(≤z) = '+(Math.PI*(z-z**3/3+2/3)).toFixed(2)};
+FIG[3].cap=p=>'x = r·y,   r = '+(1+1.5*p).toFixed(2);
+FIG[4].cap=(p,d)=>{const s=(.25+.6*p).toFixed(2);return ['dV = 2 · dr','dV = 2π · '+s+' · dr','dV = 4π · '+s+'² · dr'][d]};
+FIG[7].cap=p=>{const s=2*p;return 'e^(−r²) = e^(−'+(s*s).toFixed(2)+') = '+Math.exp(-s*s).toFixed(2)};
+FIG[9]={cap:()=>'V = 2ⁿ · ∫ over x ≥ 0'};FIG[10]={cap:()=>'u = x²   ·   morph '+Math.round(mt*100)+'%'};
+FIG[11]={cap:()=>'density u₁⁻¹ᐟ² u₂⁻¹ᐟ² u₃⁻¹ᐟ²'};FIG[12]={cap:()=>'Σuᵢ ≤ 1   ·   aᵢ = ½'};FIG[13]={cap:()=>'V₂ = Γ(½)² = π'};
+FIG[14].cap=()=>'V = ⅓ · S · r';
+/* ===== Details overlay ===== */
+const DT=[];let ci=0,dSv=0,capFn=null,capSeq=0;
+document.getElementById('dtdata').textContent.split('\n').forEach(l=>{if(!l.trim())return;const c=l[0],r=l.slice(2);if(c=='=')DT[ci=+l.slice(1)]=[];else if(c=='#')DT[ci].push({h:r,t:[],m:[],f:[]});else{const k=DT[ci][DT[ci].length-1];c=='$'?k.m.push(r):c=='@'?k.f.push(r):k.t.push(l)}});
+const dt=document.createElement('div');dt.id='dt';dt.innerHTML='<div class="dh"><b id="dtt"></b><button id="dx" aria-label="Close details">✕</button></div><div id="dbody"><div id="dfig"><input id="dsl" type="range" min="0" max="100" aria-label="Animate figure"></div><div id="dc"></div></div>';document.body.appendChild(dt);
+const R0=renderer.render.bind(renderer);renderer.render=(a,b)=>{R0(a,b);if(capFn&&capFn(renderer.domElement))capFn=null};
+const SF={6:7},NOF=[5,8,15,16,17],CTL={1:'p',2:'p',3:'p',4:'p',7:'p',10:'m'};let dOpen=0,dTP=0,dMode='',cards=[],dAct=-1;
+const dsl=$('#dsl'),dfig=$('#dfig'),wideQ=matchMedia('(min-width:900px),(orientation:landscape) and (min-width:640px)');
+function dApply(s){if(!isNaN(s[1]))fdim=s[1];if(!isNaN(s[0]))dTP=s[0];if(!isNaN(s[2]))window.pm=s[2];fauto=false}
+function dLoop(){if(!dOpen)return;fp+=(dTP-fp)*.12;if(Math.abs(dTP-fp)<.001)fp=dTP;if(dMode&&document.activeElement!=dsl)dsl.value=(dMode=='m'?(window.pm==null?0:window.pm):fp)*100;requestAnimationFrame(dLoop)}
+function dScroll(){if(!dOpen||!cards.length)return;const line=wideQ.matches?innerHeight*.45:dfig.getBoundingClientRect().bottom+50;let a=0;cards.forEach((c,i)=>{if(c.el.getBoundingClientRect().top<=line)a=i});
+ if(a!=dAct){dAct=a;cards.forEach((c,i)=>c.el.classList.toggle('act',i==a));if(cards[a].st)dApply(cards[a].st)}}
+dsl.oninput=()=>{const v=dsl.value/100;if(dMode=='m')window.pm=v;else fp=dTP=v};
+db.forEach(b=>b.addEventListener('click',()=>{if(dOpen){fauto=false;fp=dTP}}));
+dt.addEventListener('scroll',dScroll,{passive:true});addEventListener('resize',dScroll);
+function openD(i){dSv=i;dOpen=1;const fs=SF[i]!=null?SF[i]:i,has=!NOF.includes(i),box=$('#dc');cards=[];dAct=-1;window.pm=null;
+ $('#dtt').textContent=steps[i].querySelector('h2').textContent+' · details';box.innerHTML=has?'<p class="dhint">Scroll: the figure follows each step · drag it to rotate · use the slider and buttons</p>':'';
+ let last=null;(DT[i]||[]).forEach((b,n)=>{const c=document.createElement('section');c.className='dcard';
+  c.innerHTML='<h3><i>'+(n+1)+'</i>'+b.h+'</h3>'+b.t.map(t=>'<p>'+t+'</p>').join('')+b.m.map(m=>'<div class="math">$$'+m+'$$</div>').join('');
+  if(b.f[0])last=b.f[0].split(',').map(x=>x.trim()===''?NaN:+x);cards.push({el:c,st:last});box.append(c)});
+ $('#dbody').classList.toggle('nofig',!has);dfig.style.display=has?'':'none';
+ if(has){dfig.prepend(stage);go(fs);fauto=false;fp=dTP=0;dMode=CTL[fs]||'';dsl.style.display=dMode?'block':'none'}
+ dt.classList.add('on');dt.scrollTop=0;dfig.style.top=$('.dh').offsetHeight+'px';
+ if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([box]);
+ if(has){dScroll();requestAnimationFrame(dLoop)}}
+function closeD(){dOpen=0;dt.classList.remove('on');window.pm=null;document.querySelector('main').prepend(stage);go(dSv)}
+$('#dx').onclick=closeD;
+addEventListener('keydown',e=>{if(dt.classList.contains('on')){if(e.key=='Escape')closeD();if(e.key.startsWith('Arrow'))e.stopImmediatePropagation()}},true);
+steps.forEach((el,i)=>{const b=document.createElement('button');b.className='dbtn';b.textContent='Details';b.onclick=()=>openD(i);el.prepend(b)});
+
+/* ===== top-of-stage graph explorer for steps 15-17 ===== */
+const gw=document.createElement('div');gw.id='gw';gw.dataset.m='r';
+const gctl=document.createElement('div');gctl.id='gctl';gctl.innerHTML='<div id="gtabs"></div><div class="tw"><table class="tb" id="nt"></table></div>';steps[15].append(gctl);
+gw.innerHTML='<div id="gbox"><canvas id="gc2"></canvas></div><div id="gfoot"><p id="gcap"></p></div>';
+stage.appendChild(gw);gw.onpointerdown=e=>e.stopPropagation();gw.onwheel=e=>e.stopPropagation();
+const gtabs=steps[16].querySelector('.tabs');$('#gtabs').append(gtabs);$('#gbox').append(cv2);$('#gctl').append($('#epsw'));$('#gfoot').append($('#cap'));
+const mb=document.createElement('button');mb.textContent='By radius r';gtabs.prepend(mb);tb[0].textContent='Across n';
+const tbs=[mb,...tb],setM=m=>{gw.dataset.m=m?'r':'c';tbs.forEach((b,i)=>b.classList.toggle('on',m?i==0:i==m0));m?gdraw():draw()};let m0=0;
+mb.addEventListener('click',()=>setM(1));tb.forEach((b,i)=>b.addEventListener('click',()=>{m0=i+1;setM(0)}));mb.classList.add('on');tb[0].classList.remove('on');
+let sn=3,gr=.8;const RM=1.5,gc2=$('#gc2'),g3=gc2.getContext('2d'),nt=$('#nt'),fm=v=>v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2);
+const N9=[...Array(9).keys()];
+nt.innerHTML='<tr><th>n</th>'+N9.map(n=>'<th data-n="'+n+'">'+n+'</th>').join('')+'</tr><tr><td>V(1)</td>'+N9.map(n=>'<td data-n="'+n+'">'+fm(Vn[n])+'</td>').join('')+'</tr><tr><td>S(1)</td>'+N9.map(n=>'<td data-n="'+n+'">'+fm(n*Vn[n])+'</td>').join('')+'</tr>';
+const mark=()=>nt.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('sel',+x.dataset.n==sn));
+const CVt=['1','2','\\pi','\\tfrac43\\pi','\\tfrac{\\pi^2}{2}','\\tfrac{8\\pi^2}{15}','\\tfrac{\\pi^3}{6}','\\tfrac{16\\pi^3}{105}','\\tfrac{\\pi^4}{24}'],CSt=['0','2','2\\pi','4\\pi','2\\pi^2','\\tfrac{8\\pi^2}{3}','\\pi^3','\\tfrac{16\\pi^3}{15}','\\tfrac{\\pi^4}{3}'];
+const pwr=e=>e<1?'':e==1?'\\,r':'\\,r^{'+e+'}';
+function selm(){const n=sn,V=n?CVt[n]+pwr(n):'1',S=n>1?CSt[n]+pwr(n-1):CSt[n],el=$('#selm');
+ if(!el)return;el.innerHTML='$$\\begin{aligned}V_{'+n+'}(r)&='+V+'\\\\ S_{'+(n-1)+'}(r)&=\\tfrac{d}{dr}V_{'+n+'}='+S+'\\\\ \\int_0^rS_{'+(n-1)+'}\\,ds&='+(n?V:'0+1=1')+'\\end{aligned}$$';
+ if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el])}
+const WHY=['A point never grows: V stays 1, so its slope S is 0.','S = 2 is constant (two endpoints), so V = 2r is a straight line.','S = 2πr rises linearly (each ring is longer than the last), so V = πr² curves upward.','S = 4πr² rises like r² (each shell is bigger than the last), so V = ⁴⁄₃πr³ curves up even more.'];
+function gdraw(){const W=gc2.clientWidth,H=gc2.clientHeight,d=devicePixelRatio||1;if(!W||!H)return;
+ gc2.width=W*d;gc2.height=H*d;g3.setTransform(d,0,0,d,0,0);
+ const st=getComputedStyle(document.documentElement),c=k=>st.getPropertyValue(k).trim(),G=c('--gold'),Bl='#6aa8ff',a=Vn[sn],b=sn*a,Vf=r=>a*Math.pow(r,sn),Sf=r=>sn?b*Math.pow(r,sn-1):0;
+ const ym=Math.max(Vf(RM),Sf(RM),1)*1.08,L=34,T=10,B=20,pw2=W-L-12,ph=H-T-B,X=r=>L+r/RM*pw2,Y=v=>T+ph*(1-v/ym);
+ g3.font='11px Inter,sans-serif';g3.lineWidth=1;g3.textAlign='right';
+ for(let i=0;i<=4;i++){const v=ym*i/4;g3.strokeStyle=c('--line');g3.beginPath();g3.moveTo(L,Y(v));g3.lineTo(W-12,Y(v));g3.stroke();g3.fillStyle=c('--muted');g3.fillText(fm(v),L-4,Y(v)+4)}
+ g3.textAlign='center';[0,.5,1,1.5].forEach(r=>g3.fillText(r,X(r),H-5));g3.fillText('r',W-6,H-5);
+ g3.beginPath();g3.moveTo(X(0),Y(0));for(let r=0;r<=gr;r+=.01)g3.lineTo(X(r),Y(Sf(r)));g3.lineTo(X(gr),Y(Sf(gr)));g3.lineTo(X(gr),Y(0));g3.closePath();g3.fillStyle='rgba(106,168,255,.28)';g3.fill();
+ [[Vf,G],[Sf,Bl]].forEach(([f,col])=>{g3.strokeStyle=col;g3.lineWidth=2.5;g3.beginPath();for(let i=0;i<=120;i++){const r=RM*i/120;i?g3.lineTo(X(r),Y(f(r))):g3.moveTo(X(r),Y(f(r)))}g3.stroke()});
+ g3.save();g3.beginPath();g3.rect(L,T,pw2,ph);g3.clip();g3.strokeStyle=G;g3.lineWidth=1.5;g3.setLineDash([5,4]);g3.beginPath();const r1=Math.max(0,gr-.35),r2=Math.min(RM,gr+.35);g3.moveTo(X(r1),Y(Vf(gr)+Sf(gr)*(r1-gr)));g3.lineTo(X(r2),Y(Vf(gr)+Sf(gr)*(r2-gr)));g3.stroke();g3.restore();
+ g3.strokeStyle=c('--muted');g3.setLineDash([3,4]);g3.beginPath();g3.moveTo(X(gr),Y(0));g3.lineTo(X(gr),T);g3.stroke();g3.setLineDash([]);
+ [[Vf,G],[Sf,Bl]].forEach(([f,col])=>{g3.fillStyle=col;g3.beginPath();g3.arc(X(gr),Y(f(gr)),4.5,0,7);g3.fill()});
+ g3.textAlign='left';g3.fillStyle=G;g3.fillText('V(r) volume',L+8,T+12);g3.fillStyle=Bl;g3.fillText('S(r) surface = slope of V',L+8,T+27);
+ const why=sn<4?WHY[sn]:'S ∝ r^'+(sn-1)+' stays tiny until r ≈ 1 and then shoots up, so V ∝ r^'+sn+' hugs the axis first, then climbs steeply.';
+ $('#gcap').innerHTML='<b>n = '+sn+' · r = '+gr.toFixed(2)+' · V = '+fm(Vf(gr))+' · S = '+fm(Sf(gr))+'</b><br>'+why+' Dashed tangent: slope = S. Shaded area under S = V.<br><span style="color:var(--muted)">Pick n in the table · drag the graph to move r</span>'}
+nt.onclick=e=>{const x=e.target.closest('[data-n]');if(!x)return;sn=+x.dataset.n;mark();gdraw();selm()};
+const gp=e=>{const r=gc2.getBoundingClientRect();gr=Math.min(RM,Math.max(0,((e.clientX-r.left)-34)/(r.width-46)*RM));gdraw()};
+gc2.onpointerdown=e=>{gc2.setPointerCapture(e.pointerId);gp(e);gc2.onpointermove=gp};gc2.onpointerup=()=>{gc2.onpointermove=null};
+new ResizeObserver(()=>{if(gw.style.display=='flex'){gdraw();draw()}}).observe(gw);
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',gdraw);mark();
+T[17]=T[16];
+{const g9=go;go=function(o){g9(o);const on=o>=15;gw.style.display=on?'flex':'none';if(on){(steps[o].querySelector('.watch')||steps[o].querySelector('h2')).after(gctl);requestAnimationFrame(()=>{gdraw();draw();selm()})}}}
+go(step);
+</script>
+</body>
+</html>

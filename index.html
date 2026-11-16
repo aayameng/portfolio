@@ -641,25 +641,61 @@
     </div>
 
     <!-- ================= FULLPAGE PROJECTS SHOWCASE MIND MAP OVERLAY ================= -->
-    <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
+    <div id="projects-mindmap-overlay" class="fixed inset-0 z-[100] w-full h-full h-dvh bg-slate-950 text-slate-100 hidden opacity-0 transition-all duration-500 overflow-hidden p-3 sm:p-5 flex flex-col gap-3 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950 via-slate-950 to-yellow-950">
         
-        <div class="absolute top-3 right-3 sm:top-5 sm:right-5 z-50">
-            <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-mono text-xs font-bold transition-all border border-amber-500/30 shadow-lg flex items-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                <span>Back</span>
-            </button>
+        <!-- Top Responsive Header: Title, Search Filter Bar & Back Button -->
+        <div class="relative z-50 w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-xs font-extrabold tracking-wide">
+                    Projects Mind Map
+                </span>
+                <span id="proj-search-status" class="hidden px-2.5 py-1 rounded-full bg-slate-900 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto flex-1 sm:flex-initial justify-end min-w-0">
+                <!-- Live Search Input + Search Button -->
+                <div class="relative flex items-center flex-1 sm:w-72 md:w-80 min-w-0">
+                    <input id="proj-search-input"
+                           type="text"
+                           oninput="handleProjSearch(this.value)"
+                           onkeydown="if(event.key==='Escape'){clearProjSearch();}"
+                           placeholder="Filter CAD, Math, Physics..."
+                           aria-label="Filter projects mind map"
+                           class="w-full pl-3.5 pr-24 py-2 rounded-xl bg-slate-900/95 text-slate-100 placeholder-slate-400 font-mono text-xs border border-amber-500/30 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-lg transition-all" />
+                    <button id="proj-search-clear"
+                            type="button"
+                            onclick="clearProjSearch()"
+                            title="Clear search"
+                            class="hidden absolute right-[4.35rem] px-1.5 py-0.5 rounded text-slate-400 hover:text-white font-mono text-xs cursor-pointer">
+                        ✕
+                    </button>
+                    <button id="proj-search-btn"
+                            type="button"
+                            onclick="triggerProjSearch()"
+                            class="absolute right-1 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-mono text-[11px] font-bold flex items-center gap-1 transition-colors shadow-xs cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <span>Search</span>
+                    </button>
+                </div>
+
+                <button onclick="closeProjectsMindMap()" class="px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-mono text-xs font-bold transition-all border border-amber-500/30 shadow-lg flex items-center gap-1.5 flex-shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Back</span>
+                </button>
+            </div>
         </div>
 
-        <div id="proj-mindmap-container" class="relative w-full h-full flex-1 rounded-2xl border border-amber-500/30 p-3 sm:p-6 md:p-8 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
-            <svg id="proj-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+        <div id="proj-mindmap-container" onscroll="drawProjSVGConnections()" class="relative w-full flex-1 min-h-0 rounded-2xl border border-amber-500/30 p-3 sm:p-5 md:p-7 overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch md:items-center justify-start md:justify-center bg-[radial-gradient(circle,rgba(245,158,11,0.15)_1px,transparent_1px)] bg-[size:16px_16px] sm:bg-[size:24px_24px] bg-slate-900/80 backdrop-blur-md shadow-2xl">
+            <svg id="proj-svg-canvas" class="hidden md:block absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
             
-            <div id="proj-zoom-wrapper" class="w-full h-full max-w-6xl relative z-20 flex items-center justify-center transition-all duration-500 ease-out">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8 w-full h-full items-center my-auto">
-                    <div id="proj-l1-nodes-col" class="space-y-3 sm:space-y-4 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500">
+            <div id="proj-zoom-wrapper" class="w-full md:h-full max-w-6xl mx-auto relative z-20 flex flex-col md:flex-row items-stretch md:items-center justify-start md:justify-center transition-all duration-500 ease-out">
+                <div id="proj-mindmap-grid" class="flex flex-col md:grid md:grid-cols-12 gap-3 sm:gap-5 md:gap-8 w-full md:h-full items-stretch md:items-center">
+                    <div id="proj-l1-nodes-col" class="grid grid-cols-3 md:flex md:flex-col gap-2 sm:gap-3 md:col-span-4 lg:col-span-3 justify-center md:h-full transition-all duration-500 shrink-0">
                     </div>
-                    <div id="proj-l2-nodes-col" onscroll="drawProjSVGConnections()" class="space-y-1.5 sm:space-y-2 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                    <div id="proj-l2-nodes-col" onscroll="drawProjSVGConnections()" class="md:col-span-8 lg:col-span-9 flex flex-col w-full md:h-full md:max-h-full md:overflow-y-auto md:pr-1.5 transition-all duration-500 opacity-0 scale-95 pointer-events-none">
                     </div>
-                    <div id="proj-l3-nodes-col" class="space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none">
+                    <div id="proj-l3-nodes-col" class="hidden space-y-2 sm:space-y-3 flex-col justify-center md:h-full md:max-h-full md:overflow-y-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none">
                     </div>
                 </div>
             </div>
@@ -1440,24 +1476,25 @@
             cad: {
                 name: "CAD 📐",
                 nodes: [
-                    { name: "Boxer Engine 🏎️", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] },
-                    { name: "Stirling Engine ♨️", url: "./projects/CAD/stirling_engine_cad.html", subnodes: [] }
+                    { name: "Boxer Engine 🏎️", keywords: "boxer engine flat piston mechanical cad", url: "./projects/CAD/boxer_engine_cad.html", subnodes: [] },
+                    { name: "Stirling Engine ♨️", keywords: "stirling heat thermal cycle engine cad", url: "./projects/CAD/stirling_engine_cad.html", subnodes: [] }
                 ]
             },
             math: {
                 name: "Math 🧮",
                 nodes: [
-                    { name: "Direction Field Visualizer 📈", url: "./projects/Math/direction_field_visualizer.html", subnodes: [] },
-                    { name: "Platonic Solids 🧊", url: "./projects/Math/platonic_solids.html", subnodes: [] },
-                    { name: "Conic Sections ⭕", url: "./projects/Math/conic_sections.html", subnodes: [] },
-                    { name: "Catenary Curve ⛓️", url: "./projects/Math/catenary_curve.html", subnodes: [] },
-                    { name: "Quadratic Equation 🧮", url: "./projects/Math/quadratic_equation.html", subnodes: [] },
-                    { name: "Gaussian Integral 🔔", url: "./projects/Math/gaussian_integral.html", subnodes: [] },
-                    { name: "Div, Grad, Curl and Laplacian ∇", url: "./projects/Math/div_grad_curl_laplacian.html", subnodes: [] },
+                    { name: "Direction Field Visualizer 📈", keywords: "differential equations slope field ode", url: "./projects/Math/direction_field_visualizer.html", subnodes: [] },
+                    { name: "Platonic Solids 🧊", keywords: "tetrahedron cube octahedron dodecahedron icosahedron 3d polyhedra", url: "./projects/Math/platonic_solids.html", subnodes: [] },
+                    { name: "Conic Sections ⭕", keywords: "circle ellipse parabola hyperbola cone", url: "./projects/Math/conic_sections.html", subnodes: [] },
+                    { name: "Catenary Curve ⛓️", keywords: "hyperbolic cosine cosh hanging chain", url: "./projects/Math/catenary_curve.html", subnodes: [] },
+                    { name: "Quadratic Equation 🧮", keywords: "roots discriminant parabola polynomial", url: "./projects/Math/quadratic_equation.html", subnodes: [] },
+                    { name: "Gaussian Integral 🔔", keywords: "normal distribution bell curve e^-x^2 euler poisson", url: "./projects/Math/gaussian_integral.html", subnodes: [] },
+                    { name: "Div, Grad, Curl and Laplacian ∇", keywords: "divergence gradient curl laplacian nabla del vector calculus", url: "./projects/Math/div_grad_curl_laplacian.html", subnodes: [] },
                     {
                         name: "Geometry of ∫√tan(x) dx",
                         prefix: "Geometry of ",
                         latex: "\\int \\sqrt{\\tan(x)}\\,dx",
+                        keywords: "geometry of integral of sqrt of tan(x) dx square root tangent calculus",
                         url: "./projects/Math/geometry_of_integral_sqrt_tanx.html",
                         subnodes: []
                     },
@@ -1465,26 +1502,114 @@
                         name: "Sum of Cubes",
                         prefix: "",
                         latex: "\\sum_{k=1}^{n} k^3 = \\left(\\sum_{k=1}^{n} k\\right)^2",
+                        keywords: "sum of k^3 = (sum of k)^2 from k=1 to k=n cubes series nicomachus",
                         url: "./projects/Math/sum_of_cubes.html",
                         subnodes: []
                     },
-                    { name: "Monge's Theorem 📐", url: "./projects/Math/monges_theorem.html", subnodes: [] },
-                    { name: "Dirichlet Integral in 3 variables ∭", url: "./projects/Math/dirichlet_integral_in_3_variables.html", subnodes: [] },
-                    { name: "n-ball (volume and surface area) 🌐", url: "./projects/Math/n_ball_volume_and_surface_area.html", subnodes: [] },
-                    { name: "Bessel Function 〰️", url: "./projects/Math/bessel_function.html", subnodes: [] }
+                    { name: "Monge's Theorem 📐", keywords: "three circles external tangents collinear geometry", url: "./projects/Math/monges_theorem.html", subnodes: [] },
+                    { name: "Dirichlet Integral in 3 variables ∭", keywords: "triple integral multivariable gamma simplex", url: "./projects/Math/dirichlet_integral_in_3_variables.html", subnodes: [] },
+                    { name: "n-ball (volume and surface area) 🌐", keywords: "hypersphere n-sphere volume surface area gamma dimension", url: "./projects/Math/n_ball_volume_and_surface_area.html", subnodes: [] },
+                    { name: "Bessel Function 〰️", keywords: "cylindrical harmonics differential equation drum membrane waves", url: "./projects/Math/bessel_function.html", subnodes: [] }
                 ]
             },
             physics: {
                 name: "Physics ⚛️",
                 nodes: [
-                    { name: "Quantum Orbitals 🌌", url: "./projects/Physics/quantum_orbitals.html", subnodes: [] },
-                    { name: "Peacock Feather (Interference) 🦚", url: "./projects/Physics/peacock_feather_interference.html", subnodes: [] }
+                    { name: "Quantum Orbitals 🌌", keywords: "hydrogen atom wavefunction spherical harmonics schrodinger", url: "./projects/Physics/quantum_orbitals.html", subnodes: [] },
+                    { name: "Peacock Feather (Interference) 🦚", keywords: "thin film optical interference structural color wavelength", url: "./projects/Physics/peacock_feather_interference.html", subnodes: [] }
                 ]
             }
         };
 
         let expandedProjCategoryKey = null;
         let expandedProjL2Index = null;
+        let projSearchQuery = '';
+
+        // Return filtered project entries with their original indices preserved
+        function getFilteredProjNodes(categoryKey) {
+            const category = PROJECTS_MINDMAP_DATA[categoryKey];
+            if (!category || !Array.isArray(category.nodes)) return [];
+
+            const q = projSearchQuery.trim().toLowerCase();
+            return category.nodes
+                .map((node, originalIdx) => ({ node, originalIdx }))
+                .filter(({ node }) => {
+                    if (!q) return true;
+                    const haystack = [
+                        category.name,
+                        node.name,
+                        node.prefix,
+                        node.latex,
+                        node.keywords
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    return haystack.includes(q);
+                });
+        }
+
+        // Live filter handler for the Projects mind map search bar
+        function handleProjSearch(rawValue) {
+            projSearchQuery = (rawValue || '').trim();
+            const clearBtn = document.getElementById('proj-search-clear');
+            const statusBadge = document.getElementById('proj-search-status');
+
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', projSearchQuery.length === 0);
+            }
+
+            const categoryKeys = Object.keys(PROJECTS_MINDMAP_DATA);
+            const totalMatches = categoryKeys.reduce(
+                (sum, key) => sum + getFilteredProjNodes(key).length,
+                0
+            );
+
+            if (projSearchQuery.length > 0) {
+                if (statusBadge) {
+                    statusBadge.textContent = `${totalMatches} ${totalMatches === 1 ? 'match' : 'matches'}`;
+                    statusBadge.classList.remove('hidden');
+                }
+                // Automatically switch to the first category containing matches if current has none
+                const currentMatches = expandedProjCategoryKey
+                    ? getFilteredProjNodes(expandedProjCategoryKey).length
+                    : 0;
+                if (currentMatches === 0) {
+                    const firstMatchingKey = categoryKeys.find(
+                        key => getFilteredProjNodes(key).length > 0
+                    );
+                    if (firstMatchingKey) {
+                        expandedProjCategoryKey = firstMatchingKey;
+                        expandedProjL2Index = null;
+                    }
+                }
+            } else {
+                if (statusBadge) {
+                    statusBadge.classList.add('hidden');
+                }
+                if (!expandedProjCategoryKey) {
+                    expandedProjCategoryKey = 'cad';
+                }
+            }
+
+            renderProjL1Nodes();
+            renderProjL2Nodes();
+            renderProjL3Nodes();
+            requestAnimationFrame(drawProjSVGConnections);
+        }
+
+        function triggerProjSearch() {
+            const input = document.getElementById('proj-search-input');
+            if (!input) return;
+            input.focus();
+            handleProjSearch(input.value);
+        }
+
+        function clearProjSearch() {
+            const input = document.getElementById('proj-search-input');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+            handleProjSearch('');
+        }
 
         function openProjectsMindMap() {
             const overlay = document.getElementById('projects-mindmap-overlay');
@@ -1494,6 +1619,9 @@
             if (!expandedProjCategoryKey) {
                 toggleProjCategory('cad');
             } else {
+                renderProjL1Nodes();
+                renderProjL2Nodes();
+                renderProjL3Nodes();
                 setTimeout(drawProjSVGConnections, 100);
             }
         }
@@ -1506,7 +1634,7 @@
         }
 
         function toggleProjCategory(key) {
-            if (expandedProjCategoryKey === key) {
+            if (expandedProjCategoryKey === key && !projSearchQuery) {
                 expandedProjCategoryKey = null;
                 expandedProjL2Index = null;
             } else {
@@ -1550,21 +1678,27 @@
 
             container.innerHTML = categories.map(c => {
                 const isExpanded = expandedProjCategoryKey === c.key;
-                const count = Array.isArray(c.nodes) ? c.nodes.length : 0;
+                const filteredCount = getFilteredProjNodes(c.key).length;
+                const isDimmed = projSearchQuery.length > 0 && filteredCount === 0;
+
                 const borderStyle = isExpanded 
-                    ? 'border-amber-500 bg-amber-600 text-white shadow-lg shadow-amber-500/30 scale-105 z-20' 
-                    : 'border-amber-500/30 bg-slate-900 text-slate-100 hover:border-amber-400 hover:scale-102 shadow-sm';
+                    ? 'border-amber-500 bg-amber-600 text-white shadow-lg shadow-amber-500/30 md:scale-105 z-20' 
+                    : isDimmed
+                        ? 'border-slate-800 bg-slate-900/50 text-slate-500 opacity-60 hover:opacity-90'
+                        : 'border-amber-500/30 bg-slate-900 text-slate-100 hover:border-amber-400 md:hover:scale-102 shadow-sm';
                 const badgeStyle = isExpanded
                     ? 'bg-amber-700/80 text-amber-100 border-amber-300/40'
-                    : 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+                    : isDimmed
+                        ? 'bg-slate-800 text-slate-500 border-slate-700'
+                        : 'bg-amber-500/15 text-amber-300 border-amber-500/30';
 
                 return `
-                    <button onclick="toggleProjCategory('${c.key}')" id="proj-category-${c.key}" class="group px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-2 shadow-md cursor-pointer">
-                        <div class="flex items-center gap-2 min-w-0">
+                    <button onclick="toggleProjCategory('${c.key}')" id="proj-category-${c.key}" class="group px-2.5 sm:px-4 md:px-5 py-2.5 sm:py-3.5 md:py-4 rounded-xl sm:rounded-2xl border-2 ${borderStyle} text-xs sm:text-sm font-mono font-extrabold transition-all duration-300 flex items-center justify-between gap-1.5 sm:gap-2 shadow-md cursor-pointer min-w-0">
+                        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
                             <span class="truncate tracking-wide">${c.name}</span>
-                            <span class="px-1.5 py-0.5 rounded-full border text-[10px] leading-none font-mono font-bold flex-shrink-0 ${badgeStyle}">${count}</span>
+                            <span class="px-1.5 py-0.5 rounded-full border text-[10px] leading-none font-mono font-bold flex-shrink-0 ${badgeStyle}">${filteredCount}</span>
                         </div>
-                        <span class="text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
+                        <span class="hidden md:inline-block text-xs font-mono font-bold ${isExpanded ? 'rotate-90 text-white' : 'text-amber-400 group-hover:translate-x-1'} transition-transform duration-300 flex-shrink-0">
                             ${isExpanded ? '▼' : '→'}
                         </span>
                     </button>
@@ -1574,33 +1708,59 @@
 
         function renderProjL2Nodes() {
             const container = document.getElementById('proj-l2-nodes-col');
+            const l3Container = document.getElementById('proj-l3-nodes-col');
             if (!container) return;
 
             if (!expandedProjCategoryKey) {
-                container.className = 'space-y-1.5 sm:space-y-2 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'md:col-span-8 lg:col-span-9 flex flex-col w-full md:h-full md:max-h-full md:overflow-y-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none';
                 container.innerHTML = '';
                 return;
             }
 
-            const category = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-            container.className = 'space-y-1.5 sm:space-y-2 flex flex-col justify-start md:justify-center h-full max-h-[85vh] overflow-y-auto no-scrollbar py-1 transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            const filteredItems = getFilteredProjNodes(expandedProjCategoryKey);
+            const activeEntry = filteredItems.find(item => item.originalIdx === expandedProjL2Index);
+            const hasL3 = Boolean(activeEntry && activeEntry.node.subnodes && activeEntry.node.subnodes.length > 0);
 
-            container.innerHTML = category.nodes.map((node, idx) => {
-                const isExpanded = idx === expandedProjL2Index;
+            container.className = `${hasL3 ? 'md:col-span-5' : 'md:col-span-8 lg:col-span-9'} flex flex-col w-full md:h-full md:max-h-full md:overflow-y-auto md:pr-1.5 transition-all duration-500 opacity-100 scale-100 pointer-events-auto`;
+            if (l3Container) {
+                l3Container.classList.toggle('hidden', !hasL3);
+                if (hasL3) {
+                    l3Container.classList.add('md:col-span-4', 'flex');
+                }
+            }
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="my-auto p-6 rounded-2xl bg-slate-900/90 border border-amber-500/20 text-center space-y-3">
+                        <p class="text-xs sm:text-sm font-mono text-slate-300">No projects matched "<span class="text-amber-400 font-bold">${projSearchQuery.replace(/</g, '&lt;')}</span>".</p>
+                        <button type="button" onclick="clearProjSearch()" class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono text-xs font-bold transition-colors cursor-pointer">
+                            Reset Search
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Inner my-auto wrapper safely centers short lists vertically while preventing top-clipping overflow on long lists
+            const cardsHTML = filteredItems.map(({ node, originalIdx }, renderIdx) => {
+                const isExpanded = originalIdx === expandedProjL2Index;
                 const activeStyle = isExpanded 
-                    ? 'bg-amber-600 text-white border-amber-500 font-bold shadow-md shadow-amber-600/30 scale-105 z-20' 
-                    : 'bg-slate-900 text-slate-200 border-amber-500/30 hover:border-amber-400 hover:text-amber-300 shadow-sm z-10';
+                    ? 'bg-amber-600 text-white border-amber-500 font-bold shadow-md shadow-amber-600/30 z-20' 
+                    : 'bg-slate-900/95 text-slate-200 border-amber-500/30 hover:border-amber-400 hover:text-amber-300 shadow-sm z-10';
                 
                 const labelHTML = (node.latex && window.katex)
-                    ? `${node.prefix || ''}<span class="inline-block align-middle">${katex.renderToString(node.latex, { throwOnError: false })}</span>`
+                    ? `${node.prefix || ''}<span class="inline-block align-middle max-w-full overflow-x-auto no-scrollbar">${katex.renderToString(node.latex, { throwOnError: false })}</span>`
                     : node.name;
 
                 return `
-                    <button onclick="toggleProjL2Node(${idx})" id="proj-l2-node-${idx}" class="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border text-xs font-mono font-semibold transition-all duration-300 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer flex-shrink-0 ${activeStyle}">
-                        <span class="truncate py-0.5">${labelHTML}</span>
+                    <button onclick="toggleProjL2Node(${originalIdx})" id="proj-l2-node-${renderIdx}" class="group w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-xs sm:text-[13px] font-mono font-semibold transition-all duration-200 text-left flex items-center justify-between gap-2.5 shadow-sm cursor-pointer flex-shrink-0 ${activeStyle}">
+                        <span class="leading-snug break-words min-w-0">${labelHTML}</span>
+                        <span class="text-[11px] font-mono text-amber-400/80 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-transform flex-shrink-0">↗</span>
                     </button>
                 `;
             }).join('');
+
+            container.innerHTML = `<div class="my-auto flex flex-col gap-2 w-full py-1">${cardsHTML}</div>`;
         }
 
         function renderProjL3Nodes() {
@@ -1608,7 +1768,7 @@
             if (!container) return;
 
             if (expandedProjCategoryKey === null || expandedProjL2Index === null) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'hidden space-y-2 sm:space-y-3 flex-col justify-center md:h-full md:max-h-full md:overflow-y-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none';
                 container.innerHTML = '';
                 return;
             }
@@ -1617,15 +1777,15 @@
             const activeNode = category.nodes[expandedProjL2Index];
 
             if (!activeNode || !activeNode.subnodes || activeNode.subnodes.length === 0) {
-                container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-0 scale-95 pointer-events-none translate-x-[-10px]';
+                container.className = 'hidden space-y-2 sm:space-y-3 flex-col justify-center md:h-full md:max-h-full md:overflow-y-auto transition-all duration-500 opacity-0 scale-95 pointer-events-none';
                 container.innerHTML = '';
                 return;
             }
 
-            container.className = 'space-y-2 sm:space-y-3 flex flex-col justify-center h-full max-h-[85vh] transition-all duration-500 opacity-100 scale-100 pointer-events-auto translate-x-0';
+            container.className = 'md:col-span-4 space-y-2 sm:space-y-3 flex flex-col justify-center md:h-full md:max-h-full md:overflow-y-auto transition-all duration-500 opacity-100 scale-100 pointer-events-auto';
 
             container.innerHTML = activeNode.subnodes.map((sub, idx) => `
-                <div id="proj-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm truncate hover:border-amber-400 hover:text-amber-300 transition-all duration-300 hover:scale-102">
+                <div id="proj-l3-node-${idx}" class="px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono shadow-sm leading-snug break-words hover:border-amber-400 hover:text-amber-300 transition-all duration-300">
                     🛠️ ${sub}
                 </div>
             `).join('');
@@ -1634,7 +1794,14 @@
         function drawProjSVGConnections() {
             const svg = document.getElementById('proj-svg-canvas');
             const container = document.getElementById('proj-mindmap-container');
+            const l2Container = document.getElementById('proj-l2-nodes-col');
             if (!svg || !container) return;
+
+            // Skip horizontal bezier connectors on stacked mobile layout
+            if (window.innerWidth < 768) {
+                svg.innerHTML = '';
+                return;
+            }
 
             const cRect = container.getBoundingClientRect();
             svg.setAttribute('width', cRect.width);
@@ -1651,61 +1818,46 @@
                 return;
             }
 
-            const strokeColor = 'rgba(245, 158, 11, 0.8)';
+            const strokeColor = 'rgba(245, 158, 11, 0.75)';
             let pathsHTML = '';
+
+            // Clip curves cleanly to the vertical viewport of the scrollable L2 column
+            if (l2Container) {
+                const l2Box = l2Container.getBoundingClientRect();
+                const clipY = Math.max(0, l2Box.top - cRect.top - 4);
+                const clipH = Math.max(0, l2Box.height + 8);
+                pathsHTML += `
+                    <defs>
+                        <clipPath id="proj-l2-viewport-clip">
+                            <rect x="0" y="${clipY}" width="${cRect.width}" height="${clipH}" />
+                        </clipPath>
+                    </defs>
+                `;
+            }
 
             const pRect = activeCategoryBtn.getBoundingClientRect();
             const pX = pRect.right - cRect.left;
             const pY = pRect.top + pRect.height / 2 - cRect.top;
 
-            if (expandedProjL2Index !== null) {
-                const activeL2Btn = document.getElementById(`proj-l2-node-${expandedProjL2Index}`);
-                if (activeL2Btn) {
-                    const l2Rect = activeL2Btn.getBoundingClientRect();
-                    const l2LeftX = l2Rect.left - cRect.left;
-                    const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+            const filteredItems = getFilteredProjNodes(expandedProjCategoryKey);
+            if (filteredItems.length > 0) {
+                pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#fbbf24" />`;
+                pathsHTML += `<g clip-path="url(#proj-l2-viewport-clip)">`;
 
-                    const cX1 = pX + (l2LeftX - pX) * 0.5;
-                    pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="4 4" />`;
-                    pathsHTML += `<circle cx="${pX}" cy="${pY}" r="4" fill="#fbbf24" />`;
-                    pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="4" fill="#fbbf24" />`;
+                filteredItems.forEach((_, idx) => {
+                    const l2Btn = document.getElementById(`proj-l2-node-${idx}`);
+                    if (l2Btn) {
+                        const l2Rect = l2Btn.getBoundingClientRect();
+                        const l2LeftX = l2Rect.left - cRect.left;
+                        const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
 
-                    const l2RightX = l2Rect.right - cRect.left;
-                    const l2RightY = l2Rect.top + l2Rect.height / 2 - cRect.top;
-
-                    const categoryData = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-                    const activeNode = categoryData ? categoryData.nodes[expandedProjL2Index] : null;
-                    if (activeNode && activeNode.subnodes) {
-                        activeNode.subnodes.forEach((_, subIdx) => {
-                            const l3Node = document.getElementById(`proj-l3-node-${subIdx}`);
-                            if (l3Node) {
-                                const l3Rect = l3Node.getBoundingClientRect();
-                                const l3X = l3Rect.left - cRect.left;
-                                const l3Y = l3Rect.top + l3Rect.height / 2 - cRect.top;
-
-                                const cX2 = l2RightX + (l3X - l2RightX) * 0.5;
-                                pathsHTML += `<path d="M ${l2RightX} ${l2RightY} C ${cX2} ${l2RightY}, ${cX2} ${l3Y}, ${l3X} ${l3Y}" fill="none" stroke="${strokeColor}" stroke-width="2" />`;
-                                pathsHTML += `<circle cx="${l3X}" cy="${l3Y}" r="3.5" fill="#f59e0b" />`;
-                            }
-                        });
+                        const cX1 = pX + (l2LeftX - pX) * 0.5;
+                        pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
+                        pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#fbbf24" />`;
                     }
-                }
-            } else {
-                const categoryData = PROJECTS_MINDMAP_DATA[expandedProjCategoryKey];
-                if (categoryData && categoryData.nodes) {
-                    categoryData.nodes.forEach((_, idx) => {
-                        const l2Btn = document.getElementById(`proj-l2-node-${idx}`);
-                        if (l2Btn) {
-                            const l2Rect = l2Btn.getBoundingClientRect();
-                            const l2LeftX = l2Rect.left - cRect.left;
-                            const l2LeftY = l2Rect.top + l2Rect.height / 2 - cRect.top;
+                });
 
-                            const cX1 = pX + (l2LeftX - pX) * 0.5;
-                            pathsHTML += `<path d="M ${pX} ${pY} C ${cX1} ${pY}, ${cX1} ${l2LeftY}, ${l2LeftX} ${l2LeftY}" fill="none" stroke="${strokeColor}" stroke-width="1.8" />`;
-                            pathsHTML += `<circle cx="${l2LeftX}" cy="${l2LeftY}" r="3" fill="#fbbf24" />`;
-                        }
-                    });
-                }
+                pathsHTML += `</g>`;
             }
 
             svg.innerHTML = pathsHTML;

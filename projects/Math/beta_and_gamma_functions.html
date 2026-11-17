@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}}</script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
 <style>
 :root{--bg:#0e1628;--pn:#0f1a2e;--cd:#161d2b;--gd:#ffc107;--gm:#d8b13a;--tx:#e6e1cf;--mu:#9aa3b5;--ln:#2a3550;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *,*::before,*::after{box-sizing:border-box}
@@ -66,7 +66,7 @@ input[type=range]:focus-visible,.btn:focus-visible,#up:focus-visible{outline:2px
 .ro{margin-top:14px;padding-top:12px;border-top:1px dashed var(--ln);font-size:.8rem;line-height:1.7;color:var(--tx);overflow-wrap:anywhere}
 .ro em{color:var(--gd);font-style:normal;font-weight:600}
 .fin{border:2px solid var(--gd);border-radius:22px;padding:22px 10px;background:rgba(255,193,7,.07);box-shadow:0 0 40px rgba(255,193,7,.18);text-align:center}
-.fin mjx-container{font-size:1.25em}.cap{margin:0;padding:12px 18px;font-size:.86rem;line-height:1.6;color:var(--mu);border-top:1px solid var(--ln)}.cap b{color:var(--gd);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.08em}
+.fin mjx-container{font-size:1.25em}.tb{border-collapse:collapse;width:100%;font-size:.85rem;margin:14px 0}.tb th,.tb td{border:1px solid var(--ln);padding:8px 10px;text-align:center}.tb th{color:var(--gd);font-family:'JetBrains Mono',monospace}.cap{margin:0;padding:12px 18px;font-size:.86rem;line-height:1.6;color:var(--mu);border-top:1px solid var(--ln)}.cap b{color:var(--gd);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.08em}
 #up{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:48px;height:48px;border:0;border-radius:14px;background:var(--gd);display:grid;place-items:center;box-shadow:0 0 20px rgba(255,193,7,.45);z-index:20;cursor:pointer}
 footer{color:var(--mu);font-size:.85em;text-align:center;margin-top:60px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -94,8 +94,9 @@ body:not([data-v=step]) .wrap,body:not([data-v=step]) #nav{display:none}
 <div id="home"><div class="ttl"><i>Γ</i><b>Gamma Function</b></div>
 <p class="lead">Where factorials meet calculus: from a product over every whole number to one clean integral. Each step is built from live geometry you can drag, rotate and play.</p>
 <div class="fin" style="margin:26px 0">$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt$$</div>
-<button class="card hero" id="c0"><span class="dot"></span><span><b>Derivation of Integral definition</b><small>7 steps · 10 live constructions · tap to choose a step</small></span><em class="chev">›</em></button></div>
-<div id="menu"><div class="ttl"><i>Γ</i><b>Gamma Function</b></div><p class="kick" style="margin-top:22px">Derivation of Integral definition: choose a step</p><div id="cards"></div></div>
+<button class="card hero" id="c0"><span class="dot"></span><span><b>Derivation of Integral definition</b><small>7 steps · 10 live constructions · tap to choose a step</small></span><em class="chev">›</em></button>
+<button class="card hero" id="c1" style="margin-top:14px"><span class="dot"></span><span><b>Reflection Formula</b><small>$\Gamma(z)\,\Gamma(1-z)=\dfrac{\pi}{\sin \pi z}$ · 6 steps · 6 live constructions</small></span><em class="chev">›</em></button></div>
+<div id="menu"><div class="ttl"><i>Γ</i><b>Gamma Function</b></div><p class="kick" id="mk" style="margin-top:22px">Derivation of Integral definition: choose a step</p><div id="cards"></div></div>
 <nav id="nav" aria-label="Steps"><i id="bar"></i><button class="btn" id="pv">← PREV</button><div id="dots"></div><span id="lb"></span><button class="btn" id="nx">NEXT →</button></nav>
 <div class="wrap">
 <header>
@@ -162,15 +163,15 @@ $$\int_{[0,1]^n}\frac{dx}{(z+x_1+\cdots+x_n)^{n+1}}=\frac1{n!}\sum_{\text{vertic
 <section>
 <h2><i>4</i>The integral bridge</h2>
 <div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: turn the whole sum of fractions into one integral. Step one: each fraction 1/(z+k) is an area under a power curve. Step two: add the curves first and measure the area once. Step three: the binomial theorem, seen as a cube cut by three planes, folds the sum of curves into the single curve u^(z−1)(1−u)^n.</p></div>
-<p>For $z+k>0$, each fraction is an area:</p>
+<p>For $z+k&gt;0$, each fraction is an area:</p>
 $$\int_0^1u^{z+k-1}\,du=\Big[\frac{u^{z+k}}{z+k}\Big]_0^1=\frac1{z+k}.$$
 <div id="v4"></div>
-<div class="ins"><b>Geometric insight: areas equal fractions</b><p>The number $\frac1{z+k}$ is the exact area under $y=u^{z+k-1}$ on the unit interval, the same as a rectangle of width $1$ and height $\frac1a$ (dashed). Even when $a<1$, where the curve blows up at $0$, the area stays finite. Replacing fractions by areas lets us merge the whole sum into one shape.</p></div>
+<div class="ins"><b>Geometric insight: areas equal fractions</b><p>The number $\frac1{z+k}$ is the exact area under $y=u^{z+k-1}$ on the unit interval, the same as a rectangle of width $1$ and height $\frac1a$ (dashed). Even when $a&lt;1$, where the curve blows up at $0$, the area stays finite. Replacing fractions by areas lets us merge the whole sum into one shape.</p></div>
 <p>Geometrically, each term is a signed area. Stacking the curves first and measuring once gives the same number as measuring each curve and adding, as long as there are finitely many of them. The shared factor $u^{z-1}$ is a common height multiplier, so it can be pulled out of the stack.</p>
 <p>Substitute into the sum. It is finite, so sum and integral may be swapped, and the common factor $u^{z-1}$ comes out:</p>
 $$\sum_{k=0}^{n}(-1)^k\binom nk\int_0^1u^{z+k-1}du=\int_0^1u^{z-1}\underbrace{\sum_{k=0}^{n}\binom nk(-u)^k}_{(1-u)^n\ \text{(binomial theorem)}}du.$$
 $$\frac{n!}{z(z+1)\cdots(z+n)}=\int_0^1u^{z-1}(1-u)^n\,du.$$
-<p>The same cube gives the binomial theorem. Cut it with the planes $x=u$, $y=u$, $z=u$. The corner box where every coordinate is at least $u$ has side $1-u$, so its volume is $(1-u)^n$. Count it the other way, by inclusion–exclusion: start with the whole cube ($1$), remove the $n$ slabs $\{x_i<u\}$ (volume $u$ each), add back the $\binom n2$ pairwise overlaps (volume $u^2$ each), remove the triple overlaps, and so on. That total is $\sum_k\binom nk(-u)^k$.</p>
+<p>The same cube gives the binomial theorem. Cut it with the planes $x=u$, $y=u$, $z=u$. The corner box where every coordinate is at least $u$ has side $1-u$, so its volume is $(1-u)^n$. Count it the other way, by inclusion–exclusion: start with the whole cube ($1$), remove the $n$ slabs $\{x_i&lt;u\}$ (volume $u$ each), add back the $\binom n2$ pairwise overlaps (volume $u^2$ each), remove the triple overlaps, and so on. That total is $\sum_k\binom nk(-u)^k$.</p>
 <div id="w3"></div>
 <div class="ins"><b>Geometric insight: the binomial theorem is a volume</b><p>$\binom nk$ counts the ways to choose $k$ slabs, $u^k$ is the volume where those $k$ slabs overlap, and $(-1)^k$ is the inclusion–exclusion sign. Both counts measure the same gold box.</p></div>
 <div id="v5"></div>
@@ -197,7 +198,7 @@ $$n^{z}\int_0^n\Big(\frac tn\Big)^{z-1}\Big(1-\frac tn\Big)^{n}\frac{dt}{n}=n^{\
 $$\Gamma(z)=\lim_{n\to\infty}\int_0^n t^{z-1}\Big(1-\frac tn\Big)^{n}dt.$$
 <p>For fixed $t$, expand the logarithm:</p>
 $$\Big(1-\frac tn\Big)^n=\exp\!\Big(n\ln\!\big(1-\tfrac tn\big)\Big)=\exp\!\Big(-t-\frac{t^2}{2n}-\cdots\Big)\;\longrightarrow\;e^{-t}.$$
-<p>Moving the limit inside the integral is legitimate. Since $\ln(1-x)\le-x$, we have $0\le(1-t/n)^n\le e^{-t}$ on $[0,n]$, and $t^{z-1}e^{-t}$ is integrable for $\operatorname{Re}z>0$. Dominated convergence applies. Press play and watch $n$ run from 1 to 200.</p>
+<p>Moving the limit inside the integral is legitimate. Since $\ln(1-x)\le-x$, we have $0\le(1-t/n)^n\le e^{-t}$ on $[0,n]$, and $t^{z-1}e^{-t}$ is integrable for $\operatorname{Re}z&gt;0$. Dominated convergence applies. Press play and watch $n$ run from 1 to 200.</p>
 <div id="v7"></div>
 <p>Why the area only creeps up to its limit: for every $t$, $(1-t/n)^n$ rises as $n$ increases but never crosses above $e^{-t}$. The gold curve always sits inside the dashed one and creeps toward it, so the area under gold never overshoots $\Gamma(z)$, and widening the window to $[0,\infty)$ adds the remaining tail.</p>
 <div class="ins"><b>Geometric insight: the exponential limit</b><p>For small $n$, $(1-t/n)^n$ is a polynomial that hits zero at $t=n$. Each increase in $n$ smooths the drop and pushes the end farther out, and the family converges to the decay curve $e^{-t}$. It is compound interest, compounded continuously, applied to area.</p></div>
@@ -206,9 +207,78 @@ $$\Big(1-\frac tn\Big)^n=\exp\!\Big(n\ln\!\big(1-\tfrac tn\big)\Big)=\exp\!\Big(
 <section>
 <h2><i>7</i>The result</h2>
 <div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: read the final formula as a picture and test it. The curve t^(z−1) is a ramp or spike, e^(−t) is a decaying slope, and their product is a hump. Γ(z) is the area under that hump. Check: at z = 1 the area is exactly 1, and each increase of z by 1 multiplies the area by z, which is the factorial rule.</p></div>
-<p>Reading the formula as a picture: $e^{-t}$ is a decaying slope and $t^{z-1}$ is a ramp (for $z>1$) or a spike at $0$ (for $z<1$). Their product is a hump peaking at $t=z-1$, and $\Gamma(z)$ is the whole area under it. At $z=1$ the ramp is flat and the area is exactly $1$. Larger $z$ pushes the hump to the right and makes it taller and wider, which is how the area keeps growing like $(z-1)!$.</p>
-<div class="fin">$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt,\qquad \operatorname{Re}z>0.$$</div>
+<p>Reading the formula as a picture: $e^{-t}$ is a decaying slope and $t^{z-1}$ is a ramp (for $z&gt;1$) or a spike at $0$ (for $z&lt;1$). Their product is a hump peaking at $t=z-1$, and $\Gamma(z)$ is the whole area under it. At $z=1$ the ramp is flat and the area is exactly $1$. Larger $z$ pushes the hump to the right and makes it taller and wider, which is how the area keeps growing like $(z-1)!$.</p>
+<div class="fin">$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt,\qquad \operatorname{Re}z&gt;0.$$</div>
 <p style="margin-top:22px">Sanity checks: $\Gamma(1)=\int_0^\infty e^{-t}dt=1$. Integration by parts gives $\Gamma(z+1)=z\,\Gamma(z)$, so $\Gamma(n+1)=n!$, and the curve in Step 1 is exactly this integral.</p>
+</section>
+
+<section>
+<h2><i>1</i>Anatomy of the formula</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: read the identity piece by piece before proving it. Two curves, one falling and one rising, always multiply to the same trigonometric curve. Later steps turn that product into a length, an area and a mirror image.</p></div>
+$$\Gamma(z)\,\Gamma(1-z)=\frac{\pi}{\sin \pi z},\qquad 0&lt; z&lt; 1.$$
+<p>There are four pieces. $\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}dt$ blows up like $1/z$ as $z\to0^+$. $\Gamma(1-z)$ is its mirror image across $z=\tfrac12$, so it blows up as $z\to1^-$. The constant $\pi$ is the length of the unit semicircle. Finally $\sin\pi z$ is zero at every integer, so $\pi/\sin\pi z$ has a pole at every integer, exactly where one of the two Gamma factors has one.</p>
+<div id="r1"></div>
+<div class="ins"><b>Geometric insight: a U-shaped balance</b><p>Where one factor is huge the other is close to $1$. The product is a symmetric U-shaped curve with its minimum $\pi$ at $z=\tfrac12$, where both factors equal $\sqrt\pi$.</p></div>
+</section>
+
+<section>
+<h2><i>2</i>Algebra: factorials produce a sine</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: prove the identity. Write both factors as Euler limits. The opposite powers of $n$ combine to a harmless $n$, and the leftover factors pair up as $(k+z)(k-z)=k^2-z^2$. That is the shape of Euler’s product for the sine, whose zeros are the integers.</p></div>
+<p>Euler’s limit, applied to $z$ and to $1-z$, gives</p>
+$$\Gamma(z)=\lim_{n\to\infty}\frac{n!\,n^{z}}{z(z+1)\cdots(z+n)},\qquad \Gamma(1-z)=\lim_{n\to\infty}\frac{n!\,n^{1-z}}{(1-z)(2-z)\cdots(n+1-z)}.$$
+<p>Multiply them. The powers give $n^z\cdot n^{1-z}=n$. In the denominator, $(k+z)$ from the first factor meets $(k-z)$ from the second for $k=1,\dots,n$, leaving $z$ and $(n+1-z)$ over:</p>
+$$\Gamma(z)\Gamma(1-z)=\lim_{n\to\infty}\frac{n}{n+1-z}\cdot\frac{(n!)^2}{z\prod_{k=1}^{n}(k^2-z^2)}=\frac{1}{z\prod_{k=1}^{\infty}\left(1-\frac{z^2}{k^2}\right)}.$$
+<p>Here $n/(n+1-z)\to1$, and $(n!)^2=\prod k^2$ divides each $k^2-z^2$ into $1-z^2/k^2$. Euler’s sine product is $\sin\pi z=\pi z\prod_{k\ge1}\left(1-\frac{z^2}{k^2}\right)$, so the denominator is $\sin(\pi z)/\pi$:</p>
+$$\Gamma(z)\Gamma(1-z)=\frac{\pi}{\sin\pi z}.$$
+<div id="r2"></div>
+<div class="ins"><b>Geometric insight: one factor, one pair of poles</b><p>Each factor $1-z^2/k^2$ vanishes at $z=\pm k$, so it adds a pair of poles to the reciprocal. Raise $n$ and the poles march outward along the integers, locking the gold curve onto $\pi/\sin\pi z$.</p></div>
+</section>
+
+<section>
+<h2><i>3</i>Model I: arc over chord</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: turn the identity into a ratio of two lengths. Multiply by $z$ so the left side becomes $z!\,(-z)!$. The right side $\frac{\pi z}{\sin\pi z}$ is then the curved length of a circular arc divided by the straight length of its chord.</p></div>
+<p>Since $z\,\Gamma(z)=\Gamma(1+z)=z!$ and $\Gamma(1-z)=(-z)!$, multiplying the identity by $z$ gives</p>
+$$z!\,(-z)!=\frac{\pi z}{\sin\pi z}=\frac{2\pi z}{2\sin\pi z}.$$
+<p>On a unit circle, a central angle $\theta=2\pi z$ cuts an arc of length $s=R\theta=2\pi z$. Splitting the sector down the middle makes two right triangles with hypotenuse $1$ and angle $\pi z$, so each half-chord is $\sin\pi z$ and the full chord is $c=2\sin\pi z$. Hence $z!\,(-z)!=s/c$.</p>
+<div id="r3"></div>
+<div class="ins"><b>Geometric insight: a curve is never shorter than its straight line</b><p>The arc is always longer than the chord, so $z!\,(-z)!\ge1$. At $z=\tfrac12$ the arc is a semicircle ($\pi$) over a diameter ($2$), giving $(\tfrac12)!\,(-\tfrac12)!=\tfrac\pi2$, which proves $\Gamma(\tfrac12)=\sqrt\pi$. As $z\to0^+$ a tiny arc hugs its chord and the ratio tends to $1=0!\,0!$.</p></div>
+</section>
+
+<section>
+<h2><i>4</i>Model II: area inside a superellipse</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: turn the identity into an area. Multiply by $z(1-z)$ and the left side becomes $\Gamma(1+z)\Gamma(2-z)$. The Beta integral from the Gamma derivation says that this product is the area under a curve $x^p+y^q=1$ in the unit square, with exponents $p=1/z$ and $q=1/(1-z)$.</p></div>
+<p>Because $z\Gamma(z)=\Gamma(1+z)$ and $(1-z)\Gamma(1-z)=\Gamma(2-z)$,</p>
+$$\Gamma(1+z)\,\Gamma(2-z)=\frac{\pi z(1-z)}{\sin\pi z}.$$
+<p>The exponents satisfy $\frac1p+\frac1q=z+(1-z)=1$. Solve $y=(1-x^p)^{1/q}$ and substitute $u=x^p$, so $dx=\frac1p u^{1/p-1}du$:</p>
+$$\text{Area}=\int_0^1(1-x^p)^{1/q}dx=\frac1p\int_0^1u^{\frac1p-1}(1-u)^{\frac1q}du=\frac{\Gamma(1+\frac1p)\,\Gamma(1+\frac1q)}{\Gamma(1+\frac1p+\frac1q)}=\frac{\Gamma(1+z)\Gamma(2-z)}{\Gamma(2)}.$$
+<p>Since $\Gamma(2)=1$, the area equals $\pi z(1-z)/\sin\pi z$.</p>
+<div id="r4"></div>
+<div class="ins"><b>Geometric insight: the quarter circle is the smallest member</b><p>At $z=\tfrac12$ we get $p=q=2$, a quarter circle of area $\pi/4$. Moving $z$ toward $0$ or $1$ pushes one corner out until the curve fills the whole unit square (area $1$).</p></div>
+</section>
+
+<section>
+<h2><i>5</i>Model III: the 180° reflection</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: see why this is called a reflection formula. The map $z\mapsto1-z$ spins the complex plane by $180^\circ$ about the point $\tfrac12$. It swaps the poles of $\Gamma(z)$ with the poles of $\Gamma(1-z)$, so together they cover every integer, just like $\sin\pi z$.</p></div>
+$$1-z=\tfrac12-\left(z-\tfrac12\right).$$
+<p>Whatever distance $z$ sits from $\tfrac12$ in one direction, $1-z$ sits the same distance in the opposite direction. Reflecting the poles of $\Gamma(z)$ lands on the poles of $\Gamma(1-z)$:</p>
+$$\{0,-1,-2,\dots\}\ \longleftrightarrow\ \{1,2,3,\dots\}.$$
+<p>On the real line, this explains the U in Step 1: as $z$ moves right, $\Gamma(z)$ falls and its mirror partner $\Gamma(1-z)$ rises by exactly the mirrored amount.</p>
+<div id="r5"></div>
+<div class="ins"><b>Geometric insight: a half-turn about ½</b><p>Drag the point $z$ anywhere and press PLAY on the rotate slider. The point swings around the pivot $\tfrac12$ and lands on $1-z$. Gold poles (of $\Gamma(z)$) sit on the left of the pivot and blue poles (of $\Gamma(1-z)$) on the right, and each gold pole has a blue partner.</p></div>
+</section>
+
+<section>
+<h2><i>6</i>Three geometries, one table</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: check that all three pictures agree. They are the same function wearing different factors: the identity itself, the identity times $z$ (a length ratio), and the identity times $z(1-z)$ (an area).</p></div>
+<div id="r6"></div>
+<p>Exact values at rational points, where $\sin\pi z$ is a familiar number:</p>
+<div style="overflow-x:auto"><table class="tb"><tr><th>$z$</th><th>$\pi/\sin\pi z$</th><th>arc ÷ chord</th><th>area</th></tr>
+<tr><td>$1/6$</td><td>$2\pi\approx6.2832$</td><td>$\pi/3\approx1.0472$</td><td>$5\pi/18\approx0.8727$</td></tr>
+<tr><td>$1/4$</td><td>$\sqrt2\,\pi\approx4.4429$</td><td>$\pi/(2\sqrt2)\approx1.1107$</td><td>$3\sqrt2\,\pi/16\approx0.8330$</td></tr>
+<tr><td>$1/3$</td><td>$2\pi/\sqrt3\approx3.6276$</td><td>$2\pi/(3\sqrt3)\approx1.2092$</td><td>$4\pi/(9\sqrt3)\approx0.8061$</td></tr>
+<tr><td>$1/2$</td><td>$\pi\approx3.1416$</td><td>$\pi/2\approx1.5708$</td><td>$\pi/4\approx0.7854$</td></tr></table></div>
+<div class="fin">$$\Gamma(z)\,\Gamma(1-z)=\frac{\pi}{\sin \pi z},\qquad z\notin\mathbb Z.$$</div>
+<p style="margin-top:22px">Sanity check: at $z=\tfrac12$ all three models give a classical shape, a semicircle over its diameter, a quarter circle, and a half-turn that fixes its pivot.</p>
 </section>
 <footer>Derived from your notes on the integral definition of the Gamma function.</footer>
 </div>
@@ -238,6 +308,7 @@ function viz(id,t,S,o,d){
  (o.b||[]).map(b=>`<button class="btn" data-t="${b[0]}">${b[1]}</button>`).join('')+(o.p?'<button class="btn" data-p="1">▶ PLAY</button>':'')+'<div class="ro"></div></div>';
  const cn=el.querySelector('canvas'),c=cn.getContext('2d'),ro=el.querySelector('.ro');let tk=0,lw=0;
  const R=()=>{const w=el.clientWidth,h=Math.round(Math.max(240,Math.min(440,w*(o.r||.7)))),r=window.devicePixelRatio||1;
+  if(w<40)return;
   cn.width=w*r;cn.height=h*r;cn.style.height=h+'px';c.setTransform(r,0,0,r,0,0);
   el.querySelectorAll('input').forEach(i=>{v[i.dataset.k]=+i.value;document.getElementById(id+i.dataset.k).textContent=(+i.value).toFixed(+i.step<1?2:0)});
   c.save();ro.innerHTML=d(c,w,h,v)||'';c.restore()};
@@ -248,7 +319,7 @@ function viz(id,t,S,o,d){
  const pb=el.querySelector('[data-p]');
  if(pb)pb.onclick=()=>{const i=el.querySelector('[data-k="'+o.p[0]+'"]'),a=+i.min,b=+i.max,t0=performance.now(),my=++tk;
   const st=n=>{if(my!=tk)return;const u=Math.min(1,(n-t0)/o.p[1]);i.value=o.p[2]?a*Math.pow(b/a,u):a+(b-a)*u;R();if(u<1)requestAnimationFrame(st)};requestAnimationFrame(st)};
- new ResizeObserver(()=>{if(el.clientWidth!==lw){lw=el.clientWidth;R()}}).observe(el)}
+ let rf=0;new ResizeObserver(()=>{cancelAnimationFrame(rf);rf=requestAnimationFrame(()=>{if(el.clientWidth!==lw){lw=el.clientWidth;R()}})}).observe(el)}
 
 viz('v1','Factorial interpolation',[['n','terms n',1,80,1,2],['w','wiggle ε',0,.4,.01,.22]],{b:[['log','LOG SCALE']],p:['n',6000,1],r:.75,cap:'Gold is Euler’s product with n factors; the dashed curve is the true x!. Raise n and the gold curve slides onto the dashed one. The coloured curves hit every dot but wiggle in between, so the dots alone cannot choose a curve. Press LOG SCALE: only the true curve never bends downward. Touch or drag across the plot to read values off the gold curve.'},(c,W,H,v)=>{
  const lf=x=>lg(x+1),eu=(x,n)=>{let s=0;for(let k=1;k<=n;k++)s+=Math.log(x+k);return lg(n+1)+x*Math.log(n)-s};
@@ -382,31 +453,75 @@ const mkBin=G=>{
 t3('w1','Poles as horns: 3D',[['n','n',1,6,1,3],['a','assemble',0,1,.005,0]],{p:['a',9000],r:1,z:11.5,b:[['nospin','STOP SPIN']],cap:'The plane is the complex number z = x + iy. The surface height is ln(1+|f|), so each pole is a spike (a horn). Ball size shows the strength |A_k|; gold means plus, blue means minus. Slide assemble to add the horns one by one and watch them sum to the gold surface. Drag to rotate, double-click to reset the view.'},mkHorn);
 t3('w2','Plane through the cube: 3D',[['s','plane height s',0,3,.01,.5]],{p:['s',8000],r:1,z:9.5,b:[['nospin','STOP SPIN']],cap:'The cube stands on a corner, so the plane x+y+z = s is a flat water level. Dots turn gold once the level passes them: 1, then 3, then 3, then 1, which is Pascal’s row. The curve at the bottom is the slice area as the level rises. Drag to rotate, double-click to reset.'},mkPl);
 t3('w3','Binomial theorem: cutting planes',[['u','cut position u',0,1,.01,.3]],{p:['u',5000],r:1,z:8.5,b:[['nospin','STOP SPIN']],cap:'The blue slabs are the regions x &lt; u, y &lt; u, z &lt; u cut off by three planes. The gold corner box left over has side 1−u. Cube minus slabs plus overlaps minus the triple overlap equals (1−u)³, which is the binomial theorem as a volume. Drag to rotate, double-click to reset.'},mkBin);
-document.getElementById('up').onclick=()=>{if(document.body.dataset.v=='home'){location.href='/';return}const s=document.body.dataset.v=='step';document.body.dataset.v=s?'menu':'home';location.hash=s?'menu':'home';scrollTo(0,0)};
+viz('r1','Γ(z) and its mirror Γ(1−z)',[['z','z',.05,.95,.01,.5]],{r:.62,cap:'Gold is Γ(z), blue is its mirror Γ(1−z), and the dashed curve is π/sin πz. Drag z: the white dot on the dashed curve is always the product of the gold and blue dots. Where gold shoots up, blue sits near 1, and the reverse.'},(c,W,H,v)=>{
+ const z=v.z,{X,Y}=fr(c,W,H,0,1,0,8,.25,2),A=Gm(z),B=Gm(1-z),S=Math.PI/Math.sin(Math.PI*z);
+ cv(c,x=>Math.PI/Math.sin(Math.PI*x),.03,.97,X,Y,'rgba(230,225,207,.85)',2,[6,5],300);
+ cv(c,Gm,.03,.97,X,Y,gd,2.4,[],300);cv(c,x=>Gm(1-x),.03,.97,X,Y,'#5ad1ff',2.4,[],300);
+ c.setLineDash([4,4]);c.strokeStyle='#fff9';c.lineWidth=1;c.beginPath();c.moveTo(X(z),Y(0));c.lineTo(X(z),Y(8));c.stroke();c.setLineDash([]);
+ [[A,gd],[B,'#5ad1ff'],[S,'#fff']].forEach(a=>{c.beginPath();c.arc(X(z),Y(a[0]),6,0,7);c.fillStyle=a[1];c.fill()});
+ return `Γ(z) = <em>${f(A)}</em> · Γ(1−z) = <em>${f(B)}</em> · product = <em>${f(A*B)}</em><br>π = ${f(Math.PI)} · sin πz = ${f(Math.sin(Math.PI*z))} · π/sin πz = <em>${f(S)}</em>`});
+viz('r2','Sine product, one factor at a time',[['n','factors n',0,12,1,3],['z','probe z',.05,.95,.01,.5]],{p:['n',6000],r:.62,cap:'The dashed curve is π/sin πz, with poles at every integer. The gold curve is 1/(z ∏ (1 − z²/k²)) using only n factors; blue dots mark its poles at 0, ±1, …, ±n. Raise n: new poles appear and the gold curve locks onto the dashed one.'},(c,W,H,v)=>{
+ const n=v.n,z=v.z,{X,Y}=fr(c,W,H,-4,4,-8,8,1,4),P=x=>{let p=1/x;for(let k=1;k<=n;k++)p/=1-x*x/(k*k);return p};
+ cv(c,x=>Math.PI/Math.sin(Math.PI*x),-3.98,3.98,X,Y,'rgba(230,225,207,.8)',1.8,[6,5],900);
+ cv(c,P,-3.98,3.98,X,Y,gd,3,[],900);
+ for(let k=-n;k<=n;k++){c.beginPath();c.arc(X(k),Y(0),5,0,7);c.fillStyle='#5ad1ff';c.fill()}
+ return `n = <em>${n}</em>: 1/(z∏(1−z²/k²)) = <em>${f(P(z),5)}</em> at z = ${f(z,2)}<br>π/sin πz = <em>${f(Math.PI/Math.sin(Math.PI*z),5)}</em> · poles so far: <em>${2*n+1}</em>`});
+viz('r3','Arc over chord on the unit circle',[['z','z',.02,.98,.01,.3]],{r:.85,cap:'The gold arc has central angle 2πz, so its length is 2πz. The blue chord joins its endpoints; the dashed segment cuts the chord in half, giving a right triangle with half-chord sin πz. Drag z: the ratio arc ÷ chord equals z!(−z)!.'},(c,W,H,v)=>{
+ const z=v.z,a=Math.PI*z,R=Math.min(W*.4,H*.38),cx=W/2,cy=H*.56,P=t=>[cx+R*Math.sin(t),cy-R*Math.cos(t)],A=P(-a),B=P(a);
+ c.lineWidth=1;c.strokeStyle='rgba(255,255,255,.18)';c.beginPath();c.arc(cx,cy,R,0,7);c.stroke();
+ c.strokeStyle='rgba(230,225,207,.55)';c.setLineDash([4,4]);c.beginPath();c.moveTo(cx,cy);c.lineTo(A[0],A[1]);c.moveTo(cx,cy);c.lineTo(B[0],B[1]);c.moveTo(cx,cy);c.lineTo(cx,A[1]);c.stroke();c.setLineDash([]);
+ c.lineWidth=5;c.lineCap='round';c.strokeStyle=gd;c.beginPath();c.arc(cx,cy,R,-Math.PI/2-a,-Math.PI/2+a);c.stroke();
+ c.strokeStyle='#5ad1ff';c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke();
+ c.font='600 12px JetBrains Mono,monospace';c.textAlign='center';c.fillStyle=gd;c.fillText('arc = 2πz',cx,cy-R-10);c.fillStyle='#5ad1ff';c.fillText('chord = 2 sin πz',cx,A[1]+(a<Math.PI/2?18:-8));
+ return `arc s = 2πz = <em>${f(2*a)}</em> · chord c = 2 sin πz = <em>${f(2*Math.sin(a))}</em><br>s ÷ c = <em>${f(a/Math.sin(a))}</em> · z!(−z)! = Γ(1+z)Γ(1−z) = <em>${f(Gm(1+z)*Gm(1-z))}</em>`});
+viz('r4','Area inside x^p + y^q = 1',[['z','z',.05,.95,.01,.5]],{r:.95,cap:'The gold curve x^p + y^q = 1 with p = 1/z and q = 1/(1−z); the shaded region is its area. The dashed curve is the quarter circle (z = 1/2), the smallest case. Drag z: the area always matches πz(1−z)/sin πz, and as z nears 0 or 1 the curve fills the whole square.'},(c,W,H,v)=>{
+ const z=v.z,p=1/z,q=1/(1-z),{X,Y}=fr(c,W,H,0,1,0,1,.25,.25),g=x=>Math.pow(Math.max(0,1-Math.pow(x,p)),1/q);
+ cv(c,g,0,1,X,Y,'transparent',1,[],400,'rgba(255,193,7,.4)');
+ cv(c,x=>Math.sqrt(1-x*x),0,1,X,Y,'rgba(230,225,207,.7)',1.5,[6,5],200);cv(c,g,0,1,X,Y,gd,3.5,[],400);
+ let s=0;for(let i=0;i<4000;i++)s+=g((i+.5)/4000)/4000;
+ return `p = <em>${f(p,2)}</em>, q = <em>${f(q,2)}</em> · 1/p + 1/q = 1<br>numeric area = <em>${f(s,5)}</em> · Γ(1+z)Γ(2−z) = <em>${f(Gm(1+z)*Gm(2-z),5)}</em> · πz(1−z)/sin πz = ${f(Math.PI*z*(1-z)/Math.sin(Math.PI*z),5)}`});
+viz('r5','Point reflection through ½',[['x','Re z',-3,4,.05,-1.4],['y','Im z',-2,2,.05,.9],['t','rotate 0 to 180°',0,1,.01,.5]],{p:['t',5000],r:.62,cap:'The complex plane. Gold dots are poles of Γ(z) at 0, −1, −2, …; blue dots are poles of Γ(1−z) at 1, 2, 3, …. The white square is the pivot ½. Drag Re z and Im z to place z (gold ring); its partner 1−z (blue ring) is the half-turn image. PLAY spins the white dot from z to 1−z.'},(c,W,H,v)=>{
+ const s=(W-24)/8.4,X=a=>12+(a+3.6)*s,oy=H/2,Y=b=>oy-b*s,T=Math.PI*v.t,dx=v.x-.5,dy=v.y,r=Math.hypot(dx,dy),th=Math.atan2(dy,dx);
+ c.strokeStyle='rgba(255,193,7,.45)';c.lineWidth=1;c.beginPath();c.moveTo(0,oy);c.lineTo(W,oy);c.moveTo(X(0),0);c.lineTo(X(0),H);c.stroke();
+ const dot=(a,b,col,rad)=>{c.beginPath();c.arc(X(a),Y(b),rad,0,7);c.fillStyle=col;c.fill()},ring=(a,b,col)=>{c.beginPath();c.arc(X(a),Y(b),9,0,7);c.lineWidth=2.5;c.strokeStyle=col;c.stroke()};
+ for(let k=0;k<=3;k++)dot(-k,0,gd,5);for(let k=1;k<=4;k++)dot(k,0,'#5ad1ff',5);
+ c.setLineDash([5,5]);c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1;c.beginPath();c.moveTo(X(v.x),Y(v.y));c.lineTo(X(1-v.x),Y(-v.y));c.stroke();c.setLineDash([]);
+ c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(X(.5),Y(0),Math.max(0,r*s),-th,-th-T,true);c.stroke();
+ ring(v.x,v.y,gd);ring(1-v.x,-v.y,'#5ad1ff');dot(.5+dx*Math.cos(T)-dy*Math.sin(T),dx*Math.sin(T)+dy*Math.cos(T),'#fff',6);
+ c.fillStyle='#fff';c.fillRect(X(.5)-4,Y(0)-4,8,8);c.font='600 12px JetBrains Mono,monospace';c.textAlign='center';c.fillStyle=gd;c.fillText('z',X(v.x),Y(v.y)-14);c.fillStyle='#5ad1ff';c.fillText('1−z',X(1-v.x),Y(-v.y)-14);c.fillStyle='#fff';c.fillText('½',X(.5),Y(0)+22);
+ const sg=b=>b<0?'−':'+';
+ return `z = <em>${f(v.x,2)} ${sg(v.y)} ${f(Math.abs(v.y),2)}i</em> · 1−z = <em>${f(1-v.x,2)} ${sg(-v.y)} ${f(Math.abs(v.y),2)}i</em><br>distance from ½: z → <em>${f(r,3)}</em>, 1−z → <em>${f(r,3)}</em> · turned <em>${f(v.t*180,0)}°</em> of 180°`});
+viz('r6','Three models, one z',[['z','z',.05,.95,.01,.25]],{r:.62,cap:'White: Γ(z)Γ(1−z) = π/sin πz. Gold: the same times z, which is arc ÷ chord. Blue: the same times z(1−z), which is the superellipse area. Drag z and compare the three heights; at z = 1/2 they are π, π/2 and π/4.'},(c,W,H,v)=>{
+ const z=v.z,S=x=>Math.sin(Math.PI*x),F=[x=>Math.PI/S(x),x=>Math.PI*x/S(x),x=>Math.PI*x*(1-x)/S(x)],K=['#fff',gd,'#5ad1ff'],{X,Y}=fr(c,W,H,0,1,0,4,.25,1);
+ F.forEach((g,i)=>cv(c,g,.03,.97,X,Y,K[i],i?3:2.4,[],300));
+ c.setLineDash([4,4]);c.strokeStyle='#fff9';c.lineWidth=1;c.beginPath();c.moveTo(X(z),Y(0));c.lineTo(X(z),Y(4));c.stroke();c.setLineDash([]);
+ F.forEach((g,i)=>{c.beginPath();c.arc(X(z),Y(g(z)),5,0,7);c.fillStyle=K[i];c.fill()});
+ return `Γ(z)Γ(1−z) = <em>${f(F[0](z))}</em> (white)<br>arc ÷ chord = z!(−z)! = <em>${f(F[1](z))}</em> (gold) · area = <em>${f(F[2](z))}</em> (blue)`});
+document.getElementById('up').onclick=()=>{if(document.body.dataset.v=='home'){location.href='/';return}const s=document.body.dataset.v=='step';document.body.dataset.v=s?'menu':'home';location.hash=s?'menu'+gi:'home';scrollTo(0,0)};
 const SC=[...document.querySelectorAll('section')],HD=document.querySelector('header'),$=i=>document.getElementById(i),pv=$('pv'),nx=$('nx'),dg=$('dots'),lb=$('lb'),bar=$('bar');
 SC.forEach(s=>[...s.childNodes].forEach(n=>{
  if(n.nodeType==3&&n.textContent.trim()){const fg=document.createDocumentFragment();n.textContent.split(/(\$\$[\s\S]*?\$\$)/).filter(t=>t.trim()).forEach(t=>{const d=document.createElement('div');d.className='blk';d.textContent=t;fg.append(d)});n.replaceWith(fg)}
  else if(n.nodeType==1&&n.tagName!='H2')n.classList.add('blk')}));
 const BL=SC.map(s=>[...s.children].filter(e=>e.classList.contains('blk'))),tot=BL.flat().length,off=BL.map((_,i)=>BL.slice(0,i).reduce((a,b)=>a+b.length,0));
 dg.innerHTML=SC.map((_,i)=>`<button aria-label="Step ${i+1}"></button>`).join('');
-const dl=[...dg.children];let si=0,bi=BL[0].length;
+const dl=[...dg.children];let si=0,bi=BL[0].length;const G=[[0,7],[7,SC.length]];let gi=0;
 function show(){
  SC.forEach((s,i)=>{s.classList.toggle('on',i==si);BL[i].forEach((b,j)=>b.classList.toggle('hid',i!=si||j>=bi))});
  HD.style.display=si?'none':'';
- dl.forEach((d,i)=>d.classList.toggle('on',i==si));
- bar.style.width=100*(off[si]+bi)/tot+'%';lb.textContent='STEP '+(si+1)+'/'+SC.length;
- pv.disabled=!si;const end=si==SC.length-1;nx.disabled=end;nx.textContent=end?'DONE':'NEXT →'}
+ gi=si<G[1][0]?0:1;const[g0,g1]=G[gi],o0=off[g0],o1=g1<SC.length?off[g1]:tot;dl.forEach((d,i)=>{d.classList.toggle('on',i==si);d.style.display=i>=g0&&i<g1?'':'none'});
+ bar.style.width=100*(off[si]+bi-o0)/(o1-o0)+'%';lb.textContent='STEP '+(si-g0+1)+'/'+(g1-g0);
+ pv.disabled=si==g0;const end=si==g1-1;nx.disabled=end;nx.textContent=end?'DONE':'NEXT →'}
 function go(s,b){const ch=s!=si;si=s;bi=b;show();if(ch){scrollTo(0,0);location.hash='s'+(si+1)}}
 nx.onclick=()=>go(si+1,BL[si+1].length);
 pv.onclick=()=>go(si-1,BL[si-1].length);
 dl.forEach((d,i)=>d.onclick=()=>go(i,BL[i].length));
 const V=v=>{document.body.dataset.v=v};
-const rt=()=>{const h=location.hash.slice(1),m=/^s([1-9])$/.exec(h);if(m&&m[1]<=SC.length){const n=m[1]-1;if(document.body.dataset.v!='step'||n!=si){si=n;bi=BL[n].length;V('step');show();scrollTo(0,0)}}else V(h=='menu'?'menu':'home')};
+const rt=()=>{const h=location.hash.slice(1),m=/^s(\d+)$/.exec(h);if(m&&m[1]>0&&m[1]<=SC.length){const n=m[1]-1;if(document.body.dataset.v!='step'||n!=si){si=n;bi=BL[n].length;V('step');show();scrollTo(0,0)}}else{const k=/^menu([01])$/.exec(h);if(k){gi=+k[1];bm(gi);V('menu')}else V('home')}};
 onhashchange=rt;
-const TS=['Euler’s limit and the one smooth curve','Telescoping the partial product','Poles as horns, a plane through the cube','Areas, and cutting planes for (1 − u)ⁿ','The dilation u = t/n','(1 − t/n)ⁿ squeezes into e⁻ᵗ','Γ(z) = ∫ t^(z−1) e^(−t) dt'];
-$('cards').innerHTML=SC.map((s,i)=>`<button class="card" data-i="${i}"><i>${i+1}</i><span><b>${[...s.querySelector('h2').childNodes].pop().textContent}</b><small>${TS[i]}</small></span></button>`).join('');
+const TS=['Euler’s limit and the one smooth curve','Telescoping the partial product','Poles as horns, a plane through the cube','Areas, and cutting planes for (1 − u)ⁿ','The dilation u = t/n','(1 − t/n)ⁿ squeezes into e⁻ᵗ','Γ(z) = ∫ t^(z−1) e^(−t) dt','Four pieces, one identity','Euler limits pair up into a sine product','Arc over chord: a 1D length ratio','Superellipse: a 2D area','Half-turn about ½ and interlocking poles','All three models side by side'];
+const bm=g=>{$('mk').textContent=['Derivation of Integral definition','Derivation of the Reflection Formula'][g]+': choose a step';$('cards').innerHTML=SC.map((s,i)=>i>=G[g][0]&&i<G[g][1]?`<button class="card" data-i="${i}"><i>${i-G[g][0]+1}</i><span><b>${[...s.querySelector('h2').childNodes].pop().textContent}</b><small>${TS[i]}</small></span></button>`:'').join('')};
 $('cards').onclick=e=>{const b=e.target.closest('.card');if(b){si=+b.dataset.i;bi=BL[si].length;V('step');show();scrollTo(0,0);location.hash='s'+(si+1)}};
-$('c0').onclick=()=>{V('menu');scrollTo(0,0);location.hash='menu'};
+$('c0').onclick=()=>{gi=0;bm(0);V('menu');scrollTo(0,0);location.hash='menu0'};$('c1').onclick=()=>{gi=1;bm(1);V('menu');scrollTo(0,0);location.hash='menu1'};
 show();rt();
 </script>
 </body>

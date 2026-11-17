@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deriving the Gamma Function</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}}</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+:root{--bg:#0e1628;--pn:#0f1a2e;--cd:#161d2b;--gd:#ffc107;--gm:#d8b13a;--tx:#e6e1cf;--mu:#9aa3b5;--ln:#2a3550;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(rgba(255,193,7,.13) 1px,transparent 1.3px);background-size:26px 26px;color:var(--tx);font:clamp(16px,2.4vw,18px)/1.75 'Source Serif 4',Georgia,serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 150px}
+h1,h2,.mono,label,.btn,.ro,.chip,.kick,.ins b{font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+.kick{color:var(--gm);font-size:.78rem;letter-spacing:.14em;margin:48px 0 12px}
+h1{font-weight:600;font-size:clamp(1.8rem,7vw,3.2rem);line-height:1.12;color:var(--gd);margin:0 0 18px;letter-spacing:.01em}
+.lead{color:var(--mu);font-size:1.05em;max-width:60ch}
+section{display:none;margin:28px 0}
+section.on{display:block}
+footer{display:none}
+.blk{scroll-margin-top:20px;scroll-margin-bottom:130px}
+.blk.hid{display:none}
+.blk.rv{animation:rv .4s ease-out}
+@keyframes rv{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){.blk.rv{animation:none}}
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px max(12px,calc((100% - 860px)/2)) calc(12px + env(safe-area-inset-bottom,0px));background:rgba(14,22,40,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid var(--ln)}
+#nav .btn{margin:0;min-width:92px}
+.btn:disabled{opacity:.35;cursor:default}
+#nx{background:var(--gd);color:var(--bg);border-color:var(--gd);font-weight:600}
+#bar{position:absolute;top:-1px;left:0;height:3px;width:0;background:var(--gd);box-shadow:0 0 10px var(--gd);transition:width .3s}
+#dots{display:flex;gap:9px}
+#dots button{width:12px;height:12px;padding:0;border-radius:50%;border:1.5px solid #6b5a1a;background:transparent;cursor:pointer}
+#dots button.on{background:var(--gd);border-color:var(--gd);box-shadow:0 0 10px var(--gd)}
+#lb{display:none;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.1em;color:var(--gm)}
+@media (max-width:430px){#dots{display:none}#lb{display:block}}
+h2{display:flex;gap:.8rem;align-items:center;font-weight:600;font-size:clamp(1rem,4.4vw,1.4rem);color:var(--gd);letter-spacing:.05em;margin:0 0 18px;line-height:1.3;padding-right:52px}
+h2 i{flex:none;width:2.4rem;height:2.4rem;display:grid;place-items:center;background:var(--gd);color:var(--bg);border-radius:11px;font-style:normal;font-size:1rem;box-shadow:0 0 18px rgba(255,193,7,.35)}
+p{margin:0 0 14px}
+mjx-container{color:var(--tx)}
+mjx-container[display]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:.35em 0;margin:.4em 0!important}
+.ins{border:1px solid var(--ln);border-left:4px solid var(--gd);background:rgba(255,193,7,.06);border-radius:14px;padding:14px 18px;margin:20px 0;font-size:.93em;line-height:1.65}
+.ins b{display:block;color:var(--gd);font-size:.8rem;letter-spacing:.1em;margin-bottom:4px}
+.ins p{margin:0}
+.vz{border:1px solid var(--ln);border-radius:24px;background:var(--pn);overflow:hidden;margin:24px 0;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+canvas{display:block;width:100%}
+.ph{display:flex;align-items:center;gap:.7rem;padding:15px 18px;cursor:pointer;border-top:1px solid var(--ln);user-select:none}
+.dot{flex:none;width:14px;height:14px;border-radius:50%;background:var(--gd);box-shadow:0 0 12px var(--gd)}
+.ph b{flex:1;color:var(--gd);letter-spacing:.14em;font-size:clamp(.78rem,3.5vw,1rem);text-transform:uppercase}
+.chip{border:1px solid #6b5a1a;background:rgba(255,193,7,.14);color:var(--gd);padding:4px 11px;border-radius:7px;font-size:.7rem;letter-spacing:.08em}
+.chev{color:var(--gd);font-size:1.3rem;line-height:1;transition:transform .2s}
+.fold .chev{transform:rotate(-90deg)}
+.pb{padding:4px 18px 20px;border-top:1px solid var(--ln)}
+.fold .pb{display:none}
+label{display:flex;justify-content:space-between;margin-top:14px;color:var(--gm);font-size:.78rem;letter-spacing:.1em}
+label span{color:var(--tx);font-weight:600}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:9px;background:rgba(255,193,7,.22);outline:0;margin:14px 0 6px;touch-action:pan-y}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--gd);box-shadow:0 0 14px rgba(255,193,7,.7)}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border:0;border-radius:50%;background:var(--gd);box-shadow:0 0 14px rgba(255,193,7,.7)}
+input[type=range]:focus-visible,.btn:focus-visible,#up:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btn{border:1px solid #6b5a1a;background:var(--cd);color:var(--gd);padding:12px 18px;border-radius:14px;letter-spacing:.1em;font-size:.78rem;margin:10px 10px 0 0;cursor:pointer;min-height:44px}
+.btn.on{background:rgba(255,193,7,.22);border-color:var(--gd)}
+.ro{margin-top:14px;padding-top:12px;border-top:1px dashed var(--ln);font-size:.8rem;line-height:1.7;color:var(--tx);overflow-wrap:anywhere}
+.ro em{color:var(--gd);font-style:normal;font-weight:600}
+.fin{border:2px solid var(--gd);border-radius:22px;padding:22px 10px;background:rgba(255,193,7,.07);box-shadow:0 0 40px rgba(255,193,7,.18);text-align:center}
+.fin mjx-container{font-size:1.25em}.cap{margin:0;padding:12px 18px;font-size:.86rem;line-height:1.6;color:var(--mu);border-top:1px solid var(--ln)}.cap b{color:var(--gd);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.08em}
+#up{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:48px;height:48px;border:0;border-radius:14px;background:var(--gd);display:grid;place-items:center;box-shadow:0 0 20px rgba(255,193,7,.45);z-index:20;cursor:pointer}
+footer{color:var(--mu);font-size:.85em;text-align:center;margin-top:60px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#home,#menu{display:none;max-width:860px;margin:0 auto;padding:36px 16px 60px}
+body[data-v=home] #home,body[data-v=menu] #menu{display:block}
+body:not([data-v=step]) .wrap,body:not([data-v=step]) #nav{display:none}
+.ttl{display:flex;align-items:center;gap:14px;margin:0 0 10px;padding-right:56px}
+.ttl i{flex:none;width:clamp(48px,13vw,68px);height:clamp(48px,13vw,68px);display:grid;place-items:center;background:var(--gd);color:var(--bg);border-radius:16px;font:600 clamp(1.8rem,8vw,2.8rem) 'JetBrains Mono',monospace;box-shadow:0 0 28px rgba(255,193,7,.45)}
+.ttl b{font:600 clamp(1.5rem,7vw,2.7rem) 'JetBrains Mono',ui-monospace,monospace;color:var(--gd);letter-spacing:.03em;line-height:1.1}
+#cards{display:grid;gap:12px;grid-template-columns:1fr;margin-top:18px}
+@media (min-width:720px){#cards{grid-template-columns:1fr 1fr}}
+.card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1px solid #6b5a1a;background:var(--cd);color:var(--gd);border-radius:18px;padding:16px 18px;cursor:pointer;font-family:'JetBrains Mono',ui-monospace,monospace;transition:border-color .2s,box-shadow .2s}
+.card:hover,.card:focus-visible{border-color:var(--gd);box-shadow:0 0 22px rgba(255,193,7,.28);outline:0}
+.card i{flex:none;width:2.4rem;height:2.4rem;display:grid;place-items:center;background:var(--gd);color:var(--bg);border-radius:11px;font-style:normal;font-weight:600}
+.card b{display:block;font-size:.98rem;letter-spacing:.03em;line-height:1.35}
+.card small{display:block;color:var(--mu);font-size:.76rem;font-weight:400;margin-top:3px;line-height:1.4}
+.card .chev{margin-left:auto;font-size:1.8rem;font-style:normal}
+.card.hero{padding:22px 20px;border-color:var(--gd);background:rgba(255,193,7,.08)}
+.card.hero b{font-size:clamp(1rem,4.6vw,1.3rem)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body data-v="home">
+<button id="up" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0e1628" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+<div id="home"><div class="ttl"><i>Γ</i><b>Gamma Function</b></div>
+<p class="lead">Where factorials meet calculus: from a product over every whole number to one clean integral. Each step is built from live geometry you can drag, rotate and play.</p>
+<div class="fin" style="margin:26px 0">$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt$$</div>
+<button class="card hero" id="c0"><span class="dot"></span><span><b>Derivation of Integral definition</b><small>7 steps · 10 live constructions · tap to choose a step</small></span><em class="chev">›</em></button></div>
+<div id="menu"><div class="ttl"><i>Γ</i><b>Gamma Function</b></div><p class="kick" style="margin-top:22px">Derivation of Integral definition: choose a step</p><div id="cards"></div></div>
+<nav id="nav" aria-label="Steps"><i id="bar"></i><button class="btn" id="pv">← PREV</button><div id="dots"></div><span id="lb"></span><button class="btn" id="nx">NEXT →</button></nav>
+<div class="wrap">
+<header>
+<p class="kick">Interactive derivation: 7 steps, 7 live constructions</p>
+<h1>From infinite products to the Gamma integral</h1>
+<p class="lead">We start with nothing but factorials and finish at $\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt$. Each geometric idea in the proof is a live panel below: drag the sliders, press play, fold the panels away. Use NEXT and PREV below to move between steps; each step is shown in full.</p>
+</header>
+
+<section>
+<h2><i>1</i>Factorials between the integers</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>We know n! only for whole numbers, which is a row of dots on a graph. Goal: draw one smooth curve through the dots, so that x! makes sense for any x. Many curves fit, so we add one shape rule (the curve of ln x! never bends downward). Exactly one curve passes through the dots and obeys it, and Euler’s limit builds that curve.</p></div>
+<p>We want a smooth curve through $(0,1),(1,1),(2,2),(3,6),(4,24),\dots$, which means giving $x!$ a value when $x$ is not a whole number. For whole numbers, $(n+x)!$ can be grouped in two ways:</p>
+$$(n+x)! = n!\,(n+1)(n+2)\cdots(n+x) = x!\,(x+1)(x+2)\cdots(x+n).$$
+<p>Solve for $x!$, then multiply and divide by $n!\,n^{x}$:</p>
+$$x!=\frac{(n+x)!}{(x+1)\cdots(x+n)}=\underbrace{\frac{(n+x)!}{n!\,n^{x}}}_{\to\,1}\cdot\frac{n!\,n^{x}}{(x+1)(x+2)\cdots(x+n)}.$$
+<p>The first factor tends to $1$: $(n+x)!/n!=(n+1)\cdots(n+x)$ has $x$ factors, each about $n$ for large $n$, so it is about $n^x$. (This is the classical $n!=\lim_{x\to\infty}x^n/\binom xn$ with the letters swapped.) That gives Euler’s limit:</p>
+$$x!=\lim_{n\to\infty}\frac{n!\,n^{x}}{(x+1)(x+2)\cdots(x+n)}.$$
+<p>The right side makes sense for any $x$, so we take it as the definition. Watch the curve snap onto the integer points as $n$ grows.</p>
+<div id="v1"></div>
+<p>Notice that the dots alone do not decide the curve. The coloured curves are $x!\,(1+\varepsilon\sin 2\pi x)$ and similar: since $\sin 2\pi x=0$ at every whole number, they pass through every dot exactly, yet they swing above and below the gold curve in between. Drag “wiggle ε” to make them rowdier, or to flatten them back onto the true curve.</p>
+<p>What rules them out is one extra shape rule, the Bohr–Mollerup theorem: the only function with $f(0)=1$, $f(x+1)=(x+1)f(x)$ and $\ln f$ convex (always bending upward) is the Euler limit. Press LOG SCALE: the gold curve $\ln x!$ bends upward everywhere, while every coloured curve has stretches that bend downward. Those stretches break log-convexity, so those curves are rejected.</p>
+<div class="ins"><b>Geometric insight: continuous interpolation</b><p>Infinitely many curves pass through the integer points. The Bohr–Mollerup theorem says this one is the only curve that is also log-convex. Switch on LOG SCALE: $\ln x!$ bends upward everywhere, with no wiggles between the points.</p></div>
+</section>
+
+<section>
+<h2><i>2</i>Shift by one: the Gamma function</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: rename the curve so Γ(z) = (z−1)!, then see why the long product is well behaved. Take logarithms: a product becomes a sum of lengths, and the telescoping product becomes bars laid end to end on a ruler. Only the two ends of the ruler matter, so the whole product collapses.</p></div>
+<p>Define $\Gamma(z)=(z-1)!=z!/z$. Put the limit above in the numerator:</p>
+$$\Gamma(z)=\lim_{n\to\infty}\frac{n!\,n^{z}}{z(z+1)(z+2)\cdots(z+n)}.$$
+<p>To see that the algebra is consistent, build the partial product $P_n=\prod_{k=1}^{n}\frac{(1+1/k)^{z-1}}{1+(z-1)/k}$. The numerator telescopes:</p>
+$$\prod_{k=1}^{n}\Big(1+\frac1k\Big)^{z-1}=\Big(\frac21\cdot\frac32\cdots\frac{n+1}{n}\Big)^{z-1}=(n+1)^{z-1}.$$
+<p>The denominator is a ratio of rising products:</p>
+$$\prod_{k=1}^{n}\frac{k+z-1}{k}=\frac{z}{1}\cdot\frac{z+1}{2}\cdots\frac{z+n-1}{n}=\frac{z(z+1)\cdots(z+n-1)}{n!}.$$
+$$P_n=\frac{n!\,(n+1)^{z-1}}{z(z+1)\cdots(z+n-1)}\;\longrightarrow\;\Gamma(z),$$
+<p>because $(n+1)^{z-1}/n^{z-1}\to1$. This is the formula above with $n$ shifted by one.</p>
+<div id="v2"></div>
+<p>Why this is the right picture: a logarithm turns a product into a sum of lengths. The factor $\frac{k+1}{k}$ becomes a bar of length $\ln\frac{k+1}{k}$, and each bar starts exactly where the previous one ended, so only the two outer endpoints $\ln1$ and $\ln(n+1)$ survive. Raising to the power $z-1$ multiplies every length by $z-1$, a uniform stretch of the whole ruler, which turns $n+1$ into $(n+1)^{z-1}$.</p>
+<p>The denominator factors $1+\frac{z-1}{k}$ are nearly the same bars, each slightly longer or shorter depending on $z$. Their small mismatches add up to a finite amount, and that finite leftover is exactly what makes the limit $\Gamma(z)$ exist.</p>
+<p>Each bar has length $\ln(1+\tfrac1k)$. The bars tile the ruler from $\ln1$ to $\ln(n+1)$ with no gaps or overlaps, and that is what telescoping means.</p>
+</section>
+
+<section>
+<h2><i>3</i>Partial fractions</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: replace one fraction with n+1 poles by n+1 fractions with one pole each. Picture a landscape over the plane: each pole is a spike, and the whole function is the sum of the spikes. Next question: where do the coefficients (−1)^k C(n,k) come from? Answer: stand the unit cube on a corner and sweep a plane through it. The plane meets C(n,k) vertices at level k, and each vertex carries the sign (−1)^k.</p></div>
+<p>Why split a fraction at all? The left side has $n+1$ poles at once, which makes it hard to integrate. Partial fractions rewrite it as a sum of simple pieces with one pole each, and each piece can be handled alone.</p>
+<p>To turn the discrete product into an integral, split the fraction:</p>
+$$\frac{n!}{z(z+1)\cdots(z+n)}=\sum_{k=0}^{n}\frac{A_k}{z+k}.$$
+<p>Cover-up method: multiply both sides by $(z+k)$, then set $z=-k$. Every other term vanishes, so</p>
+$$A_k=\frac{n!}{\prod_{j\ne k}(j-k)}=\frac{n!}{\underbrace{(-k)\cdots(-1)}_{(-1)^k\,k!}\cdot\underbrace{1\cdot2\cdots(n-k)}_{(n-k)!}}=(-1)^k\binom nk.$$
+$$\frac{n!}{z(z+1)\cdots(z+n)}=\sum_{k=0}^{n}(-1)^k\binom nk\frac1{z+k}.$$
+<p>The coefficients are a row of Pascal’s triangle with alternating signs. In the panel, the thin curves are the individual terms and the gold curve is their sum. The vertical probe shows both sides agree.</p>
+<div id="v3"></div>
+<p>Now lift it into 3D. Read $z$ as a point $x+iy$ of the plane and plot the height $\ln(1+|f|)$. Each term $\frac{A_k}{z+k}$ is a horn standing over its pole $z=-k$, and the ball at the pole shows the strength $|A_k|$. Slide “assemble” to add the horns one at a time; the gold surface is their sum. Drag to rotate.</p>
+<div id="w1"></div>
+<div class="ins"><b>Geometric insight: poles are the pieces</b><p>Near $z=-k$ every other term is smooth, so the surface looks exactly like the single horn $A_k/(z+k)$. That is why the cover-up method works: covering up $(z+k)$ and evaluating at $-k$ reads off the horn’s strength. Gold balls carry $+$ signs and blue balls $-$, the alternating signs of Pascal’s row.</p></div>
+<p>The strengths $\binom nk$ also have a shape, and the shape explains the alternating signs. Take the unit cube $[0,1]^n$ and the plane $x_1+\cdots+x_n=s$. Stand the cube on one corner so the plane is a horizontal water level, then raise $s$ from $0$ to $n$. A vertex with $k$ coordinates equal to $1$ sits at height $k$, so the level touches exactly $\binom nk$ vertices when $s=k$. Each coordinate is a yes/no choice and $s$ counts the yeses, so sorting vertices by height is sorting choices by $k$. For $n=3$ the counts are $1,3,3,1$, and the slice goes triangle, hexagon, triangle.</p>
+<div id="w2"></div>
+<p>Now the link to fractions. Integrate $(z+x_1+\cdots+x_n)^{-(n+1)}$ over the cube one coordinate at a time. Each step is “value at $x_i=0$ minus value at $x_i=1$”, and the constants from the antiderivatives, $\frac1n\cdot\frac1{n-1}\cdots\frac11$, collect into $\frac1{n!}$. After $n$ steps the cube has been replaced by its vertices ($k$ = number of coordinates equal to $1$):</p>
+$$\int_{[0,1]^n}\frac{dx}{(z+x_1+\cdots+x_n)^{n+1}}=\frac1{n!}\sum_{\text{vertices}}\frac{(-1)^{k}}{z+k}=\frac1{n!}\sum_{k=0}^n(-1)^k\binom nk\frac1{z+k}.$$
+<p>The integrand depends only on the height $k$, so the $2^n$ vertices collapse into levels of size $\binom nk$.</p>
+<div class="ins"><b>Geometric insight: why the signs alternate</b><p>Each vertex pays a toll of $-1$ for every coordinate sitting at the top endpoint. Level $k$ has $k$ such coordinates, so its sign is $(-1)^k$, and it holds $\binom nk$ vertices. By the cover-up result the whole expression equals $\frac1{z(z+1)\cdots(z+n)}$: the partial fractions are the cube’s vertices, read off along the diagonal.</p></div>
+</section>
+
+<section>
+<h2><i>4</i>The integral bridge</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: turn the whole sum of fractions into one integral. Step one: each fraction 1/(z+k) is an area under a power curve. Step two: add the curves first and measure the area once. Step three: the binomial theorem, seen as a cube cut by three planes, folds the sum of curves into the single curve u^(z−1)(1−u)^n.</p></div>
+<p>For $z+k>0$, each fraction is an area:</p>
+$$\int_0^1u^{z+k-1}\,du=\Big[\frac{u^{z+k}}{z+k}\Big]_0^1=\frac1{z+k}.$$
+<div id="v4"></div>
+<div class="ins"><b>Geometric insight: areas equal fractions</b><p>The number $\frac1{z+k}$ is the exact area under $y=u^{z+k-1}$ on the unit interval, the same as a rectangle of width $1$ and height $\frac1a$ (dashed). Even when $a<1$, where the curve blows up at $0$, the area stays finite. Replacing fractions by areas lets us merge the whole sum into one shape.</p></div>
+<p>Geometrically, each term is a signed area. Stacking the curves first and measuring once gives the same number as measuring each curve and adding, as long as there are finitely many of them. The shared factor $u^{z-1}$ is a common height multiplier, so it can be pulled out of the stack.</p>
+<p>Substitute into the sum. It is finite, so sum and integral may be swapped, and the common factor $u^{z-1}$ comes out:</p>
+$$\sum_{k=0}^{n}(-1)^k\binom nk\int_0^1u^{z+k-1}du=\int_0^1u^{z-1}\underbrace{\sum_{k=0}^{n}\binom nk(-u)^k}_{(1-u)^n\ \text{(binomial theorem)}}du.$$
+$$\frac{n!}{z(z+1)\cdots(z+n)}=\int_0^1u^{z-1}(1-u)^n\,du.$$
+<p>The same cube gives the binomial theorem. Cut it with the planes $x=u$, $y=u$, $z=u$. The corner box where every coordinate is at least $u$ has side $1-u$, so its volume is $(1-u)^n$. Count it the other way, by inclusion–exclusion: start with the whole cube ($1$), remove the $n$ slabs $\{x_i<u\}$ (volume $u$ each), add back the $\binom n2$ pairwise overlaps (volume $u^2$ each), remove the triple overlaps, and so on. That total is $\sum_k\binom nk(-u)^k$.</p>
+<div id="w3"></div>
+<div class="ins"><b>Geometric insight: the binomial theorem is a volume</b><p>$\binom nk$ counts the ways to choose $k$ slabs, $u^k$ is the volume where those $k$ slabs overlap, and $(-1)^k$ is the inclusion–exclusion sign. Both counts measure the same gold box.</p></div>
+<div id="v5"></div>
+<p>The area under the curve matches the product, to every digit shown. This is Euler’s Beta integral $B(z,n+1)$.</p>
+<p>The two cube pictures are one. Put $\frac1{(z+s)^{n+1}}=\frac1{n!}\int_0^\infty w^ne^{-(z+s)w}\,dw$ into the cube integral from Step 3. The cube integral of $e^{-w(x_1+\cdots+x_n)}$ factors into $n$ equal one-dimensional integrals, each $\int_0^1e^{-wx}dx=\frac{1-e^{-w}}{w}$, so the powers of $w$ cancel:</p>
+$$\frac1{z(z+1)\cdots(z+n)}=\frac1{n!}\int_0^\infty e^{-zw}(1-e^{-w})^n\,dw=\frac1{n!}\int_0^1u^{z-1}(1-u)^n\,du,\qquad u=e^{-w}.$$
+<p>Multiply by $n!$ and the Beta integral appears a second way: the diagonal plane supplies the fractions, and the factor $(1-e^{-w})^n$ is the binomial theorem on the same cube.</p>
+</section>
+
+<section>
+<h2><i>5</i>Stretching the domain</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: stop the hump from shrinking as n grows. The factor (1−u)^n pushes all the area against u = 0. Stretch the horizontal axis by n and shrink the heights by n: the area is unchanged, but the hump no longer collapses and settles into a fixed shape on the window [0, n].</p></div>
+<p>Insert the integral into $\Gamma$: $\Gamma(z)=\lim_{n\to\infty}n^z\int_0^1u^{z-1}(1-u)^n\,du$. Substitute $u=t/n$, so $du=dt/n$, with $u:0\to1$ becoming $t:0\to n$:</p>
+$$n^{z}\int_0^n\Big(\frac tn\Big)^{z-1}\Big(1-\frac tn\Big)^{n}\frac{dt}{n}=n^{\,z-(z-1)-1}\int_0^n t^{z-1}\Big(1-\frac tn\Big)^{n}dt=\int_0^n t^{z-1}\Big(1-\frac tn\Big)^{n}dt.$$
+<p>The powers of $n$ cancel exactly: $z-(z-1)-1=0$. Slide $s$ from $0$ to $1$ to dilate the window by the factor $n^s$.</p>
+<div id="v6"></div>
+<p>Why must $n^z$ be there? As $n$ grows, $(1-u)^n$ squeezes the hump against $u=0$, and the total area shrinks like $n^{-z}$. Multiplying by $n^z$ restores it. The dilation does the same job geometrically: stretching the width by $n$ undoes the squeeze, so the hump stops running away and settles into a fixed shape.</p>
+<div class="ins"><b>Geometric insight: domain dilation</b><p>The map $(u,y)\mapsto(nu,\,y/n)$ stretches the picture horizontally by $n$ and squashes it vertically by $n$, so the area never changes. As $n\to\infty$ the window $[0,n]$ grows to cover the whole half-line $[0,\infty)$.</p></div>
+</section>
+
+<section>
+<h2><i>6</i>The exponential limit</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: identify the limiting shape. For a fixed t, (1−t/n)^n is compound interest with a negative rate: it rises toward e^(−t) as n grows and never crosses it. So the area under the stretched hump creeps up to the area under t^(z−1)e^(−t).</p></div>
+$$\Gamma(z)=\lim_{n\to\infty}\int_0^n t^{z-1}\Big(1-\frac tn\Big)^{n}dt.$$
+<p>For fixed $t$, expand the logarithm:</p>
+$$\Big(1-\frac tn\Big)^n=\exp\!\Big(n\ln\!\big(1-\tfrac tn\big)\Big)=\exp\!\Big(-t-\frac{t^2}{2n}-\cdots\Big)\;\longrightarrow\;e^{-t}.$$
+<p>Moving the limit inside the integral is legitimate. Since $\ln(1-x)\le-x$, we have $0\le(1-t/n)^n\le e^{-t}$ on $[0,n]$, and $t^{z-1}e^{-t}$ is integrable for $\operatorname{Re}z>0$. Dominated convergence applies. Press play and watch $n$ run from 1 to 200.</p>
+<div id="v7"></div>
+<p>Why the area only creeps up to its limit: for every $t$, $(1-t/n)^n$ rises as $n$ increases but never crosses above $e^{-t}$. The gold curve always sits inside the dashed one and creeps toward it, so the area under gold never overshoots $\Gamma(z)$, and widening the window to $[0,\infty)$ adds the remaining tail.</p>
+<div class="ins"><b>Geometric insight: the exponential limit</b><p>For small $n$, $(1-t/n)^n$ is a polynomial that hits zero at $t=n$. Each increase in $n$ smooths the drop and pushes the end farther out, and the family converges to the decay curve $e^{-t}$. It is compound interest, compounded continuously, applied to area.</p></div>
+</section>
+
+<section>
+<h2><i>7</i>The result</h2>
+<div class="ins"><b>THE IDEA IN PLAIN WORDS</b><p>Goal: read the final formula as a picture and test it. The curve t^(z−1) is a ramp or spike, e^(−t) is a decaying slope, and their product is a hump. Γ(z) is the area under that hump. Check: at z = 1 the area is exactly 1, and each increase of z by 1 multiplies the area by z, which is the factorial rule.</p></div>
+<p>Reading the formula as a picture: $e^{-t}$ is a decaying slope and $t^{z-1}$ is a ramp (for $z>1$) or a spike at $0$ (for $z<1$). Their product is a hump peaking at $t=z-1$, and $\Gamma(z)$ is the whole area under it. At $z=1$ the ramp is flat and the area is exactly $1$. Larger $z$ pushes the hump to the right and makes it taller and wider, which is how the area keeps growing like $(z-1)!$.</p>
+<div class="fin">$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt,\qquad \operatorname{Re}z>0.$$</div>
+<p style="margin-top:22px">Sanity checks: $\Gamma(1)=\int_0^\infty e^{-t}dt=1$. Integration by parts gives $\Gamma(z+1)=z\,\Gamma(z)$, so $\Gamma(n+1)=n!$, and the curve in Step 1 is exactly this integral.</p>
+</section>
+<footer>Derived from your notes on the integral definition of the Gamma function.</footer>
+</div>
+
+<script>
+const gd='#ffc107',tx='#e6e1cf',f=(x,d=4)=>x.toFixed(d);let HX=null;
+const lg=x=>{let s=0;for(;x<8;x++)s-=Math.log(x);return s+(x-.5)*Math.log(x)-x+.9189385+1/(12*x)-1/(360*x**3)};
+const Gm=z=>Math.exp(lg(z)),Cb=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)};
+const nice=r=>{const p=10**Math.floor(Math.log10(r));return p*[1,2,5,10].find(q=>q*p>=r)};
+function fr(c,W,H,x0,x1,y0,y1,xs,ys){
+ const L=40,T=12,B=26,R=12,X=x=>L+(x-x0)/(x1-x0)*(W-L-R),Y=y=>H-B-(y-y0)/(y1-y0)*(H-T-B);
+ c.font='11px JetBrains Mono,ui-monospace,monospace';c.lineWidth=1;c.strokeStyle='rgba(255,255,255,.07)';c.fillStyle='#a8964a';c.textAlign='center';
+ for(let x=Math.ceil(x0/xs-1e-9)*xs;x<=x1+1e-9;x+=xs){c.beginPath();c.moveTo(X(x),T);c.lineTo(X(x),H-B);c.stroke();c.fillText(+x.toPrecision(2),X(x),H-B+16)}
+ c.textAlign='right';
+ for(let y=Math.ceil(y0/ys-1e-9)*ys;y<=y1+1e-9;y+=ys){c.beginPath();c.moveTo(L,Y(y));c.lineTo(W-R,Y(y));c.stroke();c.fillText(+y.toPrecision(2),L-6,Y(y)+4)}
+ c.strokeStyle='rgba(255,193,7,.55)';c.beginPath();c.moveTo(L,T);c.lineTo(L,H-B);c.lineTo(W-R,H-B);c.stroke();
+ c.beginPath();c.rect(L-8,T-6,W-L-R+14,H-T-B+12);c.clip();return{X,Y}}
+function cv(c,g,a,b,X,Y,col,w=2.5,dash=[],N=300,fill){
+ c.beginPath();for(let i=0;i<=N;i++){const x=a+(b-a)*i/N,y=g(x);i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))}
+ if(fill){c.lineTo(X(b),Y(0));c.lineTo(X(a),Y(0));c.closePath();c.fillStyle=fill;c.fill()}
+ c.lineWidth=w;c.strokeStyle=col;c.setLineDash(dash);c.stroke();c.setLineDash([]);
+ if(HX!=null&&w>=2.5&&col!=='transparent'){const x=a+(HX-X(a))*(b-a)/(X(b)-X(a));if(x>=a&&x<=b){const y=g(x),py=Y(y);c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1;c.beginPath();c.moveTo(HX,0);c.lineTo(HX,9999);c.stroke();c.beginPath();c.arc(HX,py,6,0,7);c.fillStyle='#fff';c.fill();c.font='600 11px JetBrains Mono,monospace';c.textAlign='center';c.fillText(f(x,2)+' → '+f(y,3),Math.max(60,Math.min(HX,c.canvas.width/(devicePixelRatio||1)-60)),Math.max(14,py-12))}}}
+function viz(id,t,S,o,d){
+ const el=document.getElementById(id),v={};el.className='vz';
+ el.innerHTML='<canvas></canvas>'+(o.cap?'<p class="cap"><b>HOW TO READ IT</b><br>'+o.cap+'</p>':'')+'<div class="ph"><i class="dot"></i><b>'+t+'</b><span class="chev">⌄</span></div><div class="pb">'+
+ S.map(s=>`<label>${s[1]}<span id="${id}${s[0]}"></span></label><input type="range" data-k="${s[0]}" min="${s[2]}" max="${s[3]}" step="${s[4]}" value="${s[5]}" aria-label="${s[1]}">`).join('')+
+ (o.b||[]).map(b=>`<button class="btn" data-t="${b[0]}">${b[1]}</button>`).join('')+(o.p?'<button class="btn" data-p="1">▶ PLAY</button>':'')+'<div class="ro"></div></div>';
+ const cn=el.querySelector('canvas'),c=cn.getContext('2d'),ro=el.querySelector('.ro');let tk=0,lw=0;
+ const R=()=>{const w=el.clientWidth,h=Math.round(Math.max(240,Math.min(440,w*(o.r||.7)))),r=window.devicePixelRatio||1;
+  cn.width=w*r;cn.height=h*r;cn.style.height=h+'px';c.setTransform(r,0,0,r,0,0);
+  el.querySelectorAll('input').forEach(i=>{v[i.dataset.k]=+i.value;document.getElementById(id+i.dataset.k).textContent=(+i.value).toFixed(+i.step<1?2:0)});
+  c.save();ro.innerHTML=d(c,w,h,v)||'';c.restore()};
+ cn.style.touchAction='pan-y';const hp=e=>{HX=e.clientX-cn.getBoundingClientRect().left;R()};cn.onpointermove=hp;cn.onpointerdown=hp;cn.onpointerleave=()=>{HX=null;R()};
+ el.querySelector('.ph').onclick=()=>el.classList.toggle('fold');
+ el.oninput=R;
+ el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{v[b.dataset.t]=!v[b.dataset.t];b.classList.toggle('on');R()});
+ const pb=el.querySelector('[data-p]');
+ if(pb)pb.onclick=()=>{const i=el.querySelector('[data-k="'+o.p[0]+'"]'),a=+i.min,b=+i.max,t0=performance.now(),my=++tk;
+  const st=n=>{if(my!=tk)return;const u=Math.min(1,(n-t0)/o.p[1]);i.value=o.p[2]?a*Math.pow(b/a,u):a+(b-a)*u;R();if(u<1)requestAnimationFrame(st)};requestAnimationFrame(st)};
+ new ResizeObserver(()=>{if(el.clientWidth!==lw){lw=el.clientWidth;R()}}).observe(el)}
+
+viz('v1','Factorial interpolation',[['n','terms n',1,80,1,2],['w','wiggle ε',0,.4,.01,.22]],{b:[['log','LOG SCALE']],p:['n',6000,1],r:.75,cap:'Gold is Euler’s product with n factors; the dashed curve is the true x!. Raise n and the gold curve slides onto the dashed one. The coloured curves hit every dot but wiggle in between, so the dots alone cannot choose a curve. Press LOG SCALE: only the true curve never bends downward. Touch or drag across the plot to read values off the gold curve.'},(c,W,H,v)=>{
+ const lf=x=>lg(x+1),eu=(x,n)=>{let s=0;for(let k=1;k<=n;k++)s+=Math.log(x+k);return lg(n+1)+x*Math.log(n)-s};
+ const L=v.log,m=g=>x=>L?g(x):Math.exp(g(x)),{X,Y}=L?fr(c,W,H,0,4.2,-.5,3.5,1,1):fr(c,W,H,0,4.2,0,34,1,10);
+ cv(c,m(lf),0,4.2,X,Y,'rgba(230,225,207,.5)',1.5,[5,5]);
+ if(v.w>0)[['#5ad1ff',1,2],['#ff7a90',-1,2],['#b9a0ff',1,4]].forEach(a=>cv(c,m(x=>lf(x)+Math.log(1+a[1]*v.w*Math.sin(a[2]*Math.PI*x))),0,4.2,X,Y,a[0],1.8));
+ cv(c,m(x=>eu(x,v.n)),0,4.2,X,Y,gd,3.5);
+ for(let k=0;k<=4;k++){c.beginPath();c.arc(X(k),Y(L?lf(k):Math.exp(lf(k))),6,0,7);c.fillStyle='#0e1628';c.fill();c.lineWidth=2.5;c.strokeStyle='#fff';c.stroke()}
+ return `gold: n-term product · dashed: exact · coloured: wiggly look-alikes${L?' · y-axis is ln x!':''}<br>(½)! ≈ <em>${f(Math.exp(eu(.5,v.n)),5)}</em> · exact √π/2 = 0.88623`});
+
+viz('v2','Telescoping ruler',[['n','factors n',1,12,1,4]],{p:['n',6000],r:.46,cap:'Each bar is one ratio (k+1)/k drawn with length ln((k+1)/k), so multiplying ratios becomes laying bars end to end. Every bar starts exactly where the previous one stopped, so the whole ruler runs from ln 1 to ln(n+1). Multiplying everything out collapses to a single ratio: that collapse is telescoping. Raise n and watch the ruler grow.'},(c,W,H,v)=>{
+ const n=v.n,L=18,w=W-2*L,T=Math.log(13),y=H*.34,h=H*.26,P=k=>L+w*Math.log(k)/T,e=P(n+1);
+ c.font='600 12px JetBrains Mono,monospace';c.textAlign='center';
+ for(let k=1;k<=n;k++){const a=P(k),b=P(k+1);c.fillStyle=k%2?gd:'#b8890a';c.fillRect(a,y,b-a-1.5,h);
+  if(b-a>32){c.fillStyle='#0e1628';c.fillText((k+1)+'/'+k,(a+b)/2,y+h/2+4)}
+  if(b-a>20||k==n){c.fillStyle='#d8b13a';c.fillText(k+1,b,y+h+18)}}
+ c.fillStyle='#d8b13a';c.fillText('1',P(1),y+h+18);
+ c.strokeStyle=tx;c.lineWidth=2;c.beginPath();c.moveTo(L,y-14);c.lineTo(L,y-8);c.lineTo(e,y-8);c.lineTo(e,y-14);c.stroke();
+ c.fillStyle=tx;c.fillText('total length = ln '+(n+1),(L+e)/2,y-20);
+ return `<em>${n>4?'2/1 × 3/2 × … × '+(n+1)+'/'+n:[...Array(n)].map((_,k)=>(k+2)+'/'+(k+1)).join(' × ')}</em> = n+1 = <em>${n+1}</em>`});
+
+viz('v3','Partial fractions',[['n','n',1,7,1,3],['z','probe z',.2,5,.01,.8]],{p:['n',5000],r:.72,cap:'Thin curves are the single pieces A_k/(z+k), each blowing up at its own pole z = −k. The gold curve is the whole fraction. Drag the probe z: the white dot on the gold curve equals the sum of all thin curves at that z. Raise n to add more pieces; the coefficient row (Pascal with alternating signs) is printed below.'},(c,W,H,v)=>{
+ const n=v.n,z=v.z,A=k=>(k%2?-1:1)*Cb(n,k),F=x=>{let p=1/x;for(let k=1;k<=n;k++)p*=k/(x+k);return p};
+ const {X,Y}=fr(c,W,H,0,5,-6,10,1,2);let s=0;
+ for(let k=0;k<=n;k++){cv(c,x=>A(k)/(x+k),.04,5,X,Y,`hsla(${35+k*30},85%,62%,.65)`,1.5);s+=A(k)/(z+k)}
+ cv(c,F,.04,5,X,Y,gd,3.5);
+ c.setLineDash([4,4]);c.strokeStyle='#fff9';c.lineWidth=1;c.beginPath();c.moveTo(X(z),Y(-6));c.lineTo(X(z),Y(10));c.stroke();c.setLineDash([]);
+ c.beginPath();c.arc(X(z),Y(F(z)),6,0,7);c.fillStyle='#fff';c.fill();
+ return `A<sub>k</sub> = <em>${[...Array(n+1)].map((_,k)=>{const a=A(k);return a<0?'−'+(-a):a}).join(', ')}</em><br>n!/(z…(z+n)) = <em>${f(F(z),5)}</em> &nbsp; Σ A<sub>k</sub>/(z+k) = <em>${f(s,5)}</em>`});
+
+viz('v4','Area = fraction',[['a','a = z + k',.2,6,.01,2],['u','sweep u',0,1,.01,1]],{p:['u',4000],r:.7,cap:'The shaded region under y = u^(a−1) up to the sweep line has area u^a / a. At u = 1 it equals 1/a, the same as the dashed rectangle of width 1 and height 1/a. Slide a below 1: the curve now shoots up at u = 0, yet the area stays finite. So the fraction 1/(z+k) is literally an area.'},(c,W,H,v)=>{
+ const a=v.a,u=v.u,g=x=>Math.pow(x,a-1),{X,Y}=fr(c,W,H,0,1,0,3,.25,1);
+ c.setLineDash([6,5]);c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1.5;c.strokeRect(X(0),Y(1/a),X(1)-X(0),Y(0)-Y(1/a));c.setLineDash([]);
+ if(u>0)cv(c,g,1e-4,u,X,Y,'transparent',1,[],240,'rgba(255,193,7,.55)');
+ cv(c,g,1e-4,1,X,Y,gd,3.5);
+ c.strokeStyle=gd;c.lineWidth=1.5;c.beginPath();c.moveTo(X(u),Y(0));c.lineTo(X(u),Y(3));c.stroke();
+ return `curve y = u<sup>a−1</sup> · area up to u = u<sup>a</sup>/a = <em>${f(Math.pow(u,a)/a)}</em><br>full area = 1/a = <em>${f(1/a)}</em> = dashed rectangle (1 × 1/a)`});
+
+viz('v5','Binomial collapse',[['n','n',0,14,1,4],['z','z',1,4,.01,2]],{p:['n',5000],r:.68,cap:'The shaded hump is the single curve u^(z−1)(1−u)^n, the sum of all the stacked curves from the cube picture. Its area equals the product n!/(z(z+1)…(z+n)) printed below, digit for digit. Raise n: the factor (1−u)^n squeezes the hump toward u = 0 and the area shrinks. Touch the plot to read heights.'},(c,W,H,v)=>{
+ const n=v.n,z=v.z,g=x=>Math.pow(x,z-1)*Math.pow(1-x,n);let m=0,s=0,p=1/z;
+ for(let i=0;i<2000;i++){const y=g((i+.5)/2000);m=Math.max(m,y);s+=y/2000}
+ for(let k=1;k<=n;k++)p*=k/(z+k);
+ const ym=m*1.15,{X,Y}=fr(c,W,H,0,1,0,ym,.25,nice(ym/4));
+ cv(c,g,0,1,X,Y,'transparent',1,[],300,'rgba(255,193,7,.5)');cv(c,g,0,1,X,Y,gd,3.5,[],300);
+ return `∫<sub>0</sub><sup>1</sup> u<sup>z−1</sup>(1−u)<sup>n</sup> du = <em>${f(s,6)}</em><br>n!/(z(z+1)…(z+n)) = <em>${f(p,6)}</em>`});
+
+viz('v6','Dilation u → t = n·u',[['n','n',2,60,1,8],['z','z',1,4,.01,3],['s','dilate s',0,1,.01,0]],{p:['s',5000],r:.7,cap:'Slide dilate s from 0 to 1. The horizontal axis stretches by the factor n^s while the heights shrink by the same factor, so the shaded area never changes (see the readout). At s = 1 the squeezed hump has been pulled out to the window [0, n] and has a stable shape.'},(c,W,H,v)=>{
+ const n=v.n,z=v.z,m=Math.pow(n,v.s),H0=u=>Math.pow(n,z)*Math.pow(u,z-1)*Math.pow(1-u,n);let mx=0,ar=0;
+ for(let i=0;i<1500;i++){const y=H0((i+.5)/1500);mx=Math.max(mx,y);ar+=y/1500}
+ const xm=14,ym=mx*1.15/m,{X,Y}=fr(c,W,H,0,xm,0,ym,2,nice(ym/4)),g=t=>H0(t/m)/m;
+ cv(c,g,0,m,X,Y,'transparent',1,[],500,'rgba(255,193,7,.5)');cv(c,g,0,m,X,Y,gd,3.5,[],500);
+ const ex=Math.min(m,xm);c.setLineDash([4,4]);c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1.5;c.beginPath();c.moveTo(X(ex),Y(0));c.lineTo(X(ex),Y(ym));c.stroke();c.setLineDash([]);
+ c.fillStyle=gd;c.textAlign='right';c.font='600 12px JetBrains Mono,monospace';c.fillText(m>xm?'window edge → '+f(m,1):'t = '+f(m,1),X(ex)-6,Y(ym)+16);
+ return `window [0, <em>${f(m,2)}</em>] · heights ÷ <em>${f(m,2)}</em><br>area = <em>${f(ar)}</em> (unchanged) · Γ(z) = ${f(Gm(z))}`});
+
+viz('v7','Exponential limit',[['n','n',1,200,1,3],['z','z',1,5,.01,3]],{p:['n',7000,1],r:.7,cap:'Gold is t^(z−1)(1−t/n)^n; the dashed curve is t^(z−1)e^(−t). Raise n: the gold curve rises toward the dashed one from below and never crosses it, so its area creeps up to the area under the dashed curve, which is Γ(z). Touch the plot to read values off the gold curve.'},(c,W,H,v)=>{
+ const n=v.n,z=v.z,E=t=>Math.pow(t,z-1)*Math.exp(-t),Q=t=>t>=n?0:Math.pow(t,z-1)*Math.pow(1-t/n,n),ym=Math.max(1,Math.pow(z-1,z-1)*Math.exp(1-z))*1.2;
+ const {X,Y}=fr(c,W,H,0,14,0,ym,2,nice(ym/4)),b=Math.min(n,14);let s=0;
+ for(let i=0;i<3000;i++)s+=Q((i+.5)/3000*n)*n/3000;
+ cv(c,E,0,14,X,Y,'rgba(230,225,207,.85)',1.8,[6,5],300);
+ cv(c,Q,0,b,X,Y,'transparent',1,[],400,'rgba(255,193,7,.45)');cv(c,Q,0,b,X,Y,gd,3.5,[],400);
+ return `gold: t<sup>z−1</sup>(1−t/n)<sup>n</sup> · dashed: t<sup>z−1</sup>e<sup>−t</sup><br>area = <em>${f(s)}</em> → Γ(z) = <em>${f(Gm(z))}</em>`});
+
+const sp=()=>{const c=document.createElement('canvas');c.width=128;c.height=48;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.9,.34,1);Object.assign(s,{c,t,tx:''});return s};
+const st=(s,m,col)=>{if(s.tx==m+col)return;s.tx=m+col;const x=s.c.getContext('2d');x.clearRect(0,0,128,48);x.font='600 30px monospace';x.textAlign='center';x.fillStyle=col;x.fillText(m,64,34);s.t.needsUpdate=true};
+function t3(id,title,S,o,mk){
+ let g,rd,sc,cm,G,M,rx=.55,ry=.5,dr=0,lx=0,ly=0,vv={};const el=document.getElementById(id);
+ const an=()=>{requestAnimationFrame(an);if(!g||!el.clientWidth)return;const r=el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;if(!dr&&!vv.nospin)ry+=.004;G.rotation.set(rx,ry,0);rd.render(sc,cm)};
+ viz(id,title,S,o,(c,W,H,v)=>{
+  if(!window.THREE)return '3D library failed to load.';
+  vv=v;
+  if(!g){g=document.createElement('canvas');g.style.cssText='position:absolute;left:0;top:0;cursor:grab;touch-action:pan-y';el.style.position='relative';el.appendChild(g);
+   rd=new THREE.WebGLRenderer({canvas:g,antialias:true,alpha:true});rd.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+   sc=new THREE.Scene();cm=new THREE.PerspectiveCamera(42,1,.1,100);cm.position.set(0,0,o.z||9);
+   sc.add(new THREE.AmbientLight(0xffffff,.7));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(3,6,5);sc.add(dl);
+   G=new THREE.Group();sc.add(G);M=mk(G);
+   g.addEventListener('pointerdown',e=>{dr=1;lx=e.clientX;ly=e.clientY;g.setPointerCapture(e.pointerId)});g.addEventListener('dblclick',()=>{rx=.55;ry=.5});
+   g.addEventListener('pointermove',e=>{if(!dr)return;ry+=(e.clientX-lx)*.01;rx=Math.max(-1.4,Math.min(1.4,rx+(e.clientY-ly)*.01));lx=e.clientX;ly=e.clientY});
+   const up=()=>{dr=0};g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);requestAnimationFrame(an)}
+  g.style.width=W+'px';g.style.height=H+'px';rd.setSize(W,H,false);cm.aspect=W/H;cm.updateProjectionMatrix();
+  return M.u(v,c,W,H)})}
+const mkHorn=G=>{
+ const NX=96,NY=36,geo=new THREE.PlaneGeometry(1,1,NX,NY);geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array((NX+1)*(NY+1)*3),3));
+ G.add(new THREE.Mesh(geo,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide})),new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xffc107,wireframe:true,transparent:true,opacity:.13})));
+ G.position.y=-1.2;const mk=[],lb=[];
+ for(let i=0;i<7;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.1,16,12),new THREE.MeshBasicMaterial({color:0xffffff})),l=sp();G.add(s,l);mk.push(s);lb.push(l)}
+ return{u:v=>{
+  const n=v.n,J=v.a*(n+1),X0=-n-1.2,X1=1.8,S=7/(X1-X0),cx=(X0+X1)/2,p=geo.attributes.position,cl=geo.attributes.color,A=[],w=[];
+  for(let k=0;k<=n;k++){A[k]=(k%2?-1:1)*Cb(n,k);w[k]=Math.max(0,Math.min(1,J-k))}
+  for(let iy=0;iy<=NY;iy++)for(let ix=0;ix<=NX;ix++){const x=X0+(X1-X0)*ix/NX,y=-1.8+3.6*iy/NY;let re=0,im=0;
+   for(let k=0;k<=n;k++){const a=x+k,q=A[k]*w[k]/(a*a+y*y+1e-6);re+=a*q;im-=y*q}
+   const h=Math.log(1+Math.hypot(re,im)),i=iy*(NX+1)+ix,t=Math.min(1,h/3);
+   p.setXYZ(i,(x-cx)*S,h*.8,y*S);cl.setXYZ(i,.07+.93*t,.1+.66*t,.2-.17*t)}
+  p.needsUpdate=true;cl.needsUpdate=true;geo.computeVertexNormals();
+  for(let k=0;k<7;k++){const on=k<=n;mk[k].visible=on;lb[k].visible=on;if(!on)continue;
+   const m=mk[k],s=.8+.5*Math.sqrt(Math.abs(A[k]));m.scale.setScalar(s);m.position.set((-k-cx)*S,.05,0);m.material.color.setHex(w[k]>0?(A[k]>0?0xffc107:0x5ad1ff):0x667088);
+   lb[k].position.set((-k-cx)*S,.5+.12*s,0);st(lb[k],(A[k]>0?'+':'−')+Math.abs(A[k]),w[k]>0?'#e6e1cf':'#667088')}
+  return `A<sub>k</sub> = <em>${A.map(a=>a<0?'−'+(-a):a).join(', ')}</em><br>horns added: <em>${Math.min(n+1,Math.floor(J+1e-9))}</em> of ${n+1}`+(J>=n+1?' · surface = |n!/(z(z+1)…(z+n))|':'')}}};
+const fr3=()=>{const m=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)),new THREE.LineBasicMaterial({color:0xe6e1cf,transparent:true,opacity:.6}));m.position.set(.5,.5,.5);return m};
+const V3=(a,b,c)=>new THREE.Vector3(a,b,c),q0=x=>x>0?x:0,rho=s=>(s*s-3*q0(s-1)**2+3*q0(s-2)**2-q0(s-3)**2)/2;
+const mkPl=G=>{
+ const Q=new THREE.Group(),P=new THREE.Group(),gm=new THREE.BufferGeometry(),dots=[];
+ Q.quaternion.setFromUnitVectors(V3(1,1,1).normalize(),V3(0,1,0));P.position.set(-.5,-.5,-.5);Q.add(P);G.add(Q);G.scale.setScalar(1.7);G.position.y=.7;
+ gm.setAttribute('position',new THREE.BufferAttribute(new Float32Array(54),3));
+ const pm=new THREE.Mesh(gm,new THREE.MeshBasicMaterial({color:0xffc107,transparent:true,opacity:.8,side:THREE.DoubleSide}));pm.frustumCulled=false;P.add(fr3(),pm);
+ for(let b=0;b<8;b++){const d=new THREE.Mesh(new THREE.SphereGeometry(.05,12,10),new THREE.MeshBasicMaterial());d.position.set(b&1,b>>1&1,b>>2&1);P.add(d);dots.push(d)}
+ return{u:(v,c,W,H)=>{
+  const s=Math.min(2.999,Math.max(.001,v.s)),K=b=>(b&1)+(b>>1&1)+(b>>2&1),pts=[];let nb=0;
+  for(let b=0;b<8;b++){const on=K(b)<s;nb+=on?1:0;dots[b].material.color.setHex(on?0xffc107:0x667088);
+   for(let i=0;i<3;i++)if(!(b>>i&1)&&on&&s<K(b)+1){const p=V3(b&1,b>>1&1,b>>2&1);p.setComponent(i,s-K(b));pts.push(p)}}
+  const m=pts.reduce((a,p)=>a.add(p),V3(0,0,0)).multiplyScalar(1/pts.length),e1=V3(1,-1,0).normalize(),e2=V3(1,1,-2).normalize(),
+   an=p=>{const d=p.clone().sub(m);return Math.atan2(d.dot(e2),d.dot(e1))};
+  pts.sort((x,y)=>an(x)-an(y));
+  const at=gm.attributes.position;let ar=0;
+  pts.forEach((p,i)=>{const q=pts[(i+1)%pts.length];at.setXYZ(3*i,m.x,m.y,m.z);at.setXYZ(3*i+1,p.x,p.y,p.z);at.setXYZ(3*i+2,q.x,q.y,q.z);ar+=p.clone().sub(m).cross(q.clone().sub(m)).length()/2});
+  at.needsUpdate=true;gm.setDrawRange(0,3*pts.length);
+  const x0=W*.1,x1=W*.9,y0=H*.96,y1=H*.8,X=t=>x0+(x1-x0)*t/3,Y=r=>y0-(y0-y1)*r/.75;
+  c.strokeStyle='rgba(255,193,7,.5)';c.lineWidth=1;c.beginPath();c.moveTo(x0,y1-6);c.lineTo(x0,y0);c.lineTo(x1,y0);c.stroke();
+  c.beginPath();for(let i=0;i<=60;i++){const t=i*.05;i?c.lineTo(X(t),Y(rho(t))):c.moveTo(X(t),Y(rho(t)))}c.strokeStyle=gd;c.lineWidth=2.5;c.stroke();
+  c.beginPath();c.arc(X(s),Y(rho(s)),6,0,7);c.fillStyle='#fff';c.fill();
+  c.font='11px JetBrains Mono,monospace';c.fillStyle='#a8964a';c.textAlign='left';c.fillText('slice size ρ',x0+6,y1+4);c.textAlign='right';c.fillText('height s →',x1,y0+13);
+  return `plane x+y+z = <em>${f(s,2)}</em> · slice: <em>${s<1||s>2?'triangle':'hexagon'}</em><br>vertices below the plane: <em>${nb}</em> of 8 · per level k=0..3: 1, 3, 3, 1<br>slice size ρ = area÷√3 = <em>${f(ar/1.7320508)}</em> (formula ${f(rho(s))})`}}};
+const mkBin=G=>{
+ const P=new THREE.Group(),bx=new THREE.BoxGeometry(1,1,1),ms=(col,op)=>new THREE.Mesh(bx,new THREE.MeshLambertMaterial({color:col,transparent:true,opacity:op,depthWrite:false})),core=ms(0xffc107,.85),sl=[0,1,2].map(()=>ms(0x5ad1ff,.28));
+ P.position.set(-.5,-.5,-.5);G.add(P);G.scale.setScalar(2.6);P.add(fr3(),core,...sl);
+ return{u:v=>{
+  const u=v.u,w=1-u,e=Math.max(u,1e-3);
+  core.scale.setScalar(Math.max(w,1e-3));core.position.setScalar(u+w/2);
+  sl.forEach((m,i)=>{const sc=[1,1,1],ps=[.5,.5,.5];sc[i]=e;ps[i]=u/2;m.scale.set(...sc);m.position.set(...ps)});
+  return `gold corner box: side 1−u = <em>${f(w)}</em> · volume (1−u)³ = <em>${f(w**3)}</em><br>cube 1 − slabs ${f(3*u)} + overlaps ${f(3*u*u)} − triple ${f(u**3)} = <em>${f(1-3*u+3*u*u-u**3)}</em>`}}};
+t3('w1','Poles as horns: 3D',[['n','n',1,6,1,3],['a','assemble',0,1,.005,0]],{p:['a',9000],r:1,z:11.5,b:[['nospin','STOP SPIN']],cap:'The plane is the complex number z = x + iy. The surface height is ln(1+|f|), so each pole is a spike (a horn). Ball size shows the strength |A_k|; gold means plus, blue means minus. Slide assemble to add the horns one by one and watch them sum to the gold surface. Drag to rotate, double-click to reset the view.'},mkHorn);
+t3('w2','Plane through the cube: 3D',[['s','plane height s',0,3,.01,.5]],{p:['s',8000],r:1,z:9.5,b:[['nospin','STOP SPIN']],cap:'The cube stands on a corner, so the plane x+y+z = s is a flat water level. Dots turn gold once the level passes them: 1, then 3, then 3, then 1, which is Pascal’s row. The curve at the bottom is the slice area as the level rises. Drag to rotate, double-click to reset.'},mkPl);
+t3('w3','Binomial theorem: cutting planes',[['u','cut position u',0,1,.01,.3]],{p:['u',5000],r:1,z:8.5,b:[['nospin','STOP SPIN']],cap:'The blue slabs are the regions x &lt; u, y &lt; u, z &lt; u cut off by three planes. The gold corner box left over has side 1−u. Cube minus slabs plus overlaps minus the triple overlap equals (1−u)³, which is the binomial theorem as a volume. Drag to rotate, double-click to reset.'},mkBin);
+document.getElementById('up').onclick=()=>{if(document.body.dataset.v=='home'){location.href='/';return}const s=document.body.dataset.v=='step';document.body.dataset.v=s?'menu':'home';location.hash=s?'menu':'home';scrollTo(0,0)};
+const SC=[...document.querySelectorAll('section')],HD=document.querySelector('header'),$=i=>document.getElementById(i),pv=$('pv'),nx=$('nx'),dg=$('dots'),lb=$('lb'),bar=$('bar');
+SC.forEach(s=>[...s.childNodes].forEach(n=>{
+ if(n.nodeType==3&&n.textContent.trim()){const fg=document.createDocumentFragment();n.textContent.split(/(\$\$[\s\S]*?\$\$)/).filter(t=>t.trim()).forEach(t=>{const d=document.createElement('div');d.className='blk';d.textContent=t;fg.append(d)});n.replaceWith(fg)}
+ else if(n.nodeType==1&&n.tagName!='H2')n.classList.add('blk')}));
+const BL=SC.map(s=>[...s.children].filter(e=>e.classList.contains('blk'))),tot=BL.flat().length,off=BL.map((_,i)=>BL.slice(0,i).reduce((a,b)=>a+b.length,0));
+dg.innerHTML=SC.map((_,i)=>`<button aria-label="Step ${i+1}"></button>`).join('');
+const dl=[...dg.children];let si=0,bi=BL[0].length;
+function show(){
+ SC.forEach((s,i)=>{s.classList.toggle('on',i==si);BL[i].forEach((b,j)=>b.classList.toggle('hid',i!=si||j>=bi))});
+ HD.style.display=si?'none':'';
+ dl.forEach((d,i)=>d.classList.toggle('on',i==si));
+ bar.style.width=100*(off[si]+bi)/tot+'%';lb.textContent='STEP '+(si+1)+'/'+SC.length;
+ pv.disabled=!si;const end=si==SC.length-1;nx.disabled=end;nx.textContent=end?'DONE':'NEXT →'}
+function go(s,b){const ch=s!=si;si=s;bi=b;show();if(ch){scrollTo(0,0);location.hash='s'+(si+1)}}
+nx.onclick=()=>go(si+1,BL[si+1].length);
+pv.onclick=()=>go(si-1,BL[si-1].length);
+dl.forEach((d,i)=>d.onclick=()=>go(i,BL[i].length));
+const V=v=>{document.body.dataset.v=v};
+const rt=()=>{const h=location.hash.slice(1),m=/^s([1-9])$/.exec(h);if(m&&m[1]<=SC.length){const n=m[1]-1;if(document.body.dataset.v!='step'||n!=si){si=n;bi=BL[n].length;V('step');show();scrollTo(0,0)}}else V(h=='menu'?'menu':'home')};
+onhashchange=rt;
+const TS=['Euler’s limit and the one smooth curve','Telescoping the partial product','Poles as horns, a plane through the cube','Areas, and cutting planes for (1 − u)ⁿ','The dilation u = t/n','(1 − t/n)ⁿ squeezes into e⁻ᵗ','Γ(z) = ∫ t^(z−1) e^(−t) dt'];
+$('cards').innerHTML=SC.map((s,i)=>`<button class="card" data-i="${i}"><i>${i+1}</i><span><b>${[...s.querySelector('h2').childNodes].pop().textContent}</b><small>${TS[i]}</small></span></button>`).join('');
+$('cards').onclick=e=>{const b=e.target.closest('.card');if(b){si=+b.dataset.i;bi=BL[si].length;V('step');show();scrollTo(0,0);location.hash='s'+(si+1)}};
+$('c0').onclick=()=>{V('menu');scrollTo(0,0);location.hash='menu'};
+show();rt();
+</script>
+</body>
+</html>

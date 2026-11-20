@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinusoidal Wave & Reference Circle</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- KaTeX for crisp, fast LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        /* Custom styling for sleek range sliders and zero-clutter light theme layout */
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle at 50% 25%, #ffffff 0%, #f1f5f9 65%, #e2e8f0 100%);
+            color: #0f172a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            border-radius: 999px;
+            background: #cbd5e1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            background: #d97706;
+            margin-top: -5.5px;
+            box-shadow: 0 1px 4px rgba(217, 119, 6, 0.4);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: #b45309;
+        }
+
+        /* Floating HTML LaTeX tags synced with Canvas */
+        .canvas-label {
+            position: absolute;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            text-shadow: 0 1px 4px rgba(255, 255, 255, 0.95), 0 0 8px rgba(255, 255, 255, 0.95);
+            transition: opacity 0.1s ease;
+        }
+
+        .katex {
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between p-4 md:p-8">
+
+    <!-- Top Right Back Button -->
+    <a href="#" id="btn-back" onclick="if(this.getAttribute('href') === '#'){ event.preventDefault(); if(window.history.length > 1) window.history.back(); }" class="fixed top-3 right-3 md:top-5 md:right-5 mb-[2px] z-50 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 text-slate-700 border border-slate-200 hover:border-amber-500/50 hover:text-amber-700 text-xs font-medium shadow-sm backdrop-blur-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span>Back</span>
+    </a>
+
+    <!-- Top Equation Header (Pure LaTeX, Zero Extra Text) -->
+    <header class="w-full max-w-6xl mx-auto flex flex-col items-center justify-center pt-6 md:pt-2 pb-4 gap-3">
+        <div id="main-eq" class="text-xl md:text-3xl tracking-wide text-slate-900 font-medium">f(z,t) = A cos[k(z - vt) + δ]</div>
+        <div class="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm md:text-base text-slate-600">
+            <div id="sub-eq-lambda">λ = 2π / k</div>
+            <div id="sub-eq-phase">φ = k(z - vt) + δ</div>
+            <div id="sub-eq-max">z_max = vt - δ / k</div>
+        </div>
+    </header>
+
+    <!-- Interactive Visualization Canvas Container -->
+    <main class="relative w-full max-w-6xl mx-auto flex-grow flex items-center justify-center my-2">
+        <div id="canvas-wrapper" class="relative w-full h-[52vh] min-h-[340px] max-h-[560px] rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-sm shadow-[0_12px_36px_rgba(15,23,42,0.06)] overflow-hidden">
+            <canvas id="simCanvas" class="w-full h-full block"></canvas>
+            <!-- Dynamic LaTeX overlays positioned directly over geometric features -->
+            <div id="labels-layer" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+        </div>
+    </main>
+
+    <!-- Minimalist Parameter Controls (Pure LaTeX Symbols + Numeric Readouts) -->
+    <footer class="w-full max-w-5xl mx-auto pt-4 pb-2">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 items-center bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+            
+            <!-- Play / Pause & Reset -->
+            <div class="flex items-center justify-center gap-3 col-span-2 sm:col-span-1">
+                <button id="btn-play" type="button" class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/40 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-colors shadow-sm cursor-pointer" aria-label="Play/Pause">
+                    <svg id="icon-play" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="icon-pause" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button id="btn-reset" type="button" class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center hover:border-amber-500/50 hover:text-amber-700 transition-colors cursor-pointer" aria-label="Reset t=0">
+                    <span id="reset-latex" class="text-xs font-medium">t=0</span>
+                </button>
+            </div>
+
+            <!-- Amplitude (A) -->
+            <div class="flex flex-col gap-1.5 px-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="lbl-A" class="text-amber-600 font-semibold">A</span>
+                    <span id="val-A" class="font-mono text-slate-700">1.20</span>
+                </div>
+                <input id="slider-A" type="range" min="0.3" max="1.8" step="0.05" value="1.20">
+            </div>
+
+            <!-- Wave Number (k) -->
+            <div class="flex flex-col gap-1.5 px-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="lbl-k" class="text-emerald-600 font-semibold">k</span>
+                    <span id="val-k" class="font-mono text-slate-700">1.50</span>
+                </div>
+                <input id="slider-k" type="range" min="0.6" max="3.0" step="0.05" value="1.50">
+            </div>
+
+            <!-- Velocity (v) -->
+            <div class="flex flex-col gap-1.5 px-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="lbl-v" class="text-sky-600 font-semibold">v</span>
+                    <span id="val-v" class="font-mono text-slate-700">0.80</span>
+                </div>
+                <input id="slider-v" type="range" min="-1.5" max="1.5" step="0.05" value="0.80">
+            </div>
+
+            <!-- Phase Constant (delta) -->
+            <div class="flex flex-col gap-1.5 px-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="lbl-delta" class="text-rose-600 font-semibold">δ</span>
+                    <span id="val-delta" class="font-mono text-slate-700">0.25π</span>
+                </div>
+                <input id="slider-delta" type="range" min="0" max="6.28318" step="0.02" value="0.7854">
+            </div>
+
+            <!-- Time (t) -->
+            <div class="flex flex-col gap-1.5 px-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="lbl-t" class="text-blue-600 font-semibold">t</span>
+                    <span id="val-t" class="font-mono text-slate-700">0.00</span>
+                </div>
+                <input id="slider-t" type="range" min="0" max="12" step="0.01" value="0.00">
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * Sinusoidal Wave & Generating Reference Circle Visualizer
+         * Directly mirrors: f(z, t) = A cos[ k(z - vt) + \delta ]
+         */
+        const state = {
+            A: 1.20,          // Amplitude
+            k: 1.50,          // Wave number
+            v: 0.80,          // Wave velocity
+            delta: Math.PI/4, // Phase constant (0 <= delta <= 2pi)
+            t: 0.00,          // Time
+            playing: false,
+            draggingCircle: false
+        };
+
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+        const labelsLayer = document.getElementById('labels-layer');
+
+        const sliders = {
+            A: document.getElementById('slider-A'),
+            k: document.getElementById('slider-k'),
+            v: document.getElementById('slider-v'),
+            delta: document.getElementById('slider-delta'),
+            t: document.getElementById('slider-t')
+        };
+
+        const readouts = {
+            A: document.getElementById('val-A'),
+            k: document.getElementById('val-k'),
+            v: document.getElementById('val-v'),
+            delta: document.getElementById('val-delta'),
+            t: document.getElementById('val-t')
+        };
+
+        const btnPlay = document.getElementById('btn-play');
+        const iconPlay = document.getElementById('icon-play');
+        const iconPause = document.getElementById('icon-pause');
+        const btnReset = document.getElementById('btn-reset');
+
+        const labelElements = {};
+
+        function safeRenderKatex(latex, el, fallbackText) {
+            if (!el) return;
+            if (window.katex && typeof window.katex.render === 'function') {
+                try {
+                    window.katex.render(latex, el, { displayMode: false, throwOnError: false });
+                    return;
+                } catch (e) {
+                    // Fallback below if KaTeX fails
+                }
+            }
+            if (fallbackText) el.textContent = fallbackText;
+        }
+
+        function renderStaticLatex() {
+            safeRenderKatex(
+                "f(z,t) = \\color{#d97706}{A}\\cos\\!\\Big[\\,\\color{#059669}{k}(z - \\color{#0284c7}{v}\\color{#2563eb}{t}) + \\color{#e11d48}{\\delta}\\,\\Big]",
+                document.getElementById('main-eq'),
+                "f(z,t) = A cos[k(z - vt) + δ]"
+            );
+            safeRenderKatex("\\lambda = \\frac{2\\pi}{\\color{#059669}{k}}", document.getElementById('sub-eq-lambda'), "λ = 2π / k");
+            safeRenderKatex("\\phi = \\color{#059669}{k}(z - \\color{#0284c7}{v}\\color{#2563eb}{t}) + \\color{#e11d48}{\\delta}", document.getElementById('sub-eq-phase'), "φ = k(z - vt) + δ");
+            safeRenderKatex("z_{\\max} = \\color{#0284c7}{v}\\color{#2563eb}{t} - \\frac{\\color{#e11d48}{\\delta}}{\\color{#059669}{k}}", document.getElementById('sub-eq-max'), "z_max = vt - δ/k");
+
+            safeRenderKatex("A", document.getElementById('lbl-A'), "A");
+            safeRenderKatex("k", document.getElementById('lbl-k'), "k");
+            safeRenderKatex("v", document.getElementById('lbl-v'), "v");
+            safeRenderKatex("\\delta", document.getElementById('lbl-delta'), "δ");
+            safeRenderKatex("t", document.getElementById('lbl-t'), "t");
+            safeRenderKatex("t=0", document.getElementById('reset-latex'), "t=0");
+        }
+
+        function setCanvasLabel(id, latexStr, fallbackStr, x, y, visible = true, color = "#0f172a", scale = 0.9) {
+            let entry = labelElements[id];
+            if (!entry) {
+                const el = document.createElement('div');
+                el.className = 'canvas-label font-medium';
+                labelsLayer.appendChild(el);
+                entry = { el, lastLatex: '' };
+                labelElements[id] = entry;
+            }
+
+            if (!visible) {
+                entry.el.style.opacity = '0';
+                return;
+            }
+
+            entry.el.style.opacity = '1';
+            entry.el.style.left = `${x}px`;
+            entry.el.style.top = `${y}px`;
+            entry.el.style.color = color;
+            entry.el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+            if (entry.lastLatex !== latexStr) {
+                safeRenderKatex(latexStr, entry.el, fallbackStr);
+                entry.lastLatex = latexStr;
+            }
+        }
+
+        function syncUI() {
+            sliders.A.value = state.A;
+            sliders.k.value = state.k;
+            sliders.v.value = state.v;
+            sliders.delta.value = state.delta;
+            sliders.t.value = state.t;
+
+            readouts.A.textContent = state.A.toFixed(2);
+            readouts.k.textContent = state.k.toFixed(2);
+            readouts.v.textContent = state.v.toFixed(2);
+            readouts.delta.textContent = `${(state.delta / Math.PI).toFixed(2)}π`;
+            readouts.t.textContent = state.t.toFixed(2);
+
+            if (state.playing) {
+                iconPlay.classList.add('hidden');
+                iconPause.classList.remove('hidden');
+            } else {
+                iconPlay.classList.remove('hidden');
+                iconPause.classList.add('hidden');
+            }
+        }
+
+        sliders.A.addEventListener('input', (e) => { state.A = parseFloat(e.target.value); syncUI(); });
+        sliders.k.addEventListener('input', (e) => { state.k = parseFloat(e.target.value); syncUI(); });
+        sliders.v.addEventListener('input', (e) => { state.v = parseFloat(e.target.value); syncUI(); });
+        sliders.delta.addEventListener('input', (e) => { state.delta = parseFloat(e.target.value); syncUI(); });
+        sliders.t.addEventListener('input', (e) => {
+            state.playing = false;
+            state.t = parseFloat(e.target.value);
+            syncUI();
+        });
+
+        btnPlay.addEventListener('click', () => {
+            state.playing = !state.playing;
+            syncUI();
+        });
+
+        btnReset.addEventListener('click', () => {
+            state.playing = false;
+            state.t = 0;
+            syncUI();
+        });
+
+        let width = 0, height = 0;
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            width = Math.max(rect.width, 300);
+            height = Math.max(rect.height, 260);
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function getLayout() {
+            const isMobile = width < 640;
+            const cy = height * 0.52;
+            const unitPx = Math.min(height * 0.21, width * (isMobile ? 0.14 : 0.085));
+            const circleCx = isMobile ? width * 0.22 : width * 0.19;
+            const waveOriginX = isMobile ? width * 0.54 : width * 0.48;
+            const waveStartX = isMobile ? width * 0.42 : width * 0.37;
+            const waveEndX = width * 0.95;
+
+            return { cy, unitPx, circleCx, waveOriginX, waveStartX, waveEndX, isMobile };
+        }
+
+        function handlePointerDown(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            const { cy, unitPx, circleCx } = getLayout();
+            const dist = Math.hypot(x - circleCx, y - cy);
+            if (dist <= unitPx * 2.2) {
+                state.draggingCircle = true;
+                state.playing = false;
+                updatePhaseFromPointer(x, y);
+            }
+        }
+
+        function handlePointerMove(clientX, clientY) {
+            if (!state.draggingCircle) return;
+            const rect = canvas.getBoundingClientRect();
+            updatePhaseFromPointer(clientX - rect.left, clientY - rect.top);
+        }
+
+        function updatePhaseFromPointer(x, y) {
+            const { cy, circleCx } = getLayout();
+            const dx = x - circleCx;
+            const dy = cy - y;
+            let phi0 = Math.atan2(dx, dy);
+            if (phi0 < 0) phi0 += 2 * Math.PI;
+
+            let newDelta = (phi0 + state.k * state.v * state.t) % (2 * Math.PI);
+            if (newDelta < 0) newDelta += 2 * Math.PI;
+            state.delta = newDelta;
+            syncUI();
+        }
+
+        canvas.addEventListener('mousedown', (e) => handlePointerDown(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+        window.addEventListener('mouseup', () => { state.draggingCircle = false; });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (state.draggingCircle && e.touches.length > 0) {
+                handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+        window.addEventListener('touchend', () => { state.draggingCircle = false; });
+
+        function drawArrow(x1, y1, x2, y2, color, headLen = 7, lineWidth = 1.5) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawDoubleArrow(x1, y1, x2, y2, color, headLen = 6) {
+            if (Math.abs(x2 - x1) < 12 && Math.abs(y2 - y1) < 12) return;
+            drawArrow(x1, y1, x2, y2, color, headLen, 1.4);
+            drawArrow(x2, y2, x1, y1, color, headLen, 1.4);
+        }
+
+        let lastTime = performance.now();
+        function render(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+
+            if (state.playing) {
+                state.t += dt;
+                if (state.t > 12) state.t = 0;
+                syncUI();
+            }
+
+            if (width === 0 || height === 0) resizeCanvas();
+            ctx.clearRect(0, 0, width, height);
+            const { cy, unitPx, circleCx, waveOriginX, waveStartX, waveEndX } = getLayout();
+
+            const R = state.A * unitPx;
+            const zScale = unitPx * 1.15;
+            const phi0 = state.delta - state.k * state.v * state.t;
+
+            const px = circleCx + R * Math.sin(phi0);
+            const py = cy - R * Math.cos(phi0);
+
+            // 1. Subtle Blueprint Grid
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+            ctx.lineWidth = 1;
+            const gridStep = unitPx * 0.5;
+            for (let gx = waveOriginX % gridStep; gx < width; gx += gridStep) {
+                ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, height); ctx.stroke();
+            }
+            for (let gy = cy % gridStep; gy < height; gy += gridStep) {
+                ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(width, gy); ctx.stroke();
+            }
+
+            // 2. Reference Circle Axes & Circle
+            const maxAxisR = Math.max(R + 24, unitPx * 1.4);
+            ctx.strokeStyle = 'rgba(225, 29, 72, 0.35)';
+            ctx.lineWidth = 1.25;
+            ctx.beginPath();
+            ctx.moveTo(circleCx - maxAxisR, cy);
+            ctx.lineTo(circleCx + maxAxisR, cy);
+            ctx.stroke();
+            drawArrow(circleCx, cy + maxAxisR, circleCx, cy - maxAxisR, 'rgba(2, 132, 199, 0.5)', 6, 1.3);
+
+            // Generating Circle outline & subtle golden translucent fill
+            ctx.save();
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1.75;
+            ctx.beginPath();
+            ctx.arc(circleCx, cy, R, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // Phase angle sector on circle
+            const normPhi = ((phi0 % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            if (normPhi > 0.04) {
+                ctx.save();
+                ctx.strokeStyle = '#e11d48';
+                ctx.fillStyle = 'rgba(225, 29, 72, 0.14)';
+                ctx.lineWidth = 2;
+                const arcR = Math.min(28, R * 0.42);
+                ctx.beginPath();
+                ctx.moveTo(circleCx, cy);
+                ctx.arc(circleCx, cy, arcR, -Math.PI / 2, -Math.PI / 2 + normPhi, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(circleCx, cy, arcR, -Math.PI / 2, -Math.PI / 2 + normPhi, false);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Radius vector A on circle
+            ctx.save();
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(circleCx, cy);
+            ctx.lineTo(px, py);
+            ctx.stroke();
+            ctx.restore();
+
+            // Vertical projection line on circle
+            ctx.save();
+            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = 'rgba(217, 119, 6, 0.5)';
+            ctx.lineWidth = 1.25;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(circleCx, py);
+            ctx.stroke();
+            ctx.restore();
+
+            // 3. Wave Coordinate Axes
+            drawArrow(waveStartX, cy, waveEndX, cy, 'rgba(225, 29, 72, 0.55)', 7, 1.5);
+            const fAxisTop = cy - Math.max(R + 36, unitPx * 1.55);
+            const fAxisBot = cy + Math.max(R + 24, unitPx * 1.35);
+            drawArrow(waveOriginX, fAxisBot, waveOriginX, fAxisTop, 'rgba(2, 132, 199, 0.6)', 7, 1.5);
+
+            // 4. Horizontal Projection Bridge
+            ctx.save();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(2, 132, 199, 0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(waveOriginX, py);
+            ctx.stroke();
+            ctx.restore();
+
+            // 5. Sinusoidal Wave Curve (Rich Sky-Blue)
+            ctx.save();
+            ctx.shadowColor = 'rgba(2, 132, 199, 0.25)';
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 2.8;
+            ctx.beginPath();
+            let first = true;
+            for (let sx = waveStartX; sx <= waveEndX - 10; sx += 2) {
+                const z = (sx - waveOriginX) / zScale;
+                const phase = state.k * (z - state.v * state.t) + state.delta;
+                const sy = cy - R * Math.cos(phase);
+                if (first) {
+                    ctx.moveTo(sx, sy);
+                    first = false;
+                } else {
+                    ctx.lineTo(sx, sy);
+                }
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            // 6. Geometric Parameter Annotations
+            const zMax = state.v * state.t - (state.delta / state.k);
+            const lambda = (2 * Math.PI) / state.k;
+            let displayZMax = zMax;
+            const minVisibleZ = (waveStartX - waveOriginX) / zScale;
+            const maxVisibleZ = (waveEndX - 25 - waveOriginX) / zScale;
+            while (displayZMax < minVisibleZ) displayZMax += lambda;
+            while (displayZMax > maxVisibleZ - lambda * 0.35) displayZMax -= lambda;
+
+            const xPeak1 = waveOriginX + displayZMax * zScale;
+            const xPeak2 = xPeak1 + lambda * zScale;
+            const yPeak = cy - R;
+
+            // Dotted top crest level line
+            ctx.save();
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+            ctx.lineWidth = 1.25;
+            ctx.beginPath();
+            ctx.moveTo(Math.min(xPeak1, waveOriginX) - 10, yPeak);
+            ctx.lineTo(Math.min(xPeak2 + 15, waveEndX - 10), yPeak);
+            ctx.stroke();
+            ctx.restore();
+
+            // Wavelength \lambda = 2\pi / k bracket
+            const lambdaY = yPeak - 22;
+            if (xPeak2 <= waveEndX - 8 && xPeak1 >= waveStartX) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(5, 150, 105, 0.55)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(xPeak1, yPeak); ctx.lineTo(xPeak1, lambdaY - 5);
+                ctx.moveTo(xPeak2, yPeak); ctx.lineTo(xPeak2, lambdaY - 5);
+                ctx.stroke();
+                ctx.restore();
+
+                drawDoubleArrow(xPeak1, lambdaY, xPeak2, lambdaY, '#059669', 6);
+                setCanvasLabel('lbl-lambda', "\\color{#059669}{\\lambda = \\frac{2\\pi}{k}}", "λ = 2π/k", (xPeak1 + xPeak2) / 2, lambdaY - 16, true, '#059669', 0.88);
+            } else {
+                setCanvasLabel('lbl-lambda', "", "", 0, 0, false);
+            }
+
+            // Shift distance \delta / k or vt - \delta / k
+            const shiftY = cy + 24;
+            const showShift = Math.abs(xPeak1 - waveOriginX) > 16 && xPeak1 >= waveStartX && xPeak1 <= waveEndX - 10;
+            if (showShift) {
+                ctx.save();
+                ctx.setLineDash([3, 3]);
+                ctx.strokeStyle = 'rgba(225, 29, 72, 0.5)';
+                ctx.lineWidth = 1.25;
+                ctx.beginPath();
+                ctx.moveTo(xPeak1, yPeak);
+                ctx.lineTo(xPeak1, shiftY + 6);
+                ctx.stroke();
+                ctx.restore();
+
+                drawDoubleArrow(waveOriginX, shiftY, xPeak1, shiftY, '#e11d48', 5);
+                const isZeroT = Math.abs(state.t) < 0.01;
+                const shiftTex = isZeroT ? "\\color{#e11d48}{\\frac{\\delta}{k}}" : "\\color{#e11d48}{vt - \\frac{\\delta}{k}}";
+                const shiftFallback = isZeroT ? "δ/k" : "vt - δ/k";
+                setCanvasLabel('lbl-shift', shiftTex, shiftFallback, (waveOriginX + xPeak1) / 2, shiftY + 18, true, '#e11d48', 0.85);
+            } else {
+                setCanvasLabel('lbl-shift', "", "", 0, 0, false);
+            }
+
+            // Amplitude A vertical arrow at crest
+            const ampX = (xPeak2 <= waveEndX - 15 && xPeak2 >= waveStartX) ? xPeak2 : xPeak1;
+            if (ampX >= waveStartX && ampX <= waveEndX - 10 && R > 20) {
+                drawDoubleArrow(ampX, cy, ampX, yPeak, '#d97706', 5);
+                setCanvasLabel('lbl-amp-wave', "\\color{#d97706}{A}", "A", ampX + 14, (cy + yPeak) / 2, true, '#d97706', 0.92);
+            } else {
+                setCanvasLabel('lbl-amp-wave', "", "", 0, 0, false);
+            }
+
+            // Velocity vector arrow v under the wave
+            if (Math.abs(state.v) > 0.05) {
+                const vxStart = waveOriginX + (waveEndX - waveOriginX) * 0.52;
+                const vDir = Math.sign(state.v);
+                const vLen = Math.min(55, Math.max(26, Math.abs(state.v) * 35));
+                const vy = cy + Math.max(R * 0.55, 42);
+                drawArrow(vxStart, vy, vxStart + vDir * vLen, vy, '#0284c7', 6, 1.6);
+                setCanvasLabel('lbl-vel', "\\color{#0284c7}{v}", "v", vxStart + (vDir * vLen) / 2, vy + 15, true, '#0284c7', 0.9);
+            } else {
+                setCanvasLabel('lbl-vel', "", "", 0, 0, false);
+            }
+
+            // 7. Highlighted Nodes
+            if (xPeak1 >= waveStartX && xPeak1 <= waveEndX - 10) {
+                ctx.fillStyle = '#e11d48';
+                ctx.beginPath();
+                ctx.arc(xPeak1, yPeak, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath();
+            ctx.arc(waveOriginX, py, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.75;
+            ctx.stroke();
+
+            // 8. Position Remaining Labels
+            const midRx = circleCx + (R * 0.52) * Math.sin(phi0) - 12 * Math.cos(phi0);
+            const midRy = cy - (R * 0.52) * Math.cos(phi0) - 12 * Math.sin(phi0);
+            setCanvasLabel('lbl-circle-A', "\\color{#d97706}{A}", "A", midRx, midRy, R > 28, '#d97706', 0.88);
+
+            if (normPhi > 0.22) {
+                const halfAngle = -Math.PI / 2 + normPhi / 2;
+                const labelR = Math.min(42, R * 0.62);
+                const isZeroT = Math.abs(state.t) < 0.01;
+                const phaseTex = isZeroT ? "\\color{#e11d48}{\\delta}" : "\\color{#e11d48}{\\phi_0}";
+                const phaseFallback = isZeroT ? "δ" : "φ₀";
+                setCanvasLabel('lbl-circle-phi', phaseTex, phaseFallback, circleCx + labelR * Math.cos(halfAngle), cy + labelR * Math.sin(halfAngle), true, '#e11d48', 0.85);
+            } else {
+                setCanvasLabel('lbl-circle-phi', "", "", 0, 0, false);
+            }
+
+            setCanvasLabel('lbl-axis-f', "f(z,t)", "f(z,t)", waveOriginX, fAxisTop - 14, true, '#0284c7', 0.88);
+            setCanvasLabel('lbl-axis-z', "z", "z", waveEndX + 12, cy, true, '#e11d48', 0.92);
+            setCanvasLabel('lbl-circle-top', "+A", "+A", circleCx, cy - maxAxisR - 12, true, '#64748b', 0.8);
+
+            requestAnimationFrame(render);
+        }
+
+        // Immediate initialization + re-render KaTeX once fonts/scripts finish loading
+        resizeCanvas();
+        syncUI();
+        renderStaticLatex();
+        requestAnimationFrame(render);
+
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            renderStaticLatex();
+        });
+    </script>
+</body>
+</html>

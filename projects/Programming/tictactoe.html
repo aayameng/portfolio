@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <!-- QR Code Generator & Camera QR Scanner Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
   <script>
@@ -129,6 +129,8 @@
       border-radius: 12px;
       margin: 0 auto;
       display: block;
+      max-width: 100%;
+      height: auto;
     }
 
     /* Custom subtle scrollbar */
@@ -337,7 +339,7 @@
           <!-- Guest Reply QR Code for Proximity Pairing -->
           <div class="glass-subcard rounded-2xl p-3.5 text-center space-y-2">
             <p class="text-[11px] font-medium text-slate-400">Nearby Host? Let them scan this Reply QR:</p>
-            <div id="guestQrContainer" class="qr-wrapper bg-white p-2.5 rounded-2xl inline-block shadow-inner"></div>
+            <div id="guestQrContainer" class="qr-wrapper bg-white p-3 rounded-2xl inline-block shadow-inner"></div>
           </div>
         </div>
       </div>
@@ -346,18 +348,21 @@
       <div id="nearbyConnectPanel" class="hidden space-y-5">
         <!-- Nearby Radar Auto-Discovery (Local Tabs / Same Device) -->
         <div class="glass-subcard rounded-2xl p-4 relative overflow-hidden">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-2">
             <div>
               <h3 class="text-sm font-bold text-white flex items-center gap-2">
                 <span>Nearby Radar</span>
-                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Auto-Discovery</span>
+                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Same-Device Auto</span>
               </h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Open another tab/window to connect with 1 tap</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Auto-discovers open browser tabs/windows on this device</p>
             </div>
+            <button onclick="openSecondWindow()" title="Open another window to connect locally" class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-sky-300 transition active:scale-95 whitespace-nowrap">
+              + 2nd Window
+            </button>
           </div>
 
           <!-- Radar Graphic + Discovered Peers -->
-          <div class="relative flex flex-col items-center justify-center py-4 min-h-[135px]">
+          <div class="relative flex flex-col items-center justify-center py-3 min-h-[130px]">
             <!-- Concentric Sonar Rings -->
             <div class="absolute w-28 h-28 rounded-full border border-sky-400/20 pointer-events-none"></div>
             <div class="absolute w-44 h-44 rounded-full border border-sky-400/10 pointer-events-none"></div>
@@ -369,8 +374,8 @@
             </div>
 
             <!-- Discovered Nearby Peers List -->
-            <div id="nearbyPeersList" class="relative z-10 w-full flex flex-col items-center gap-2">
-              <p id="radarScanningText" class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>
+            <div id="nearbyPeersList" class="relative z-10 w-full flex flex-col items-center gap-2 text-center">
+              <p class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>
             </div>
           </div>
         </div>
@@ -380,34 +385,48 @@
           <div class="flex items-center justify-between">
             <div>
               <h3 class="text-sm font-bold text-white">Phone-to-Phone QR Pair</h3>
-              <p class="text-[11px] text-slate-400">Zero typing • Works over Wi-Fi, Hotspot, or Internet</p>
+              <p class="text-[11px] text-slate-400">Cross-device connect • Works on Wi-Fi, Hotspot, or Cellular</p>
             </div>
             <span class="text-lg">📱</span>
           </div>
 
-          <!-- Host QR Display Area (shown when hosting) -->
-          <div id="nearbyHostQrBox" class="hidden text-center space-y-2.5 pt-1">
-            <div id="hostQrContainer" class="qr-wrapper bg-white p-2.5 rounded-2xl inline-block shadow-lg"></div>
-            <p class="text-xs text-slate-300 font-medium">1. Have your friend scan this QR code</p>
-            <button onclick="openQrScanner('answer')" class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2">
+          <!-- Host QR Display Area (shown when hosting via Nearby) -->
+          <div id="nearbyHostQrBox" class="hidden text-center space-y-3 pt-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-sky-400">Step 1 • Friend Scans This QR</span>
+              <button onclick="resetConnection()" class="text-slate-400 hover:text-rose-400 transition">Cancel</button>
+            </div>
+            <div id="hostQrContainer" class="qr-wrapper bg-white p-3 rounded-2xl inline-block shadow-lg"></div>
+            <p class="text-[11px] text-slate-400">Once your friend scans this, their Reply QR will appear on their screen.</p>
+            <button onclick="openQrScanner('answer')" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              <span>2. Scan Friend's Reply QR</span>
+              <span>Step 2 • Scan Friend's Reply QR</span>
             </button>
+          </div>
+
+          <!-- Guest Reply QR Display Area (shown when guest scans Host QR via Nearby) -->
+          <div id="nearbyGuestQrBox" class="hidden text-center space-y-3 pt-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-rose-400">Step 2 • Show Reply QR to Host</span>
+              <button onclick="resetConnection()" class="text-slate-400 hover:text-rose-400 transition">Cancel</button>
+            </div>
+            <div id="nearbyGuestQrContainer" class="qr-wrapper bg-white p-3 rounded-2xl inline-block shadow-lg"></div>
+            <p class="text-xs text-slate-300 font-medium animate-pulse">Waiting for Host to scan your Reply QR...</p>
           </div>
 
           <!-- Default Nearby QR Buttons -->
           <div id="nearbyQrActions" class="grid grid-cols-2 gap-2.5">
-            <button onclick="startNearbyHostQr()" class="py-3 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
+            <button onclick="startNearbyHostQr()" class="py-3.5 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
               </svg>
               <span>Show Game QR</span>
             </button>
 
-            <button onclick="openQrScanner('auto')" class="py-3 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
+            <button onclick="openQrScanner('auto')" class="py-3.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -421,7 +440,7 @@
             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
             </svg>
-            <span>Beam via AirDrop / Quick Share</span>
+            <span>Beam Link via AirDrop / Quick Share</span>
           </button>
         </div>
       </div>
@@ -532,16 +551,31 @@
         </button>
       </div>
 
-      <div class="relative aspect-square w-full rounded-2xl overflow-hidden bg-black border border-white/15">
-        <video id="qrVideo" playsinline class="w-full h-full object-cover"></video>
+      <div id="cameraPreviewBox" class="relative aspect-square w-full rounded-2xl overflow-hidden bg-black border border-white/15">
+        <video id="qrVideo" playsinline muted class="w-full h-full object-cover"></video>
         <canvas id="qrCanvas" class="hidden"></canvas>
         <!-- Viewfinder Overlay -->
         <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div class="w-48 h-48 border-2 border-sky-400/80 rounded-2xl shadow-[0_0_0_9999px_rgba(9,13,22,0.5)]"></div>
+          <div class="w-52 h-52 border-2 border-sky-400/80 rounded-2xl shadow-[0_0_0_9999px_rgba(9,13,22,0.5)]"></div>
         </div>
       </div>
 
-      <p class="text-[11px] text-center text-slate-400">Scanning automatically • Keep QR inside the frame</p>
+      <!-- Camera Permission / Fallback Upload Box -->
+      <div id="cameraFallbackNotice" class="hidden rounded-2xl bg-amber-500/10 border border-amber-400/30 p-3 text-center space-y-1">
+        <p class="text-xs font-semibold text-amber-300">Live Camera Blocked or Unavailable</p>
+        <p class="text-[11px] text-slate-300">Take a photo or screenshot of the QR code and upload it below:</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="w-full py-2.5 px-4 rounded-xl glass-subcard hover:bg-white/10 border border-white/15 text-sky-300 font-semibold text-xs text-center cursor-pointer transition active:scale-95 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span>Upload QR Photo / Screenshot</span>
+          <input id="qrFileInput" type="file" accept="image/*" onchange="handleQrImageUpload(event)" class="hidden" />
+        </label>
+        <p class="text-[11px] text-center text-slate-400">Scanning automatically • Keep QR inside the frame</p>
+      </div>
     </div>
   </div>
 
@@ -674,7 +708,7 @@
 
     /**
      * 3. SDP COMPRESSION & URL-SAFE TOKEN CODEC
-     * Compresses WebRTC SDP offers/answers to ~350 chars so links & QR codes stay compact.
+     * Compresses WebRTC SDP offers/answers to ~240-320 chars so links & QR codes stay compact.
      */
     function minifySdp(sdp) {
       const keepPrefixes = [
@@ -682,9 +716,21 @@
         'a=ice-ufrag:', 'a=ice-pwd:', 'a=fingerprint:',
         'a=setup:', 'a=mid:', 'a=sctp-port:', 'a=candidate:'
       ];
+      const seenCandidates = new Set();
       return sdp
         .split(/\r?\n/)
-        .filter(line => keepPrefixes.some(prefix => line.startsWith(prefix)))
+        .filter(line => {
+          if (!keepPrefixes.some(prefix => line.startsWith(prefix))) return false;
+          if (line.startsWith('a=candidate:')) {
+            // Skip TCP candidates (UDP covers LAN + STUN) and deduplicate identical host/port pairs
+            if (line.includes(' tcp ') || line.includes(' TCP ')) return false;
+            const parts = line.split(' ');
+            const key = `${parts[4]}:${parts[5]}:${parts[7]}`;
+            if (seenCandidates.has(key)) return false;
+            seenCandidates.add(key);
+          }
+          return true;
+        })
         .join('\r\n') + '\r\n';
     }
 
@@ -759,6 +805,8 @@
     function extractTokenString(input) {
       if (!input) return '';
       const trimmed = input.trim();
+      const compactQrMatch = trimmed.match(/^T3[OA]:([A-Za-z0-9\-_.]+)$/);
+      if (compactQrMatch) return compactQrMatch[1];
       const hashMatch = trimmed.match(/#(?:offer|answer)=([A-Za-z0-9\-_.]+)/);
       if (hashMatch) return hashMatch[1];
       const paramMatch = trimmed.match(/(?:offer|answer)=([A-Za-z0-9\-_.]+)/);
@@ -917,29 +965,57 @@
     /**
      * 5. HOST & GUEST HANDSHAKE FLOWS
      */
+    async function createHostOfferToken() {
+      state.role = 'host';
+      state.mySymbol = 'X';
+
+      const pc = createPeerConnection();
+      const dc = pc.createDataChannel('tictactoe', { ordered: true });
+      setupDataChannel(dc);
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await waitForIceGathering(pc);
+
+      const token = await encodeSignalToken(pc.localDescription);
+      state.lastOfferToken = token;
+      return token;
+    }
+
+    async function createGuestAnswerToken(offerInput) {
+      const remoteDesc = await decodeSignalToken(offerInput);
+      if (remoteDesc.type !== 'offer') {
+        throw new Error('NOT_AN_OFFER');
+      }
+
+      state.role = 'guest';
+      state.mySymbol = 'O';
+
+      const pc = createPeerConnection();
+      pc.ondatachannel = (event) => {
+        setupDataChannel(event.channel);
+      };
+
+      await pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await waitForIceGathering(pc);
+
+      const answerToken = await encodeSignalToken(pc.localDescription);
+      state.lastAnswerToken = answerToken;
+      return answerToken;
+    }
+
     async function startAsHost() {
       try {
-        state.role = 'host';
-        state.mySymbol = 'X';
-
         document.getElementById('hostStartSection').classList.add('hidden');
         document.getElementById('hostInviteSection').classList.remove('hidden');
         document.getElementById('inviteLinkOutput').value = 'Creating direct P2P link...';
 
-        const pc = createPeerConnection();
-        const dc = pc.createDataChannel('tictactoe', { ordered: true });
-        setupDataChannel(dc);
-
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        await waitForIceGathering(pc);
-
-        const token = await encodeSignalToken(pc.localDescription);
-        state.lastOfferToken = token;
+        const token = await createHostOfferToken();
         const inviteUrl = buildShareUrl('offer', token);
 
         document.getElementById('inviteLinkOutput').value = inviteUrl;
-        renderQrCode('hostQrContainer', inviteUrl);
       } catch (err) {
         console.error(err);
         showToast('Failed to initialize WebRTC');
@@ -947,39 +1023,28 @@
       }
     }
 
-    async function startAsGuest(offerInput) {
+    async function startAsGuest(offerInput, stayInNearbyTab = false) {
       try {
-        const remoteDesc = await decodeSignalToken(offerInput);
-        if (remoteDesc.type !== 'offer') {
-          showToast('Please provide a valid Game Invite link');
-          return;
+        if (!stayInNearbyTab) {
+          switchLobbyTab('link');
+          document.getElementById('hostStartSection').classList.add('hidden');
+          document.getElementById('hostInviteSection').classList.add('hidden');
+          document.getElementById('guestReplySection').classList.remove('hidden');
+          document.getElementById('replyLinkOutput').value = 'Generating reply link...';
         }
 
-        state.role = 'guest';
-        state.mySymbol = 'O';
-
-        switchLobbyTab('link');
-        document.getElementById('hostStartSection').classList.add('hidden');
-        document.getElementById('hostInviteSection').classList.add('hidden');
-        document.getElementById('guestReplySection').classList.remove('hidden');
-        document.getElementById('replyLinkOutput').value = 'Generating reply link...';
-
-        const pc = createPeerConnection();
-        pc.ondatachannel = (event) => {
-          setupDataChannel(event.channel);
-        };
-
-        await pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        await waitForIceGathering(pc);
-
-        const answerToken = await encodeSignalToken(pc.localDescription);
-        state.lastAnswerToken = answerToken;
+        const answerToken = await createGuestAnswerToken(offerInput);
         const replyUrl = buildShareUrl('answer', answerToken);
 
         document.getElementById('replyLinkOutput').value = replyUrl;
-        renderQrCode('guestQrContainer', replyUrl);
+        renderQrCode('guestQrContainer', `T3A:${answerToken}`);
+
+        if (stayInNearbyTab) {
+          document.getElementById('nearbyQrActions').classList.add('hidden');
+          document.getElementById('nearbyHostQrBox').classList.add('hidden');
+          document.getElementById('nearbyGuestQrBox').classList.remove('hidden');
+          renderQrCode('nearbyGuestQrContainer', `T3A:${answerToken}`);
+        }
 
         // If the Host is open in another tab on the same browser, auto-deliver the answer!
         if (nearbyChannel) {
@@ -991,7 +1056,7 @@
         }
       } catch (err) {
         console.error(err);
-        showToast('Invalid or expired invite link');
+        showToast(err.message === 'NOT_AN_OFFER' ? 'Please provide a valid Game Invite' : 'Invalid or expired invite link');
         resetConnection();
       }
     }
@@ -1051,6 +1116,7 @@
       document.getElementById('hostInviteSection').classList.add('hidden');
       document.getElementById('guestReplySection').classList.add('hidden');
       document.getElementById('nearbyHostQrBox').classList.add('hidden');
+      document.getElementById('nearbyGuestQrBox').classList.add('hidden');
       document.getElementById('nearbyQrActions').classList.remove('hidden');
       document.getElementById('hostAnswerInput').value = '';
       document.getElementById('manualOfferInput').value = '';
@@ -1169,63 +1235,127 @@
       badgeEl.classList.toggle('hidden', peers.length === 0);
 
       if (peers.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-400">No other browser tab open on this device.<br><span class="text-[11px] text-slate-500">Tap "+ 2nd Window" above or use QR Pair below for another phone.</span></p>`;
         return;
       }
 
       listEl.innerHTML = peers.map(peer => `
-        <button onclick="connectToNearbyPeer('${peer.id}')" class="w-full max-w-xs py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold flex items-center justify-between transition active:scale-95 shadow-lg shadow-emerald-500/10">
+        <button id="peerBtn_${peer.id}" onclick="connectToNearbyPeer('${peer.id}')" class="w-full max-w-xs py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold flex items-center justify-between transition active:scale-95 shadow-lg shadow-emerald-500/10">
           <span class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Player #${peer.id}</span>
+            <span>Window #${peer.id}</span>
           </span>
-          <span class="px-2 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Tap to Play</span>
+          <span class="px-2.5 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Tap to Play</span>
         </button>
       `).join('');
     }
 
+    function openSecondWindow() {
+      const cleanUrl = window.location.href.split('#')[0];
+      window.open(cleanUrl, '_blank');
+    }
+
     async function connectToNearbyPeer(targetPeerId) {
       if (!nearbyChannel) return;
-      showToast(`Connecting to Player #${targetPeerId}...`);
-      await startAsHost();
-      nearbyChannel.postMessage({
-        type: 'direct_offer',
-        from: state.peerId,
-        to: targetPeerId,
-        offerToken: state.lastOfferToken
-      });
+      const btn = document.getElementById(`peerBtn_${targetPeerId}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="mx-auto text-emerald-300 animate-pulse">Connecting to #${targetPeerId}...</span>`;
+      }
+      showToast(`Connecting to Window #${targetPeerId}...`);
+      try {
+        const offerToken = await createHostOfferToken();
+        nearbyChannel.postMessage({
+          type: 'direct_offer',
+          from: state.peerId,
+          to: targetPeerId,
+          offerToken
+        });
+      } catch (err) {
+        showToast('Nearby connection failed');
+        renderNearbyRadar();
+      }
     }
 
     function renderQrCode(containerId, text) {
       const container = document.getElementById(containerId);
-      if (!container || typeof QRCode === 'undefined') return;
+      if (!container) return;
       container.innerHTML = '';
-      new QRCode(container, {
-        text: text,
-        width: 176,
-        height: 176,
-        colorDark: '#090d16',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.L
-      });
+
+      if (typeof qrcode === 'undefined') {
+        container.innerHTML = `<p class="text-xs text-rose-600 font-semibold p-4">QR generator offline. Use Link Connect instead.</p>`;
+        return;
+      }
+
+      try {
+        // Type 0 auto-picks the optimal QR version (1..40) with zero length-table overflow bugs
+        const qr = qrcode(0, 'L');
+        qr.addData(text);
+        qr.make();
+
+        const moduleCount = qr.getModuleCount();
+        const targetSize = 220;
+        const margin = 14;
+        const cellSize = Math.max(2, Math.floor((targetSize - margin * 2) / moduleCount));
+        const canvasSize = moduleCount * cellSize + margin * 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext('2d');
+
+        // Crisp white background + quiet zone
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+        // Dark modules
+        ctx.fillStyle = '#090d16';
+        for (let row = 0; row < moduleCount; row++) {
+          for (let col = 0; col < moduleCount; col++) {
+            if (qr.isDark(row, col)) {
+              ctx.fillRect(
+                margin + col * cellSize,
+                margin + row * cellSize,
+                cellSize,
+                cellSize
+              );
+            }
+          }
+        }
+
+        container.appendChild(canvas);
+      } catch (err) {
+        console.error('QR render error:', err);
+        container.innerHTML = `<p class="text-xs text-rose-600 font-semibold p-4">Could not render QR code (${err.message}).</p>`;
+      }
     }
 
     async function startNearbyHostQr() {
-      await startAsHost();
-      document.getElementById('nearbyQrActions').classList.add('hidden');
-      document.getElementById('nearbyHostQrBox').classList.remove('hidden');
+      try {
+        document.getElementById('nearbyQrActions').classList.add('hidden');
+        document.getElementById('nearbyHostQrBox').classList.remove('hidden');
+        const container = document.getElementById('hostQrContainer');
+        container.innerHTML = `<div class="w-[220px] h-[220px] flex items-center justify-center text-xs font-semibold text-slate-600 animate-pulse">Generating QR...</div>`;
+
+        const token = await createHostOfferToken();
+        renderQrCode('hostQrContainer', `T3O:${token}`);
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to generate Game QR');
+        resetConnection();
+      }
     }
 
     async function beamNearbyShare() {
       if (!state.lastOfferToken) {
-        await startAsHost();
+        await createHostOfferToken();
       }
       const inviteUrl = buildShareUrl('offer', state.lastOfferToken);
       shareUrlNative(inviteUrl, 'Tic-Tac-Toe P2P Invite', 'Join my nearby game:');
     }
 
     /**
-     * 8. CAMERA QR CODE SCANNER (jsQR)
+     * 8. CAMERA QR CODE SCANNER (jsQR + IMAGE UPLOAD FALLBACK)
      */
     async function openQrScanner(mode = 'auto') {
       state.scannerMode = mode;
@@ -1233,31 +1363,50 @@
       const video = document.getElementById('qrVideo');
       const canvas = document.getElementById('qrCanvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const cameraBox = document.getElementById('cameraPreviewBox');
+      const fallbackNotice = document.getElementById('cameraFallbackNotice');
 
       document.getElementById('scannerSubtitle').textContent =
         mode === 'answer' ? "Scan your friend's Reply QR code" : "Point camera at your friend's Game QR";
 
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      cameraBox.classList.remove('hidden');
+      fallbackNotice.classList.add('hidden');
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera API unavailable');
+        }
+
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 720 }, height: { ideal: 720 } }
+          });
+        } catch (primaryErr) {
+          // Fallback to any available camera (e.g., laptop webcam)
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+
         state.scannerStream = stream;
         video.srcObject = stream;
         await video.play();
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-
         const scanFrame = () => {
           if (!state.scannerStream) return;
-          if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+          if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+            // Scale down high-res phone streams to max 640px for fast, reliable jsQR decoding
+            const maxDim = 640;
+            const scale = Math.min(1, maxDim / Math.max(video.videoWidth, video.videoHeight));
+            canvas.width = Math.floor(video.videoWidth * scale);
+            canvas.height = Math.floor(video.videoHeight * scale);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (typeof jsQR !== 'undefined') {
               const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: 'dontInvert'
+                inversionAttempts: 'attemptBoth'
               });
               if (code && code.data) {
                 handleScannedQrData(code.data);
@@ -1269,9 +1418,44 @@
         };
         state.scannerAnimFrame = requestAnimationFrame(scanFrame);
       } catch (err) {
-        console.error(err);
-        showToast('Camera unavailable — use Link Connect instead');
+        console.warn('Camera fallback activated:', err);
+        cameraBox.classList.add('hidden');
+        fallbackNotice.classList.remove('hidden');
       }
+    }
+
+    function handleQrImageUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.getElementById('qrCanvas');
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
+          const maxDim = 900;
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          canvas.width = Math.floor(img.width * scale);
+          canvas.height = Math.floor(img.height * scale);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          if (typeof jsQR !== 'undefined') {
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+              inversionAttempts: 'attemptBoth'
+            });
+            if (code && code.data) {
+              handleScannedQrData(code.data);
+              return;
+            }
+          }
+          showToast('No QR code found in that image');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
     }
 
     function closeQrScanner() {
@@ -1294,7 +1478,7 @@
         const decoded = await decodeSignalToken(data);
         if (decoded.type === 'offer') {
           showToast('Game QR scanned! Show your Reply QR to host.');
-          await startAsGuest(data);
+          await startAsGuest(data, true);
         } else if (decoded.type === 'answer') {
           await completeHostHandshake(data);
         }

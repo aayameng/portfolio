@@ -345,52 +345,87 @@
       </div>
 
       <!-- TAB 2: NEARBY DEVICE CONNECT -->
-      <div id="nearbyConnectPanel" class="hidden space-y-5">
-        <!-- Nearby Radar Auto-Discovery (Local Tabs / Same Device) -->
+      <div id="nearbyConnectPanel" class="hidden space-y-4">
+        <!-- 1. Nearby Radar Auto-Discovery (Same Wi-Fi / LAN & Same-Device) -->
         <div class="glass-subcard rounded-2xl p-4 relative overflow-hidden">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between gap-2 mb-2">
             <div>
               <h3 class="text-sm font-bold text-white flex items-center gap-2">
                 <span>Nearby Radar</span>
-                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Same-Device Auto</span>
+                <span id="radarStatusChip" class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Wi-Fi + Local</span>
               </h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Auto-discovers open browser tabs/windows on this device</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Auto-discovers phones on your Wi-Fi & open tabs</p>
             </div>
-            <button onclick="openSecondWindow()" title="Open another window to connect locally" class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-sky-300 transition active:scale-95 whitespace-nowrap">
+            <button onclick="openSecondWindow()" title="Open another window to test locally" class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-sky-300 transition active:scale-95 whitespace-nowrap">
               + 2nd Window
             </button>
           </div>
 
           <!-- Radar Graphic + Discovered Peers -->
-          <div class="relative flex flex-col items-center justify-center py-3 min-h-[130px]">
+          <div class="relative flex flex-col items-center justify-center py-3 min-h-[125px]">
             <!-- Concentric Sonar Rings -->
             <div class="absolute w-28 h-28 rounded-full border border-sky-400/20 pointer-events-none"></div>
             <div class="absolute w-44 h-44 rounded-full border border-sky-400/10 pointer-events-none"></div>
             <div class="absolute w-28 h-28 rounded-full bg-sky-400/10 animate-radar-ping pointer-events-none"></div>
 
             <!-- Center Self Node -->
-            <div class="relative z-10 w-10 h-10 rounded-full bg-sky-500/20 border border-sky-400/50 flex items-center justify-center shadow-lg shadow-sky-500/20 mb-3">
-              <span class="text-xs font-bold text-sky-300">YOU</span>
+            <div class="relative z-10 px-3 h-9 rounded-full bg-sky-500/20 border border-sky-400/50 flex items-center justify-center shadow-lg shadow-sky-500/20 mb-3">
+              <span id="selfRadarLabel" class="text-[11px] font-bold text-sky-300">YOU</span>
             </div>
 
             <!-- Discovered Nearby Peers List -->
             <div id="nearbyPeersList" class="relative z-10 w-full flex flex-col items-center gap-2 text-center">
-              <p class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>
+              <p class="text-xs text-slate-400 animate-pulse">Scanning nearby phones & tabs...</p>
             </div>
           </div>
         </div>
 
-        <!-- Phone-to-Phone Instant QR Pairing -->
-        <div class="glass-subcard rounded-2xl p-4 space-y-3.5">
+        <!-- 2. Instant 4-Digit Nearby PIN (Works across Wi-Fi, Hotspot & 5G without Camera) -->
+        <div class="glass-subcard rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-sm font-bold text-white">Phone-to-Phone QR Pair</h3>
-              <p class="text-[11px] text-slate-400">Cross-device connect • Works on Wi-Fi, Hotspot, or Cellular</p>
+              <h3 class="text-sm font-bold text-white">4-Digit Nearby PIN</h3>
+              <p class="text-[11px] text-slate-400">Fastest connect if on different networks (5G ↔ Wi-Fi)</p>
             </div>
-            <span class="text-lg">📱</span>
+            <span class="text-base">🔢</span>
           </div>
 
-          <!-- Host QR Display Area (shown when hosting via Nearby) -->
+          <!-- Default PIN Actions -->
+          <div id="nearbyPinDefaultBox" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button onclick="startNearbyPinHost()" class="py-2.5 px-3.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-semibold text-xs transition active:scale-95 flex items-center justify-center gap-2">
+              <span>Host 4-Digit PIN</span>
+            </button>
+
+            <div class="flex gap-1.5">
+              <input id="nearbyPinInput" type="text" inputmode="numeric" maxlength="4" oninput="onNearbyPinInput(this.value)" placeholder="Enter PIN" class="w-full bg-slate-950/80 border border-white/15 focus:border-emerald-400/60 focus:outline-none rounded-xl px-3 py-2 text-center text-sm font-mono font-bold tracking-[0.25em] text-white placeholder-slate-500 placeholder:tracking-normal placeholder:font-sans placeholder:font-normal placeholder:text-xs" />
+              <button onclick="joinNearbyPin()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 text-emerald-300 font-semibold text-xs transition active:scale-95">
+                Join
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Host PIN Display -->
+          <div id="nearbyPinHostBox" class="hidden rounded-xl bg-slate-950/75 border border-sky-400/30 p-3.5 text-center space-y-2">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-sky-400 font-semibold uppercase tracking-wider">Share PIN with Friend</span>
+              <button onclick="resetConnection()" class="text-slate-400 hover:text-rose-400">Cancel</button>
+            </div>
+            <div id="nearbyPinCodeDisplay" class="text-3xl font-extrabold font-mono tracking-[0.35em] text-white py-1 select-all">----</div>
+            <p class="text-[11px] text-slate-400 animate-pulse">Waiting for friend to enter this PIN...</p>
+          </div>
+        </div>
+
+        <!-- 3. Phone-to-Phone Visual QR Pairing & AirDrop -->
+        <div class="glass-subcard rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">QR Code Pair & Share</h3>
+              <p class="text-[11px] text-slate-400">Scan camera QR or beam via AirDrop / Quick Share</p>
+            </div>
+            <span class="text-base">📱</span>
+          </div>
+
+          <!-- Host QR Display Area -->
           <div id="nearbyHostQrBox" class="hidden text-center space-y-3 pt-1">
             <div class="flex items-center justify-between text-xs">
               <span class="font-semibold text-sky-400">Step 1 • Friend Scans This QR</span>
@@ -407,7 +442,7 @@
             </button>
           </div>
 
-          <!-- Guest Reply QR Display Area (shown when guest scans Host QR via Nearby) -->
+          <!-- Guest Reply QR Display Area -->
           <div id="nearbyGuestQrBox" class="hidden text-center space-y-3 pt-1">
             <div class="flex items-center justify-between text-xs">
               <span class="font-semibold text-rose-400">Step 2 • Show Reply QR to Host</span>
@@ -419,15 +454,15 @@
 
           <!-- Default Nearby QR Buttons -->
           <div id="nearbyQrActions" class="grid grid-cols-2 gap-2.5">
-            <button onclick="startNearbyHostQr()" class="py-3.5 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <button onclick="startNearbyHostQr()" class="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sky-300 font-semibold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
               </svg>
               <span>Show Game QR</span>
             </button>
 
-            <button onclick="openQrScanner('auto')" class="py-3.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <button onclick="openQrScanner('auto')" class="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-rose-300 font-semibold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
@@ -436,7 +471,7 @@
           </div>
 
           <!-- OS Quick Share / AirDrop Beam Button -->
-          <button onclick="beamNearbyShare()" class="w-full py-2.5 px-4 rounded-xl glass-subcard hover:bg-white/10 text-slate-200 font-medium text-xs transition active:scale-95 flex items-center justify-center gap-2 border border-white/10">
+          <button onclick="beamNearbyShare()" class="w-full py-2.5 px-4 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-200 font-semibold text-xs transition active:scale-95 flex items-center justify-center gap-2 border border-indigo-400/25">
             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
             </svg>
@@ -712,9 +747,9 @@
      */
     function minifySdp(sdp) {
       const keepPrefixes = [
-        'v=', 'o=', 's=', 't=', 'a=group:', 'm=', 'c=',
-        'a=ice-ufrag:', 'a=ice-pwd:', 'a=fingerprint:',
-        'a=setup:', 'a=mid:', 'a=sctp-port:', 'a=candidate:'
+        'v=', 'o=', 's=', 't=', 'a=group:', 'a=msid-semantic:', 'm=', 'c=',
+        'a=ice-ufrag:', 'a=ice-pwd:', 'a=ice-options:', 'a=fingerprint:',
+        'a=setup:', 'a=mid:', 'a=sctp-port:', 'a=sctpmap:', 'a=max-message-size:', 'a=candidate:'
       ];
       const seenCandidates = new Set();
       return sdp
@@ -722,7 +757,7 @@
         .filter(line => {
           if (!keepPrefixes.some(prefix => line.startsWith(prefix))) return false;
           if (line.startsWith('a=candidate:')) {
-            // Skip TCP candidates (UDP covers LAN + STUN) and deduplicate identical host/port pairs
+            // Keep UDP candidates (LAN + STUN) and deduplicate identical host/port pairs
             if (line.includes(' tcp ') || line.includes(' TCP ')) return false;
             const parts = line.split(' ');
             const key = `${parts[4]}:${parts[5]}:${parts[7]}`;
@@ -1109,6 +1144,7 @@
 
     function resetConnection() {
       cleanupPeerConnection();
+      stopActivePinSession();
       state.role = null;
       state.lastOfferToken = '';
       state.lastAnswerToken = '';
@@ -1118,6 +1154,9 @@
       document.getElementById('nearbyHostQrBox').classList.add('hidden');
       document.getElementById('nearbyGuestQrBox').classList.add('hidden');
       document.getElementById('nearbyQrActions').classList.remove('hidden');
+      document.getElementById('nearbyPinHostBox').classList.add('hidden');
+      document.getElementById('nearbyPinDefaultBox').classList.remove('hidden');
+      document.getElementById('nearbyPinInput').value = '';
       document.getElementById('hostAnswerInput').value = '';
       document.getElementById('manualOfferInput').value = '';
     }
@@ -1179,53 +1218,324 @@
     }
 
     /**
-     * 7. NEARBY DEVICE CONNECT (RADAR AUTO-DISCOVERY + QR CODE + CAMERA SCANNER)
+     * 7. NEARBY DEVICE CONNECT (CROSS-DEVICE WI-FI RADAR + 4-DIGIT PIN + QR)
      */
-    const nearbyChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('p2p-ttt-nearby-radar') : null;
+    function detectDeviceLabel() {
+      const ua = navigator.userAgent || '';
+      if (/iPhone/i.test(ua)) return 'iPhone';
+      if (/iPad/i.test(ua)) return 'iPad';
+      if (/Android/i.test(ua)) return 'Android';
+      if (/Mac/i.test(ua)) return 'Mac';
+      if (/Windows/i.test(ua)) return 'Windows';
+      if (/Linux/i.test(ua)) return 'Linux';
+      return 'Device';
+    }
+
+    const myDeviceLabel = detectDeviceLabel();
+    let nearbyChannel = null;
+    try {
+      if ('BroadcastChannel' in window) {
+        nearbyChannel = new BroadcastChannel('p2p-ttt-nearby-radar');
+      }
+    } catch (e) {
+      nearbyChannel = null;
+    }
+
+    // Lightweight Serverless MQTT-over-WebSocket + ntfy HTTP fallback for Wi-Fi / Proximity Radar & 4-Digit PIN
+    class NearbySignalingBus {
+      constructor() {
+        this.ws = null;
+        this.connected = false;
+        this.subscriptions = new Set();
+        this.packetId = 1;
+        this.listeners = [];
+        this.sseSources = new Map();
+        this.useHttpFallback = false;
+      }
+
+      onMessage(cb) {
+        this.listeners.push(cb);
+      }
+
+      emit(topic, msg) {
+        this.listeners.forEach(cb => {
+          try { cb(topic, msg); } catch (e) {}
+        });
+      }
+
+      connect() {
+        if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+          return;
+        }
+        try {
+          const ws = new WebSocket('wss://broker.emqx.io:8084/mqtt', 'mqtt');
+          ws.binaryType = 'arraybuffer';
+          this.ws = ws;
+
+          const connectTimeout = setTimeout(() => {
+            if (!this.connected) {
+              try { ws.close(); } catch (e) {}
+              this.enableHttpFallback();
+            }
+          }, 3500);
+
+          ws.onopen = () => {
+            const clientId = new TextEncoder().encode(`t3_${state.peerId}_${Math.random().toString(36).slice(2, 6)}`);
+            const varHeader = [0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x02, 0x00, 0x3c];
+            const payload = [clientId.length >> 8, clientId.length & 0xff, ...clientId];
+            ws.send(this.buildPacket(0x10, [...varHeader, ...payload]));
+          };
+
+          ws.onmessage = (event) => {
+            const bytes = new Uint8Array(event.data);
+            if (!bytes.length) return;
+            const packetType = bytes[0] & 0xf0;
+
+            if (packetType === 0x20) {
+              clearTimeout(connectTimeout);
+              this.connected = true;
+              this.useHttpFallback = false;
+              const chip = document.getElementById('radarStatusChip');
+              if (chip) chip.textContent = 'Radar Live';
+              this.subscriptions.forEach(t => this.sendSubscribe(t));
+            } else if (packetType === 0x30) {
+              const parsed = this.parsePublish(bytes);
+              if (parsed) {
+                try {
+                  const data = JSON.parse(parsed.payload);
+                  this.emit(parsed.topic, data);
+                } catch (e) {}
+              }
+            }
+          };
+
+          ws.onerror = () => {
+            clearTimeout(connectTimeout);
+            this.enableHttpFallback();
+          };
+
+          ws.onclose = () => {
+            this.connected = false;
+            if (!state.connected) {
+              setTimeout(() => this.connect(), 3000);
+            }
+          };
+        } catch (err) {
+          this.enableHttpFallback();
+        }
+      }
+
+      enableHttpFallback() {
+        if (this.useHttpFallback) return;
+        this.useHttpFallback = true;
+        const chip = document.getElementById('radarStatusChip');
+        if (chip) chip.textContent = 'Radar Live';
+        this.subscriptions.forEach(t => this.subscribeSse(t));
+      }
+
+      subscribeSse(topic) {
+        if (this.sseSources.has(topic) || typeof EventSource === 'undefined') return;
+        try {
+          const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
+          const es = new EventSource(`https://ntfy.sh/${safeTopic}/sse`);
+          es.onmessage = (ev) => {
+            try {
+              const envelope = JSON.parse(ev.data);
+              if (envelope && envelope.message) {
+                const data = JSON.parse(envelope.message);
+                this.emit(topic, data);
+              }
+            } catch (e) {}
+          };
+          this.sseSources.set(topic, es);
+        } catch (e) {}
+      }
+
+      unsubscribe(topic) {
+        this.subscriptions.delete(topic);
+        if (this.sseSources.has(topic)) {
+          try { this.sseSources.get(topic).close(); } catch (e) {}
+          this.sseSources.delete(topic);
+        }
+      }
+
+      subscribe(topic) {
+        this.subscriptions.add(topic);
+        if (this.connected && this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.sendSubscribe(topic);
+        }
+        if (this.useHttpFallback) {
+          this.subscribeSse(topic);
+        }
+      }
+
+      sendSubscribe(topic) {
+        const tBytes = new TextEncoder().encode(topic);
+        const pid = this.packetId++ & 0xffff;
+        const body = [pid >> 8, pid & 0xff, tBytes.length >> 8, tBytes.length & 0xff, ...tBytes, 0x00];
+        this.ws.send(this.buildPacket(0x82, body));
+      }
+
+      publish(topic, payloadObj) {
+        const jsonStr = JSON.stringify(payloadObj);
+        if (this.connected && this.ws && this.ws.readyState === WebSocket.OPEN) {
+          const tBytes = new TextEncoder().encode(topic);
+          const pBytes = new TextEncoder().encode(jsonStr);
+          const body = [tBytes.length >> 8, tBytes.length & 0xff, ...tBytes, ...pBytes];
+          this.ws.send(this.buildPacket(0x30, body));
+        } else if (this.useHttpFallback) {
+          const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
+          fetch(`https://ntfy.sh/${safeTopic}`, {
+            method: 'POST',
+            body: jsonStr
+          }).catch(() => {});
+        }
+      }
+
+      buildPacket(headerByte, bodyBytes) {
+        const lenBytes = [];
+        let x = bodyBytes.length;
+        do {
+          let digit = x % 128;
+          x = Math.floor(x / 128);
+          if (x > 0) digit |= 0x80;
+          lenBytes.push(digit);
+        } while (x > 0);
+        const out = new Uint8Array(1 + lenBytes.length + bodyBytes.length);
+        out[0] = headerByte;
+        out.set(lenBytes, 1);
+        out.set(bodyBytes, 1 + lenBytes.length);
+        return out;
+      }
+
+      parsePublish(bytes) {
+        let multiplier = 1;
+        let remLen = 0;
+        let idx = 1;
+        let encodedByte;
+        do {
+          if (idx >= bytes.length) return null;
+          encodedByte = bytes[idx++];
+          remLen += (encodedByte & 127) * multiplier;
+          multiplier *= 128;
+        } while ((encodedByte & 128) !== 0);
+
+        if (idx + 2 > bytes.length) return null;
+        const topicLen = (bytes[idx] << 8) | bytes[idx + 1];
+        idx += 2;
+        const topic = new TextDecoder().decode(bytes.slice(idx, idx + topicLen));
+        idx += topicLen;
+
+        const qos = (bytes[0] >> 1) & 0x03;
+        if (qos > 0) idx += 2;
+
+        const payload = new TextDecoder().decode(bytes.slice(idx));
+        return { topic, payload };
+      }
+    }
+
+    const netBus = new NearbySignalingBus();
+    let radarNetworkTopic = 'p2p-ttt-radar-global-v1';
+    let activePinTopic = null;
+    let activePinTimer = null;
+
+    async function resolveProximityRadarTopic() {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 2200);
+        const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+        clearTimeout(tid);
+        const data = await res.json();
+        if (data && data.ip) {
+          const raw = new TextEncoder().encode(`t3_wifi_${data.ip}`);
+          const hashBuf = await crypto.subtle.digest('SHA-256', raw);
+          const hex = Array.from(new Uint8Array(hashBuf)).slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
+          radarNetworkTopic = `p2p-ttt-wifi-${hex}`;
+        }
+      } catch (e) {
+        // Keep default proximity topic if IP lookup is blocked
+      }
+      netBus.subscribe(radarNetworkTopic);
+      netBus.publish(radarNetworkTopic, {
+        type: 'beacon',
+        from: state.peerId,
+        device: myDeviceLabel
+      });
+    }
+
+    async function handleNearbySignalMessage(msg, channelSource) {
+      if (!msg || msg.from === state.peerId) return;
+
+      if (msg.type === 'beacon') {
+        state.nearbyPeers.set(msg.from, {
+          id: msg.from,
+          device: msg.device || 'Device',
+          source: channelSource,
+          lastSeen: Date.now()
+        });
+        renderNearbyRadar();
+      } else if (msg.type === 'direct_offer' && msg.to === state.peerId) {
+        showToast(`${msg.device || 'Nearby'} #${msg.from} connecting...`);
+        const answerToken = await createGuestAnswerToken(msg.offerToken);
+        const replyPayload = {
+          type: 'direct_answer',
+          from: state.peerId,
+          to: msg.from,
+          answerToken
+        };
+        if (nearbyChannel) nearbyChannel.postMessage(replyPayload);
+        netBus.publish(radarNetworkTopic, replyPayload);
+      } else if (msg.type === 'direct_answer' && msg.to === state.peerId) {
+        await completeHostHandshake(msg.answerToken);
+      } else if (msg.type === 'auto_answer' && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
+      } else if (msg.type === 'pin_hello' && state.role === 'host' && state.lastOfferToken && activePinTopic) {
+        netBus.publish(activePinTopic, {
+          type: 'pin_offer',
+          from: state.peerId,
+          offerToken: state.lastOfferToken
+        });
+      } else if (msg.type === 'pin_offer' && state.role !== 'host' && !state.connected && activePinTopic) {
+        showToast('PIN matched! Connecting peer-to-peer...');
+        const answerToken = await createGuestAnswerToken(msg.offerToken);
+        netBus.publish(activePinTopic, {
+          type: 'pin_answer',
+          from: state.peerId,
+          to: msg.from,
+          answerToken
+        });
+      } else if (msg.type === 'pin_answer' && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
+      }
+    }
 
     if (nearbyChannel) {
-      nearbyChannel.onmessage = async (event) => {
-        const msg = event.data;
-        if (!msg || msg.from === state.peerId) return;
-
-        if (msg.type === 'beacon') {
-          state.nearbyPeers.set(msg.from, { id: msg.from, lastSeen: Date.now() });
-          renderNearbyRadar();
-        } else if (msg.type === 'direct_offer' && msg.to === state.peerId) {
-          // Another nearby peer tapped us on the radar! Auto-accept and send answer back
-          showToast(`Nearby player #${msg.from} connecting...`);
-          await startAsGuest(msg.offerToken);
-          nearbyChannel.postMessage({
-            type: 'direct_answer',
-            from: state.peerId,
-            to: msg.from,
-            answerToken: state.lastAnswerToken
-          });
-        } else if (msg.type === 'direct_answer' && msg.to === state.peerId) {
-          await completeHostHandshake(msg.answerToken);
-        } else if (msg.type === 'auto_answer' && state.role === 'host' && !state.connected) {
-          await completeHostHandshake(msg.answerToken);
-        }
-      };
-
-      // Broadcast presence immediately and every 1.5s while in lobby
-      nearbyChannel.postMessage({ type: 'beacon', from: state.peerId });
-      setInterval(() => {
-        if (!state.connected) {
-          nearbyChannel.postMessage({ type: 'beacon', from: state.peerId });
-        }
-        // Prune stale peers older than 4s
-        const now = Date.now();
-        let changed = false;
-        for (const [id, peer] of state.nearbyPeers.entries()) {
-          if (now - peer.lastSeen > 4000) {
-            state.nearbyPeers.delete(id);
-            changed = true;
-          }
-        }
-        if (changed) renderNearbyRadar();
-      }, 1500);
+      nearbyChannel.onmessage = (event) => handleNearbySignalMessage(event.data, 'Same Device');
     }
+
+    netBus.onMessage((topic, msg) => handleNearbySignalMessage(msg, 'Same Wi-Fi'));
+    netBus.connect();
+    resolveProximityRadarTopic();
+
+    const selfLabelEl = document.getElementById('selfRadarLabel');
+    if (selfLabelEl) selfLabelEl.textContent = `YOU (${myDeviceLabel})`;
+
+    setInterval(() => {
+      if (!state.connected) {
+        const beacon = { type: 'beacon', from: state.peerId, device: myDeviceLabel };
+        if (nearbyChannel) nearbyChannel.postMessage(beacon);
+        netBus.publish(radarNetworkTopic, beacon);
+      }
+      const now = Date.now();
+      let changed = false;
+      for (const [id, peer] of state.nearbyPeers.entries()) {
+        if (now - peer.lastSeen > 5500) {
+          state.nearbyPeers.delete(id);
+          changed = true;
+        }
+      }
+      if (changed) renderNearbyRadar();
+    }, 2000);
 
     function renderNearbyRadar() {
       const listEl = document.getElementById('nearbyPeersList');
@@ -1235,7 +1545,7 @@
       badgeEl.classList.toggle('hidden', peers.length === 0);
 
       if (peers.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400">No other browser tab open on this device.<br><span class="text-[11px] text-slate-500">Tap "+ 2nd Window" above or use QR Pair below for another phone.</span></p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-400">Open this page on another phone on the same Wi-Fi<br><span class="text-[11px] text-slate-500">or use the 4-Digit PIN / + 2nd Window to connect instantly.</span></p>`;
         return;
       }
 
@@ -1243,38 +1553,108 @@
         <button id="peerBtn_${peer.id}" onclick="connectToNearbyPeer('${peer.id}')" class="w-full max-w-xs py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold flex items-center justify-between transition active:scale-95 shadow-lg shadow-emerald-500/10">
           <span class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Window #${peer.id}</span>
+            <span>${peer.device} #${peer.id}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-black/30 text-emerald-300/80">${peer.source}</span>
           </span>
-          <span class="px-2.5 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Tap to Play</span>
+          <span class="px-2.5 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Connect</span>
         </button>
       `).join('');
     }
 
     function openSecondWindow() {
-      const cleanUrl = window.location.href.split('#')[0];
-      window.open(cleanUrl, '_blank');
+      const href = window.location.href.split('#')[0];
+      if (!href || href.startsWith('about:') || href === 'null') {
+        const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+        window.open(URL.createObjectURL(blob), '_blank');
+      } else {
+        window.open(href, '_blank');
+      }
     }
 
     async function connectToNearbyPeer(targetPeerId) {
-      if (!nearbyChannel) return;
       const btn = document.getElementById(`peerBtn_${targetPeerId}`);
       if (btn) {
         btn.disabled = true;
         btn.innerHTML = `<span class="mx-auto text-emerald-300 animate-pulse">Connecting to #${targetPeerId}...</span>`;
       }
-      showToast(`Connecting to Window #${targetPeerId}...`);
+      showToast(`Connecting to #${targetPeerId}...`);
       try {
         const offerToken = await createHostOfferToken();
-        nearbyChannel.postMessage({
+        const offerMsg = {
           type: 'direct_offer',
           from: state.peerId,
           to: targetPeerId,
+          device: myDeviceLabel,
           offerToken
-        });
+        };
+        if (nearbyChannel) nearbyChannel.postMessage(offerMsg);
+        netBus.publish(radarNetworkTopic, offerMsg);
       } catch (err) {
         showToast('Nearby connection failed');
         renderNearbyRadar();
       }
+    }
+
+    function stopActivePinSession() {
+      if (activePinTimer) {
+        clearInterval(activePinTimer);
+        activePinTimer = null;
+      }
+      if (activePinTopic) {
+        netBus.unsubscribe(activePinTopic);
+        activePinTopic = null;
+      }
+    }
+
+    async function startNearbyPinHost() {
+      try {
+        stopActivePinSession();
+        const pin = String(Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('nearbyPinDefaultBox').classList.add('hidden');
+        document.getElementById('nearbyPinHostBox').classList.remove('hidden');
+        document.getElementById('nearbyPinCodeDisplay').textContent = pin;
+
+        const offerToken = await createHostOfferToken();
+        activePinTopic = `p2p-ttt-pin-${pin}`;
+        netBus.subscribe(activePinTopic);
+
+        const publishOffer = () => {
+          if (state.connected || !activePinTopic) return;
+          netBus.publish(activePinTopic, {
+            type: 'pin_offer',
+            from: state.peerId,
+            offerToken
+          });
+        };
+
+        publishOffer();
+        activePinTimer = setInterval(publishOffer, 2500);
+      } catch (err) {
+        showToast('Could not generate Nearby PIN');
+        resetConnection();
+      }
+    }
+
+    function onNearbyPinInput(val) {
+      const digits = val.replace(/\D/g, '').slice(0, 4);
+      document.getElementById('nearbyPinInput').value = digits;
+      if (digits.length === 4) {
+        joinNearbyPin();
+      }
+    }
+
+    function joinNearbyPin() {
+      const pin = document.getElementById('nearbyPinInput').value.replace(/\D/g, '');
+      if (pin.length !== 4) {
+        showToast('Enter the 4-digit PIN shown on your friend’s screen');
+        return;
+      }
+      stopActivePinSession();
+      state.role = 'guest';
+      activePinTopic = `p2p-ttt-pin-${pin}`;
+      netBus.subscribe(activePinTopic);
+      netBus.publish(activePinTopic, { type: 'pin_hello', from: state.peerId });
+      showToast(`Looking for PIN ${pin}...`);
     }
 
     function renderQrCode(containerId, text) {
@@ -1527,6 +1907,7 @@
     }
 
     function disconnectGame() {
+      stopActivePinSession();
       resetConnection();
       document.getElementById('gameView').classList.add('hidden');
       document.getElementById('lobbyView').classList.remove('hidden');

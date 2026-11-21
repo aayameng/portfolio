@@ -222,39 +222,37 @@
         <!-- Host Initial State: Create Link -->
         <div id="hostStartSection" class="text-center space-y-4">
           <div class="space-y-1.5">
-            <h2 class="text-xl sm:text-2xl font-bold text-white">Play Anywhere, Peer-to-Peer</h2>
-            <p class="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">Generate a direct invite link and send it to a friend. No accounts, no servers—just pure WebRTC.</p>
+            <h2 class="text-lg sm:text-xl font-bold text-white">Play with a Friend Instantly</h2>
+            <p class="text-xs sm:text-sm text-slate-400">Generate a 1-click link. Your game connects automatically as soon as they open it.</p>
           </div>
 
-          <button id="createGameBtn" onclick="startAsHost()" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-semibold text-sm sm:text-base shadow-lg shadow-sky-500/25 transition transform active:scale-[0.98] flex items-center justify-center gap-2.5">
+          <button onclick="startAsHost()" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-sm sm:text-base shadow-lg shadow-sky-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
             </svg>
             <span>Create Game Link</span>
           </button>
 
-          <!-- Divider -->
           <div class="relative flex py-1 items-center">
             <div class="flex-grow border-t border-white/10"></div>
-            <span class="flex-shrink mx-3 text-[11px] uppercase tracking-wider text-slate-500 font-medium">or join with invite</span>
+            <span class="flex-shrink mx-3 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">or join with link</span>
             <div class="flex-grow border-t border-white/10"></div>
           </div>
 
-          <!-- Manual Paste Invite Box -->
           <div class="flex gap-2">
-            <input id="manualOfferInput" type="text" placeholder="Paste friend's invite link or code..." class="flex-1 bg-slate-950/70 border border-white/10 focus:border-sky-400/60 focus:outline-none rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 placeholder-slate-500 font-mono" />
+            <input id="manualOfferInput" type="text" placeholder="Paste friend's invite link or code..." class="flex-1 bg-slate-950/75 border border-white/10 focus:border-sky-400/60 focus:outline-none rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 placeholder-slate-500" />
             <button onclick="handleManualOfferJoin()" class="px-4 py-2.5 rounded-xl glass-subcard hover:bg-white/10 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 whitespace-nowrap">
               Join
             </button>
           </div>
         </div>
 
-        <!-- Host Active State: Share Invite Link & Accept Reply -->
+        <!-- Host Active State: Share Invite Link (Auto-Connects When Opened) -->
         <div id="hostInviteSection" class="hidden space-y-4">
           <div class="flex items-center justify-between">
             <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 uppercase tracking-wider">
               <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-              Step 1 • Share Invite Link
+              Invite Link Ready
             </span>
             <button onclick="resetConnection()" class="text-xs text-slate-400 hover:text-rose-400 transition">Cancel</button>
           </div>
@@ -282,64 +280,91 @@
             </div>
           </div>
 
-          <!-- Step 2: Paste Reply Link from Friend -->
-          <div class="glass-subcard rounded-2xl p-3.5 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 2 • Paste Friend's Reply</span>
-              <button onclick="openQrScanner('answer')" class="inline-flex items-center gap-1 text-xs text-sky-300 hover:text-sky-200 font-medium">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Scan Reply QR
-              </button>
+          <!-- Automatic Connection Waiting Status -->
+          <div class="glass-subcard rounded-2xl p-4 flex items-center gap-3 border border-sky-400/20">
+            <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-400/30 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-sky-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
             </div>
-            <p class="text-[11px] text-slate-400">When your friend opens your link, they'll get a Reply Link to send back. Paste it below to start:</p>
-            <div class="flex gap-2">
-              <input id="hostAnswerInput" type="text" oninput="onHostAnswerInput(this.value)" placeholder="Paste Reply Link or Code here..." class="flex-1 bg-slate-950/80 border border-white/10 focus:border-emerald-400/60 focus:outline-none rounded-xl px-3 py-2 text-xs font-mono text-slate-200 placeholder-slate-500" />
-              <button onclick="pasteAnswerFromClipboard()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-semibold text-xs transition active:scale-95">
-                Paste
-              </button>
+            <div>
+              <p class="text-xs sm:text-sm font-semibold text-white">Waiting for friend to click link...</p>
+              <p class="text-[11px] text-slate-400">Your game will start automatically the moment they open it.</p>
             </div>
           </div>
+
+          <!-- Optional Offline / Manual Fallback -->
+          <details class="group glass-subcard rounded-2xl p-3">
+            <summary class="list-none flex items-center justify-between cursor-pointer text-[11px] font-medium text-slate-400 hover:text-slate-200 select-none">
+              <span>Offline / Manual Reply Fallback</span>
+              <span class="transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <div class="mt-3 pt-2.5 border-t border-white/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Only needed if offline without internet signaling:</span>
+                <button onclick="openQrScanner('answer')" class="text-[11px] text-sky-300 hover:text-sky-200 font-medium">Scan Reply QR</button>
+              </div>
+              <div class="flex gap-2">
+                <input id="hostAnswerInput" type="text" oninput="onHostAnswerInput(this.value)" placeholder="Paste Reply Link or Code..." class="flex-1 bg-slate-950/80 border border-white/10 focus:border-emerald-400/60 focus:outline-none rounded-xl px-3 py-2 text-xs font-mono text-slate-200 placeholder-slate-500" />
+                <button onclick="pasteAnswerFromClipboard()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-semibold text-xs transition active:scale-95">
+                  Paste
+                </button>
+              </div>
+            </div>
+          </details>
         </div>
 
-        <!-- Guest State: Auto-Generated Reply Link -->
+        <!-- Guest State: Auto-Connecting When Invite Link Is Clicked -->
         <div id="guestReplySection" class="hidden space-y-4">
           <div class="flex items-center justify-between">
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 uppercase tracking-wider">
-              <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
-              Invite Accepted • Send Reply
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Joining Game Automatically
             </span>
-            <button onclick="resetConnection()" class="text-xs text-slate-400 hover:text-rose-400 transition">Leave</button>
+            <button onclick="resetConnection()" class="text-xs text-slate-400 hover:text-rose-400 transition">Cancel</button>
           </div>
 
-          <p class="text-xs text-slate-300">Send this Reply Link back to the host (or let them scan your QR code) to connect instantly:</p>
-
-          <div class="glass-subcard rounded-2xl p-3.5 space-y-3">
-            <input id="replyLinkOutput" type="text" readonly value="Generating reply..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none select-all" />
-
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="copyReplyLink()" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-rose-500/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                </svg>
-                <span id="copyReplyLabel">Copy Reply</span>
-              </button>
-
-              <button onclick="shareReplyLink()" class="py-2.5 px-3 rounded-xl glass-subcard hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                </svg>
-                <span>Share Reply</span>
-              </button>
+          <div class="glass-subcard rounded-2xl p-5 text-center space-y-3 border border-emerald-400/20">
+            <div class="w-11 h-11 mx-auto rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center">
+              <svg class="w-6 h-6 text-emerald-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <p class="text-sm font-bold text-white">Connecting directly to your friend...</p>
+              <p class="text-xs text-slate-400">Establishing peer-to-peer WebRTC link. No copy-pasting needed!</p>
             </div>
           </div>
 
-          <!-- Guest Reply QR Code for Proximity Pairing -->
-          <div class="glass-subcard rounded-2xl p-3.5 text-center space-y-2">
-            <p class="text-[11px] font-medium text-slate-400">Nearby Host? Let them scan this Reply QR:</p>
-            <div id="guestQrContainer" class="qr-wrapper bg-white p-3 rounded-2xl inline-block shadow-inner"></div>
+          <!-- Hidden Offline Fallback (Auto-shown only if direct signaling takes > 5s) -->
+          <div id="guestManualFallbackBox" class="hidden space-y-3 pt-1">
+            <p class="text-[11px] text-amber-300/90 text-center">Taking longer than usual? Send this reply link back to the host:</p>
+            <div class="glass-subcard rounded-2xl p-3.5 space-y-3">
+              <input id="replyLinkOutput" type="text" readonly value="Generating reply..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none select-all" />
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="copyReplyLink()" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-rose-500/20">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                  <span id="copyReplyLabel">Copy Reply</span>
+                </button>
+
+                <button onclick="shareReplyLink()" class="py-2.5 px-3 rounded-xl glass-subcard hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                  <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                  </svg>
+                  <span>Share Reply</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="glass-subcard rounded-2xl p-3.5 text-center space-y-2">
+              <p class="text-[11px] font-medium text-slate-400">Or let the host scan this Reply QR:</p>
+              <div id="guestQrContainer" class="qr-wrapper bg-white p-3 rounded-2xl inline-block shadow-inner"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -965,13 +990,12 @@
             startNewRound();
           } else {
             document.getElementById('roundResultSub').textContent = 'Friend wants a rematch!';
-            document.getElementById('rematchBtn').textContent = 'Accept Rematch';
-            showToast('Opponent requested a rematch!');
+            showToast('Friend requested a rematch!');
           }
           break;
 
         case 'rematch_start':
-          state.startingTurn = msg.startingTurn;
+          state.startingTurn = msg.startingTurn || 'X';
           resetBoardForRound();
           break;
 
@@ -997,13 +1021,9 @@
       state.connected = false;
     }
 
-    /**
-     * 5. HOST & GUEST HANDSHAKE FLOWS
-     */
     async function createHostOfferToken() {
       state.role = 'host';
       state.mySymbol = 'X';
-
       const pc = createPeerConnection();
       const dc = pc.createDataChannel('tictactoe', { ordered: true });
       setupDataChannel(dc);
@@ -1025,11 +1045,8 @@
 
       state.role = 'guest';
       state.mySymbol = 'O';
-
       const pc = createPeerConnection();
-      pc.ondatachannel = (event) => {
-        setupDataChannel(event.channel);
-      };
+      pc.ondatachannel = (event) => setupDataChannel(event.channel);
 
       await pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
       const answer = await pc.createAnswer();
@@ -1041,158 +1058,52 @@
       return answerToken;
     }
 
-    async function startAsHost() {
-      try {
-        document.getElementById('hostStartSection').classList.add('hidden');
-        document.getElementById('hostInviteSection').classList.remove('hidden');
-        document.getElementById('inviteLinkOutput').value = 'Creating direct P2P link...';
-
-        const token = await createHostOfferToken();
-        const inviteUrl = buildShareUrl('offer', token);
-
-        document.getElementById('inviteLinkOutput').value = inviteUrl;
-      } catch (err) {
-        console.error(err);
-        showToast('Failed to initialize WebRTC');
-        resetConnection();
-      }
-    }
-
-    async function startAsGuest(offerInput, stayInNearbyTab = false) {
-      try {
-        if (!stayInNearbyTab) {
-          switchLobbyTab('link');
-          document.getElementById('hostStartSection').classList.add('hidden');
-          document.getElementById('hostInviteSection').classList.add('hidden');
-          document.getElementById('guestReplySection').classList.remove('hidden');
-          document.getElementById('replyLinkOutput').value = 'Generating reply link...';
-        }
-
-        const answerToken = await createGuestAnswerToken(offerInput);
-        const replyUrl = buildShareUrl('answer', answerToken);
-
-        document.getElementById('replyLinkOutput').value = replyUrl;
-        renderQrCode('guestQrContainer', `T3A:${answerToken}`);
-
-        if (stayInNearbyTab) {
-          document.getElementById('nearbyQrActions').classList.add('hidden');
-          document.getElementById('nearbyHostQrBox').classList.add('hidden');
-          document.getElementById('nearbyGuestQrBox').classList.remove('hidden');
-          renderQrCode('nearbyGuestQrContainer', `T3A:${answerToken}`);
-        }
-
-        // If the Host is open in another tab on the same browser, auto-deliver the answer!
-        if (nearbyChannel) {
-          nearbyChannel.postMessage({
-            type: 'auto_answer',
-            from: state.peerId,
-            answerToken
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        showToast(err.message === 'NOT_AN_OFFER' ? 'Please provide a valid Game Invite' : 'Invalid or expired invite link');
-        resetConnection();
-      }
-    }
-
-    async function completeHostHandshake(answerInput) {
-      if (!state.pc || state.role !== 'host') return;
-      try {
-        const remoteDesc = await decodeSignalToken(answerInput);
-        if (remoteDesc.type !== 'answer') {
-          showToast('That looks like an Invite, not a Reply link');
-          return;
-        }
-        if (state.pc.signalingState === 'have-local-offer') {
-          await state.pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
-          showToast('Handshake accepted! Connecting...');
-        }
-      } catch (err) {
-        console.error(err);
-        showToast('Could not parse reply link');
-      }
-    }
-
-    function handleManualOfferJoin() {
-      const val = document.getElementById('manualOfferInput').value;
-      if (!val.trim()) {
-        showToast('Paste an invite link or code first');
-        return;
-      }
-      startAsGuest(val);
-    }
-
-    function onHostAnswerInput(val) {
-      if (val && val.trim().length > 25) {
-        completeHostHandshake(val);
-      }
-    }
-
-    async function pasteAnswerFromClipboard() {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          document.getElementById('hostAnswerInput').value = text;
-          completeHostHandshake(text);
-        }
-      } catch (err) {
-        document.getElementById('hostAnswerInput').focus();
-        showToast('Press Ctrl+V / Paste into the box');
-      }
-    }
-
-    function resetConnection() {
-      cleanupPeerConnection();
-      stopActivePinSession();
-      state.role = null;
-      state.lastOfferToken = '';
-      state.lastAnswerToken = '';
-      document.getElementById('hostStartSection').classList.remove('hidden');
-      document.getElementById('hostInviteSection').classList.add('hidden');
-      document.getElementById('guestReplySection').classList.add('hidden');
-      document.getElementById('nearbyHostQrBox').classList.add('hidden');
-      document.getElementById('nearbyGuestQrBox').classList.add('hidden');
-      document.getElementById('nearbyQrActions').classList.remove('hidden');
-      document.getElementById('nearbyPinHostBox').classList.add('hidden');
-      document.getElementById('nearbyPinDefaultBox').classList.remove('hidden');
-      document.getElementById('nearbyPinInput').value = '';
-      document.getElementById('hostAnswerInput').value = '';
-      document.getElementById('manualOfferInput').value = '';
-    }
-
     /**
-     * 6. CLIPBOARD & NATIVE SHARE HELPERS
+     * 5. INVITE LINK PARSING, CLIPBOARD & NATIVE SHARE HELPERS
      */
-    function copyTextSafe(text, labelId, defaultLabel) {
-      const tempInput = document.createElement('textarea');
-      tempInput.value = text;
-      tempInput.style.position = 'fixed';
-      tempInput.style.opacity = '0';
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        if (labelId) {
-          const el = document.getElementById(labelId);
-          el.textContent = 'Copied!';
-          setTimeout(() => { el.textContent = defaultLabel; }, 2000);
-        }
-        showToast('Copied to clipboard!');
-      } catch (e) {
-        showToast('Select and copy the link manually');
+    function parseInvitePayload(input) {
+      if (!input) return { roomId: null, token: '' };
+      const trimmed = input.trim();
+
+      // Extract optional room ID from #room=XYZ&offer=...
+      const roomMatch = trimmed.match(/(?:^|[#?&])room=([A-Za-z0-9_-]+)/);
+      const roomId = roomMatch ? roomMatch[1] : null;
+
+      // Extract offer/answer token if present
+      const compactQrMatch = trimmed.match(/^T3[OA]:([A-Za-z0-9\-_.]+)$/);
+      if (compactQrMatch) return { roomId, token: compactQrMatch[1] };
+
+      const paramMatch = trimmed.match(/(?:^|[#?&])(?:offer|answer)=([A-Za-z0-9\-_.]+)/);
+      if (paramMatch) return { roomId, token: paramMatch[1] };
+
+      if (/^[zu]\.[A-Za-z0-9\-_.]+$/.test(trimmed)) {
+        return { roomId, token: trimmed };
       }
-      document.body.removeChild(tempInput);
+
+      return { roomId, token: '' };
     }
 
-    function copyInviteLink() {
-      const url = document.getElementById('inviteLinkOutput').value;
-      copyTextSafe(url, 'copyInviteLabel', 'Copy Link');
-    }
-
-    function copyReplyLink() {
-      const url = document.getElementById('replyLinkOutput').value;
-      copyTextSafe(url, 'copyReplyLabel', 'Copy Reply');
+    function copyTextToClipboard(text) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (ok) return true;
+      } catch (e) {
+        // Fallback below
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+        return true;
+      }
+      return false;
     }
 
     async function shareUrlNative(url, title, text) {
@@ -1201,351 +1112,362 @@
           await navigator.share({ title, text, url });
           return;
         } catch (err) {
-          if (err.name === 'AbortError') return;
+          if (err && err.name === 'AbortError') return;
         }
       }
-      copyTextSafe(url);
+      copyTextToClipboard(url);
+      showToast('Link copied to clipboard!');
+    }
+
+    function copyInviteLink() {
+      const link = document.getElementById('inviteLinkOutput').value;
+      if (!link || link.startsWith('Generating')) return;
+      copyTextToClipboard(link);
+      const label = document.getElementById('copyInviteLabel');
+      label.textContent = 'Copied!';
+      showToast('Invite link copied! Send it to your friend.');
+      setTimeout(() => {
+        label.textContent = 'Copy Link';
+      }, 2200);
     }
 
     function shareInviteLink() {
-      const url = document.getElementById('inviteLinkOutput').value;
-      shareUrlNative(url, 'Join my P2P Tic-Tac-Toe game!', 'Tap to connect directly via WebRTC:');
+      const link = document.getElementById('inviteLinkOutput').value;
+      if (!link || link.startsWith('Generating')) return;
+      shareUrlNative(link, 'Tic-Tac-Toe P2P Invite', 'Tap to join my Tic-Tac-Toe game:');
+    }
+
+    function copyReplyLink() {
+      const link = document.getElementById('replyLinkOutput').value;
+      if (!link || link.startsWith('Generating')) return;
+      copyTextToClipboard(link);
+      const label = document.getElementById('copyReplyLabel');
+      label.textContent = 'Copied!';
+      showToast('Reply link copied!');
+      setTimeout(() => {
+        label.textContent = 'Copy Reply';
+      }, 2200);
     }
 
     function shareReplyLink() {
-      const url = document.getElementById('replyLinkOutput').value;
-      shareUrlNative(url, 'Tic-Tac-Toe Reply Link', 'Open this reply link to start our P2P match:');
+      const link = document.getElementById('replyLinkOutput').value;
+      if (!link || link.startsWith('Generating')) return;
+      shareUrlNative(link, 'Tic-Tac-Toe P2P Reply', 'Here is my reply link to start our game:');
     }
 
     /**
-     * 7. NEARBY DEVICE CONNECT (CROSS-DEVICE WI-FI RADAR + 4-DIGIT PIN + QR)
+     * 6. 1-CLICK LINK CONNECT & HANDSHAKE FLOW
      */
-    function detectDeviceLabel() {
+    let activeRoomTopic = null;
+    let activeRoomTimer = null;
+    let guestFallbackTimer = null;
+    let handshakeInProgress = false;
+
+    function stopActiveRoomSession() {
+      if (activeRoomTimer) {
+        clearInterval(activeRoomTimer);
+        activeRoomTimer = null;
+      }
+      if (guestFallbackTimer) {
+        clearTimeout(guestFallbackTimer);
+        guestFallbackTimer = null;
+      }
+      if (activeRoomTopic && typeof netBus !== 'undefined') {
+        netBus.unsubscribe(activeRoomTopic);
+      }
+      activeRoomTopic = null;
+    }
+
+    async function startAsHost() {
+      try {
+        stopActiveRoomSession();
+        document.getElementById('hostStartSection').classList.add('hidden');
+        document.getElementById('guestReplySection').classList.add('hidden');
+        document.getElementById('hostInviteSection').classList.remove('hidden');
+        document.getElementById('inviteLinkOutput').value = 'Generating P2P link...';
+
+        const token = await createHostOfferToken();
+        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const baseUrl = window.location.href.split('#')[0];
+        const inviteUrl = `${baseUrl}#room=${roomId}&offer=${token}`;
+
+        document.getElementById('inviteLinkOutput').value = inviteUrl;
+
+        // Subscribe to the room signaling channel so opening the link connects automatically
+        activeRoomTopic = `p2p-ttt-room-${roomId}`;
+        netBus.subscribe(activeRoomTopic);
+        netBus.publish(activeRoomTopic, {
+          type: 'room_offer',
+          from: state.peerId,
+          offerToken: token
+        });
+      } catch (err) {
+        console.error(err);
+        showToast('Could not create invite link');
+        resetConnection();
+      }
+    }
+
+    async function handleManualOfferJoin() {
+      const raw = document.getElementById('manualOfferInput').value.trim();
+      if (!raw) {
+        showToast("Paste your friend's invite link or code first");
+        return;
+      }
+      const parsed = parseInvitePayload(raw);
+      if (parsed.token) {
+        await startAsGuest(parsed.token, false, parsed.roomId);
+      } else if (parsed.roomId) {
+        stopActiveRoomSession();
+        state.role = 'guest';
+        switchLobbyTab('link');
+        document.getElementById('hostStartSection').classList.add('hidden');
+        document.getElementById('guestReplySection').classList.remove('hidden');
+        activeRoomTopic = `p2p-ttt-room-${parsed.roomId}`;
+        netBus.subscribe(activeRoomTopic);
+        netBus.publish(activeRoomTopic, { type: 'room_hello', from: state.peerId });
+      } else {
+        showToast('Invalid invite link or code');
+      }
+    }
+
+    async function startAsGuest(offerInput, showQr = false, roomId = null) {
+      try {
+        stopActiveRoomSession();
+        if (!showQr) {
+          switchLobbyTab('link');
+          document.getElementById('hostStartSection').classList.add('hidden');
+          document.getElementById('hostInviteSection').classList.add('hidden');
+          document.getElementById('guestReplySection').classList.remove('hidden');
+          document.getElementById('guestManualFallbackBox').classList.add('hidden');
+        }
+
+        const answerToken = await createGuestAnswerToken(offerInput);
+        const replyUrl = buildShareUrl('answer', answerToken);
+        document.getElementById('replyLinkOutput').value = replyUrl;
+
+        // Render QR codes for offline / visual fallback
+        renderQrCode('guestQrContainer', `T3A:${answerToken}`);
+        if (showQr) {
+          document.getElementById('nearbyQrActions').classList.add('hidden');
+          document.getElementById('nearbyHostQrBox').classList.add('hidden');
+          document.getElementById('nearbyGuestQrBox').classList.remove('hidden');
+          renderQrCode('nearbyGuestQrContainer', `T3A:${answerToken}`);
+        }
+
+        // Relay automatically to same-device Host tab if open
+        if (nearbyChannel) {
+          nearbyChannel.postMessage({
+            type: 'auto_answer',
+            from: state.peerId,
+            answerToken
+          });
+        }
+
+        // Beam answer directly to Host's room topic so Host connects with zero copy-paste
+        if (roomId) {
+          activeRoomTopic = `p2p-ttt-room-${roomId}`;
+          netBus.subscribe(activeRoomTopic);
+          const sendRoomAnswer = () => {
+            if (state.connected || !activeRoomTopic) return;
+            netBus.publish(activeRoomTopic, {
+              type: 'room_answer',
+              from: state.peerId,
+              answerToken
+            });
+          };
+          sendRoomAnswer();
+          activeRoomTimer = setInterval(sendRoomAnswer, 2200);
+        }
+
+        // Reveal manual reply fallback only if direct signaling takes longer than 5.5s
+        if (!showQr) {
+          guestFallbackTimer = setTimeout(() => {
+            if (!state.connected) {
+              document.getElementById('guestManualFallbackBox').classList.remove('hidden');
+            }
+          }, 5500);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Invalid or expired invite link');
+        resetConnection();
+      }
+    }
+
+    async function completeHostHandshake(answerInput) {
+      if (handshakeInProgress || state.connected || !state.pc) return;
+      try {
+        handshakeInProgress = true;
+        const remoteDesc = await decodeSignalToken(answerInput);
+        if (remoteDesc.type !== 'answer') {
+          throw new Error('Expected reply answer');
+        }
+        await state.pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
+      } catch (err) {
+        console.error('Handshake error:', err);
+        showToast('Could not complete connection with that code');
+      } finally {
+        handshakeInProgress = false;
+      }
+    }
+
+    function onHostAnswerInput(value) {
+      const trimmed = (value || '').trim();
+      if (trimmed.length > 30) {
+        completeHostHandshake(trimmed);
+      }
+    }
+
+    async function pasteAnswerFromClipboard() {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            document.getElementById('hostAnswerInput').value = text;
+            await completeHostHandshake(text);
+            return;
+          }
+        }
+      } catch (e) {
+        // Focus input if clipboard read permission is denied
+      }
+      const input = document.getElementById('hostAnswerInput');
+      input.focus();
+      showToast('Paste the reply link into the box');
+    }
+
+    function resetConnection() {
+      stopActiveRoomSession();
+      stopActivePinSession();
+      cleanupPeerConnection();
+      handshakeInProgress = false;
+      state.role = null;
+      state.lastOfferToken = '';
+      state.lastAnswerToken = '';
+
+      // Reset Link Connect UI
+      document.getElementById('hostStartSection').classList.remove('hidden');
+      document.getElementById('hostInviteSection').classList.add('hidden');
+      document.getElementById('guestReplySection').classList.add('hidden');
+      document.getElementById('guestManualFallbackBox').classList.add('hidden');
+      document.getElementById('hostAnswerInput').value = '';
+      document.getElementById('manualOfferInput').value = '';
+
+      // Reset Nearby Connect UI
+      document.getElementById('nearbyPinDefaultBox').classList.remove('hidden');
+      document.getElementById('nearbyPinHostBox').classList.add('hidden');
+      document.getElementById('nearbyPinInput').value = '';
+      document.getElementById('nearbyQrActions').classList.remove('hidden');
+      document.getElementById('nearbyHostQrBox').classList.add('hidden');
+      document.getElementById('nearbyGuestQrBox').classList.add('hidden');
+    }
+
+    /**
+     * 7. SERVERLESS NEARBY SIGNALING BUS & PROXIMITY RADAR
+     */
+    class NearbySignalingBus {
+      constructor() {
+        this.subscriptions = new Map(); // topic -> EventSource
+        this.seenIds = new Set();
+      }
+
+      subscribe(topic) {
+        if (!topic || this.subscriptions.has(topic)) return;
+        try {
+          const es = new EventSource(`https://ntfy.sh/${encodeURIComponent(topic)}/sse`);
+          es.onmessage = (event) => {
+            try {
+              const envelope = JSON.parse(event.data);
+              if (!envelope || envelope.event !== 'message' || !envelope.message) return;
+              if (envelope.id && this.seenIds.has(envelope.id)) return;
+              if (envelope.id) {
+                this.seenIds.add(envelope.id);
+                if (this.seenIds.size > 300) {
+                  const first = this.seenIds.values().next().value;
+                  this.seenIds.delete(first);
+                }
+              }
+              const payload = JSON.parse(envelope.message);
+              handleNearbySignalMessage(payload, 'Wi-Fi');
+            } catch (e) {
+              // Ignore non-JSON keepalive frames
+            }
+          };
+          es.onerror = () => {
+            // EventSource automatically reconnects
+          };
+          this.subscriptions.set(topic, es);
+        } catch (err) {
+          console.warn('SSE signaling unavailable:', err);
+        }
+      }
+
+      unsubscribe(topic) {
+        const es = this.subscriptions.get(topic);
+        if (es) {
+          try { es.close(); } catch (e) {}
+          this.subscriptions.delete(topic);
+        }
+      }
+
+      async publish(topic, payloadObj) {
+        if (!topic) return;
+        try {
+          await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
+            method: 'POST',
+            body: JSON.stringify(payloadObj)
+          });
+        } catch (err) {
+          // Ignore network errors when offline
+        }
+      }
+    }
+
+    const netBus = new NearbySignalingBus();
+    let radarNetworkTopic = 'p2p-ttt-radar-global-nearby';
+    let activePinTopic = null;
+    let activePinTimer = null;
+
+    const myDeviceLabel = (() => {
       const ua = navigator.userAgent || '';
       if (/iPhone/i.test(ua)) return 'iPhone';
       if (/iPad/i.test(ua)) return 'iPad';
       if (/Android/i.test(ua)) return 'Android';
       if (/Mac/i.test(ua)) return 'Mac';
       if (/Windows/i.test(ua)) return 'Windows';
-      if (/Linux/i.test(ua)) return 'Linux';
       return 'Device';
-    }
+    })();
 
-    const myDeviceLabel = detectDeviceLabel();
     let nearbyChannel = null;
     try {
-      if ('BroadcastChannel' in window) {
-        nearbyChannel = new BroadcastChannel('p2p-ttt-nearby-radar');
-      }
+      nearbyChannel = new BroadcastChannel('p2p-ttt-nearby');
+      nearbyChannel.onmessage = (event) => {
+        handleNearbySignalMessage(event.data, 'Local');
+      };
     } catch (e) {
       nearbyChannel = null;
     }
 
-    // Lightweight Serverless MQTT-over-WebSocket + ntfy HTTP fallback for Wi-Fi / Proximity Radar & 4-Digit PIN
-    class NearbySignalingBus {
-      constructor() {
-        this.ws = null;
-        this.connected = false;
-        this.subscriptions = new Set();
-        this.packetId = 1;
-        this.listeners = [];
-        this.sseSources = new Map();
-        this.useHttpFallback = false;
-      }
-
-      onMessage(cb) {
-        this.listeners.push(cb);
-      }
-
-      emit(topic, msg) {
-        this.listeners.forEach(cb => {
-          try { cb(topic, msg); } catch (e) {}
-        });
-      }
-
-      connect() {
-        if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
-          return;
-        }
-        try {
-          const ws = new WebSocket('wss://broker.emqx.io:8084/mqtt', 'mqtt');
-          ws.binaryType = 'arraybuffer';
-          this.ws = ws;
-
-          const connectTimeout = setTimeout(() => {
-            if (!this.connected) {
-              try { ws.close(); } catch (e) {}
-              this.enableHttpFallback();
-            }
-          }, 3500);
-
-          ws.onopen = () => {
-            const clientId = new TextEncoder().encode(`t3_${state.peerId}_${Math.random().toString(36).slice(2, 6)}`);
-            const varHeader = [0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x02, 0x00, 0x3c];
-            const payload = [clientId.length >> 8, clientId.length & 0xff, ...clientId];
-            ws.send(this.buildPacket(0x10, [...varHeader, ...payload]));
-          };
-
-          ws.onmessage = (event) => {
-            const bytes = new Uint8Array(event.data);
-            if (!bytes.length) return;
-            const packetType = bytes[0] & 0xf0;
-
-            if (packetType === 0x20) {
-              clearTimeout(connectTimeout);
-              this.connected = true;
-              this.useHttpFallback = false;
-              const chip = document.getElementById('radarStatusChip');
-              if (chip) chip.textContent = 'Radar Live';
-              this.subscriptions.forEach(t => this.sendSubscribe(t));
-            } else if (packetType === 0x30) {
-              const parsed = this.parsePublish(bytes);
-              if (parsed) {
-                try {
-                  const data = JSON.parse(parsed.payload);
-                  this.emit(parsed.topic, data);
-                } catch (e) {}
-              }
-            }
-          };
-
-          ws.onerror = () => {
-            clearTimeout(connectTimeout);
-            this.enableHttpFallback();
-          };
-
-          ws.onclose = () => {
-            this.connected = false;
-            if (!state.connected) {
-              setTimeout(() => this.connect(), 3000);
-            }
-          };
-        } catch (err) {
-          this.enableHttpFallback();
-        }
-      }
-
-      enableHttpFallback() {
-        if (this.useHttpFallback) return;
-        this.useHttpFallback = true;
-        const chip = document.getElementById('radarStatusChip');
-        if (chip) chip.textContent = 'Radar Live';
-        this.subscriptions.forEach(t => this.subscribeSse(t));
-      }
-
-      subscribeSse(topic) {
-        if (this.sseSources.has(topic) || typeof EventSource === 'undefined') return;
-        try {
-          const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
-          const es = new EventSource(`https://ntfy.sh/${safeTopic}/sse`);
-          es.onmessage = (ev) => {
-            try {
-              const envelope = JSON.parse(ev.data);
-              if (envelope && envelope.message) {
-                const data = JSON.parse(envelope.message);
-                this.emit(topic, data);
-              }
-            } catch (e) {}
-          };
-          this.sseSources.set(topic, es);
-        } catch (e) {}
-      }
-
-      unsubscribe(topic) {
-        this.subscriptions.delete(topic);
-        if (this.sseSources.has(topic)) {
-          try { this.sseSources.get(topic).close(); } catch (e) {}
-          this.sseSources.delete(topic);
-        }
-      }
-
-      subscribe(topic) {
-        this.subscriptions.add(topic);
-        if (this.connected && this.ws && this.ws.readyState === WebSocket.OPEN) {
-          this.sendSubscribe(topic);
-        }
-        if (this.useHttpFallback) {
-          this.subscribeSse(topic);
-        }
-      }
-
-      sendSubscribe(topic) {
-        const tBytes = new TextEncoder().encode(topic);
-        const pid = this.packetId++ & 0xffff;
-        const body = [pid >> 8, pid & 0xff, tBytes.length >> 8, tBytes.length & 0xff, ...tBytes, 0x00];
-        this.ws.send(this.buildPacket(0x82, body));
-      }
-
-      publish(topic, payloadObj) {
-        const jsonStr = JSON.stringify(payloadObj);
-        if (this.connected && this.ws && this.ws.readyState === WebSocket.OPEN) {
-          const tBytes = new TextEncoder().encode(topic);
-          const pBytes = new TextEncoder().encode(jsonStr);
-          const body = [tBytes.length >> 8, tBytes.length & 0xff, ...tBytes, ...pBytes];
-          this.ws.send(this.buildPacket(0x30, body));
-        } else if (this.useHttpFallback) {
-          const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
-          fetch(`https://ntfy.sh/${safeTopic}`, {
-            method: 'POST',
-            body: jsonStr
-          }).catch(() => {});
-        }
-      }
-
-      buildPacket(headerByte, bodyBytes) {
-        const lenBytes = [];
-        let x = bodyBytes.length;
-        do {
-          let digit = x % 128;
-          x = Math.floor(x / 128);
-          if (x > 0) digit |= 0x80;
-          lenBytes.push(digit);
-        } while (x > 0);
-        const out = new Uint8Array(1 + lenBytes.length + bodyBytes.length);
-        out[0] = headerByte;
-        out.set(lenBytes, 1);
-        out.set(bodyBytes, 1 + lenBytes.length);
-        return out;
-      }
-
-      parsePublish(bytes) {
-        let multiplier = 1;
-        let remLen = 0;
-        let idx = 1;
-        let encodedByte;
-        do {
-          if (idx >= bytes.length) return null;
-          encodedByte = bytes[idx++];
-          remLen += (encodedByte & 127) * multiplier;
-          multiplier *= 128;
-        } while ((encodedByte & 128) !== 0);
-
-        if (idx + 2 > bytes.length) return null;
-        const topicLen = (bytes[idx] << 8) | bytes[idx + 1];
-        idx += 2;
-        const topic = new TextDecoder().decode(bytes.slice(idx, idx + topicLen));
-        idx += topicLen;
-
-        const qos = (bytes[0] >> 1) & 0x03;
-        if (qos > 0) idx += 2;
-
-        const payload = new TextDecoder().decode(bytes.slice(idx));
-        return { topic, payload };
-      }
-    }
-
-    const netBus = new NearbySignalingBus();
-    let radarNetworkTopic = 'p2p-ttt-radar-global-v1';
-    let activePinTopic = null;
-    let activePinTimer = null;
-
-    async function resolveProximityRadarTopic() {
-      try {
-        const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 2200);
-        const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
-        clearTimeout(tid);
-        const data = await res.json();
-        if (data && data.ip) {
-          const raw = new TextEncoder().encode(`t3_wifi_${data.ip}`);
-          const hashBuf = await crypto.subtle.digest('SHA-256', raw);
-          const hex = Array.from(new Uint8Array(hashBuf)).slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
-          radarNetworkTopic = `p2p-ttt-wifi-${hex}`;
-        }
-      } catch (e) {
-        // Keep default proximity topic if IP lookup is blocked
-      }
-      netBus.subscribe(radarNetworkTopic);
-      netBus.publish(radarNetworkTopic, {
-        type: 'beacon',
-        from: state.peerId,
-        device: myDeviceLabel
-      });
-    }
-
-    async function handleNearbySignalMessage(msg, channelSource) {
-      if (!msg || msg.from === state.peerId) return;
-
-      if (msg.type === 'beacon') {
-        state.nearbyPeers.set(msg.from, {
-          id: msg.from,
-          device: msg.device || 'Device',
-          source: channelSource,
-          lastSeen: Date.now()
-        });
-        renderNearbyRadar();
-      } else if (msg.type === 'direct_offer' && msg.to === state.peerId) {
-        showToast(`${msg.device || 'Nearby'} #${msg.from} connecting...`);
-        const answerToken = await createGuestAnswerToken(msg.offerToken);
-        const replyPayload = {
-          type: 'direct_answer',
-          from: state.peerId,
-          to: msg.from,
-          answerToken
-        };
-        if (nearbyChannel) nearbyChannel.postMessage(replyPayload);
-        netBus.publish(radarNetworkTopic, replyPayload);
-      } else if (msg.type === 'direct_answer' && msg.to === state.peerId) {
-        await completeHostHandshake(msg.answerToken);
-      } else if (msg.type === 'auto_answer' && state.role === 'host' && !state.connected) {
-        await completeHostHandshake(msg.answerToken);
-      } else if (msg.type === 'pin_hello' && state.role === 'host' && state.lastOfferToken && activePinTopic) {
-        netBus.publish(activePinTopic, {
-          type: 'pin_offer',
-          from: state.peerId,
-          offerToken: state.lastOfferToken
-        });
-      } else if (msg.type === 'pin_offer' && state.role !== 'host' && !state.connected && activePinTopic) {
-        showToast('PIN matched! Connecting peer-to-peer...');
-        const answerToken = await createGuestAnswerToken(msg.offerToken);
-        netBus.publish(activePinTopic, {
-          type: 'pin_answer',
-          from: state.peerId,
-          to: msg.from,
-          answerToken
-        });
-      } else if (msg.type === 'pin_answer' && state.role === 'host' && !state.connected) {
-        await completeHostHandshake(msg.answerToken);
-      }
-    }
-
-    if (nearbyChannel) {
-      nearbyChannel.onmessage = (event) => handleNearbySignalMessage(event.data, 'Same Device');
-    }
-
-    netBus.onMessage((topic, msg) => handleNearbySignalMessage(msg, 'Same Wi-Fi'));
-    netBus.connect();
-    resolveProximityRadarTopic();
-
-    const selfLabelEl = document.getElementById('selfRadarLabel');
-    if (selfLabelEl) selfLabelEl.textContent = `YOU (${myDeviceLabel})`;
-
-    setInterval(() => {
-      if (!state.connected) {
-        const beacon = { type: 'beacon', from: state.peerId, device: myDeviceLabel };
-        if (nearbyChannel) nearbyChannel.postMessage(beacon);
-        netBus.publish(radarNetworkTopic, beacon);
-      }
-      const now = Date.now();
-      let changed = false;
-      for (const [id, peer] of state.nearbyPeers.entries()) {
-        if (now - peer.lastSeen > 5500) {
-          state.nearbyPeers.delete(id);
-          changed = true;
-        }
-      }
-      if (changed) renderNearbyRadar();
-    }, 2000);
-
     function renderNearbyRadar() {
-      const listEl = document.getElementById('nearbyPeersList');
-      const badgeEl = document.getElementById('nearbyBadge');
-      const peers = Array.from(state.nearbyPeers.values());
+      const now = Date.now();
+      for (const [id, peer] of state.nearbyPeers.entries()) {
+        if (now - peer.lastSeen > 8500) {
+          state.nearbyPeers.delete(id);
+        }
+      }
 
-      badgeEl.classList.toggle('hidden', peers.length === 0);
+      const peers = Array.from(state.nearbyPeers.values());
+      const badge = document.getElementById('nearbyBadge');
+      if (badge) {
+        badge.classList.toggle('hidden', peers.length === 0);
+      }
+
+      const listEl = document.getElementById('nearbyPeersList');
+      if (!listEl) return;
 
       if (peers.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400">Open this page on another phone on the same Wi-Fi<br><span class="text-[11px] text-slate-500">or use the 4-Digit PIN / + 2nd Window to connect instantly.</span></p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-400 animate-pulse">Scanning nearby phones & tabs...</p>`;
         return;
       }
 
@@ -1556,18 +1478,123 @@
             <span>${peer.device} #${peer.id}</span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-black/30 text-emerald-300/80">${peer.source}</span>
           </span>
-          <span class="px-2.5 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Connect</span>
+          <span class="text-emerald-300 font-bold">Connect →</span>
         </button>
       `).join('');
     }
 
+    function startNearbyRadar() {
+      const selfLabel = document.getElementById('selfRadarLabel');
+      if (selfLabel) selfLabel.textContent = `YOU • #${state.peerId}`;
+
+      const broadcastPresence = () => {
+        if (state.connected) return;
+        const beacon = {
+          type: 'beacon',
+          from: state.peerId,
+          device: myDeviceLabel
+        };
+        if (nearbyChannel) nearbyChannel.postMessage(beacon);
+        // Publish to Wi-Fi radar when Nearby tab is open
+        const nearbyVisible = !document.getElementById('nearbyConnectPanel').classList.contains('hidden');
+        if (nearbyVisible) {
+          netBus.publish(radarNetworkTopic, beacon);
+        }
+        renderNearbyRadar();
+      };
+
+      broadcastPresence();
+      setInterval(broadcastPresence, 2600);
+    }
+
     function openSecondWindow() {
-      const href = window.location.href.split('#')[0];
-      if (!href || href.startsWith('about:') || href === 'null') {
-        const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
-        window.open(URL.createObjectURL(blob), '_blank');
-      } else {
-        window.open(href, '_blank');
+      const url = window.location.href.split('#')[0];
+      const win = window.open(url, '_blank');
+      if (!win) {
+        showToast('Popup blocked — open this URL in a 2nd tab');
+      }
+    }
+
+    async function resolveProximityRadarTopic() {
+      netBus.subscribe(radarNetworkTopic);
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2500);
+        const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+        clearTimeout(timer);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.ip) {
+            const safeIp = data.ip.replace(/[^a-zA-Z0-9]/g, '_');
+            radarNetworkTopic = `p2p-ttt-radar-wifi-${safeIp}`;
+            netBus.subscribe(radarNetworkTopic);
+          }
+        }
+      } catch (e) {
+        // Keep default radar topic if offline or blocked
+      }
+    }
+
+    async function handleNearbySignalMessage(msg, source) {
+      if (!msg || !msg.type || msg.from === state.peerId) return;
+
+      if (msg.type === 'beacon') {
+        state.nearbyPeers.set(msg.from, {
+          id: msg.from,
+          device: msg.device || 'Device',
+          source,
+          lastSeen: Date.now()
+        });
+        renderNearbyRadar();
+      } else if (msg.type === 'direct_offer' && msg.to === state.peerId && !state.connected) {
+        try {
+          showToast(`Connecting to ${msg.device || 'Device'} #${msg.from}...`);
+          const answerToken = await createGuestAnswerToken(msg.offerToken);
+          const replyMsg = {
+            type: 'direct_answer',
+            from: state.peerId,
+            to: msg.from,
+            answerToken
+          };
+          if (nearbyChannel) nearbyChannel.postMessage(replyMsg);
+          netBus.publish(radarNetworkTopic, replyMsg);
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (msg.type === 'direct_answer' && msg.to === state.peerId && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
+      } else if (msg.type === 'auto_answer' && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
+      } else if (msg.type === 'pin_hello' && state.role === 'host' && state.lastOfferToken && activePinTopic) {
+        netBus.publish(activePinTopic, {
+          type: 'pin_offer',
+          from: state.peerId,
+          offerToken: state.lastOfferToken
+        });
+      } else if (msg.type === 'pin_offer' && state.role === 'guest' && !state.connected && activePinTopic) {
+        try {
+          const answerToken = await createGuestAnswerToken(msg.offerToken);
+          netBus.publish(activePinTopic, {
+            type: 'pin_answer',
+            from: state.peerId,
+            answerToken
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (msg.type === 'pin_answer' && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
+      } else if (msg.type === 'room_hello' && state.role === 'host' && state.lastOfferToken && activeRoomTopic) {
+        netBus.publish(activeRoomTopic, {
+          type: 'room_offer',
+          from: state.peerId,
+          offerToken: state.lastOfferToken
+        });
+      } else if (msg.type === 'room_offer' && state.role !== 'host' && !state.connected && activeRoomTopic) {
+        const roomId = activeRoomTopic.replace('p2p-ttt-room-', '');
+        await startAsGuest(msg.offerToken, false, roomId);
+      } else if (msg.type === 'room_answer' && state.role === 'host' && !state.connected) {
+        await completeHostHandshake(msg.answerToken);
       }
     }
 
@@ -1855,10 +1882,11 @@
     async function handleScannedQrData(data) {
       closeQrScanner();
       try {
-        const decoded = await decodeSignalToken(data);
+        const parsed = parseInvitePayload(data);
+        const decoded = await decodeSignalToken(parsed.token || data);
         if (decoded.type === 'offer') {
-          showToast('Game QR scanned! Show your Reply QR to host.');
-          await startAsGuest(data, true);
+          showToast(parsed.roomId ? 'Game QR scanned! Connecting...' : 'Game QR scanned! Show your Reply QR to host.');
+          await startAsGuest(data, true, parsed.roomId);
         } else if (decoded.type === 'answer') {
           await completeHostHandshake(data);
         }
@@ -1889,6 +1917,8 @@
     }
 
     function enterGameArena() {
+      stopActiveRoomSession();
+      stopActivePinSession();
       document.getElementById('lobbyView').classList.add('hidden');
       document.getElementById('gameView').classList.remove('hidden');
 
@@ -2185,12 +2215,24 @@
      */
     async function processUrlHash() {
       const hash = window.location.hash || '';
-      if (hash.startsWith('#offer=')) {
-        const token = hash.slice('#offer='.length);
+      if (hash.startsWith('#room=') || hash.startsWith('#offer=')) {
+        const parsed = parseInvitePayload(hash);
         try {
           history.replaceState(null, '', window.location.pathname + window.location.search);
         } catch (e) {}
-        await startAsGuest(token);
+        if (parsed.token) {
+          await startAsGuest(parsed.token, false, parsed.roomId);
+        } else if (parsed.roomId) {
+          // Fallback if URL only carried #room=<id>
+          stopActiveRoomSession();
+          state.role = 'guest';
+          switchLobbyTab('link');
+          document.getElementById('hostStartSection').classList.add('hidden');
+          document.getElementById('guestReplySection').classList.remove('hidden');
+          activeRoomTopic = `p2p-ttt-room-${parsed.roomId}`;
+          netBus.subscribe(activeRoomTopic);
+          netBus.publish(activeRoomTopic, { type: 'room_hello', from: state.peerId });
+        }
       } else if (hash.startsWith('#answer=')) {
         const token = hash.slice('#answer='.length);
         try {
@@ -2214,6 +2256,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       renderBoard();
+      startNearbyRadar();
+      resolveProximityRadarTopic();
       processUrlHash();
     });
   </script>

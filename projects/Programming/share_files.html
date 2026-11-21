@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share — Direct Peer-to-Peer WebRTC File Sharing</title>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Reliable QR Code Generator & Scanner -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.25);
+            border-radius: 9999px;
+        }
+        #qr-output img, #qr-output canvas, #qr-output svg {
+            margin: 0 auto;
+            border-radius: 0.5rem;
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+    <!-- Minimal Top Bar -->
+    <header class="border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0" />
+                    </svg>
+                </div>
+                <span class="font-semibold text-base tracking-tight">Share</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Editable Device Name Pill -->
+                <button id="edit-name-btn" title="Rename device" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200/70 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-xs font-medium transition">
+                    <span id="radar-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="local-device-icon" class="text-zinc-500 dark:text-zinc-400"></span>
+                    <span id="local-device-name" class="max-w-[96px] sm:max-w-[120px] truncate">Device</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="theme-toggle-btn" title="Toggle theme" class="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-500 dark:text-zinc-400 transition">
+                    <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
+                <!-- Back Button -->
+                <a href="/" title="Back" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200/70 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Back</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Single Centered Column -->
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-6 space-y-5">
+
+        <!-- 1. Device Discovery Card -->
+        <section class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4">
+            <!-- Simple Mode Switcher -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="inline-flex p-1 rounded-xl bg-zinc-100 dark:bg-zinc-950 gap-1">
+                    <button data-tab="radar" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm transition">
+                        Nearby
+                    </button>
+                    <button data-tab="room" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
+                        PIN
+                    </button>
+                    <button data-tab="offline" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
+                        QR Code
+                    </button>
+                </div>
+
+                <button id="refresh-radar-btn" class="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 px-2 py-1 transition">
+                    Refresh
+                </button>
+            </div>
+
+            <!-- TAB 1: NEARBY DEVICES -->
+            <div id="panel-radar" class="tab-panel space-y-3">
+                <div class="flex items-center justify-between gap-2 px-1 text-[11px] text-zinc-400">
+                    <span id="relay-status-text" class="inline-flex items-center gap-1.5 truncate">
+                        <span id="relay-status-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        Connecting to radar...
+                    </span>
+                    <div class="inline-flex items-center rounded-lg bg-zinc-100 dark:bg-zinc-950 p-0.5 text-[10px] shrink-0">
+                        <button id="scope-lan-btn" type="button" class="px-2 py-0.5 rounded-md font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm transition">
+                            Same Wi-Fi
+                        </button>
+                        <button id="scope-internet-btn" type="button" class="px-2 py-0.5 rounded-md font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
+                            Internet
+                        </button>
+                    </div>
+                </div>
+                <div id="nearby-peers-list" class="space-y-2">
+                    <div class="py-6 text-center space-y-1">
+                        <div id="radar-center-icon" class="w-10 h-10 mx-auto rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center mb-2 animate-pulse"></div>
+                        <p class="text-xs font-medium text-zinc-600 dark:text-zinc-300">Searching for nearby devices...</p>
+                        <p id="network-scope-label" class="text-[11px] text-zinc-400">Open Share on another device on the same Wi-Fi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 4-DIGIT PIN -->
+            <div id="panel-room" class="tab-panel hidden space-y-3">
+                <div class="flex items-center gap-2">
+                    <input id="room-pin-input" type="text" maxlength="6" placeholder="0000" class="w-full text-center font-mono text-lg font-semibold tracking-[0.3em] py-2 px-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:border-zinc-400 uppercase" />
+                    <button id="join-pin-btn" class="px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold transition shrink-0">
+                        Join
+                    </button>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-[11px] text-zinc-400 px-1">
+                    <span id="room-status-text" class="truncate">Enter the same PIN on any network</span>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button id="copy-pin-link-btn" type="button" class="hover:text-zinc-700 dark:hover:text-zinc-200 underline">Copy Link</button>
+                        <button id="generate-pin-btn" type="button" class="hover:text-zinc-700 dark:hover:text-zinc-200 underline">New PIN</button>
+                    </div>
+                </div>
+                <div id="room-peers-list" class="space-y-2"></div>
+            </div>
+
+            <!-- TAB 3: OFFLINE QR / CODE -->
+            <div id="panel-offline" class="tab-panel hidden space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="offline-host-btn" class="py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold transition">
+                        1. Show QR
+                    </button>
+                    <button id="offline-scan-btn" class="py-2 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-semibold transition">
+                        2. Scan / Paste
+                    </button>
+                </div>
+
+                <div id="offline-qr-box" class="hidden pt-2 space-y-3 text-center">
+                    <p id="offline-qr-instruction" class="text-xs text-zinc-500">Scan on the other device</p>
+                    <div id="qr-output" class="bg-white p-3 rounded-xl inline-flex items-center justify-center border border-zinc-200 shadow-sm min-w-[220px] min-h-[220px]"></div>
+                    <div class="flex items-center gap-2">
+                        <input id="offline-sdp-output" type="text" readonly class="w-full font-mono text-[11px] px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-500" />
+                        <button id="copy-sdp-btn" class="px-3 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 text-xs font-medium shrink-0">Copy</button>
+                    </div>
+                    <button id="offline-next-scan-btn" class="w-full py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition">
+                        Next: Scan Answer &rarr;
+                    </button>
+                </div>
+
+                <div id="offline-input-box" class="hidden pt-2 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs text-zinc-500">Scan QR or paste code</span>
+                        <div class="flex items-center gap-3">
+                            <input id="qr-image-input" type="file" accept="image/*" class="hidden" />
+                            <button id="upload-qr-btn" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:underline">
+                                Upload QR
+                            </button>
+                            <button id="open-camera-btn" class="text-xs font-medium text-indigo-600 dark:text-sky-400 hover:underline">
+                                Use Camera
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="offline-sdp-input" rows="2" placeholder="Paste code here..." class="w-full font-mono text-xs p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:outline-none"></textarea>
+                    <button id="process-sdp-btn" class="w-full py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold">
+                        Connect
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Active Peer & Dropzone Card -->
+        <section class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4">
+            <!-- Connection Status Bar -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div id="peer-avatar-badge" class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h2 id="connected-peer-name" class="text-sm font-semibold truncate">Not Connected</h2>
+                            <span id="connection-route-badge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">P2P</span>
+                        </div>
+                        <p id="connected-peer-sub" class="text-[11px] text-zinc-400 truncate">Select a device above to start sharing</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <label class="inline-flex items-center gap-1.5 text-[11px] text-zinc-500 cursor-pointer select-none">
+                        <input id="auto-accept-toggle" type="checkbox" checked class="rounded text-zinc-900 dark:text-white focus:ring-0">
+                        <span>Auto-accept</span>
+                    </label>
+                    <button id="disconnect-btn" class="hidden px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[11px] font-medium">
+                        Disconnect
+                    </button>
+                </div>
+            </div>
+
+            <!-- Incoming File Approval Prompt -->
+            <div id="incoming-prompt-card" class="hidden p-3 rounded-xl bg-zinc-900 dark:bg-zinc-800 text-white flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="text-[10px] uppercase tracking-wider text-zinc-400">Incoming File</p>
+                    <p id="incoming-file-desc" class="text-xs font-medium truncate">file.zip</p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button id="decline-file-btn" class="px-2.5 py-1.5 rounded-lg bg-white/10 text-xs">Decline</button>
+                    <button id="accept-file-btn" class="px-3 py-1.5 rounded-lg bg-white text-zinc-900 text-xs font-semibold">Accept</button>
+                </div>
+            </div>
+
+            <!-- Clean Dropzone -->
+            <div id="dropzone" class="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-500 dark:hover:border-zinc-500 bg-zinc-50/60 dark:bg-zinc-950/50 py-10 px-4 text-center cursor-pointer transition">
+                <input id="file-input" type="file" multiple class="hidden" />
+                <svg class="w-6 h-6 mx-auto text-zinc-400 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <p class="text-sm font-medium">Drop files or click to select</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Works across any network &bull; Any file size</p>
+            </div>
+
+            <!-- Transfers List -->
+            <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Transfers (<span id="transfer-count-badge">0</span>)</span>
+                    <button id="clear-history-btn" class="hover:text-zinc-600 dark:hover:text-zinc-200 transition">Clear</button>
+                </div>
+                <div id="transfers-list" class="space-y-2 max-h-64 overflow-y-auto">
+                    <p id="empty-transfers-placeholder" class="text-center text-xs text-zinc-400 py-3">No transfers yet</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Camera QR Modal -->
+    <div id="camera-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-sm w-full overflow-hidden border border-zinc-200 dark:border-zinc-800">
+            <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                <span class="text-xs font-semibold">Scan QR Code</span>
+                <button id="close-camera-btn" class="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Close</button>
+            </div>
+            <div class="relative bg-black aspect-square">
+                <video id="qr-video" playsinline class="w-full h-full object-cover"></video>
+                <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div class="w-56 h-56 border-2 border-white/80 rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"></div>
+                </div>
+                <canvas id="qr-canvas" class="hidden"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Device Modal -->
+    <div id="rename-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 max-w-xs w-full p-4 space-y-3">
+            <h3 class="font-semibold text-sm">Device Name</h3>
+            <input id="rename-input" type="text" maxlength="24" class="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-sm focus:outline-none" />
+            <div class="flex justify-end gap-2">
+                <button id="cancel-rename-btn" class="px-3 py-1.5 rounded-lg text-xs text-zinc-500">Cancel</button>
+                <button id="save-rename-btn" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <!-- Application Logic -->
+    <script>
+        (function () {
+            'use strict';
+
+            // =========================================================================
+            // 1. SAFE HELPERS & DEVICE IDENTITY
+            // =========================================================================
+            function safeGetSessionItem(key) {
+                try {
+                    return window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+                } catch (_) {
+                    return null;
+                }
+            }
+
+            function safeSetSessionItem(key, val) {
+                try {
+                    if (window.sessionStorage) window.sessionStorage.setItem(key, val);
+                } catch (_) {}
+            }
+
+            function escapeHTML(str) {
+                return String(str || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function formatBytes(bytes) {
+                if (!bytes || bytes <= 0) return '0 B';
+                const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+                const val = bytes / Math.pow(1024, i);
+                return (i === 0 ? val : val.toFixed(1)) + ' ' + units[i];
+            }
+
+            function detectDeviceType() {
+                const ua = navigator.userAgent || '';
+                if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua))) {
+                    return 'tablet';
+                }
+                if (/Mobi|Android|iPhone|iPod/i.test(ua)) {
+                    return 'mobile';
+                }
+                return 'desktop';
+            }
+
+            function generateDefaultDeviceName(type) {
+                const ua = navigator.userAgent || '';
+                let prefix = 'Device';
+                if (/iPhone/i.test(ua)) prefix = 'iPhone';
+                else if (/iPad/i.test(ua)) prefix = 'iPad';
+                else if (/Mac/i.test(ua)) prefix = 'Mac';
+                else if (/Android/i.test(ua)) prefix = 'Android';
+                else if (/Windows/i.test(ua)) prefix = 'PC';
+                else if (/Linux/i.test(ua)) prefix = 'Linux';
+                else if (type === 'mobile') prefix = 'Phone';
+                const tag = Math.floor(1000 + Math.random() * 9000);
+                return prefix + '-' + tag;
+            }
+
+            function createId() {
+                try {
+                    if (window.crypto && typeof crypto.randomUUID === 'function') {
+                        return crypto.randomUUID();
+                    }
+                } catch (_) {}
+                return 'id-' + Math.random().toString(36).slice(2, 11) + '-' + Date.now().toString(36);
+            }
+
+            function getDeviceIconSVG(type, cls) {
+                const c = cls || 'w-4 h-4';
+                if (type === 'mobile') {
+                    return '<svg class="' + c + '" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
+                }
+                if (type === 'tablet') {
+                    return '<svg class="' + c + '" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
+                }
+                return '<svg class="' + c + '" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>';
+            }
+
+            function showToast(message, type) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const el = document.createElement('div');
+                const accent = type === 'error'
+                    ? 'border-rose-500/40 bg-zinc-900 text-rose-200'
+                    : type === 'success'
+                        ? 'border-emerald-500/40 bg-zinc-900 text-emerald-200'
+                        : 'border-zinc-700 bg-zinc-900 text-zinc-100';
+                el.className = 'pointer-events-auto px-3.5 py-2.5 rounded-xl border shadow-lg text-xs font-medium transition-all duration-200 ' + accent;
+                el.textContent = message;
+                container.appendChild(el);
+                setTimeout(function () {
+                    el.style.opacity = '0';
+                    setTimeout(function () {
+                        if (el.parentNode) el.parentNode.removeChild(el);
+                    }, 220);
+                }, 3000);
+            }
+
+            const deviceType = detectDeviceType();
+            const savedName = safeGetSessionItem('share_device_name');
+            const initialName = savedName || generateDefaultDeviceName(deviceType);
+            if (!savedName) {
+                safeSetSessionItem('share_device_name', initialName);
+            }
+
+            const state = {
+                peerId: createId(),
+                deviceName: initialName,
+                deviceType: deviceType,
+                discoveryScope: 'lan',
+                lanTopic: 'share/v1/internet-lobby',
+                globalTopic: 'share/v1/internet-lobby',
+                nearbyTopic: 'share/v1/internet-lobby',
+                lanTag: '',
+                scopeHint: 'Open Share on another device on the same Wi-Fi',
+                roomPin: null,
+                roomTopic: null,
+                discoveredPeers: new Map(),
+                broadcastChannel: null,
+                mqttSocket: null,
+                mqttConnected: false,
+                mqttBrokerIndex: 0,
+                mqttKeepAliveTimer: null,
+                subscribedTopics: new Set(),
+                pc: null,
+                dc: null,
+                connectedPeer: null,
+                isInitiator: false,
+                pendingIceByPeer: new Map(),
+                sendQueue: [],
+                isSending: false,
+                pendingAcceptResolvers: new Map(),
+                incomingTransfer: null,
+                pendingApprovalTransfer: null,
+                transfers: [],
+                cameraStream: null,
+                scanRafId: null
+            };
+
+            // =========================================================================
+            // 2. WEBRTC PEER CONNECTION & CONNECTION UI STATE (STUN + TURN RELAYS)
+            // =========================================================================
+            const RTC_CONFIG = {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun.cloudflare.com:3478' },
+                    {
+                        urls: [
+                            'turn:openrelay.metered.ca:80',
+                            'turn:openrelay.metered.ca:443',
+                            'turn:openrelay.metered.ca:443?transport=tcp',
+                            'turns:openrelay.metered.ca:443?transport=tcp'
+                        ],
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    }
+                ],
+                iceCandidatePoolSize: 4
+            };
+            const CHUNK_SIZE = 65536; // 64 KB binary chunks
+            const HIGH_WATER_MARK = 1048576; // 1 MB SCTP buffer threshold
+
+            function updateConnectionUI() {
+                const nameEl = document.getElementById('connected-peer-name');
+                const subEl = document.getElementById('connected-peer-sub');
+                const badgeEl = document.getElementById('peer-avatar-badge');
+                const routeEl = document.getElementById('connection-route-badge');
+                const discBtn = document.getElementById('disconnect-btn');
+                const isOpen = state.dc && state.dc.readyState === 'open';
+
+                if (isOpen && state.connectedPeer) {
+                    nameEl.textContent = state.connectedPeer.name;
+                    subEl.textContent = 'Connected & ready to transfer files';
+                    badgeEl.className = 'w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0';
+                    badgeEl.innerHTML = getDeviceIconSVG(state.connectedPeer.deviceType, 'w-4 h-4');
+                    routeEl.classList.remove('hidden');
+                    discBtn.classList.remove('hidden');
+                } else if (state.pc && state.connectedPeer) {
+                    nameEl.textContent = state.connectedPeer.name;
+                    subEl.textContent = 'Establishing peer-to-peer connection...';
+                    badgeEl.className = 'w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 animate-pulse';
+                    badgeEl.innerHTML = getDeviceIconSVG(state.connectedPeer.deviceType, 'w-4 h-4');
+                    routeEl.classList.add('hidden');
+                    discBtn.classList.remove('hidden');
+                } else {
+                    nameEl.textContent = 'Not Connected';
+                    subEl.textContent = 'Select a device above to start sharing';
+                    badgeEl.className = 'w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0';
+                    badgeEl.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>';
+                    routeEl.classList.add('hidden');
+                    discBtn.classList.add('hidden');
+                }
+            }
+
+            async function detectConnectionRoute(pc) {
+                if (!pc || typeof pc.getStats !== 'function') return;
+                try {
+                    const stats = await pc.getStats();
+                    stats.forEach(function (report) {
+                        if (report.type === 'candidate-pair' && report.state === 'succeeded' && report.nominated) {
+                            const localCand = stats.get(report.localCandidateId);
+                            const remoteCand = stats.get(report.remoteCandidateId);
+                            const routeEl = document.getElementById('connection-route-badge');
+                            if (localCand && routeEl) {
+                                const isRelay = localCand.candidateType === 'relay' || (remoteCand && remoteCand.candidateType === 'relay');
+                                if (isRelay) {
+                                    routeEl.textContent = 'Relay P2P';
+                                } else if (localCand.candidateType === 'host') {
+                                    routeEl.textContent = 'LAN P2P';
+                                } else {
+                                    routeEl.textContent = 'Direct P2P';
+                                }
+                            }
+                        }
+                    });
+                } catch (_) {}
+            }
+
+            function closePeerConnection(silent) {
+                if (state.dc) {
+                    try { state.dc.close(); } catch (_) {}
+                    state.dc = null;
+                }
+                if (state.pc) {
+                    try { state.pc.close(); } catch (_) {}
+                    state.pc = null;
+                }
+                state.connectedPeer = null;
+                state.isInitiator = false;
+                state.isSending = false;
+                state.incomingTransfer = null;
+                state.pendingApprovalTransfer = null;
+
+                const promptCard = document.getElementById('incoming-prompt-card');
+                if (promptCard) promptCard.classList.add('hidden');
+
+                updateConnectionUI();
+                if (!silent) {
+                    showToast('Disconnected from peer');
+                }
+            }
+
+            function createPeerConnection(targetPeer) {
+                closePeerConnection(true);
+                const pc = new RTCPeerConnection(RTC_CONFIG);
+                state.pc = pc;
+                state.connectedPeer = targetPeer;
+
+                pc.onicecandidate = function (ev) {
+                    if (ev.candidate && targetPeer && targetPeer.topic && targetPeer.id !== 'qr-peer') {
+                        publishSignal(targetPeer.topic, {
+                            type: 'ice',
+                            to: targetPeer.id,
+                            candidate: ev.candidate
+                        });
+                    }
+                };
+
+                pc.onconnectionstatechange = function () {
+                    if (!state.pc || state.pc !== pc) return;
+                    if (pc.connectionState === 'connected') {
+                        updateConnectionUI();
+                        detectConnectionRoute(pc);
+                    } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+                        closePeerConnection(false);
+                    }
+                };
+
+                pc.ondatachannel = function (ev) {
+                    if (ev && ev.channel) {
+                        setupDataChannel(ev.channel);
+                    }
+                };
+
+                // Create primary ordered data channel for host/initiator
+                const dc = pc.createDataChannel('share-files', { ordered: true });
+                setupDataChannel(dc);
+
+                return pc;
+            }
+
+            async function connectToDiscoveredPeer(peerId) {
+                const peer = state.discoveredPeers.get(peerId);
+                if (!peer) {
+                    showToast('Peer is no longer available', 'error');
+                    return;
+                }
+                try {
+                    state.isInitiator = true;
+                    const pc = createPeerConnection(peer);
+                    updateConnectionUI();
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    publishSignal(peer.topic, {
+                        type: 'offer',
+                        to: peer.id,
+                        sdp: pc.localDescription
+                    });
+                    showToast('Connecting to ' + peer.name + '...');
+                } catch (err) {
+                    closePeerConnection(true);
+                    showToast('Failed to start connection', 'error');
+                }
+            }
+
+            // =========================================================================
+            // 3. RTCDATACHANNEL FILE STREAMING ENGINE
+            // =========================================================================
+            function setupDataChannel(dc) {
+                state.dc = dc;
+                dc.binaryType = 'arraybuffer';
+                dc.bufferedAmountLowThreshold = 262144; // 256 KB
+
+                dc.onopen = function () {
+                    updateConnectionUI();
+                    if (state.pc) detectConnectionRoute(state.pc);
+                    if (state.connectedPeer) {
+                        showToast('Connected to ' + state.connectedPeer.name, 'success');
+                    }
+                    if (state.sendQueue.length > 0 && !state.isSending) {
+                        processSendQueue();
+                    }
+                };
+
+                dc.onclose = function () {
+                    closePeerConnection(false);
+                };
+
+                dc.onerror = function () {
+                    showToast('Data channel transfer error', 'error');
+                };
+
+                dc.onmessage = async function (ev) {
+                    const data = ev.data;
+                    if (typeof data === 'string') {
+                        try {
+                            const msg = JSON.parse(data);
+                            handleIncomingControl(msg);
+                        } catch (_) {}
+                    } else if (data instanceof ArrayBuffer) {
+                        handleIncomingChunk(data);
+                    } else if (data instanceof Blob) {
+                        const buf = await data.arrayBuffer();
+                        handleIncomingChunk(buf);
+                    }
+                };
+            }
+
+            function renderTransfersList() {
+                const listEl = document.getElementById('transfers-list');
+                const countBadge = document.getElementById('transfer-count-badge');
+                if (!listEl || !countBadge) return;
+
+                countBadge.textContent = String(state.transfers.length);
+                if (state.transfers.length === 0) {
+                    listEl.innerHTML = '<p id="empty-transfers-placeholder" class="text-center text-xs text-zinc-400 py-3">No transfers yet</p>';
+                    return;
+                }
+
+                listEl.innerHTML = state.transfers.map(function (t) {
+                    const pct = t.size > 0 ? Math.min(100, Math.round((t.transferred / t.size) * 100)) : 100;
+                    const dirLabel = t.direction === 'out' ? 'Sending' : 'Receiving';
+                    let statusBadge = '';
+                    if (t.status === 'done') {
+                        statusBadge = t.downloadUrl
+                            ? '<a href="' + escapeHTML(t.downloadUrl) + '" download="' + escapeHTML(t.name) + '" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold hover:bg-emerald-500/25 transition">Save</a>'
+                            : '<span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Sent</span>';
+                    } else if (t.status === 'declined') {
+                        statusBadge = '<span class="text-[11px] text-rose-500 font-medium">Declined</span>';
+                    } else {
+                        statusBadge = '<span class="font-mono text-[11px] text-zinc-400">' + pct + '%</span>';
+                    }
+
+                    return (
+                        '<div class="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/70 dark:border-zinc-800 space-y-1.5">' +
+                            '<div class="flex items-center justify-between gap-2">' +
+                                '<div class="min-w-0">' +
+                                    '<p class="text-xs font-medium truncate">' + escapeHTML(t.name) + '</p>' +
+                                    '<p class="text-[10px] text-zinc-400">' + dirLabel + ' &bull; ' + formatBytes(t.transferred) + ' / ' + formatBytes(t.size) + '</p>' +
+                                '</div>' +
+                                '<div class="shrink-0">' + statusBadge + '</div>' +
+                            '</div>' +
+                            '<div class="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">' +
+                                '<div class="h-full bg-zinc-900 dark:bg-white transition-all duration-150" style="width:' + pct + '%"></div>' +
+                            '</div>' +
+                        '</div>'
+                    );
+                }).join('');
+            }
+
+            function enqueueFiles(fileList) {
+                if (!fileList || fileList.length === 0) return;
+                if (!state.dc || state.dc.readyState !== 'open') {
+                    showToast('Connect to a device before sending files', 'error');
+                    return;
+                }
+
+                for (let i = 0; i < fileList.length; i++) {
+                    const file = fileList[i];
+                    const id = createId();
+                    const item = {
+                        id: id,
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        mime: file.type || 'application/octet-stream',
+                        direction: 'out',
+                        transferred: 0,
+                        status: 'queued',
+                        downloadUrl: null
+                    };
+                    state.transfers.unshift(item);
+                    state.sendQueue.push(item);
+                }
+
+                renderTransfersList();
+                if (!state.isSending) {
+                    processSendQueue();
+                }
+            }
+
+            function waitForPeerApproval(transferId) {
+                return new Promise(function (resolve) {
+                    state.pendingAcceptResolvers.set(transferId, resolve);
+                    // Fallback timeout in case peer already started receiving or is using older flow
+                    setTimeout(function () {
+                        if (state.pendingAcceptResolvers.has(transferId)) {
+                            state.pendingAcceptResolvers.delete(transferId);
+                            resolve(true);
+                        }
+                    }, 30000);
+                });
+            }
+
+            function waitForBufferDrain(dc) {
+                return new Promise(function (resolve) {
+                    if (!dc || dc.readyState !== 'open' || dc.bufferedAmount <= HIGH_WATER_MARK) {
+                        resolve();
+                        return;
+                    }
+                    const onLow = function () {
+                        dc.removeEventListener('bufferedamountlow', onLow);
+                        resolve();
+                    };
+                    dc.addEventListener('bufferedamountlow', onLow);
+                });
+            }
+
+            async function processSendQueue() {
+                if (state.isSending) return;
+                state.isSending = true;
+
+                while (state.sendQueue.length > 0) {
+                    const item = state.sendQueue.shift();
+                    if (!state.dc || state.dc.readyState !== 'open') {
+                        item.status = 'declined';
+                        renderTransfersList();
+                        continue;
+                    }
+
+                    item.status = 'waiting';
+                    renderTransfersList();
+
+                    state.dc.send(JSON.stringify({
+                        type: 'file-meta',
+                        id: item.id,
+                        name: item.name,
+                        size: item.size,
+                        mime: item.mime
+                    }));
+
+                    const accepted = await waitForPeerApproval(item.id);
+                    if (!accepted || !state.dc || state.dc.readyState !== 'open') {
+                        item.status = 'declined';
+                        renderTransfersList();
+                        continue;
+                    }
+
+                    item.status = 'sending';
+                    let offset = 0;
+                    let lastRender = 0;
+
+                    try {
+                        while (offset < item.size) {
+                            if (!state.dc || state.dc.readyState !== 'open') {
+                                throw new Error('Channel closed');
+                            }
+                            if (state.dc.bufferedAmount > HIGH_WATER_MARK) {
+                                await waitForBufferDrain(state.dc);
+                            }
+
+                            const slice = item.file.slice(offset, offset + CHUNK_SIZE);
+                            const buf = await slice.arrayBuffer();
+                            state.dc.send(buf);
+                            offset += buf.byteLength;
+                            item.transferred = offset;
+
+                            const now = Date.now();
+                            if (now - lastRender > 80 || offset >= item.size) {
+                                lastRender = now;
+                                renderTransfersList();
+                            }
+                        }
+
+                        if (state.dc && state.dc.readyState === 'open') {
+                            state.dc.send(JSON.stringify({ type: 'file-end', id: item.id }));
+                        }
+                        item.status = 'done';
+                        item.transferred = item.size;
+                        renderTransfersList();
+                        showToast('Sent ' + item.name, 'success');
+                    } catch (_) {
+                        item.status = 'declined';
+                        renderTransfersList();
+                        showToast('Transfer interrupted: ' + item.name, 'error');
+                    }
+                }
+
+                state.isSending = false;
+            }
+
+            function acceptIncomingFile(meta) {
+                const record = {
+                    id: meta.id,
+                    name: meta.name || 'file',
+                    size: meta.size || 0,
+                    mime: meta.mime || 'application/octet-stream',
+                    direction: 'in',
+                    transferred: 0,
+                    status: 'receiving',
+                    downloadUrl: null
+                };
+                state.transfers.unshift(record);
+                state.incomingTransfer = {
+                    record: record,
+                    chunks: [],
+                    lastRender: 0
+                };
+                renderTransfersList();
+
+                if (state.dc && state.dc.readyState === 'open') {
+                    state.dc.send(JSON.stringify({ type: 'file-accept', id: meta.id }));
+                }
+            }
+
+            function handleIncomingControl(msg) {
+                if (!msg || !msg.type) return;
+
+                if (msg.type === 'file-meta') {
+                    const autoAccept = document.getElementById('auto-accept-toggle');
+                    if (autoAccept && autoAccept.checked) {
+                        acceptIncomingFile(msg);
+                    } else {
+                        state.pendingApprovalTransfer = msg;
+                        const promptCard = document.getElementById('incoming-prompt-card');
+                        const descEl = document.getElementById('incoming-file-desc');
+                        if (descEl) {
+                            descEl.textContent = (msg.name || 'file') + ' (' + formatBytes(msg.size || 0) + ')';
+                        }
+                        if (promptCard) {
+                            promptCard.classList.remove('hidden');
+                        }
+                    }
+                } else if (msg.type === 'file-accept') {
+                    const resolver = state.pendingAcceptResolvers.get(msg.id);
+                    if (resolver) {
+                        state.pendingAcceptResolvers.delete(msg.id);
+                        resolver(true);
+                    }
+                } else if (msg.type === 'file-decline') {
+                    const resolver = state.pendingAcceptResolvers.get(msg.id);
+                    if (resolver) {
+                        state.pendingAcceptResolvers.delete(msg.id);
+                        resolver(false);
+                    }
+                    showToast('Peer declined file transfer', 'error');
+                } else if (msg.type === 'file-end') {
+                    if (state.incomingTransfer && state.incomingTransfer.record.id === msg.id) {
+                        const inc = state.incomingTransfer;
+                        const blob = new Blob(inc.chunks, { type: inc.record.mime });
+                        const url = URL.createObjectURL(blob);
+                        inc.record.status = 'done';
+                        inc.record.transferred = inc.record.size;
+                        inc.record.downloadUrl = url;
+                        state.incomingTransfer = null;
+                        renderTransfersList();
+
+                        // Trigger automatic download
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = inc.record.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showToast('Received ' + inc.record.name, 'success');
+                    }
+                }
+            }
+
+            function handleIncomingChunk(arrayBuffer) {
+                if (!state.incomingTransfer) return;
+                const inc = state.incomingTransfer;
+                inc.chunks.push(arrayBuffer);
+                inc.record.transferred += arrayBuffer.byteLength;
+
+                const now = Date.now();
+                if (now - inc.lastRender > 80) {
+                    inc.lastRender = now;
+                    renderTransfersList();
+                }
+            }
+
+            // =========================================================================
+            // 4. SIGNALING & CROSS-DEVICE PEER DISCOVERY (WS MQTT + LOCAL CHANNEL)
+            // =========================================================================
+            const MQTT_BROKERS = [
+                'wss://broker.emqx.io:8084/mqtt',
+                'wss://broker.hivemq.com:8884/mqtt',
+                'wss://test.mosquitto.org:8081/mqtt'
+            ];
+
+            function hashNetworkId(str) {
+                let h1 = 0x811c9dc5;
+                let h2 = 0x01000193;
+                for (let i = 0; i < str.length; i++) {
+                    const ch = str.charCodeAt(i);
+                    h1 ^= ch;
+                    h1 = Math.imul(h1, 0x01000193);
+                    h2 ^= ch + i;
+                    h2 = Math.imul(h2, 0x85ebca6b);
+                }
+                return ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).slice(0, 12);
+            }
+
+            function setScopeHint(text) {
+                state.scopeHint = text;
+                const el = document.getElementById('network-scope-label');
+                if (el) el.textContent = text;
+            }
+
+            function updateRelayStatus(online, label) {
+                const textEl = document.getElementById('relay-status-text');
+                const headerDot = document.getElementById('radar-status-dot');
+                if (textEl) {
+                    const dotClass = online ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse';
+                    const suffix = (state.discoveryScope === 'lan' && state.lanTag) ? ' (' + state.lanTag + ')' : '';
+                    textEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full ' + dotClass + '"></span>' + escapeHTML(label + suffix);
+                }
+                if (headerDot) {
+                    headerDot.className = 'w-2 h-2 rounded-full ' + (online ? 'bg-emerald-500' : 'bg-amber-400');
+                }
+            }
+
+            function setDiscoveryScope(scope) {
+                state.discoveryScope = scope === 'internet' ? 'internet' : 'lan';
+                state.nearbyTopic = state.discoveryScope === 'internet' ? state.globalTopic : state.lanTopic;
+
+                const lanBtn = document.getElementById('scope-lan-btn');
+                const netBtn = document.getElementById('scope-internet-btn');
+                if (lanBtn && netBtn) {
+                    const activeCls = ['bg-white', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'shadow-sm'];
+                    const inactiveCls = ['text-zinc-500', 'dark:text-zinc-400'];
+                    if (state.discoveryScope === 'lan') {
+                        activeCls.forEach(function (c) { lanBtn.classList.add(c); netBtn.classList.remove(c); });
+                        inactiveCls.forEach(function (c) { lanBtn.classList.remove(c); netBtn.classList.add(c); });
+                        setScopeHint('Open Share on another device on the same Wi-Fi');
+                    } else {
+                        activeCls.forEach(function (c) { netBtn.classList.add(c); lanBtn.classList.remove(c); });
+                        inactiveCls.forEach(function (c) { netBtn.classList.remove(c); lanBtn.classList.add(c); });
+                        setScopeHint('Discovering devices across any network on the internet');
+                    }
+                }
+
+                state.discoveredPeers.forEach(function (peer, id) {
+                    if (!state.roomTopic || peer.topic !== state.roomTopic) {
+                        state.discoveredPeers.delete(id);
+                    }
+                });
+
+                mqttSubscribeTopic(state.nearbyTopic);
+                updateRelayStatus(state.mqttConnected, state.mqttConnected ? 'Radar active' : 'Connecting to radar...');
+                broadcastPresence();
+                renderPeersList();
+            }
+
+            function encodeUtf8(str) {
+                return new TextEncoder().encode(str);
+            }
+
+            function encodeRemainingLength(len) {
+                const bytes = [];
+                do {
+                    let digit = len % 128;
+                    len = Math.floor(len / 128);
+                    if (len > 0) digit |= 0x80;
+                    bytes.push(digit);
+                } while (len > 0);
+                return bytes;
+            }
+
+            function buildMqttConnectPacket(clientId) {
+                const protoName = [0x00, 0x04, 0x4d, 0x51, 0x54, 0x54]; // "MQTT"
+                const protoLevel = [0x04]; // MQTT 3.1.1
+                const connectFlags = [0x02]; // Clean session
+                const keepAlive = [0x00, 0x1e]; // 30s
+                const idBytes = encodeUtf8(clientId);
+                const payload = [idBytes.length >> 8, idBytes.length & 0xff].concat(Array.from(idBytes));
+                const varHeader = protoName.concat(protoLevel, connectFlags, keepAlive);
+                const remLen = encodeRemainingLength(varHeader.length + payload.length);
+                return new Uint8Array([0x10].concat(remLen, varHeader, payload));
+            }
+
+            function buildMqttSubscribePacket(packetId, topic) {
+                const topicBytes = encodeUtf8(topic);
+                const payload = [
+                    packetId >> 8, packetId & 0xff,
+                    topicBytes.length >> 8, topicBytes.length & 0xff
+                ].concat(Array.from(topicBytes), [0x00]);
+                const remLen = encodeRemainingLength(payload.length);
+                return new Uint8Array([0x82].concat(remLen, payload));
+            }
+
+            function buildMqttPublishPacket(topic, payloadStr) {
+                const topicBytes = encodeUtf8(topic);
+                const bodyBytes = encodeUtf8(payloadStr);
+                const varHeader = [topicBytes.length >> 8, topicBytes.length & 0xff].concat(Array.from(topicBytes));
+                const remLen = encodeRemainingLength(varHeader.length + bodyBytes.length);
+                return new Uint8Array([0x30].concat(remLen, varHeader, Array.from(bodyBytes)));
+            }
+
+            function decodeRemainingLength(bytes, offset) {
+                let multiplier = 1;
+                let value = 0;
+                let idx = offset;
+                let encodedByte = 0;
+                do {
+                    if (idx >= bytes.length) return null;
+                    encodedByte = bytes[idx++];
+                    value += (encodedByte & 127) * multiplier;
+                    multiplier *= 128;
+                } while ((encodedByte & 128) !== 0);
+                return { value: value, nextOffset: idx };
+            }
+
+            let mqttPacketCounter = 1;
+            function mqttSubscribeTopic(topic) {
+                if (!topic) return;
+                state.subscribedTopics.add(topic);
+                if (state.mqttSocket && state.mqttSocket.readyState === WebSocket.OPEN && state.mqttConnected) {
+                    const pktId = (mqttPacketCounter++ % 65000) + 1;
+                    try {
+                        state.mqttSocket.send(buildMqttSubscribePacket(pktId, topic));
+                    } catch (_) {}
+                }
+            }
+
+            function publishSignal(topic, payloadObj) {
+                if (!topic) return;
+                const envelope = Object.assign({
+                    from: state.peerId,
+                    name: state.deviceName,
+                    deviceType: state.deviceType,
+                    ts: Date.now()
+                }, payloadObj);
+
+                if (state.broadcastChannel) {
+                    try {
+                        state.broadcastChannel.postMessage({ topic: topic, data: envelope });
+                    } catch (_) {}
+                }
+
+                if (state.mqttSocket && state.mqttSocket.readyState === WebSocket.OPEN && state.mqttConnected) {
+                    try {
+                        state.mqttSocket.send(buildMqttPublishPacket(topic, JSON.stringify(envelope)));
+                    } catch (_) {}
+                }
+            }
+
+            function connectMqttRelay() {
+                if (typeof window.WebSocket !== 'function') {
+                    updateRelayStatus(false, 'Local tab discovery only');
+                    return;
+                }
+
+                const url = MQTT_BROKERS[state.mqttBrokerIndex % MQTT_BROKERS.length];
+                let ws = null;
+                try {
+                    ws = new WebSocket(url, 'mqtt');
+                } catch (_) {
+                    updateRelayStatus(false, 'Local tab discovery only');
+                    return;
+                }
+
+                ws.binaryType = 'arraybuffer';
+                state.mqttSocket = ws;
+
+                ws.onopen = function () {
+                    const cid = 'sh_' + state.peerId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+                    try {
+                        ws.send(buildMqttConnectPacket(cid));
+                    } catch (_) {}
+
+                    if (state.mqttKeepAliveTimer) clearInterval(state.mqttKeepAliveTimer);
+                    state.mqttKeepAliveTimer = setInterval(function () {
+                        if (ws.readyState === WebSocket.OPEN) {
+                            try { ws.send(new Uint8Array([0xc0, 0x00])); } catch (_) {}
+                        }
+                    }, 20000);
+                };
+
+                ws.onmessage = function (ev) {
+                    const buf = new Uint8Array(ev.data);
+                    let pos = 0;
+                    while (pos < buf.length) {
+                        const header = buf[pos];
+                        const packetType = header >> 4;
+                        const rem = decodeRemainingLength(buf, pos + 1);
+                        if (!rem) break;
+                        const packetEnd = rem.nextOffset + rem.value;
+                        if (packetEnd > buf.length) break;
+
+                        if (packetType === 2) {
+                            state.mqttConnected = true;
+                            updateRelayStatus(true, 'Radar active');
+                            state.subscribedTopics.forEach(function (t) {
+                                mqttSubscribeTopic(t);
+                            });
+                            broadcastPresence();
+                        } else if (packetType === 3) {
+                            const qos = (header >> 1) & 0x03;
+                            let ptr = rem.nextOffset;
+                            const topicLen = (buf[ptr] << 8) | buf[ptr + 1];
+                            ptr += 2;
+                            const topic = new TextDecoder().decode(buf.subarray(ptr, ptr + topicLen));
+                            ptr += topicLen;
+                            if (qos > 0) ptr += 2;
+                            const msgText = new TextDecoder().decode(buf.subarray(ptr, packetEnd));
+                            try {
+                                const parsed = JSON.parse(msgText);
+                                handleSignalMessage(topic, parsed);
+                            } catch (_) {}
+                        }
+                        pos = packetEnd;
+                    }
+                };
+
+                ws.onerror = function () {};
+
+                ws.onclose = function () {
+                    state.mqttConnected = false;
+                    if (state.mqttKeepAliveTimer) {
+                        clearInterval(state.mqttKeepAliveTimer);
+                        state.mqttKeepAliveTimer = null;
+                    }
+                    updateRelayStatus(false, 'Reconnecting radar...');
+                    state.mqttBrokerIndex++;
+                    setTimeout(connectMqttRelay, 3000);
+                };
+            }
+
+            async function resolveSameWifiTopic() {
+                const endpoints = [
+                    'https://api.ipify.org?format=json',
+                    'https://api4.my-ip.io/ip.json'
+                ];
+                for (let i = 0; i < endpoints.length; i++) {
+                    try {
+                        const controller = new AbortController();
+                        const timer = setTimeout(function () { controller.abort(); }, 2500);
+                        const res = await fetch(endpoints[i], { signal: controller.signal, cache: 'no-store' });
+                        clearTimeout(timer);
+                        if (!res.ok) continue;
+                        const data = await res.json();
+                        const ip = (data && data.ip) ? String(data.ip).trim() : '';
+                        if (ip) {
+                            const netHash = hashNetworkId('share-lan-' + ip);
+                            state.lanTopic = 'share/v1/lan-' + netHash;
+                            state.lanTag = 'LAN #' + netHash.slice(0, 4).toUpperCase();
+                            if (state.discoveryScope === 'lan') {
+                                state.nearbyTopic = state.lanTopic;
+                            }
+                            mqttSubscribeTopic(state.nearbyTopic);
+                            updateRelayStatus(state.mqttConnected, state.mqttConnected ? 'Radar active' : 'Connecting to radar...');
+                            broadcastPresence();
+                            return;
+                        }
+                    } catch (_) {}
+                }
+                mqttSubscribeTopic(state.nearbyTopic);
+                updateRelayStatus(state.mqttConnected, state.mqttConnected ? 'Radar active' : 'Connecting...');
+            }
+
+            function broadcastPresence() {
+                publishSignal(state.nearbyTopic, { type: 'presence' });
+                if (state.roomTopic) {
+                    publishSignal(state.roomTopic, { type: 'presence' });
+                }
+            }
+
+            function renderPeersList() {
+                const nearbyContainer = document.getElementById('nearby-peers-list');
+                const roomContainer = document.getElementById('room-peers-list');
+
+                const nearbyPeers = [];
+                const roomPeers = [];
+                state.discoveredPeers.forEach(function (peer) {
+                    if (peer.topic === state.nearbyTopic) nearbyPeers.push(peer);
+                    if (state.roomTopic && peer.topic === state.roomTopic) roomPeers.push(peer);
+                });
+
+                if (nearbyContainer) {
+                    if (nearbyPeers.length === 0) {
+                        nearbyContainer.innerHTML =
+                            '<div class="py-6 text-center space-y-1">' +
+                                '<div class="w-10 h-10 mx-auto rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center mb-2 animate-pulse">' +
+                                    getDeviceIconSVG(state.deviceType, 'w-5 h-5') +
+                                '</div>' +
+                                '<p class="text-xs font-medium text-zinc-600 dark:text-zinc-300">Searching for nearby devices...</p>' +
+                                '<p id="network-scope-label" class="text-[11px] text-zinc-400">' + escapeHTML(state.scopeHint) + '</p>' +
+                            '</div>';
+                    } else {
+                        nearbyContainer.innerHTML = nearbyPeers.map(function (peer) {
+                            const isConnected = state.connectedPeer && state.connectedPeer.id === peer.id && state.dc && state.dc.readyState === 'open';
+                            return (
+                                '<button type="button" data-peer-id="' + escapeHTML(peer.id) + '" class="connect-peer-btn w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 dark:hover:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-800 text-left transition">' +
+                                    '<div class="flex items-center gap-3 min-w-0">' +
+                                        '<div class="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shrink-0">' +
+                                            getDeviceIconSVG(peer.deviceType, 'w-4 h-4') +
+                                        '</div>' +
+                                        '<div class="min-w-0">' +
+                                            '<p class="text-xs font-semibold truncate">' + escapeHTML(peer.name) + '</p>' +
+                                            '<p class="text-[11px] text-zinc-400 capitalize">' + escapeHTML(peer.deviceType) + '</p>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold ' + (isConnected ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900') + '">' +
+                                        (isConnected ? 'Connected' : 'Connect') +
+                                    '</span>' +
+                                '</button>'
+                            );
+                        }).join('');
+                    }
+                }
+
+                if (roomContainer) {
+                    if (roomPeers.length === 0) {
+                        roomContainer.innerHTML = '';
+                    } else {
+                        roomContainer.innerHTML = roomPeers.map(function (peer) {
+                            const isConnected = state.connectedPeer && state.connectedPeer.id === peer.id && state.dc && state.dc.readyState === 'open';
+                            return (
+                                '<button type="button" data-peer-id="' + escapeHTML(peer.id) + '" class="connect-peer-btn w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 dark:hover:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-800 text-left transition">' +
+                                    '<div class="flex items-center gap-3 min-w-0">' +
+                                        '<div class="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shrink-0">' +
+                                            getDeviceIconSVG(peer.deviceType, 'w-4 h-4') +
+                                        '</div>' +
+                                        '<div class="min-w-0">' +
+                                            '<p class="text-xs font-semibold truncate">' + escapeHTML(peer.name) + '</p>' +
+                                            '<p class="text-[11px] text-zinc-400">PIN ' + escapeHTML(state.roomPin || '') + '</p>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold ' + (isConnected ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900') + '">' +
+                                        (isConnected ? 'Connected' : 'Connect') +
+                                    '</span>' +
+                                '</button>'
+                            );
+                        }).join('');
+                    }
+                }
+            }
+
+            async function flushPendingIce(peerId) {
+                if (!state.pc || !state.pc.remoteDescription) return;
+                const queue = state.pendingIceByPeer.get(peerId) || [];
+                state.pendingIceByPeer.delete(peerId);
+                for (let i = 0; i < queue.length; i++) {
+                    try {
+                        await state.pc.addIceCandidate(new RTCIceCandidate(queue[i]));
+                    } catch (_) {}
+                }
+            }
+
+            async function handleSignalMessage(topic, data) {
+                if (!data || data.from === state.peerId) return;
+                if (data.to && data.to !== state.peerId) return;
+
+                if (data.type === 'presence') {
+                    if (topic !== state.nearbyTopic && topic !== state.roomTopic) return;
+                    const existing = state.discoveredPeers.get(data.from);
+                    state.discoveredPeers.set(data.from, {
+                        id: data.from,
+                        name: data.name || 'Peer',
+                        deviceType: data.deviceType || 'desktop',
+                        topic: topic,
+                        lastSeen: Date.now()
+                    });
+                    renderPeersList();
+                    if (!existing) {
+                        publishSignal(topic, { type: 'presence', to: data.from });
+                    }
+                } else if (data.type === 'offer' && data.sdp) {
+                    try {
+                        const pc = createPeerConnection({
+                            id: data.from,
+                            name: data.name || 'Peer',
+                            deviceType: data.deviceType || 'desktop',
+                            topic: topic
+                        });
+                        updateConnectionUI();
+                        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                        await flushPendingIce(data.from);
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        publishSignal(topic, {
+                            type: 'answer',
+                            to: data.from,
+                            sdp: pc.localDescription
+                        });
+                    } catch (_) {
+                        showToast('Connection handshake failed', 'error');
+                    }
+                } else if (data.type === 'answer' && data.sdp) {
+                    if (!state.pc) return;
+                    try {
+                        await state.pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                        await flushPendingIce(data.from);
+                    } catch (_) {}
+                } else if (data.type === 'ice' && data.candidate) {
+                    if (state.pc && state.pc.remoteDescription && state.connectedPeer && state.connectedPeer.id === data.from) {
+                        try {
+                            await state.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        } catch (_) {}
+                    } else {
+                        const list = state.pendingIceByPeer.get(data.from) || [];
+                        list.push(data.candidate);
+                        state.pendingIceByPeer.set(data.from, list);
+                    }
+                }
+            }
+
+            function initSignaling() {
+                state.subscribedTopics.add(state.nearbyTopic);
+                state.subscribedTopics.add(state.globalTopic);
+
+                try {
+                    if (typeof window.BroadcastChannel === 'function') {
+                        state.broadcastChannel = new BroadcastChannel('share_p2p_signaling_v1');
+                        state.broadcastChannel.onmessage = function (ev) {
+                            if (ev && ev.data) {
+                                handleSignalMessage(ev.data.topic, ev.data.data);
+                            }
+                        };
+                    }
+                } catch (_) {}
+
+                connectMqttRelay();
+                resolveSameWifiTopic();
+
+                setInterval(function () {
+                    broadcastPresence();
+                    const now = Date.now();
+                    let removed = false;
+                    state.discoveredPeers.forEach(function (peer, id) {
+                        if (now - peer.lastSeen > 18000) {
+                            state.discoveredPeers.delete(id);
+                            removed = true;
+                        }
+                    });
+                    if (removed) renderPeersList();
+                }, 4000);
+            }
+
+            // =========================================================================
+            // 5. SERVERLESS COMPACT QR CODE / MANUAL HANDSHAKE (ZERO-SERVER PAIRING)
+            // =========================================================================
+            function compactSdp(sessionDesc) {
+                const lines = sessionDesc.sdp.split(/\r?\n/);
+                let ufrag = '';
+                let pwd = '';
+                let fp = '';
+                let setup = 'actpass';
+                const cands = [];
+                const seen = new Set();
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (line.startsWith('a=ice-ufrag:')) ufrag = line.slice(12);
+                    else if (line.startsWith('a=ice-pwd:')) pwd = line.slice(10);
+                    else if (line.startsWith('a=fingerprint:')) fp = line.slice(14);
+                    else if (line.startsWith('a=setup:')) setup = line.slice(8);
+                    else if (line.startsWith('a=candidate:')) {
+                        const parts = line.slice(12).split(' ');
+                        const proto = parts[2] ? parts[2].toLowerCase() : '';
+                        if (parts.length >= 8 && (proto === 'udp' || proto === 'tcp')) {
+                            const key = proto + ':' + parts[4] + ':' + parts[5] + ':' + parts[7];
+                            if (!seen.has(key) && cands.length < 8) {
+                                seen.add(key);
+                                cands.push([parts[0], proto, parts[3], parts[4], parts[5], parts[7]].join('|'));
+                            }
+                        }
+                    }
+                }
+
+                const payload = {
+                    t: sessionDesc.type === 'offer' ? 'o' : 'a',
+                    n: state.deviceName,
+                    d: state.deviceType,
+                    u: ufrag,
+                    p: pwd,
+                    f: fp,
+                    s: setup,
+                    c: cands
+                };
+                return 'SH1:' + btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            }
+
+            function expandSdp(codeStr) {
+                const trimmed = codeStr.trim();
+                if (!trimmed.startsWith('SH1:')) {
+                    throw new Error('Invalid Share pairing code');
+                }
+                const jsonStr = decodeURIComponent(escape(atob(trimmed.slice(4))));
+                const p = JSON.parse(jsonStr);
+                const sdpType = p.t === 'o' ? 'offer' : 'answer';
+
+                const sdpLines = [
+                    'v=0',
+                    'o=- ' + Math.floor(100000000 + Math.random() * 900000000) + ' 2 IN IP4 127.0.0.1',
+                    's=-',
+                    't=0 0',
+                    'a=group:BUNDLE 0',
+                    'a=extmap-allow-mixed',
+                    'a=msid-semantic: WMS',
+                    'm=application 9 UDP/DTLS/SCTP webrtc-datachannel',
+                    'c=IN IP4 0.0.0.0',
+                    'a=ice-ufrag:' + p.u,
+                    'a=ice-pwd:' + p.p,
+                    'a=ice-options:trickle',
+                    'a=fingerprint:' + p.f,
+                    'a=setup:' + (p.s || (sdpType === 'offer' ? 'actpass' : 'active')),
+                    'a=mid:0',
+                    'a=sctp-port:5000',
+                    'a=max-message-size:262144'
+                ];
+
+                if (Array.isArray(p.c)) {
+                    for (let i = 0; i < p.c.length; i++) {
+                        const parts = p.c[i].split('|');
+                        if (parts.length === 6) {
+                            const tcptype = parts[1] === 'tcp' ? ' tcptype passive' : '';
+                            sdpLines.push(
+                                'a=candidate:' + parts[0] + ' 1 ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' ' + parts[4] + ' typ ' + parts[5] + tcptype + ' generation 0'
+                            );
+                        } else if (parts.length === 5) {
+                            sdpLines.push(
+                                'a=candidate:' + parts[0] + ' 1 udp ' + parts[1] + ' ' + parts[2] + ' ' + parts[3] + ' typ ' + parts[4] + ' generation 0'
+                            );
+                        }
+                    }
+                }
+
+                return {
+                    name: p.n || 'QR Device',
+                    deviceType: p.d || 'mobile',
+                    desc: {
+                        type: sdpType,
+                        sdp: sdpLines.join('\r\n') + '\r\n'
+                    }
+                };
+            }
+
+            function waitForIceGathering(pc, timeoutMs) {
+                return new Promise(function (resolve) {
+                    if (!pc || pc.iceGatheringState === 'complete') {
+                        resolve();
+                        return;
+                    }
+                    let done = false;
+                    const finish = function () {
+                        if (done) return;
+                        done = true;
+                        pc.removeEventListener('icegatheringstatechange', onStateChange);
+                        resolve();
+                    };
+                    const onStateChange = function () {
+                        if (pc.iceGatheringState === 'complete') {
+                            finish();
+                        }
+                    };
+                    pc.addEventListener('icegatheringstatechange', onStateChange);
+                    setTimeout(finish, timeoutMs || 2200);
+                });
+            }
+
+            function renderQrCode(text) {
+                const container = document.getElementById('qr-output');
+                if (!container) return;
+                container.innerHTML = '';
+
+                if (typeof window.qrcode !== 'function') {
+                    container.innerHTML = '<p class="text-xs text-zinc-500 px-3">QR library unavailable — use Copy button below</p>';
+                    return;
+                }
+
+                try {
+                    const qr = window.qrcode(0, 'L');
+                    qr.addData(text);
+                    qr.make();
+
+                    const moduleCount = qr.getModuleCount();
+                    const scale = Math.max(3, Math.floor(210 / moduleCount));
+                    const margin = scale * 3;
+                    const size = moduleCount * scale + margin * 2;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    canvas.style.width = '210px';
+                    canvas.style.height = '210px';
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, size, size);
+
+                    ctx.fillStyle = '#09090b';
+                    for (let r = 0; r < moduleCount; r++) {
+                        for (let c = 0; c < moduleCount; c++) {
+                            if (qr.isDark(r, c)) {
+                                ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+                            }
+                        }
+                    }
+
+                    container.appendChild(canvas);
+                } catch (_) {
+                    container.innerHTML = '<p class="text-xs text-zinc-500 px-3">Code too large for QR — use Copy button below</p>';
+                }
+            }
+
+            async function startQrHostFlow() {
+                const qrBox = document.getElementById('offline-qr-box');
+                const inputBox = document.getElementById('offline-input-box');
+                const outInput = document.getElementById('offline-sdp-output');
+                const instr = document.getElementById('offline-qr-instruction');
+                const qrContainer = document.getElementById('qr-output');
+                const nextBtn = document.getElementById('offline-next-scan-btn');
+
+                if (inputBox) inputBox.classList.add('hidden');
+                if (qrBox) qrBox.classList.remove('hidden');
+                if (nextBtn) nextBtn.classList.remove('hidden');
+                if (instr) instr.textContent = 'Generating pairing QR...';
+                if (qrContainer) {
+                    qrContainer.innerHTML = '<span class="text-xs text-zinc-400">Preparing QR...</span>';
+                }
+
+                try {
+                    const pc = createPeerConnection({
+                        id: 'qr-peer',
+                        name: 'QR Device',
+                        deviceType: 'mobile'
+                    });
+                    updateConnectionUI();
+
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    await waitForIceGathering(pc, 2200);
+
+                    const code = compactSdp(pc.localDescription);
+                    outInput.value = code;
+                    instr.textContent = '1. Scan this QR on the other device';
+                    renderQrCode(code);
+                } catch (_) {
+                    showToast('Failed to generate QR code', 'error');
+                }
+            }
+
+            async function processScannedOrPastedCode(rawText) {
+                try {
+                    const parsed = expandSdp(rawText);
+
+                    if (parsed.desc.type === 'offer') {
+                        const pc = createPeerConnection({
+                            id: 'qr-peer',
+                            name: parsed.name,
+                            deviceType: parsed.deviceType
+                        });
+                        updateConnectionUI();
+                        await pc.setRemoteDescription(new RTCSessionDescription(parsed.desc));
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        await waitForIceGathering(pc, 2200);
+
+                        const answerCode = compactSdp(pc.localDescription);
+                        const qrBox = document.getElementById('offline-qr-box');
+                        const inputBox = document.getElementById('offline-input-box');
+                        const outInput = document.getElementById('offline-sdp-output');
+                        const instr = document.getElementById('offline-qr-instruction');
+                        const nextBtn = document.getElementById('offline-next-scan-btn');
+
+                        if (inputBox) inputBox.classList.add('hidden');
+                        if (qrBox) qrBox.classList.remove('hidden');
+                        if (nextBtn) nextBtn.classList.add('hidden');
+                        if (outInput) outInput.value = answerCode;
+                        if (instr) instr.textContent = '2. Show this Answer QR to the first device';
+                        renderQrCode(answerCode);
+                        showToast('Answer QR ready — scan on first device', 'success');
+                    } else if (parsed.desc.type === 'answer') {
+                        if (!state.pc) {
+                            showToast('Click "1. Show QR" on this device first', 'error');
+                            return;
+                        }
+                        if (state.connectedPeer) {
+                            state.connectedPeer.name = parsed.name;
+                            state.connectedPeer.deviceType = parsed.deviceType;
+                        }
+                        await state.pc.setRemoteDescription(new RTCSessionDescription(parsed.desc));
+                        updateConnectionUI();
+                        showToast('Completing P2P handshake...');
+                    }
+                } catch (_) {
+                    showToast('Invalid pairing QR or code', 'error');
+                }
+            }
+
+            function closeCameraScanner() {
+                if (state.scanRafId) {
+                    cancelAnimationFrame(state.scanRafId);
+                    state.scanRafId = null;
+                }
+                if (state.cameraStream) {
+                    state.cameraStream.getTracks().forEach(function (track) {
+                        try { track.stop(); } catch (_) {}
+                    });
+                    state.cameraStream = null;
+                }
+                const video = document.getElementById('qr-video');
+                if (video) video.srcObject = null;
+                const modal = document.getElementById('camera-modal');
+                if (modal) modal.classList.add('hidden');
+            }
+
+            async function openCameraScanner() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showToast('Camera not supported here — use Upload QR or paste code', 'error');
+                    return;
+                }
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    state.cameraStream = stream;
+                    const modal = document.getElementById('camera-modal');
+                    const video = document.getElementById('qr-video');
+                    const canvas = document.getElementById('qr-canvas');
+                    modal.classList.remove('hidden');
+                    video.srcObject = stream;
+                    await video.play();
+
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    const tick = function () {
+                        if (!state.cameraStream) return;
+                        if (video.readyState === video.HAVE_ENOUGH_DATA && typeof window.jsQR === 'function') {
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            const qr = window.jsQR(imgData.data, imgData.width, imgData.height, {
+                                inversionAttempts: 'attemptBoth'
+                            });
+                            if (qr && qr.data) {
+                                closeCameraScanner();
+                                document.getElementById('offline-sdp-input').value = qr.data;
+                                processScannedOrPastedCode(qr.data);
+                                return;
+                            }
+                        }
+                        state.scanRafId = requestAnimationFrame(tick);
+                    };
+                    state.scanRafId = requestAnimationFrame(tick);
+                } catch (_) {
+                    showToast('Camera permission denied — use Upload QR or paste code', 'error');
+                }
+            }
+
+            function decodeQrFromImageFile(file) {
+                if (!file) return;
+                if (typeof window.jsQR !== 'function') {
+                    showToast('QR decoder unavailable', 'error');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function () {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const qr = window.jsQR(imgData.data, imgData.width, imgData.height, {
+                            inversionAttempts: 'attemptBoth'
+                        });
+                        if (qr && qr.data) {
+                            document.getElementById('offline-sdp-input').value = qr.data;
+                            processScannedOrPastedCode(qr.data);
+                        } else {
+                            showToast('No QR code found in image', 'error');
+                        }
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // =========================================================================
+            // 6. UI INITIALIZATION & EVENT LISTENERS
+            // =========================================================================
+            function initUI() {
+                document.getElementById('local-device-name').textContent = state.deviceName;
+                document.getElementById('local-device-icon').innerHTML = getDeviceIconSVG(state.deviceType, 'w-3.5 h-3.5');
+                const radarIcon = document.getElementById('radar-center-icon');
+                if (radarIcon) {
+                    radarIcon.innerHTML = getDeviceIconSVG(state.deviceType, 'w-5 h-5');
+                }
+
+                // Rename Device Modal
+                const renameModal = document.getElementById('rename-modal');
+                const renameInput = document.getElementById('rename-input');
+                document.getElementById('edit-name-btn').addEventListener('click', function () {
+                    renameInput.value = state.deviceName;
+                    renameModal.classList.remove('hidden');
+                    renameInput.focus();
+                });
+                document.getElementById('cancel-rename-btn').addEventListener('click', function () {
+                    renameModal.classList.add('hidden');
+                });
+                document.getElementById('save-rename-btn').addEventListener('click', function () {
+                    const nextName = renameInput.value.trim();
+                    if (nextName) {
+                        state.deviceName = nextName;
+                        safeSetSessionItem('share_device_name', nextName);
+                        document.getElementById('local-device-name').textContent = nextName;
+                        broadcastPresence();
+                        showToast('Device renamed to ' + nextName, 'success');
+                    }
+                    renameModal.classList.add('hidden');
+                });
+
+                // Theme Toggle
+                document.getElementById('theme-toggle-btn').addEventListener('click', function () {
+                    document.documentElement.classList.toggle('dark');
+                });
+
+                // Mode Tabs (Nearby / PIN / QR Code)
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                const tabPanels = document.querySelectorAll('.tab-panel');
+                tabBtns.forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        const target = btn.getAttribute('data-tab');
+                        tabBtns.forEach(function (b) {
+                            b.classList.remove('active', 'bg-white', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'shadow-sm');
+                            b.classList.add('text-zinc-500', 'dark:text-zinc-400');
+                        });
+                        btn.classList.add('active', 'bg-white', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'shadow-sm');
+                        btn.classList.remove('text-zinc-500', 'dark:text-zinc-400');
+
+                        tabPanels.forEach(function (panel) {
+                            panel.classList.toggle('hidden', panel.id !== 'panel-' + target);
+                        });
+                    });
+                });
+
+                // Refresh Discovery
+                document.getElementById('refresh-radar-btn').addEventListener('click', function () {
+                    broadcastPresence();
+                    showToast('Scanning for peers...');
+                });
+
+                // Nearby Discovery Scope Toggle (Same Wi-Fi vs Internet)
+                document.getElementById('scope-lan-btn').addEventListener('click', function () {
+                    setDiscoveryScope('lan');
+                });
+                document.getElementById('scope-internet-btn').addEventListener('click', function () {
+                    setDiscoveryScope('internet');
+                });
+
+                // Peer Card Click Delegation
+                document.addEventListener('click', function (ev) {
+                    const btn = ev.target.closest('.connect-peer-btn');
+                    if (btn) {
+                        const id = btn.getAttribute('data-peer-id');
+                        if (id) connectToDiscoveredPeer(id);
+                    }
+                });
+
+                // Clipboard helper (execCommand fallback for iframe compatibility)
+                function copyTextSafe(text, successMsg) {
+                    const helper = document.createElement('textarea');
+                    helper.value = text;
+                    helper.setAttribute('readonly', '');
+                    helper.style.position = 'fixed';
+                    helper.style.opacity = '0';
+                    document.body.appendChild(helper);
+                    helper.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast(successMsg, 'success');
+                    } catch (_) {
+                        showToast('Could not copy automatically', 'error');
+                    }
+                    document.body.removeChild(helper);
+                }
+
+                // PIN Room Controls
+                const pinInput = document.getElementById('room-pin-input');
+                function joinPinRoom(pinValue) {
+                    const clean = String(pinValue || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    if (!clean) {
+                        showToast('Enter a PIN first', 'error');
+                        return null;
+                    }
+                    pinInput.value = clean;
+                    state.roomPin = clean;
+                    state.roomTopic = 'share/v1/room-' + hashNetworkId('pin-' + clean);
+                    mqttSubscribeTopic(state.roomTopic);
+                    document.getElementById('room-status-text').textContent = 'Joined PIN ' + clean + ' — waiting for peer';
+                    broadcastPresence();
+                    renderPeersList();
+                    return clean;
+                }
+
+                document.getElementById('join-pin-btn').addEventListener('click', function () {
+                    joinPinRoom(pinInput.value);
+                });
+                document.getElementById('generate-pin-btn').addEventListener('click', function () {
+                    const randomPin = String(Math.floor(1000 + Math.random() * 9000));
+                    joinPinRoom(randomPin);
+                });
+                document.getElementById('copy-pin-link-btn').addEventListener('click', function () {
+                    let activePin = state.roomPin || pinInput.value.trim();
+                    if (!activePin) {
+                        activePin = String(Math.floor(1000 + Math.random() * 9000));
+                    }
+                    const joined = joinPinRoom(activePin);
+                    if (joined) {
+                        const shareUrl = window.location.origin + window.location.pathname + '?pin=' + encodeURIComponent(joined);
+                        copyTextSafe(shareUrl, 'Invite link copied (PIN ' + joined + ')');
+                    }
+                });
+
+                // Auto-join if opened via ?pin=XXXX or #pin=XXXX invite link
+                try {
+                    const params = new URLSearchParams(window.location.search || '');
+                    let urlPin = params.get('pin');
+                    if (!urlPin && window.location.hash && window.location.hash.indexOf('pin=') !== -1) {
+                        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+                        urlPin = hashParams.get('pin');
+                    }
+                    if (urlPin) {
+                        const roomTabBtn = document.querySelector('.tab-btn[data-tab="room"]');
+                        if (roomTabBtn) roomTabBtn.click();
+                        joinPinRoom(urlPin);
+                    }
+                } catch (_) {}
+
+                // QR Code Pairing Controls
+                document.getElementById('offline-host-btn').addEventListener('click', function () {
+                    startQrHostFlow();
+                });
+                document.getElementById('offline-scan-btn').addEventListener('click', function () {
+                    document.getElementById('offline-qr-box').classList.add('hidden');
+                    document.getElementById('offline-input-box').classList.remove('hidden');
+                });
+                document.getElementById('offline-next-scan-btn').addEventListener('click', function () {
+                    document.getElementById('offline-qr-box').classList.add('hidden');
+                    document.getElementById('offline-input-box').classList.remove('hidden');
+                    openCameraScanner();
+                });
+                document.getElementById('copy-sdp-btn').addEventListener('click', function () {
+                    const val = document.getElementById('offline-sdp-output').value;
+                    if (val) copyTextSafe(val, 'Pairing code copied');
+                });
+                document.getElementById('process-sdp-btn').addEventListener('click', function () {
+                    const val = document.getElementById('offline-sdp-input').value;
+                    if (val && val.trim()) {
+                        processScannedOrPastedCode(val);
+                    } else {
+                        showToast('Paste a pairing code or scan a QR first', 'error');
+                    }
+                });
+                document.getElementById('open-camera-btn').addEventListener('click', openCameraScanner);
+                document.getElementById('close-camera-btn').addEventListener('click', closeCameraScanner);
+                document.getElementById('upload-qr-btn').addEventListener('click', function () {
+                    document.getElementById('qr-image-input').click();
+                });
+                document.getElementById('qr-image-input').addEventListener('change', function (ev) {
+                    if (ev.target.files && ev.target.files[0]) {
+                        decodeQrFromImageFile(ev.target.files[0]);
+                        ev.target.value = '';
+                    }
+                });
+
+                // Disconnect & Incoming File Prompt Controls
+                document.getElementById('disconnect-btn').addEventListener('click', function () {
+                    closePeerConnection(false);
+                });
+                document.getElementById('accept-file-btn').addEventListener('click', function () {
+                    const promptCard = document.getElementById('incoming-prompt-card');
+                    if (promptCard) promptCard.classList.add('hidden');
+                    if (state.pendingApprovalTransfer) {
+                        const meta = state.pendingApprovalTransfer;
+                        state.pendingApprovalTransfer = null;
+                        acceptIncomingFile(meta);
+                    }
+                });
+                document.getElementById('decline-file-btn').addEventListener('click', function () {
+                    const promptCard = document.getElementById('incoming-prompt-card');
+                    if (promptCard) promptCard.classList.add('hidden');
+                    if (state.pendingApprovalTransfer && state.dc && state.dc.readyState === 'open') {
+                        state.dc.send(JSON.stringify({
+                            type: 'file-decline',
+                            id: state.pendingApprovalTransfer.id
+                        }));
+                    }
+                    state.pendingApprovalTransfer = null;
+                });
+
+                // Dropzone & File Selection
+                const dropzone = document.getElementById('dropzone');
+                const fileInput = document.getElementById('file-input');
+
+                dropzone.addEventListener('click', function () {
+                    fileInput.click();
+                });
+                fileInput.addEventListener('change', function (ev) {
+                    if (ev.target.files && ev.target.files.length > 0) {
+                        enqueueFiles(ev.target.files);
+                        ev.target.value = '';
+                    }
+                });
+                dropzone.addEventListener('dragover', function (ev) {
+                    ev.preventDefault();
+                    dropzone.classList.add('border-zinc-900', 'dark:border-white');
+                });
+                dropzone.addEventListener('dragleave', function () {
+                    dropzone.classList.remove('border-zinc-900', 'dark:border-white');
+                });
+                dropzone.addEventListener('drop', function (ev) {
+                    ev.preventDefault();
+                    dropzone.classList.remove('border-zinc-900', 'dark:border-white');
+                    if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length > 0) {
+                        enqueueFiles(ev.dataTransfer.files);
+                    }
+                });
+
+                // Clear Transfers History
+                document.getElementById('clear-history-btn').addEventListener('click', function () {
+                    state.transfers.forEach(function (t) {
+                        if (t.downloadUrl) {
+                            try { URL.revokeObjectURL(t.downloadUrl); } catch (_) {}
+                        }
+                    });
+                    state.transfers = [];
+                    renderTransfersList();
+                });
+
+                updateConnectionUI();
+                initSignaling();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initUI);
+            } else {
+                initUI();
+            }
+        })();
+    </script>
+</body>
+</html>

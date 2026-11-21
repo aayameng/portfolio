@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maxwell’s Equations</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap">
+<style>
+:root{--bg:#04060d;--e:#ffb454;--b:#52d6ff;--s:#ffe6f0;--line:rgba(160,190,255,.08);--ff:'Newsreader',Georgia,'Times New Roman',serif;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(ellipse at 50% 0,#0c1230 0,var(--bg) 62%) fixed;color:#fff;font-family:var(--ff)}
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(50svh,1fr));min-height:100svh}
+.cell{position:relative;display:flex;align-items:flex-end;justify-content:center;padding:0 4% 4.5%;box-shadow:inset 0 0 0 .5px var(--line);overflow:hidden}
+.cell::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(4,6,13,.94) 0,rgba(4,6,13,0) 52%),radial-gradient(ellipse at 50% 40%,transparent 40%,var(--bg) 105%)}
+.eqs{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:.5em;font-size:clamp(1.15rem,2.4vw,2.6rem);opacity:0;pointer-events:none;transition:opacity 2.2s ease}
+.ready .eqs{opacity:1;pointer-events:auto}
+.eq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.2em .3em}
+.eq.i{font-size:.7em}
+
+.g{display:inline-flex;align-items:baseline;gap:.04em}.g.c{align-items:center}
+.fr{display:inline-flex;flex-direction:column;align-items:center;gap:.1em}
+.bar{align-self:stretch;height:.05em;background:rgba(255,255,255,.55);border-radius:1px}
+.tok{font:inherit;color:inherit;appearance:none;background:none;border:0;margin:0;padding:.14em .16em;border-radius:.4em;cursor:pointer;line-height:1;display:inline-flex;align-items:baseline;-webkit-tap-highlight-color:transparent;transition:opacity .3s,background .3s,box-shadow .3s}
+.tok:hover{background:rgba(255,255,255,.09)}
+.tok:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.tok.on{background:rgba(255,255,255,.11);box-shadow:0 0 0 1px currentColor,0 0 1.4em -.3em currentColor}
+.sel .tok:not(.on){opacity:.38}
+.tok mjx-container{margin:0!important}
+.eq svg,.sym svg{filter:drop-shadow(0 0 .3em currentColor)}
+.e{color:var(--e)}.b{color:var(--b)}.s{color:var(--s)}.o{color:rgba(255,255,255,.55)}
+.ready .tok{animation:ping 1.5s ease-out backwards;animation-delay:calc(2.3s + var(--i,0)*.08s)}
+@keyframes ping{0%,100%{background:transparent}35%{background:rgba(255,255,255,.14)}}
+/* explainer card: shared by the in-panel card (.info) and the expanded-view card (#oinfo).
+   --ac is the selected symbol's colour (set from JS) and tints the hairline, border and glow. */
+.info,#oinfo{--ac:rgba(255,255,255,.5);box-sizing:border-box;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:clamp(.7rem,2.4vw,.95rem);padding:clamp(.85rem,2.4vw,1.05rem) clamp(.9rem,2.6vw,1.2rem) clamp(.9rem,2.6vw,1.1rem);border-radius:16px;border:1px solid rgba(255,255,255,.11);border-color:color-mix(in srgb,var(--ac) 26%,rgba(255,255,255,.08));background:linear-gradient(90deg,transparent,var(--ac),transparent) 50% 0/52% 1.5px no-repeat,linear-gradient(160deg,rgba(19,27,58,.88),rgba(7,10,24,.84));-webkit-backdrop-filter:blur(18px) saturate(1.25);backdrop-filter:blur(18px) saturate(1.25);box-shadow:0 20px 44px -22px rgba(0,0,0,.9),0 0 38px -22px var(--ac),inset 0 1px 0 rgba(255,255,255,.05);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+.info{position:absolute;z-index:3;top:max(5%,2.6rem);left:4%;width:min(clamp(20rem,30vw,28rem),92%);max-height:calc(100% - 3.6rem);display:grid;opacity:0;transform:translateY(-8px) scale(.985);transform-origin:top left;pointer-events:none;transition:opacity .35s ease,transform .45s cubic-bezier(.2,.8,.2,1)}
+.sel .info{opacity:1;transform:none;pointer-events:auto}
+.sym{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:3.1rem;height:3.1rem;padding:0 .7rem;border-radius:12px;font-size:1.65rem;line-height:1;text-align:center;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);background:color-mix(in srgb,currentColor 13%,transparent);border-color:color-mix(in srgb,currentColor 36%,transparent);box-shadow:0 0 22px -9px currentColor,inset 0 1px 0 rgba(255,255,255,.07)}
+.sym mjx-container{display:flex;align-items:center;margin:0!important}
+.hd{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:.38rem}
+.info h3,#oinfo h3{margin:0;font:600 1.08rem/1.25 var(--ff);letter-spacing:.005em;color:#fff}
+.info small,#oinfo small{display:block;width:fit-content;max-width:100%;margin:0;padding:.18rem .65rem;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:rgba(255,255,255,.78);font:normal .8rem/1.4 var(--ff);overflow-x:auto;scrollbar-width:none}
+.info small:empty,#oinfo small:empty{display:none}
+.info small svg,#oinfo small svg{display:block}
+.info p,#oinfo p{grid-column:1/-1;margin:.8rem 0 0;padding-top:.8rem;border-top:1px solid rgba(255,255,255,.09);font:.97rem/1.55 var(--ff);color:rgba(255,255,255,.84);text-wrap:pretty}
+@media(max-width:420px){.sym{min-width:2.7rem;height:2.7rem;padding:0 .55rem;font-size:1.4rem;border-radius:10px}.info,#oinfo{border-radius:14px}.info h3,#oinfo h3{font-size:1rem}.info p,#oinfo p{font-size:.92rem;margin-top:.65rem;padding-top:.65rem}}
+@media(prefers-reduced-motion:reduce){.info{transition:opacity .2s;transform:none}#oinfo.show>*{animation:none!important}}
+.hint{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:5;font:italic .9rem var(--ff);color:rgba(255,255,255,.55);pointer-events:none;opacity:0;transition:opacity .8s}
+.ready .hint{opacity:1;transition-delay:2.6s}
+.used .hint{opacity:0;transition-delay:0s}
+@media(max-width:760px){.grid{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:80svh}.eqs{font-size:clamp(1.3rem,6.4vw,2.1rem)}}
+@media(prefers-reduced-motion:reduce){.tok{animation:none!important}}
+.cell{cursor:pointer;transition:background .4s}
+.cell:hover{background:rgba(255,255,255,.02)}
+.cell::before{content:"\2922";position:absolute;top:54px;right:16px;z-index:4;font:1.25rem/1 var(--ff);color:#fff;opacity:.3;transition:opacity .3s,transform .3s;pointer-events:none}
+.cell:hover::before{opacity:.85;transform:scale(1.15)}
+.back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;z-index:5;display:inline-flex;align-items:center;height:34px;padding:0 .95rem;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(7,10,24,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:600 .84rem var(--ff);text-decoration:none;-webkit-tap-highlight-color:transparent}.back:hover{background:rgba(255,255,255,.14)}.back:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#ov{position:fixed;inset:0;z-index:50;visibility:hidden;opacity:0;transform:scale(.55);background:radial-gradient(ellipse at 50% 0,#0e1638 0,#04060d 66%);transition:opacity .4s ease,transform .55s cubic-bezier(.2,.8,.2,1),visibility 0s linear .55s;overflow:hidden;color:#fff;font-family:var(--ff);box-sizing:border-box}
+#ov.on{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+#oc{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none;display:block}
+#oeq{box-sizing:border-box;flex:0 1 auto;min-width:0;max-width:100%;margin-left:auto;padding:.7rem clamp(.9rem,2.4vw,1.3rem) .8rem;border-radius:16px;border:1px solid rgba(255,255,255,.11);background:linear-gradient(160deg,rgba(19,27,58,.88),rgba(7,10,24,.84));-webkit-backdrop-filter:blur(18px) saturate(1.25);backdrop-filter:blur(18px) saturate(1.25);box-shadow:0 20px 44px -22px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+#oeq .eqs{opacity:1;pointer-events:auto;font-size:clamp(1rem,1.9vw,1.75rem);transition:none}
+#oeq.sel .tok:not(.on){opacity:.38}
+#ox{position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(7,10,24,.6);color:#fff;font:300 1.6rem/1 var(--ff);cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#ox:hover{background:rgba(255,255,255,.14)}
+#obot{position:absolute;z-index:3;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px max(3%,12px) calc(12px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.pn{pointer-events:auto;background:rgba(7,10,24,.76);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:14px;box-sizing:border-box}
+#oinfo{width:min(25rem,46vw);display:none;max-height:50svh}
+#oinfo.show{display:grid}
+#oinfo.show>*{animation:infoIn .34s cubic-bezier(.2,.8,.2,1) both}
+#oinfo.show>:nth-child(2){animation-delay:.04s}
+#oinfo.show>:nth-child(3){animation-delay:.08s}
+@keyframes infoIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#opanel{width:min(24.5rem,48vw);max-height:64svh;overflow:auto;padding:.75rem 1rem .85rem;margin-left:auto}
+#opanel h2{margin:0;font:600 1.05rem/1.3 var(--ff);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+#opanel h2::after{content:"\25BE";opacity:.5;transition:transform .3s}
+#opanel.min h2::after{transform:rotate(180deg)}
+#opanel.min .bd{display:none}
+#opanel .sb{margin:.4rem 0 .5rem;font:.88rem/1.5 var(--ff);color:rgba(255,255,255,.78)}
+.lgs{display:flex;flex-wrap:wrap;gap:.3rem .9rem;margin-bottom:.55rem;font:.8rem var(--ff);color:rgba(255,255,255,.7)}
+.lg i{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.35rem;vertical-align:baseline}
+.rg{display:grid;grid-template-columns:7.8rem 1fr 3rem;gap:.5rem;align-items:center;font:.82rem var(--ff);color:rgba(255,255,255,.82);margin:.25rem 0}
+.rg input{width:100%;margin:0;accent-color:#ffb454}
+.rg output{text-align:right;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.6)}
+.ck{display:block;font:.82rem var(--ff);color:rgba(255,255,255,.82);margin:.2rem 0;cursor:pointer}
+.ck input{accent-color:#ffb454;margin-right:.4rem}
+.rd{margin-top:.55rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.1);font:.84rem/1.5 var(--ff)}
+.row{display:flex;justify-content:space-between;gap:.8rem;font-variant-numeric:tabular-nums}
+.row span{color:rgba(255,255,255,.65)}
+.row b{font-weight:600;color:#fff}
+.rd .nt,#opanel .tp{margin:.45rem 0 0;font:italic .78rem/1.45 var(--ff);color:rgba(255,255,255,.5)}
+.gr{width:100%;height:auto;display:block;margin-top:.5rem;border-radius:8px;background:rgba(255,255,255,.035)}
+@media(max-width:760px){#obot{flex-direction:column;align-items:stretch}#oinfo,#oeq{width:auto;margin:0}#oinfo{max-height:36svh}#oeq{padding:.6rem .9rem .7rem}.rg{grid-template-columns:6.5rem 1fr 2.6rem}}
+@media(max-width:760px) and (max-height:520px){#obot{flex-direction:row;align-items:flex-end}#oinfo,#oeq{flex:1 1 0;min-width:0;max-width:none}#oinfo{max-height:60svh}}
+.lg i.sg{width:.95rem;height:.95rem;border-radius:50%;box-sizing:border-box;border:1.5px solid currentColor;background:rgba(4,6,13,.6);font:700 .8rem/.8rem var(--ff);text-align:center;margin-right:.4rem;vertical-align:-.12em}
+.row span mjx-container,#opanel h2 mjx-container,.info small mjx-container,#oinfo small mjx-container{margin:0!important}
+#opanel h2 .tt{font-size:1.15rem}
+.row{align-items:center;margin:.1rem 0}
+
+#obot{align-items:stretch;gap:14px;max-height:46svh}
+#oinfo{flex:0 1 min(34vw,28rem);min-width:0;width:auto;max-height:36svh}
+#oeq{flex:0 1 auto;max-width:min(54vw,100%);margin-left:auto;display:flex;align-items:center;justify-content:center;padding:.7rem 1rem;min-width:0;max-height:40svh;overflow:auto}
+#oinfo:not(.show)+#oeq{margin:0 auto}
+#oeq .eqs{font-size:clamp(1.15rem,min(3.1vw,6.4svh),3.8rem);max-width:100%}
+#op{position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 20px);right:66px;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(7,10,24,.6);color:#fff;font:10px/1 var(--ff);cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}#op:hover{background:rgba(255,255,255,.14)}
+#lens{grid-column:1/-1;width:100%;height:auto;margin-top:.7rem;border-radius:12px;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.09)}
+#oinfo .sec{grid-column:1/-1;margin-top:.7rem}
+#oinfo .sec h4{margin:0 0 .25rem;font:600 .8rem var(--ff);color:var(--ac)}
+#oinfo .sec p{margin:0;padding:0;border:0;font-size:.95rem}
+#oinfo .fm{overflow-x:auto;font-size:1.2rem}
+@media(max-width:760px){#oeq{flex:none;max-width:none;width:auto;margin:0;max-height:20svh}#oeq .eqs{font-size:clamp(1rem,4.6vw,1.6rem)}#oinfo{flex:none;width:auto;max-height:22svh}#ph{display:none}}
+@media(max-width:900px) and (max-height:520px){#obot{flex-direction:row;max-height:50svh}#oinfo{flex:1 1 0;width:auto;max-height:48svh}#oeq{flex:1 1 0;max-width:none;max-height:48svh}#oeq .eqs{font-size:clamp(.95rem,min(3.2vw,7svh),1.6rem)}}
+#lr{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);max-width:calc(100% - 230px);box-sizing:border-box;padding:.4rem .9rem;text-align:center;font:600 clamp(.85rem,1.9vw,1.3rem)/1.35 var(--ff);display:none;pointer-events:none}#lr.on{display:block}#lr small{display:block;font:italic .82em var(--ff)}
+#ph{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 22px);left:16px;max-width:22vw;font:italic .78rem/1.4 var(--ff);color:rgba(255,255,255,.45);pointer-events:none}
+
+/* expand-to-read button */
+.cn{grid-column:1/-1;position:sticky;top:0;z-index:2;height:0;display:flex;justify-content:flex-end;align-items:flex-start;margin:0;padding:0}
+.ex{flex:none;font:600 .82rem/1 var(--ff);color:rgba(255,255,255,.88);background:rgba(10,14,32,.92);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:0 .85rem;min-height:34px;cursor:pointer;white-space:nowrap;margin-top:-.2rem;-webkit-tap-highlight-color:transparent}
+.ex:hover{background:rgba(40,50,90,.95)}
+.ex::before{content:"\2922";margin-right:.4rem}.ex[aria-expanded=true]::before{content:"\2921"}
+.ex:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#oinfo .hd{padding-right:6.2rem}
+#oinfo{overflow-wrap:anywhere;-webkit-overflow-scrolling:touch}
+@media(max-width:760px) and (min-height:521px){#obot{max-height:none}#oinfo{max-height:30svh}#oeq{max-height:18svh}}
+#oinfo.big{position:fixed;z-index:6;left:max(.6rem,env(safe-area-inset-left,0px));right:max(.6rem,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 62px);bottom:calc(.6rem + env(safe-area-inset-bottom,0px));width:auto;max-height:none!important;flex:none;margin:0;background:linear-gradient(160deg,rgba(19,27,58,.97),rgba(7,10,24,.96))}
+#oinfo.big p,#oinfo.big .sec p{font-size:clamp(1rem,2.4vw,1.12rem);line-height:1.7}
+#oinfo.big .fm{font-size:1.35rem}
+@media(min-width:900px){#oinfo.big{right:auto;width:min(36rem,48vw)}}
+/* main equation: one line per row, auto-scaled to fit, never scrolls */
+#oeq{overflow:hidden;scrollbar-width:none}#oeq::-webkit-scrollbar{display:none}
+#oeq .eq{flex-wrap:nowrap}
+#oeq .eqs{max-width:100%}
+@media(min-width:761px){.grid{grid-template-rows:repeat(2,minmax(50svh,1fr)) minmax(68svh,1fr)}.cell:nth-child(5){grid-column:1/-1}}
+#wp{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 84px);left:12px;width:min(19.5rem,calc(100vw - 24px));max-height:calc(100svh - 280px);overflow:auto;box-sizing:border-box;padding:.7rem .9rem .8rem;display:none}
+#wp h2{margin:0;font:600 1rem/1.3 var(--ff);cursor:pointer;display:flex;justify-content:space-between}#wp h2::after{content:"\25BE";opacity:.5}#wp.min h2::after{transform:rotate(180deg)}#wp.min .bd{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem;margin:.55rem 0}.chip{font:.76rem var(--ff);color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.18rem .6rem;cursor:pointer}.chip.on{background:rgba(255,180,84,.22);border-color:#ffb454}
+#dvb{position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 14px);right:108px;height:34px;padding:0 .95rem;border-radius:999px;border:1px solid rgba(255,180,84,.55);background:rgba(7,10,24,.7);color:#ffd08a;font:600 .84rem var(--ff);cursor:pointer;display:none;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}#dvb:hover{background:rgba(255,180,84,.18)}
+#dv{position:fixed;z-index:7;left:.6rem;right:.6rem;top:calc(env(safe-area-inset-top,0px) + 62px);bottom:calc(.6rem + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:none;flex-direction:column;padding:.8rem 1rem .9rem;background:linear-gradient(160deg,rgba(19,27,58,.97),rgba(7,10,24,.96))}#dv.show{display:flex}
+@media(min-width:900px){#dv{left:auto;width:min(44rem,52vw)}}
+#dv header{display:flex;justify-content:space-between;align-items:center;font:600 1.02rem var(--ff)}#dv header button{background:none;border:0;color:#fff;font:300 1.5rem/1 var(--ff);cursor:pointer}
+.dbody{flex:1;overflow:auto;min-height:0;position:relative;padding:.2rem .3rem 1rem 0}
+.t-e{--c:#ffb454;--cs:#ffe0b3}.t-b{--c:#52d6ff;--cs:#c2f1ff}.t-s{--c:#ffe6f0;--cs:#fff}
+.d-step{margin:0;padding:1.15rem 0 1.2rem;border-top:1px solid rgba(255,255,255,.08)}.d-step:first-child{border-top:0;padding-top:.4rem}
+.d-sh{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.35rem}.d-b{min-width:1.7rem;font:600 .8rem var(--ff);letter-spacing:.06em;color:var(--c)}.d-step h4{margin:0;font:600 1.05rem/1.3 var(--ff);color:#fff}
+.d-step p{margin:0 0 .3rem;font:.97rem/1.65 var(--ff);color:rgba(255,255,255,.78);text-wrap:pretty}
+.d-lbl{display:none}
+.d-eq{overflow-x:auto;margin:.55rem 0;padding:.1rem 0;color:var(--cs);font-size:1.3rem;text-align:center}.d-eq mjx-container{margin:.3rem 0!important}.d-eq.key{font-size:1.5rem}
+.d-vf{margin:.4rem 0 .5rem;padding-left:.8rem;border-left:1px solid rgba(255,255,255,.18)}.d-vf .d-lbl{display:block;margin:0 0 .15rem;font:600 .68rem var(--ff);letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.5)}.d-vf p{font-size:.9rem;color:rgba(255,255,255,.62)}.d-vf .d-eq{font-size:1.08rem}
+.d-iq{margin:.3rem 0 0}.d-iq p{font-style:italic;color:rgba(255,255,255,.62)}.d-iq p::before{content:"Intuition · ";font-style:normal;font-weight:600;color:var(--c)}
+</style>
+<script>
+window.MathJax={svg:{fontCache:'none'},options:{enableMenu:false},startup:{pageReady(){return MathJax.startup.defaultPageReady().then(()=>document.body.classList.add('ready'))}}};
+</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ov" aria-label="Expanded view"><canvas id="oc"></canvas><button id="ox" aria-label="Close">×</button><button id="op" aria-label="Pause animation" title="Pause / play (space)">❚❚</button><div id="lr" class="pn" aria-live="polite"></div><div id="ph">drag: rotate · right-drag, shift-drag or two fingers: pan · scroll: zoom · double-click: reset</div><div id="wp" class="pn"></div><button id="dvb" type="button">Derivation</button><aside id="dv" class="pn" aria-label="Derivation"></aside><div id="obot"><aside id="oinfo" class="pn" aria-live="polite"></aside><div id="oeq" class="pn"></div></div></div>
+<a class="back" href="/">← Back</a>
+<p class="hint">click any box to expand it</p>
+<main class="grid">
+<section class="cell"><div class="eqs"><div class="eq">
+<div class="g"><button class="tok e" data-k="div">\(\nabla\!\cdot\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button></div>
+<button class="tok o" data-k="eq">\(=\)</button>
+<div class="fr"><div class="g"><button class="tok s" data-k="rho">\(\rho\)</button></div><i class="bar"></i><div class="g"><button class="tok s" data-k="eps0">\(\varepsilon_0\)</button></div></div>
+</div>
+<div class="eq i">
+<button class="tok o" data-k="thm">\(\Leftrightarrow\)</button>
+<div class="g"><button class="tok e" data-k="oint">\(\oint_S\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dA">\(d\mathbf A\)</button></div>
+<button class="tok o" data-k="eq2">\(=\)</button>
+<div class="fr"><div class="g"><button class="tok s" data-k="Q">\(Q_{\mathrm{enc}}\)</button></div><i class="bar"></i><div class="g"><button class="tok s" data-k="eps0">\(\varepsilon_0\)</button></div></div>
+</div></div></section>
+<section class="cell"><div class="eqs"><div class="eq">
+<div class="g"><button class="tok b" data-k="div">\(\nabla\!\cdot\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button></div>
+<button class="tok o" data-k="eq">\(=\)</button>
+<button class="tok s" data-k="zero">\(0\)</button>
+</div>
+<div class="eq i">
+<button class="tok o" data-k="thm">\(\Leftrightarrow\)</button>
+<div class="g"><button class="tok b" data-k="oint">\(\oint_S\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dA">\(d\mathbf A\)</button></div>
+<button class="tok o" data-k="eq2">\(=\)</button>
+<button class="tok s" data-k="zero">\(0\)</button>
+</div></div></section>
+<section class="cell"><div class="eqs"><div class="eq">
+<div class="g"><button class="tok e" data-k="curl">\(\nabla\!\times\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button></div>
+<button class="tok o" data-k="eq">\(=\)</button>
+<div class="g c"><button class="tok o" data-k="minus">\(-\)</button>
+<div class="fr"><div class="g"><button class="tok b" data-k="partial">\(\partial\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button></div><i class="bar"></i><div class="g"><button class="tok b" data-k="partial">\(\partial\)</button><button class="tok b" data-k="t">\(t\)</button></div></div></div>
+</div>
+<div class="eq i">
+<button class="tok o" data-k="thm">\(\Leftrightarrow\)</button>
+<div class="g"><button class="tok e" data-k="ointC">\(\oint_C\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dl">\(d\mathbf l\)</button></div>
+<button class="tok o" data-k="eq2">\(=\)</button>
+<div class="g c"><button class="tok o" data-k="minus">\(-\)</button>
+<div class="fr"><div class="g"><button class="tok b" data-k="ddt">\(d\)</button></div><i class="bar"></i><div class="g"><button class="tok b" data-k="ddt">\(d\)</button><button class="tok b" data-k="t">\(t\)</button></div></div>
+<div class="g"><button class="tok b" data-k="intS">\(\int_S\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dA">\(d\mathbf A\)</button></div></div>
+</div></div></section>
+<section class="cell"><div class="eqs"><div class="eq">
+<div class="g"><button class="tok b" data-k="curl">\(\nabla\!\times\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button></div>
+<button class="tok o" data-k="eq">\(=\)</button>
+<div class="g"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok s" data-k="J">\(\mathbf J\)</button></div>
+<button class="tok o" data-k="plus">\(+\)</button>
+<div class="g c"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok e" data-k="eps0">\(\varepsilon_0\)</button>
+<div class="fr"><div class="g"><button class="tok e" data-k="partial">\(\partial\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button></div><i class="bar"></i><div class="g"><button class="tok e" data-k="partial">\(\partial\)</button><button class="tok e" data-k="t">\(t\)</button></div></div></div>
+</div>
+<div class="eq i">
+<button class="tok o" data-k="thm">\(\Leftrightarrow\)</button>
+<div class="g"><button class="tok b" data-k="ointC">\(\oint_C\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dl">\(d\mathbf l\)</button></div>
+<button class="tok o" data-k="eq2">\(=\)</button>
+<div class="g"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok s" data-k="Ienc">\(I_{\mathrm{enc}}\)</button></div>
+<button class="tok o" data-k="plus">\(+\)</button>
+<div class="g c"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok e" data-k="eps0">\(\varepsilon_0\)</button>
+<div class="fr"><div class="g"><button class="tok e" data-k="ddt">\(d\)</button></div><i class="bar"></i><div class="g"><button class="tok e" data-k="ddt">\(d\)</button><button class="tok e" data-k="t">\(t\)</button></div></div>
+<div class="g"><button class="tok e" data-k="intS">\(\int_S\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button><button class="tok o" data-k="dot">\(\cdot\)</button><button class="tok s" data-k="dA">\(d\mathbf A\)</button></div></div>
+</div></div></section>
+<section class="cell"><div class="eqs"><div class="eq">
+<div class="g"><button class="tok e" data-k="lap">\(\nabla^{2}\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button></div>
+<button class="tok o" data-k="eq">\(=\)</button>
+<div class="g c"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok s" data-k="eps0">\(\varepsilon_0\)</button>
+<div class="fr"><div class="g"><button class="tok e" data-k="d2">\(\partial^{2}\)</button><button class="tok e" data-k="E">\(\mathbf E\)</button></div><i class="bar"></i><div class="g"><button class="tok e" data-k="d2">\(\partial\)</button><button class="tok e" data-k="t">\(t^{2}\)</button></div></div></div>
+</div>
+<div class="eq">
+<div class="g"><button class="tok b" data-k="lap">\(\nabla^{2}\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button></div>
+<button class="tok o" data-k="eqB">\(=\)</button>
+<div class="g c"><button class="tok s" data-k="mu0">\(\mu_0\)</button><button class="tok s" data-k="eps0">\(\varepsilon_0\)</button>
+<div class="fr"><div class="g"><button class="tok b" data-k="d2">\(\partial^{2}\)</button><button class="tok b" data-k="B">\(\mathbf B\)</button></div><i class="bar"></i><div class="g"><button class="tok b" data-k="d2">\(\partial\)</button><button class="tok b" data-k="t">\(t^{2}\)</button></div></div></div>
+</div>
+</div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+setTimeout(()=>document.body.classList.add('ready'),5000);
+(()=>{
+let ovOpen=false;const T=THREE,TAU=Math.PI*2,E=0xffb454,B=0x52d6ff,S=0xffe6f0;
+const R=new T.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.setClearColor(0,0);R.autoClear=false;
+const gt=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),r=x.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,'rgba(255,255,255,.5)');r.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=r;x.fillRect(0,0,64,64);return new T.CanvasTexture(c)})();
+const P=(n,c,s,o=1)=>{const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(new Float32Array(n*3),3));const p=new T.Points(g,new T.PointsMaterial({color:c,size:s,map:gt,transparent:true,opacity:o,depthWrite:false,blending:T.AdditiveBlending}));p.frustumCulled=false;return p};
+const L=(a,c,o)=>{const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(a,3));return new T.LineSegments(g,new T.LineBasicMaterial({color:c,transparent:true,opacity:o,blending:T.AdditiveBlending,depthWrite:false}))};
+const ring=(r,y,n=96)=>{const a=[];for(let i=0;i<n;i++){const u=i/n*TAU,v=(i+1)/n*TAU;a.push(r*Math.cos(u),y,r*Math.sin(u),r*Math.cos(v),y,r*Math.sin(v))}return a};
+const ball=(r,o)=>new T.LineSegments(new T.WireframeGeometry(new T.SphereGeometry(r,24,14)),new T.LineBasicMaterial({color:S,transparent:true,opacity:o,blending:T.AdditiveBlending,depthWrite:false}));
+const disc=(r,y,c)=>{const d=new T.Mesh(new T.CircleGeometry(r,48),new T.MeshBasicMaterial({color:c,transparent:true,opacity:0,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending}));d.rotation.x=Math.PI/2;d.position.y=y;return d};
+const mkpatch=(g,col)=>{const pp=P(1,col,.16,0),ln=L([0,0,0,0,0,0],col,0);g.add(pp,ln);return(x,y,z,nx,ny,nz,o)=>{pp.material.opacity=o;ln.material.opacity=o;let a=pp.geometry.attributes.position;a.setXYZ(0,x,y,z);a.needsUpdate=true;a=ln.geometry.attributes.position;a.setXYZ(0,x,y,z);a.setXYZ(1,x+nx,y+ny,z+nz);a.needsUpdate=true}};
+const tx=s=>window.MathJax&&MathJax.tex2svg?MathJax.tex2svg(s).outerHTML:s;
+const sprite=(txt,col,sz,badge)=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
+ if(badge){x.beginPath();x.arc(64,64,52,0,TAU);x.fillStyle='rgba(4,6,13,.78)';x.fill();x.lineWidth=7;x.strokeStyle=col;x.shadowColor=col;x.shadowBlur=14;x.stroke()}
+ x.font='700 '+(txt.length>1?48:badge?84:88)+'px Newsreader,Georgia,serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=badge?4:10;x.fillText(txt,64,badge?68:70);
+ const s=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));s.scale.set(sz,sz,1);return s};
+const tsp=(tex,col,h)=>{const s=new T.Sprite(new T.SpriteMaterial({transparent:true,opacity:0,depthTest:false,depthWrite:false}));s.visible=false;
+ if(!(window.MathJax&&MathJax.tex2svg))return s;
+ const sv=MathJax.tex2svg(tex).querySelector('svg'),vb=sv.getAttribute('viewBox').split(' ').map(Number),H=110,W=Math.max(8,Math.round(H*vb[2]/vb[3])),c=document.createElement('canvas');c.width=W+40;c.height=H+40;
+ sv.setAttribute('width',W);sv.setAttribute('height',H);sv.setAttribute('xmlns','http://www.w3.org/2000/svg');sv.removeAttribute('style');
+ const str=new XMLSerializer().serializeToString(sv).replace(/currentColor/g,col),map=new T.CanvasTexture(c),im=new Image();
+ im.onload=()=>{const x=c.getContext('2d');x.shadowColor=col;x.shadowBlur=16;x.drawImage(im,20,20,W,H);map.needsUpdate=true};
+ im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);
+ s.material.map=map;s.material.needsUpdate=true;s.scale.set(h*c.width/c.height,h,1);return s};
+const mkLabs=(g,sp)=>{const it=sp.map(([k,tex,col,h,a])=>{const s=tsp(tex,col,h);g.add(s);return[k,s,a]});return w=>it.forEach(([k,s,a])=>{const o=Math.min(1,w(k)*1.15);s.visible=o>.02;if(s.visible){s.material.opacity=o;const p=a();s.position.set(p[0],p[1],p[2])}})};
+const cells=[...document.querySelectorAll('.cell')],scenes=[];
+const mk=(i,build)=>{const s=new T.Scene(),g=new T.Group();g.position.y=.4;s.add(g);const cam=new T.PerspectiveCamera(42,1,.1,50);cam.position.set(0,.2,5.6);cam.lookAt(0,0,0);const o={el:cells[i],box:cells[i].querySelector('.eqs'),s,g,cam,act:new Set(),w:{}};o.wf=k=>o.w[k]||0;o.u=build(g);scenes.push(o)};
+
+/* I — ∇·E = ρ/ε₀ */
+mk(0,g=>{
+ const N=56,d=[],seg=[];
+ for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),a=i*2.39996323;d.push([r*Math.cos(a),y,r*Math.sin(a)])}
+ d.forEach(v=>seg.push(v[0]*.15,v[1]*.15,v[2]*.15,v[0]*1.6,v[1]*1.6,v[2]*1.6));
+ const fl=L(seg,E,.22),gs=ball(1,.07),halo=P(1,E,1.5,.45),core=P(1,S,.5);g.add(fl,gs,halo,core);g.add(sprite('+','#ffd08a',.42,true));const pa=mkpatch(g,S);
+ const k=4,p=P(N*k,E,.06);g.add(p);
+ const dn=140,dp=P(dn,S,.04,0),db=[...Array(dn)].map(()=>{const u=Math.random()*TAU,v=Math.acos(2*Math.random()-1),r=.2+Math.cbrt(Math.random())*1.4;return[r*Math.sin(v)*Math.cos(u),r*Math.cos(v),r*Math.sin(v)*Math.sin(u)]});g.add(dp);
+ let ph=0;
+ return(t,dt,w)=>{
+  fl.material.opacity=.22+.5*w('E');gs.material.opacity=.07+.25*w('div')+.5*w('sph')+.12*w('sph')*Math.sin(t*5);
+  p.material.size=.06+.05*w('E')+.03*w('div')+.04*w('flux');
+  {const u=t*.6,nx=Math.cos(u)*.8,ny=Math.sin(u*.7)*.6,nz=Math.sin(u)*.8,nl=Math.hypot(nx,ny,nz);pa(nx/nl,ny/nl,nz/nl,nx/nl*.4,ny/nl*.4,nz/nl*.4,.95*w('dA'))}
+  core.material.size=.5+.6*w('rho')+.1*w('rho')*Math.sin(t*5);halo.material.size=1.5+1.6*w('rho');halo.material.opacity=.45+.4*w('rho');
+  dp.material.opacity=.7*w('eps0');
+  ph+=dt*(.22+.3*w('div'));
+  let a=p.geometry.attributes.position,j=0;
+  for(let i=0;i<N;i++)for(let m=0;m<k;m++){const r=.15+((ph+m/k+i*.137)%1)*1.45;a.setXYZ(j++,d[i][0]*r,d[i][1]*r,d[i][2]*r)}a.needsUpdate=true;
+  a=dp.geometry.attributes.position;db.forEach((v,i)=>a.setXYZ(i,v[0]+.05*Math.sin(t*.7+i),v[1]+.05*Math.cos(t*.6+i*1.3),v[2]+.05*Math.sin(t*.5+i*.7)));a.needsUpdate=true}
+});
+
+/* II — ∇·B = 0 */
+mk(1,g=>{
+ const Ls=[.5,.85,1.2,1.55],nf=12,lp=[],seg=[];
+ const pt=(l,th,ph)=>{const r=l*Math.sin(th)**2;return[r*Math.sin(th)*Math.cos(ph),r*Math.cos(th),r*Math.sin(th)*Math.sin(ph)]};
+ Ls.forEach(l=>{for(let f=0;f<nf;f++){const ph=f/nf*TAU+l;lp.push([l,ph]);let q=pt(l,.001,ph);for(let i=1;i<=60;i++){const n=pt(l,i/60*Math.PI,ph);seg.push(...q,...n);q=n}}});
+ const ll=L(seg,B,.2),sp=ball(.8,.04),k=3,p=P(lp.length*k,B,.055);g.add(ll,sp,P(1,B,1.2,.4),p);const pa=mkpatch(g,S);
+ return(t,dt,w)=>{
+  ll.material.opacity=.2+.5*w('B');p.material.size=.055+.05*w('B');
+  sp.material.opacity=.04+.4*w('sph')+.15*w('sph')*Math.sin(t*4);
+  {const u=t*.6,nx=Math.cos(u)*.8,ny=Math.sin(u*.7)*.6,nz=Math.sin(u)*.8,nl=Math.hypot(nx,ny,nz);pa(nx/nl*.8,ny/nl*.8,nz/nl*.8,nx/nl*.4,ny/nl*.4,nz/nl*.4,.95*w('dA'))}
+  const a=p.geometry.attributes.position;let j=0;
+  lp.forEach(([l,ph],i)=>{for(let m=0;m<k;m++){const f=(t*.1+m/k+i*.071)%1;a.setXYZ(j++,...pt(l,Math.PI*(1-f),ph))}});
+  a.needsUpdate=true}
+});
+
+/* III — ∇×E = −∂B/∂t */
+mk(2,g=>{
+ const ys=[-.8,0,.8],rs=[.6,1,1.4],n=22,seg=[];
+ ys.forEach(y=>rs.forEach(r=>seg.push(...ring(r,y))));
+ const rl=L(seg,E,.14),lq=L(ring(1,0),E,0),sd=disc(1,0,B),pa=mkpatch(g,E);
+ const col=[];for(let i=0;i<8;i++){const a=i/8*TAU,x=.28*Math.cos(a),z=.28*Math.sin(a);col.push(x,-1.5,z,x,1.5,z)}
+ const cl=L(col,B,.2),bp=P(60,B,.06),ep=P(ys.length*rs.length*n,E,.06);g.add(rl,lq,sd,cl,bp,ep);
+ const bs=[...Array(60)].map(()=>({a:Math.random()*TAU,r:Math.sqrt(Math.random())*.28,y:Math.random()*3-1.5}));
+ const es=[];ys.forEach(y=>rs.forEach(r=>{for(let m=0;m<n;m++)es.push({y,r,a:m/n*TAU})}));let ang=0;
+ return(t,dt,w)=>{const c=Math.cos(t*.9),s=Math.sin(t*.9);
+  rl.material.opacity=.06+.22*Math.abs(c)+.45*w('ring');lq.material.opacity=.9*w('lp');sd.material.opacity=.22*w('disc')+.06*w('disc')*Math.sin(t*4);ang+=c*dt*1.1;pa(Math.cos(ang),0,Math.sin(ang),-Math.sin(ang)*.35,0,Math.cos(ang)*.35,.95*w('dl'));
+  cl.material.opacity=.08+.3*Math.abs(s)*(1+1.5*w('pulse'))+.35*w('col');
+  ep.material.size=.06+.05*w('ep');bp.material.size=.06+.05*w('bp')+.03*w('pulse');
+  let a=bp.geometry.attributes.position;
+  bs.forEach((o,i)=>{o.y+=s*dt*.9;if(o.y>1.5)o.y-=3;if(o.y<-1.5)o.y+=3;a.setXYZ(i,o.r*Math.cos(o.a),o.y,o.r*Math.sin(o.a))});a.needsUpdate=true;
+  a=ep.geometry.attributes.position;
+  es.forEach((o,i)=>{o.a+=c*dt*1.1;a.setXYZ(i,o.r*Math.cos(o.a),o.y,o.r*Math.sin(o.a))});a.needsUpdate=true}
+});
+
+/* IV — ∇×B = μ₀J + μ₀ε₀ ∂E/∂t */
+mk(3,g=>{
+ const wire=L([0,-1.75,0,0,-.55,0,0,.55,0,0,1.75,0],S,.55),pl=[],ds=[];g.add(wire);
+ [-.55,.55].forEach(y=>{const r=L(ring(.95,y,72),S,.45);pl.push(r);const d=new T.Mesh(new T.CircleGeometry(.95,48),new T.MeshBasicMaterial({color:S,transparent:true,opacity:.05,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending}));d.rotation.x=Math.PI/2;d.position.y=y;ds.push(d);g.add(r,d)});
+ const rg=[[-1.2,.45],[-1.2,.8],[0,1.25],[0,.85],[1.2,.45],[1.2,.8]],m=20,seg=[];
+ rg.forEach(([y,r])=>seg.push(...ring(r,y)));
+ const bl=L(seg,B,.2),bp=P(rg.length*m,B,.06),jp=P(36,S,.07),ep=P(48,E,.06),rI=L(ring(.8,-1.2),B,0),rE=L(ring(.85,0),B,0),dI=disc(.8,-1.2,S),dE=disc(.85,0,E);g.add(bl,bp,jp,ep,rI,rE,dI,dE);
+ const es=[...Array(48)].map(()=>({u:Math.random(),a:Math.random()*TAU,r:Math.sqrt(Math.random())*.8}));
+ return(t,dt,w)=>{
+  bl.material.opacity=.2+.5*w('bring');bp.material.size=.06+.05*w('bp')+.03*w('bring');jp.material.size=.07+.05*w('jp');ep.material.size=.06+.05*w('ep');
+  wire.material.opacity=.55+.4*w('jp')+.4*w('wire');rI.material.opacity=.9*w('rimI');rE.material.opacity=.9*w('rimE');dI.material.opacity=.2*w('diskI');dE.material.opacity=.2*w('diskE');pl.forEach(r=>r.material.opacity=.45+.45*w('plates'));ds.forEach(d=>d.material.opacity=.05+.2*w('plates'));
+  let a=bp.geometry.attributes.position,j=0;
+  rg.forEach(([y,r])=>{for(let i=0;i<m;i++){const q=-t*.9+i/m*TAU;a.setXYZ(j++,r*Math.cos(q),y,r*Math.sin(q))}});a.needsUpdate=true;
+  a=jp.geometry.attributes.position;
+  for(let i=0;i<36;i++){const f=(t*.3+(i%18)/18)%1;a.setXYZ(i,0,i<18?-1.75+f*1.2:.55+f*1.2,0)}a.needsUpdate=true;
+  a=ep.geometry.attributes.position;
+  es.forEach((o,i)=>a.setXYZ(i,o.r*Math.cos(o.a),-.55+((t*.25+o.u)%1)*1.1,o.r*Math.sin(o.a)));a.needsUpdate=true}
+});
+
+/* V — wave equation: E = E0 cos(kx − ωt) ŷ, B = B0 cos(kx − ωt) ẑ, with B0 = E0/c */
+const WK=TAU/2.4,WW=WK*1.1;
+const mkAxes=(g,X,Y,Z)=>[[0xffffff,[-X,0,0,X,0,0]],[0xffb454,[0,-Y,0,0,Y,0]],[0x52d6ff,[0,0,-Z,0,0,Z]]].forEach(([c,a],i)=>{g.add(L(a,c,.5));const m=new T.Mesh(new T.ConeGeometry(.06,.2,12),new T.MeshBasicMaterial({color:c,transparent:true,opacity:.7}));m.position.set(a[3],a[4],a[5]);m.rotation.set(i===2?Math.PI/2:0,0,i===0?-Math.PI/2:0);g.add(m);
+ const s=sprite('xyz'[i],'#'+c.toString(16).padStart(6,'0'),.34);s.position.set(a[3]+(i===0?.35:0),a[4]+(i===1?.3:0),a[5]+(i===2?.3:0));g.add(s)});
+const mkWave=(g,N,X0,X1)=>{const xs=[...Array(N)].map((_,i)=>X0+(X1-X0)*i/(N-1));
+ const bf=n=>{const a=new Float32Array(n*3),q=new T.BufferGeometry();q.setAttribute('position',new T.BufferAttribute(a,3));return[q,a]};
+ const one=(col,vert)=>{const[sg,sa]=bf(N*2),[cg,ca]=bf(N),[rg,ra]=bf(N*2),[tg_,ta]=bf(N),M=o=>new T.LineBasicMaterial({color:col,transparent:true,opacity:o,blending:T.AdditiveBlending,depthWrite:false}),ix=[];
+  for(let i=0;i<N-1;i++){const a=i*2;ix.push(a,a+1,a+2,a+1,a+3,a+2)}rg.setIndex(ix);
+  const stems=new T.LineSegments(sg,M(.4)),curve=new T.Line(cg,M(.9)),rib=new T.Mesh(rg,new T.MeshBasicMaterial({color:col,transparent:true,opacity:.14,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending})),tips=new T.Points(tg_,new T.PointsMaterial({color:col,size:.07,map:gt,transparent:true,opacity:.9,depthWrite:false,blending:T.AdditiveBlending}));
+  [stems,curve,rib,tips].forEach(o=>{o.frustumCulled=false;g.add(o)});
+  return{stems,curve,rib,tips,set(t,A){xs.forEach((x,i)=>{const v=A*Math.cos(WK*x-WW*t),y=vert?v:0,z=vert?0:v;sa.set([x,0,0,x,y,z],i*6);ca.set([x,y,z],i*3);ra.set([x,0,0,x,y,z],i*6);ta.set([x,y,z],i*3)});[sg,cg,rg,tg_].forEach(q=>q.attributes.position.needsUpdate=true)}}};
+ return{e:one(E,true),b:one(B,false)}};
+mk(4,g=>{
+ const W=mkWave(g,70,-2.3,2.3),pp=P(40,S,.06,.7),pr=P(2,0xffffff,.16,.9);mkAxes(g,2.7,1.3,1.3);g.add(pp,pr);
+ return(t,dt,w)=>{g.rotation.y=.6+.3*Math.sin(t*.2);g.scale.setScalar(innerWidth<760?.55:1);
+  W.e.set(t,.9);W.b.set(t,.9);
+  [[W.e,'E'],[W.b,'B']].forEach(([o,k])=>{o.curve.material.opacity=.7+.3*w(k);o.stems.material.opacity=.3+.4*w(k);o.rib.material.opacity=.12+.2*w(k);o.tips.material.size=.06+.05*w(k)});
+  let a=pp.geometry.attributes.position;for(let i=0;i<40;i++)a.setXYZ(i,-2.3+((t*.23+i/40)%1)*4.6,.05*Math.sin(i*5.3),.05*Math.cos(i*3.7));a.needsUpdate=true;pp.material.size=.06+.05*w('pp');
+  a=pr.geometry.attributes.position;a.setXYZ(0,0,.9*Math.cos(WW*t),0);a.setXYZ(1,0,0,.9*Math.cos(WW*t));a.needsUpdate=true;pr.material.size=.16+.2*w('pr')}
+});
+
+/* explainer: [name, units, meaning] per symbol, plus which scene elements light up */
+const DEF=[{
+ div:['Divergence','','Net outflow per volume. Positive where lines start, negative where they end.'],
+ E:['Electric field','\\mathrm{V/m}','Push per unit charge.'],
+ eq:['Equals','','Charge alone fixes how E spreads out.'],
+ rho:['Charge density','\\mathrm{C/m^3}','Charge per volume. + is a source of E, \u2212 is a sink.'],
+ eps0:['Vacuum permittivity','\\approx 8.854\\times10^{-12}\\ \\mathrm{F/m}','How much field each charge makes.'],
+ thm:['Divergence theorem','','Sum of \u2207\u00b7E over a volume = flux through its skin.'],
+ oint:['Closed surface integral','','Sum over every patch of S.'],
+ dot:['Dot product','','Keeps only the part of E going through the patch.'],
+ dA:['Area element','','Tiny patch. Arrow points outward.'],
+ eq2:['Equals','','Net flux out = enclosed charge / \u03b5\u2080. Shape of S is irrelevant.'],
+ Q:['Enclosed charge','\\mathrm{C}','Charge inside S only. Outside charge nets zero.']
+},{
+ div:['Divergence','','Net outflow per volume. Always 0 here.'],
+ B:['Magnetic field','\\mathrm{T}','Bends moving charge: F = qv\u00d7B.'],
+ eq:['Equals','','No point is a source or sink of B.'],
+ zero:['Zero','','Lines never start or end. No monopole.'],
+ thm:['Divergence theorem','','Zero inside \u21d2 zero net flux through S.'],
+ oint:['Closed surface integral','','Sum over all of S. What leaves returns.'],
+ dot:['Dot product','','Only the part of B through the patch counts.'],
+ dA:['Area element','','Tiny patch. Arrow points outward.'],
+ eq2:['Equals','','Flux in = flux out, for any S.']
+},{
+ curl:['Curl','','Circulation per area. A paddle wheel spins.'],
+ E:['Induced electric field','\\mathrm{V/m}','Swirls round changing B. Pushes current.'],
+ eq:['Equals','','Swirl of E = rate of change of B.'],
+ minus:['Minus sign','','Lenz: induced E opposes the change.'],
+ partial:['Partial derivative','','Change in time at one spot.'],
+ B:['Magnetic field','\\mathrm{T}','Rises and falls inside the coil.'],
+ t:['Time','\\mathrm{s}','How fast B changes.'],
+ thm:['Stokes\u2019 theorem','','Curl over S = circulation round C.'],
+ ointC:['Closed loop integral','','Sum along every step of loop C.'],
+ dot:['Dot product','','Part along the path, or through the patch.'],
+ dl:['Path element','','Tiny step along C.'],
+ eq2:['Equals','','Loop voltage = \u2212rate of change of flux. Faraday.'],
+ ddt:['Time derivative','','Rate of change of flux through S.'],
+ intS:['Surface integral','\\mathrm{Wb}','Sum of B\u00b7dA over disc S = flux \u03a6.'],
+ dA:['Area element','','Tiny patch of S. Arrow is its normal.']
+},{
+ curl:['Curl','','B circulates round current and changing E.'],
+ B:['Magnetic field','\\mathrm{T}','Circles the wire and the gap.'],
+ eq:['Equals','','Two sources add: current + changing E.'],
+ mu0:['Vacuum permeability','\\approx 1.257\\times10^{-6}\\ \\mathrm{H/m}','Magnetic strength per source.'],
+ J:['Current density','\\mathrm{A/m^2}','Charge flow per area, along the wire.'],
+ plus:['Plus','','Wire carries J. Gap carries \u2202E/\u2202t.'],
+ eps0:['Vacuum permittivity','\\approx 8.854\\times10^{-12}\\ \\mathrm{F/m}','With \u03bc\u2080: \u03bc\u2080\u03b5\u2080 = 1/c\u00b2.'],
+ partial:['Partial derivative','','Change of E in time: displacement current.'],
+ E:['Electric field','\\mathrm{V/m}','Grows between the plates as they charge.'],
+ t:['Time','\\mathrm{s}','How fast E changes.'],
+ thm:['Stokes\u2019 theorem','','Curl over S = circulation round C.'],
+ ointC:['Closed loop integral','','Sum of B along every step of C.'],
+ dot:['Dot product','','Part along the path, or through the patch.'],
+ dl:['Path element','','Tiny step along C.'],
+ eq2:['Equals','','Circulation = current + changing E flux.'],
+ Ienc:['Enclosed current','\\mathrm{A}','Current through S\u2081, the disc the wire pierces.'],
+ ddt:['Time derivative','','Rate of change of E flux through S\u2082.'],
+ intS:['Surface integral','','E flux through S\u2082, the bag with no wire.'],
+ dA:['Area element','','Tiny patch of S. Arrow is its normal.']
+},{
+ lap:['Laplacian','','Total spatial curvature of the field. Negative at a crest, positive in a trough.'],
+ E:['Electric field','\\mathrm{V/m}','Amber wave. Points along y, at right angles to the travel direction.'],
+ B:['Magnetic field','\\mathrm{T}','Cyan wave. Points along z, at right angles to both E and the travel direction.'],
+ eq:['Equals (E form)','','Changing B makes E, changing E makes B. The pair carries itself. Press Derivation (top bar) for the full derivation.'],
+ eqB:['Equals (B form)','','Same wave equation, derived by curling Amp\u00e8re\u2013Maxwell instead of Faraday.'],
+ mu0:['Vacuum permeability','\\approx 1.257\\times10^{-6}\\ \\mathrm{H/m}','How strongly changing E makes B.'],
+ eps0:['Vacuum permittivity','\\approx 8.854\\times10^{-12}\\ \\mathrm{F/m}','With \u03bc\u2080: \u03bc\u2080\u03b5\u2080 = 1/c\u00b2.'],
+ d2:['Second time derivative','','Acceleration of the field at one spot. It pulls the field back toward zero.'],
+ t:['Time','\\mathrm{s}','Watch one spot: the field swings up, down, up.'],
+
+}];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* detailed explanations for the expanded view, same keys as DEF.
+   mo(meaning, inTheScene, keyRelation): text may contain $inline math$ and **bold**; keyRelation is display LaTeX */
+const rw=String.raw,mo=(m,s,f)=>({m,s,f});
+const MORE=[{
+ div:mo(rw`The divergence $\nabla\!\cdot$ asks, at one point: **is the field spreading out from here, or converging into here?** It totals the field leaving a tiny box around the point, per unit volume. Positive means a **source** (field lines begin), negative a **sink** (lines end), zero means lines simply pass through.`,
+  rw`Field lines start on the amber positive charges and end on the cyan negative ones. The label $\nabla\!\cdot\mathbf E>0$ marks a spot where lines begin; in empty space between the charges the lines just flow through.`,
+  rw`\nabla\!\cdot\mathbf E=\frac{\partial E_x}{\partial x}+\frac{\partial E_y}{\partial y}+\frac{\partial E_z}{\partial z}`),
+ E:mo(rw`A vector at every point giving the **force per unit charge**: the push a +1 C test charge would feel. Its direction is the way a positive charge would be pushed and its length is the strength. A point charge makes a field that falls off as $1/r^2$.`,
+  rw`The amber lines are $\mathbf E$. Each one leaves a positive charge and ends on a negative one; where lines crowd together the field is stronger.`,
+  rw`\mathbf F=q\,\mathbf E,\qquad \mathbf E=\frac{1}{4\pi\varepsilon_0}\frac{q}{r^2}\,\hat{\mathbf r}`),
+ eq:mo(rw`The equals sign is the physics. How much the field spreads out at a point is **not independent**: it is fixed entirely by the charge density right there. Charge here means spreading here; no charge means no net spreading, whatever happens elsewhere.`,
+  rw`Lines begin only inside the charge clouds. Between the clouds, as many lines enter any small region as leave it, so the divergence there is zero.`),
+ rho:mo(rw`**Charge per unit volume** at a point. A diffuse cloud has a $\rho$ that varies from place to place, while a point charge is an infinitely sharp spike. Positive $\rho$ is a source of field lines and negative $\rho$ a sink. Adding up $\rho$ over a region gives the total charge in it.`,
+  rw`The glowing dust around each charge is $\rho$: denser, brighter dust means more charge in that volume.`,
+  rw`Q_{\mathrm{enc}}=\int_V\rho\,dV`),
+ eps0:mo(rw`A constant of nature that sets **how strongly charge produces field** in empty space. Its small value means even a little charge makes a large field. It also ties electricity to light through $c^2=1/(\mu_0\varepsilon_0)$.`,
+  rw`It is the scale factor between charge and flux, so it does not move. The scene uses units where $1/4\pi\varepsilon_0=1$, so a charge $q$ sends out $4\pi q$ units of flux.`,
+  rw`\frac{1}{4\pi\varepsilon_0}\approx 8.99\times10^{9}\ \mathrm{N\,m^2/C^2}`),
+ thm:mo(rw`Add up the tiny local outflows $\nabla\!\cdot\mathbf E$ throughout a volume and you get exactly the **total field passing out through its skin**. That is why the local law (a statement at each point) and the global law (a statement about a whole surface) are the same law.`,
+  rw`The left side lives inside the lumpy surface $S$ and the right side on its skin. The surface glows amber where field leaves and cyan where it enters.`,
+  rw`\int_V(\nabla\!\cdot\mathbf E)\,dV=\oint_S\mathbf E\cdot d\mathbf A`),
+ oint:mo(rw`The circle on the integral sign says $S$ is a **closed surface**, with a clear inside and outside, like a balloon. Cut $S$ into small patches, work out $\mathbf E\cdot d\mathbf A$ for each one, and add them all up.`,
+  rw`$S$ can be any shape. An outside charge orbits it: watch the amber exit points and cyan entry points shift, while their net stays tied to what is inside.`,
+  rw`\oint_S\mathbf E\cdot d\mathbf A\approx\sum_{\text{patches}}\mathbf E\cdot\Delta\mathbf A`),
+ dot:mo(rw`The dot product keeps only the part of $\mathbf E$ that points **through** the patch: $E\,dA\cos\theta$. Field sliding along the surface ($\theta=90^\circ$) contributes nothing. Going out counts as positive and coming in as negative.`,
+  rw`On each sampled patch the white arrow is $d\mathbf A$, the amber arrow is $\mathbf E$, and the pale arrow is the piece of $\mathbf E$ along $d\mathbf A$: the part that counts.`,
+  rw`\mathbf E\cdot d\mathbf A=E\,dA\cos\theta`),
+ dA:mo(rw`A tiny patch of the surface written as a **vector**: its length is the patch's area and its direction is the outward normal, perpendicular to the surface and pointing away from the inside. One symbol carries both size and orientation.`,
+  rw`The short white arrows on $S$ are $d\mathbf A$. They always point outward, however the surface bends.`,
+  rw`d\mathbf A=\hat{\mathbf n}\,dA`),
+ eq2:mo(rw`Total flux out of $S$ equals the **enclosed charge divided by $\varepsilon_0$**, and nothing else matters. A charge outside $S$, however strong, sends as much flux in as out, so it cancels. Reshape $S$ as you like: the answer changes only when a charge crosses the surface.`,
+  rw`Amber dots mark where lines exit $S$ and cyan dots where they enter. The net exit count follows the charge inside, while the orbiting outside charge adds equal exits and entries.`,
+  rw`\oint_S\mathbf E\cdot d\mathbf A=\frac{Q_{\mathrm{enc}}}{\varepsilon_0}`),
+ Q:mo(rw`The sum of every charge strictly **inside** $S$: positives add and negatives subtract. Charges outside contribute nothing to the net flux, even if they sit right beside the surface.`,
+  rw`Several positive and negative charges sit inside $S$ and their net sets the flux. The two charges outside are ignored.`,
+  rw`Q_{\mathrm{enc}}=\sum_{\text{inside}}q_i=\int_V\rho\,dV`)
+},{
+ div:mo(rw`The same divergence operation, now applied to $\mathbf B$: do magnetic field lines **start or end** at this point? For $\mathbf B$ the answer is always no.`,
+  rw`Every line in the scene is a closed loop: through the magnet, out of one end, round the outside and back in. None begins or ends, so the divergence is zero everywhere.`,
+  rw`\nabla\!\cdot\mathbf B=\frac{\partial B_x}{\partial x}+\frac{\partial B_y}{\partial y}+\frac{\partial B_z}{\partial z}=0`),
+ B:mo(rw`The magnetic field bends moving charges and turns compass needles. The force $q\mathbf v\times\mathbf B$ is always sideways to the motion, so it **steers but never speeds up** a charge. It is measured in tesla (T).`,
+  rw`The lines are the field of a bar magnet, modeled as a stack of current loops so that it is exactly divergence-free. The iron filings behind it line up along $\mathbf B$.`,
+  rw`\mathbf F=q\,\mathbf v\times\mathbf B`),
+ eq:mo(rw`No point in space is a source or a sink of $\mathbf B$. Compare Gauss's law for $\mathbf E$, where the right side is the charge density $\rho/\varepsilon_0$: here there is no magnetic charge to put there.`,
+  rw`Lines of $\mathbf E$ begin and end on charges. Lines of $\mathbf B$ never begin or end.`),
+ zero:mo(rw`The right side is exactly $0$ because **no magnetic monopole** (an isolated N or S pole) has ever been found. Cut a magnet in half and you get two smaller magnets, each with both poles. A discovered monopole would turn this $0$ into a magnetic charge density.`,
+  rw`The N and S ends of the magnet are not sources. Inside the magnet the lines run from S to N, then close their loops outside.`),
+ thm:mo(rw`If $\nabla\!\cdot\mathbf B=0$ at every point inside a volume, the **total flux through its skin must be zero** too. The local statement (no sources) and the global statement (flux in equals flux out) are one and the same.`,
+  rw`The lumpy surface $S$ wraps one end of the magnet. It glows pink where $\mathbf B$ leaves and cyan where $\mathbf B$ enters.`,
+  rw`\int_V(\nabla\!\cdot\mathbf B)\,dV=\oint_S\mathbf B\cdot d\mathbf A=0`),
+ oint:mo(rw`Add $\mathbf B\cdot d\mathbf A$ over every patch of a **closed** surface. Because field lines form closed loops, whatever flux leaves through one part of $S$ must come back in through another.`,
+  rw`Pink dots show where lines leave $S$ and cyan dots where they re-enter. Every line that leaves has to return.`,
+  rw`\oint_S\mathbf B\cdot d\mathbf A\approx\sum_{\text{patches}}\mathbf B\cdot\Delta\mathbf A`),
+ dot:mo(rw`Only the part of $\mathbf B$ that points **through** the patch counts: $B\,dA\cos\theta$. Field running along the surface adds nothing. Out is positive and in is negative.`,
+  rw`On each sampled patch the white arrow is $d\mathbf A$, the cyan arrow is $\mathbf B$, and the pink arrow is the part of $\mathbf B$ along $d\mathbf A$.`,
+  rw`\mathbf B\cdot d\mathbf A=B\,dA\cos\theta`),
+ dA:mo(rw`A tiny patch of the surface written as a **vector**: its length is the patch's area and its direction is the outward normal, pointing away from the inside.`,
+  rw`The short white arrows on $S$ are $d\mathbf A$, all pointing outward.`,
+  rw`d\mathbf A=\hat{\mathbf n}\,dA`),
+ eq2:mo(rw`Flux in equals flux out for **any** closed surface: around the N pole, around the S pole, around the whole magnet, or in empty space. It is the statement that field lines have no loose ends.`,
+  rw`Lines cross $S$ in both directions: some leave around the magnet's end and others come back in. The totals always balance.`,
+  rw`\oint_S\mathbf B\cdot d\mathbf A=0`)
+},{
+ curl:mo(rw`Curl measures how much a field **swirls** around a point. Picture a tiny paddle wheel placed there: if the field pushes harder on one side than the other, the wheel spins. Here it asks whether $\mathbf E$ circulates, and the equation says it does exactly when $\mathbf B$ is changing.`,
+  rw`The small paddle wheels spin because $\mathbf E$ circulates around the coil's axis. Their spin direction flips as $\mathbf B$ changes from rising to falling.`,
+  rw`(\nabla\times\mathbf E)_z=\frac{\partial E_y}{\partial x}-\frac{\partial E_x}{\partial y}`),
+ E:mo(rw`This $\mathbf E$ is not like the field of static charges. It forms **closed loops** around the changing $\mathbf B$, and it is what pushes current round a wire loop that has no battery. It exerts the usual force $q\mathbf E$ on charges.`,
+  rw`The amber arrows circle the coil's axis. They grow with distance inside the coil's core and fade like $1/r$ outside it.`,
+  rw`\mathbf F=q\,\mathbf E\quad\text{with}\quad\oint\mathbf E\cdot d\mathbf l\neq0`),
+ eq:mo(rw`The swirl of $\mathbf E$ at a point equals the **rate of change** of $\mathbf B$ there, with a minus sign. A steady magnet, however strong, induces nothing: only change does.`,
+  rw`$\mathbf E$ is strongest when $\mathbf B$ passes through zero, because that is when it changes fastest. It vanishes at the peaks of $\mathbf B$, where it momentarily stops changing.`),
+ minus:mo(rw`The minus sign is **Lenz's law**: the induced field drives a current whose own magnetic field opposes the change that caused it. If $\mathbf B$ is growing upward, the induced current tries to make a field pointing downward. Without the sign, energy conservation would fail.`,
+  rw`When $\mathbf B$ is rising the amber arrows circulate one way, and when it is falling they reverse. Each time they oppose the change.`),
+ partial:mo(rw`$\partial\mathbf B/\partial t$ means: stand still at one spot and ask **how fast $\mathbf B$ is changing in time** there. The curly $\partial$ signals that $\mathbf B$ also depends on position, but only time is being varied.`,
+  rw`The cyan flow inside the coil swells and fades with the field. $\partial\mathbf B/\partial t$ is how quickly that strength is changing at any instant.`,
+  rw`\frac{\partial\mathbf B}{\partial t}=\lim_{\Delta t\to0}\frac{\mathbf B(t+\Delta t)-\mathbf B(t)}{\Delta t}`),
+ B:mo(rw`The magnetic field threading the loop. It is made by the coil (the pink helix) carrying an alternating current, runs along the axis, and is strong inside the core and weak outside.`,
+  rw`Cyan lines run through the coil's core and loop back round the outside, swelling and fading with the current.`),
+ t:mo(rw`Faraday's law links $\mathbf E$ at one moment to how $\mathbf B$ is changing at that same moment. The coil current here is sinusoidal, so $\mathbf B$ rises, peaks, falls and reverses in a regular cycle.`,
+  rw`By default the field oscillates at 0.5 Hz, about one full cycle every two seconds.`),
+ thm:mo(rw`Zoom out from many tiny paddle wheels to one big loop: the swirls inside **cancel in pairs**, leaving only the circulation round the edge. So the total curl over a surface $S$ equals the circulation of the field round its boundary $C$.`,
+  rw`The gold ring is the loop $C$, and the faint cyan disc inside it is the surface $S$ that it bounds.`,
+  rw`\int_S(\nabla\times\mathbf E)\cdot d\mathbf A=\oint_C\mathbf E\cdot d\mathbf l`),
+ ointC:mo(rw`Walk once round the loop $C$ and, at each step, add the part of $\mathbf E$ pointing along your direction of travel. A non-zero total means $\mathbf E$ pushes charge around the loop: an **electromotive force** (EMF), measured in volts.`,
+  rw`The amber bulb on the ring glows brighter as the loop voltage grows, and amber dots drift round the ring as current.`,
+  rw`\mathcal E=\oint_C\mathbf E\cdot d\mathbf l`),
+ dot:mo(rw`The dot product appears twice. On the left, $\mathbf E\cdot d\mathbf l$ keeps the part of $\mathbf E$ **along** the path; on the right, $\mathbf B\cdot d\mathbf A$ keeps the part of $\mathbf B$ **through** the surface.`,
+  rw`The induced $\mathbf E$ is tangent to the ring, so every step along $C$ counts in full, while $\mathbf B$ runs straight through the disc.`,
+  rw`\mathbf E\cdot d\mathbf l=E\,dl\cos\theta\qquad \mathbf B\cdot d\mathbf A=B\,dA\cos\theta`),
+ dl:mo(rw`A tiny step along $C$, written as a vector pointing the way you walk. Its direction also fixes $d\mathbf A$ by the **right-hand rule**: curl your fingers along $C$ and your thumb points along the positive normal.`,
+  rw`The white arrows on the ring are $d\mathbf l$.`,
+  rw`d\mathbf l=\hat{\mathbf t}\,dl`),
+ eq2:mo(rw`Loop voltage equals minus the rate of change of the **magnetic flux** through the loop. This is Faraday's law of induction, the principle behind generators, transformers and induction cooktops.`,
+  rw`The faster the flux changes, the brighter the bulb. At the peaks of $\mathbf B$ the flux is momentarily steady and the bulb dims.`,
+  rw`\mathcal E=\oint_C\mathbf E\cdot d\mathbf l=-\frac{d\Phi_B}{dt}`),
+ ddt:mo(rw`The rate of change of the total flux. It is written $d/dt$ rather than $\partial/\partial t$ because once you integrate over the surface the dependence on position is gone. Moving or reshaping the loop would change the flux too, and this covers that as well.`,
+  rw`Here the loop's area is fixed, so only the strength of $\mathbf B$ makes the flux change.`,
+  rw`\frac{d\Phi_B}{dt}`),
+ intS:mo(rw`Add $\mathbf B\cdot d\mathbf A$ over the open disc $S$ spanned by the loop to get the **magnetic flux** $\Phi_B$: a count of how many field lines thread the loop. Its unit is the weber (1 Wb = 1 T$\cdot$m$^2$).`,
+  rw`The cyan disc inside the ring is $S$. The field lines through the coil's core pass through it.`,
+  rw`\Phi_B=\int_S\mathbf B\cdot d\mathbf A=BA\quad(\mathbf B\perp\text{loop, uniform})`),
+ dA:mo(rw`A tiny patch of the open surface $S$, written as a vector along its normal. Which of the two normals counts as positive is decided by the right-hand rule, using the direction of $C$.`,
+  rw`The white arrows on the disc are $d\mathbf A$, all pointing up.`,
+  rw`d\mathbf A=\hat{\mathbf n}\,dA`)
+},{
+ curl:mo(rw`Does $\mathbf B$ **circulate** around this point? Ampère found that it circulates around an electric current. Maxwell added a second cause: a **changing electric field** also makes $\mathbf B$ circulate.`,
+  rw`Cyan rings circle the wire and also circle through the gap between the plates, where there is no wire.`,
+  rw`\nabla\times\mathbf B=\mu_0\Big(\mathbf J+\varepsilon_0\frac{\partial\mathbf E}{\partial t}\Big)`),
+ B:mo(rw`The magnetic field circling the current. Outside a thin wire it falls off as $1/r$. In the gap between the plates it grows with radius out to the plate edge and then falls as $1/r$.`,
+  rw`The cyan arrows ring the wire and the gap, and they reverse together as the AC current reverses.`,
+  rw`B=\frac{\mu_0 I}{2\pi r}\quad(\text{long straight wire})`),
+ eq:mo(rw`Two independent sources of circulating $\mathbf B$ **add together**: the conduction current of charges flowing in a wire, and the displacement current of a changing electric field. Either one alone is enough to make $\mathbf B$ swirl.`,
+  rw`In the wire only $\mathbf J$ is present. In the gap no charge flows, but $\mathbf E$ is changing, and $\mathbf B$ circulates all the same.`),
+ mu0:mo(rw`A constant setting **how strongly current produces magnetic field** in vacuum, the magnetic counterpart of $\varepsilon_0$. Together they fix the speed of light, which is why light is an electromagnetic wave.`,
+  rw`It is a scale factor, so nothing animates. It multiplies both the pink current term and the amber changing-field term.`,
+  rw`c=\frac{1}{\sqrt{\mu_0\varepsilon_0}}\approx3.00\times10^{8}\ \mathrm{m/s}`),
+ J:mo(rw`**Current per unit area**, pointing the way positive charge moves. A wire's total current is $\mathbf J$ summed across its cross-section. Its unit is A/m$^2$.`,
+  rw`The pink dots streaming along the wire are $\mathbf J$. They stop at the plates, because no charge crosses the gap.`,
+  rw`I=\int_S\mathbf J\cdot d\mathbf A`),
+ plus:mo(rw`The two terms add. Through a surface that the wire pierces, the **conduction current** term does the work; through a surface that slips between the plates, the **displacement current** term does. Together they keep the law consistent whichever surface you pick.`,
+  rw`In the wire region only the $\mathbf J$ term is present. In the gap region only the $\partial\mathbf E/\partial t$ term is.`),
+ eps0:mo(rw`Here $\varepsilon_0$ converts a **changing electric field into an equivalent current**: $\varepsilon_0\,\partial\mathbf E/\partial t$ has the same units (A/m$^2$) as $\mathbf J$. It is the same constant that appears in Coulomb's law and Gauss's law.`,
+  rw`The two pink discs are the capacitor plates, where charge piles up and drains away.`,
+  rw`\mu_0\varepsilon_0=\frac{1}{c^2}`),
+ partial:mo(rw`The rate of change of $\mathbf E$ at a fixed spot. In a charging capacitor the field between the plates grows as charge accumulates, so $\partial\mathbf E/\partial t\neq0$ even though **nothing flows across the gap**. Maxwell named $\varepsilon_0\,\partial\mathbf E/\partial t$ the displacement current.`,
+  rw`The amber arrows between the plates swell and shrink as the plate charge oscillates.`,
+  rw`\mathbf J_d=\varepsilon_0\frac{\partial\mathbf E}{\partial t}`),
+ E:mo(rw`The electric field between the plates points from the positive plate to the negative one. For an ideal parallel-plate capacitor its strength is proportional to the charge on the plates.`,
+  rw`Amber arrows fill the gap, and the + and − marks on the plates show charge building up and draining as the AC current alternates.`,
+  rw`E=\frac{Q}{\varepsilon_0A}`),
+ t:mo(rw`The AC source alternates, so the current $I(t)$ oscillates and the plate charge $Q(t)=\int I\,dt$ lags it by a **quarter cycle**.`,
+  rw`When the current peaks the plate charge is zero, and when the charge peaks the current is momentarily zero.`,
+  rw`Q(t)=\int I\,dt`),
+ thm:mo(rw`The loop $C$ is the rim of many different surfaces. Stokes' theorem lets you compute the circulation of $\mathbf B$ through any of them, and Maxwell's extra term is exactly what makes **every choice agree**.`,
+  rw`Two surfaces share the same rim: the flat disc $S_1$, which the wire pierces, and the bag $S_2$, which stretches up between the plates with no wire through it.`,
+  rw`\oint_C\mathbf B\cdot d\mathbf l=\int_S(\nabla\times\mathbf B)\cdot d\mathbf A`),
+ ointC:mo(rw`Walk once round $C$ adding the part of $\mathbf B$ along your path. By symmetry $\mathbf B$ has the same strength all the way round, so the sum is simply $B\cdot2\pi r$.`,
+  rw`The blue ring is $C$, circling the wire. The cyan arrows along it are $\mathbf B$, tangent to the ring.`,
+  rw`\oint_C\mathbf B\cdot d\mathbf l=B\,(2\pi r)`),
+ dot:mo(rw`$\mathbf B\cdot d\mathbf l$ keeps the part of $\mathbf B$ along the path, while $\mathbf E\cdot d\mathbf A$ keeps the part of $\mathbf E$ through the surface. Components at right angles to the step or the patch count for nothing.`,
+  rw`$\mathbf B$ is tangent to $C$ so it counts in full, and $\mathbf E$ points straight through the bag.`,
+  rw`\mathbf B\cdot d\mathbf l=B\,dl\cos\theta\qquad \mathbf E\cdot d\mathbf A=E\,dA\cos\theta`),
+ dl:mo(rw`A tiny step along $C$, written as a vector along the direction of travel. Its direction sets the positive side of every surface bounded by $C$, through the right-hand rule.`,
+  rw`The small white arrows beside the ring are $d\mathbf l$.`,
+  rw`d\mathbf l=\hat{\mathbf t}\,dl`),
+ eq2:mo(rw`The circulation of $\mathbf B$ round $C$ equals $\mu_0$ times the conduction current through $S$, plus $\mu_0\varepsilon_0$ times the rate of change of electric flux through $S$. **Either surface gives the same answer.** Without Maxwell's second term, $S_1$ would give $\mu_0 I$ while $S_2$ would give $0$ for the very same loop: a contradiction.`,
+  rw`$S_1$ catches the wire's current (pink dots) and $S_2$ catches the changing electric flux between the plates (amber arrows). Same loop, same $\mathbf B$, same result.`,
+  rw`\begin{aligned}\oint_C\mathbf B\cdot d\mathbf l&=\mu_0 I_{\mathrm{enc}}\\&\quad+\mu_0\varepsilon_0\frac{d}{dt}\int_S\mathbf E\cdot d\mathbf A\end{aligned}`),
+ Ienc:mo(rw`The **conduction current** through the surface: charges actually crossing it. For the flat disc $S_1$ the wire pierces it, so $I_{\mathrm{enc}}=I$. For the bag $S_2$ no wire crosses, so $I_{\mathrm{enc}}=0$ and the second term supplies the whole answer.`,
+  rw`The pink dots passing through the flat disc $S_1$ are the enclosed current.`,
+  rw`I_{\mathrm{enc}}=\int_S\mathbf J\cdot d\mathbf A`),
+ ddt:mo(rw`The rate of change of electric flux through $S_2$. For a bag that sweeps across the whole gap, $\Phi_E=Q/\varepsilon_0$, so the **displacement current equals the wire current**. The current appears to carry straight on across the gap.`,
+  rw`The amber arrows between the plates change exactly as fast as the plate charge, matching the current that arrives through the wire.`,
+  rw`\varepsilon_0\frac{d\Phi_E}{dt}=\frac{dQ}{dt}=I`),
+ intS:mo(rw`The **electric flux** $\Phi_E$ through the bag $S_2$: how many electric field lines poke through it. It is proportional to the charge on the plate, which is why its rate of change can stand in for a current.`,
+  rw`The amber arrows crossing the bag in the gap make up the flux.`,
+  rw`\Phi_E=\int_{S_2}\mathbf E\cdot d\mathbf A=\frac{Q}{\varepsilon_0}`),
+ dA:mo(rw`A tiny patch of a surface bounded by $C$, written as a vector along its normal. $S_1$ and $S_2$ share the same rim, so the right-hand rule gives both the same orientation.`,
+  rw`The white arrows on $S_1$ and the pale amber arrows on $S_2$ are $d\mathbf A$.`,
+  rw`d\mathbf A=\hat{\mathbf n}\,dA`)
+ },{
+  lap:mo(rw`The Laplacian $\nabla^2=\partial_x^2+\partial_y^2+\partial_z^2$ measures **curvature in space**: positive where the field dips below the average of its neighbours, negative at a crest. It acts like tension in a string, pulling a displaced field back.`,
+   rw`Both ribbons bend along $x$. At a crest the curvature is negative, in a trough it is positive.`,
+   rw`\nabla^2\mathbf E=\frac{\partial^2\mathbf E}{\partial x^2}+\frac{\partial^2\mathbf E}{\partial y^2}+\frac{\partial^2\mathbf E}{\partial z^2}`),
+  E:mo(rw`In empty space $\mathbf E$ has no charge to hold it. Gauss's law $\nabla\!\cdot\mathbf E=0$ forces it to be **transverse**: perpendicular to the direction of travel. Only the changing $\mathbf B$ beside it keeps it alive.`,
+   rw`The amber wave lies along the $y$ axis while the wave travels along $x$.`,
+   rw`\nabla\!\cdot\mathbf E=0\;\Rightarrow\;\mathbf E\perp\hat{\mathbf k}`),
+  B:mo(rw`Likewise $\nabla\!\cdot\mathbf B=0$ makes $\mathbf B$ transverse. It is perpendicular to $\mathbf E$ and to the direction of travel, so that $\mathbf E\times\mathbf B$ points the way the wave moves.`,
+   rw`The cyan wave lies along the $z$ axis. Check the right-hand rule: $\hat{\mathbf y}\times\hat{\mathbf z}=\hat{\mathbf x}$.`,
+   rw`\hat{\mathbf y}\times\hat{\mathbf z}=\hat{\mathbf x}`),
+  eq:mo(rw`**Wave equation for $\mathbf E$.** Set $\rho=0$, $\mathbf J=0$. Curl Faraday's law, swap $\partial_t$ with the curl, put in Amp\u00e8re\u2013Maxwell, then use $\nabla\times(\nabla\times\mathbf E)=\nabla(\nabla\!\cdot\mathbf E)-\nabla^2\mathbf E$ with $\nabla\!\cdot\mathbf E=0$. Press **Derivation** (top bar) for every line with its reasoning.`,
+   rw`The amber and cyan waves are partners. Each one's change creates the other, so the pair keeps going with no charges nearby.`,
+   rw`\begin{aligned}\nabla\!\times(\nabla\!\times\mathbf E)&=-\partial_t(\nabla\!\times\mathbf B)=-\mu_0\varepsilon_0\,\partial_t^{2}\mathbf E\\\nabla\!\times(\nabla\!\times\mathbf E)&=\nabla(\nabla\!\cdot\mathbf E)-\nabla^2\mathbf E=-\nabla^2\mathbf E\\\therefore\;\nabla^2\mathbf E&=\mu_0\varepsilon_0\,\frac{\partial^2\mathbf E}{\partial t^2}\end{aligned}`),
+  eqB:mo(rw`**Wave equation for $\mathbf B$.** Start from Amp\u00e8re\u2013Maxwell instead. Curl it, swap the derivatives, and put in Faraday's law for $\nabla\times\mathbf E$. Then use $\nabla\!\cdot\mathbf B=0$ (no magnetic monopoles) in the same identity. Out comes exactly the same equation, now for $\mathbf B$.`,
+   rw`The cyan ribbon obeys the same law as the amber one, so it travels at the same speed in step with it.`,
+   rw`\begin{aligned}\nabla\!\times(\nabla\!\times\mathbf B)&=\mu_0\varepsilon_0\,\partial_t(\nabla\!\times\mathbf E)=-\mu_0\varepsilon_0\,\partial_t^{2}\mathbf B\\\nabla\!\times(\nabla\!\times\mathbf B)&=\nabla(\nabla\!\cdot\mathbf B)-\nabla^2\mathbf B=-\nabla^2\mathbf B\\\therefore\;\nabla^2\mathbf B&=\mu_0\varepsilon_0\,\frac{\partial^2\mathbf B}{\partial t^2}\end{aligned}`),
+  mu0:mo(rw`$\mu_0$ enters through Amp\u00e8re\u2013Maxwell: it sets how strongly a changing $\mathbf E$ makes $\mathbf B$. For the wave only the **product** $\mu_0\varepsilon_0$ matters.`,
+   rw`It sets how fast the pattern slides along $x$.`,
+   rw`\mu_0\varepsilon_0=\frac{1}{c^2}`),
+  eps0:mo(rw`$\varepsilon_0$ is the electric partner of $\mu_0$. A larger $\mu_0\varepsilon_0$ would make the wave slower, because each field would take longer to build up the other.`,
+   rw`It sets the sliding speed together with $\mu_0$.`,
+   rw`c^2=\frac{1}{\mu_0\varepsilon_0}`),
+  d2:mo(rw`Differentiate twice in time at one fixed place: $\partial_t^2$ is the field's **acceleration**. The equation says it is proportional to the spatial curvature, so a crest is pulled down and a trough pulled up: a harmonic oscillator at every point.`,
+   rw`The bright dots at $x=0$ swing up and down, always accelerating back toward zero.`,
+   rw`\frac{\partial^2\mathbf E}{\partial t^2}=c^2\,\nabla^2\mathbf E`),
+  t:mo(rw`Time appears twice, once in each $\partial/\partial t$, so at any fixed spot the field has a rhythm: it swings up, down, up. A pattern of length $\lambda$ that swings $f$ times per second travels at $c=\lambda f$.`,
+   rw`Follow the bright dots at $x=0$: one swing up and back is one period.`,
+   rw`c=\lambda f`),
+ 
+ }];
+const escH=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const txi=s=>window.MathJax&&MathJax.tex2svg?MathJax.tex2svg(s,{display:false}).outerHTML:escH(s);
+const rich=s=>s.split('$').map((t,i)=>i%2?txi(t):escH(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')).join('');
+const detail=(c,k)=>{const o=MORE[c][k];if(!o)return'';
+ return(o.m?'<section class="sec"><h4>What it means</h4><p>'+rich(o.m)+'</p></section>':'')
+  +(o.f?'<section class="sec"><h4>Key relation</h4><div class="fm">'+tx(o.f)+'</div></section>':'')
+  +(o.s?'<section class="sec sc"><h4>In the scene</h4><p>'+rich(o.s)+'</p></section>':'')};
+const HL=[
+ {div:'div',E:'E',eq:'div rho E',rho:'rho',eps0:'eps0',thm:'sph',oint:'sph flux',dot:'dA E',dA:'dA sph',eq2:'sph flux rho',Q:'rho sph'},
+ {div:'sph',B:'B',eq:'sph B',zero:'sph',thm:'sph',oint:'sph',dot:'dA B',dA:'dA',eq2:'sph B'},
+ {curl:'ring lp',E:'ep ring',eq:'ring ep col bp',minus:'ep bp',partial:'pulse bp',B:'bp col',t:'pulse',thm:'lp disc',ointC:'lp ep',dot:'dl bp',dl:'dl',eq2:'lp disc pulse ep bp',ddt:'pulse',intS:'disc bp col',dA:'disc'},
+ {curl:'bring',B:'bp',eq:'bring jp ep',mu0:'jp ep bp',J:'jp wire',plus:'jp ep',eps0:'plates ep',partial:'ep plates',E:'ep',t:'ep',thm:'rimI rimE diskI diskE',ointC:'rimI rimE',dot:'bp ep',dl:'rimI rimE',eq2:'rimI rimE diskI diskE jp ep',Ienc:'diskI jp wire',ddt:'ep plates',intS:'diskE ep',dA:'diskI diskE'},
+  {lap:'E B',E:'E',B:'B',eq:'E B pp',eqB:'B E pp',mu0:'E B',eps0:'E B',d2:'pr E B',t:'pr'}
+ ];
+cells.forEach(c=>c.insertAdjacentHTML('beforeend','<aside class="info" aria-live="polite"><div class="sym"></div><div class="hd"><h3></h3><small></small></div><p></p></aside>'));
+document.querySelectorAll('.tok').forEach((b,i)=>{const c=cells.indexOf(b.closest('.cell'));b.setAttribute('aria-label',DEF[c][b.dataset.k][0]);b.setAttribute('aria-pressed','false');b.style.setProperty('--i',i)});
+document.querySelector('.hint').textContent=matchMedia('(hover:none)').matches?'tap any box to expand it':'click any box to expand it';
+const cur={c:-1,k:''};
+const off=()=>{if(cur.c<0)return;const c=cells[cur.c];c.classList.remove('sel');c.querySelectorAll('.tok.on').forEach(t=>{t.classList.remove('on');t.setAttribute('aria-pressed','false')});scenes[cur.c].act=new Set();cur.c=-1};
+document.addEventListener('click',e=>{
+ const b=e.target.closest('.tok');
+ if(!b){if(!e.target.closest('.info'))off();return}
+ const c=cells.indexOf(b.closest('.cell')),k=b.dataset.k,same=cur.c===c&&cur.k===k;
+ off();if(same)return;
+ cur.c=c;cur.k=k;
+ const cell=cells[c],[n,u,d]=DEF[c][k],box=cell.querySelector('.info'),sym=box.querySelector('.sym');
+ cell.classList.add('sel');
+ cell.querySelectorAll('.tok').forEach(t=>{const on=t.dataset.k===k;t.classList.toggle('on',on);t.setAttribute('aria-pressed',on)});
+ sym.innerHTML=b.innerHTML;sym.style.color=getComputedStyle(b).color;box.style.setProperty('--ac',sym.style.color);
+ box.querySelector('h3').textContent=n;box.querySelector('small').innerHTML=u?tx(u):'';box.querySelector('p').textContent=d;
+ scenes[c].act=new Set((HL[c][k]||k).split(' '));document.body.classList.add('used')});
+addEventListener('keydown',e=>{if(e.key==='Escape')off()});
+
+let px=0,py=0,last=0,tt=0;
+const slow=matchMedia('(prefers-reduced-motion: reduce)').matches?.25:1;
+addEventListener('pointermove',e=>{px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5});
+const size=()=>R.setSize(innerWidth,innerHeight,false);addEventListener('resize',size);size();
+const loop=ms=>{if(ovOpen){last=ms/1e3;requestAnimationFrame(loop);return}
+ const now=ms/1e3,dt=Math.min(.05,now-last)*slow;last=now;tt+=dt;
+ R.setScissorTest(false);R.clear();R.setScissorTest(true);
+ for(const o of scenes){
+  const r=o.el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)continue;
+  const w=r.width,h=r.height,y=innerHeight-r.bottom;
+  R.setViewport(r.left,y,w,h);R.setScissor(r.left,y,w,h);
+  const eh=r.bottom-o.box.getBoundingClientRect().top,use=Math.max(h*.45,h-eh*.72),z=Math.max(4.4,4.7*h/use,4.6*h/w);
+  o.cam.aspect=w/h;o.cam.position.z=z;o.cam.lookAt(0,0,0);o.g.position.y=(1-use/h)*.384*z;o.cam.updateProjectionMatrix();
+  o.g.rotation.y=tt*.12+px*.7;o.g.rotation.x=.28+py*.4;
+  for(const k of o.act)if(!(k in o.w))o.w[k]=0;
+  for(const k in o.w)o.w[k]+=((o.act.has(k)?1:0)-o.w[k])*Math.min(1,dt*7);
+  o.u(tt,dt,o.wf);R.render(o.s,o.cam)}
+ requestAnimationFrame(loop)};
+requestAnimationFrame(loop);
+/* ===================== EXPANDED DETAIL VIEWS ===================== */
+const $=id=>document.getElementById(id);
+const ov=$('ov'),oc=$('oc'),oeq=$('oeq'),oinfo=$('oinfo'),obot=$('obot');
+const R2=new T.WebGLRenderer({canvas:oc,antialias:true,alpha:true});R2.setPixelRatio(Math.min(devicePixelRatio||1,2));R2.setClearColor(0,0);
+const cam2=new T.PerspectiveCamera(40,1,.1,100);
+const D=[0,0,0],FV=[0,0,0];
+const nv=(r,id)=>+r.querySelector('#'+id).value,ck=(r,id)=>r.querySelector('#'+id).checked;
+
+/* --- helpers --- */
+const Arr=(n,col,op=.9)=>{const g=new T.BufferGeometry(),A=new Float32Array(n*18);g.setAttribute('position',new T.BufferAttribute(A,3));
+ const m=new T.LineSegments(g,new T.LineBasicMaterial({color:col,transparent:true,opacity:op,blending:T.AdditiveBlending,depthWrite:false}));m.frustumCulled=false;
+ m.set=(i,x,y,z,dx,dy,dz,rx=0,ry=1,rz=0)=>{const o=i*18,l=Math.sqrt(dx*dx+dy*dy+dz*dz);if(l<1e-5){A.fill(0,o,o+18);return}
+  let px=dy*rz-dz*ry,py=dz*rx-dx*rz,pz=dx*ry-dy*rx,pl=Math.sqrt(px*px+py*py+pz*pz);
+  if(pl<1e-6*l){px=0;py=dz;pz=-dy;pl=Math.sqrt(py*py+pz*pz);if(pl<1e-9){px=0;py=1;pz=0;pl=1}}
+  const k=.21*l/pl;px*=k;py*=k;pz*=k;const tx=x+dx,ty=y+dy,tz=z+dz,bx=tx-.32*dx,by=ty-.32*dy,bz=tz-.32*dz;
+  A[o]=x;A[o+1]=y;A[o+2]=z;A[o+3]=tx;A[o+4]=ty;A[o+5]=tz;A[o+6]=tx;A[o+7]=ty;A[o+8]=tz;A[o+9]=bx+px;A[o+10]=by+py;A[o+11]=bz+pz;A[o+12]=tx;A[o+13]=ty;A[o+14]=tz;A[o+15]=bx-px;A[o+16]=by-py;A[o+17]=bz-pz};
+ m.up=()=>{g.attributes.position.needsUpdate=true};return m};
+
+
+const skinMat=c=>new T.ShaderMaterial({uniforms:{c:{value:new T.Color(c)},k:{value:1}},vertexShader:'varying vec3 n;varying vec3 v;void main(){n=normalize(normalMatrix*normal);vec4 m=modelViewMatrix*vec4(position,1.);v=normalize(-m.xyz);gl_Position=projectionMatrix*m;}',fragmentShader:'uniform vec3 c;uniform float k;varying vec3 n;varying vec3 v;void main(){float a=pow(1.-abs(dot(n,v)),2.4);gl_FragColor=vec4(c*(.1+1.2*a),(.04+.6*a)*k);}',transparent:true,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide});
+const ac=(c,o)=>new T.MeshBasicMaterial({color:c,transparent:true,opacity:o,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending});
+
+/* lumpy "potato" closed surface (star-shaped, so it can be tested inside/outside exactly) */
+const Potato=(det,sx,sy,sz)=>{
+ const geo=new T.IcosahedronGeometry(1,det),pos=geo.attributes.position,nvx=pos.count,nt=nvx/3;
+ const U=new Float32Array(nvx*3),nA=new Float32Array(nvx*3),cA=new Float32Array(nvx*3),ct=new Float32Array(nt*3),fn=new Float32Array(nt*3),ar=new Float32Array(nt),wa=new Float32Array(nt*18);
+ for(let i=0;i<nvx;i++){const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i),l=Math.sqrt(x*x+y*y+z*z);U[i*3]=x/l;U[i*3+1]=y/l;U[i*3+2]=z/l}
+ geo.setAttribute('normal',new T.BufferAttribute(nA,3));geo.setAttribute('color',new T.BufferAttribute(cA,3));
+ const wg=new T.BufferGeometry();wg.setAttribute('position',new T.BufferAttribute(wa,3));
+ const o={geo,nt,ct,fn,ar,cA,sx,sy,sz,cx:0,cy:0,cz:0,s:1,wire:new T.LineSegments(wg,new T.LineBasicMaterial({color:0xffe6f0,transparent:true,opacity:.07,blending:T.AdditiveBlending,depthWrite:false}))};
+ o.wire.frustumCulled=false;
+ const bump=(x,y,z)=>1+.13*Math.sin(3*x+1)*Math.cos(2*y+.5)+.09*Math.sin(2.3*z+3*x)+.07*Math.cos(4*y+1.7*z)+.05*Math.sin(5*x*z+y);
+ const gf=o.g=(x,y,z)=>{x=(x-o.cx)/(o.sx*o.s);y=(y-o.cy)/(o.sy*o.s);z=(z-o.cz)/(o.sz*o.s);const n=Math.sqrt(x*x+y*y+z*z)||1e-9;return n-bump(x/n,y/n,z/n)};
+ o.update=()=>{
+  const S_=o.s;
+  for(let i=0;i<nvx;i++){const ux=U[i*3],uy=U[i*3+1],uz=U[i*3+2],r=bump(ux,uy,uz);pos.setXYZ(i,o.cx+o.sx*S_*r*ux,o.cy+o.sy*S_*r*uy,o.cz+o.sz*S_*r*uz)}
+  const h=1e-3*S_;
+  for(let i=0;i<nvx;i++){const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i),a=gf(x+h,y,z)-gf(x-h,y,z),b=gf(x,y+h,z)-gf(x,y-h,z),c=gf(x,y,z+h)-gf(x,y,z-h),l=Math.sqrt(a*a+b*b+c*c)||1;nA[i*3]=a/l;nA[i*3+1]=b/l;nA[i*3+2]=c/l}
+  for(let t=0;t<nt;t++){const i=t*3;
+   const ax=pos.getX(i),ay=pos.getY(i),az=pos.getZ(i),bx=pos.getX(i+1),by=pos.getY(i+1),bz=pos.getZ(i+1),qx=pos.getX(i+2),qy=pos.getY(i+2),qz=pos.getZ(i+2);
+   const ux=bx-ax,uy=by-ay,uz=bz-az,vx=qx-ax,vy=qy-ay,vz=qz-az;let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1e-9;
+   const sg=(nx*nA[i*3]+ny*nA[i*3+1]+nz*nA[i*3+2])<0?-1:1;
+   ct[i]=(ax+bx+qx)/3;ct[i+1]=(ay+by+qy)/3;ct[i+2]=(az+bz+qz)/3;fn[i]=sg*nx/l;fn[i+1]=sg*ny/l;fn[i+2]=sg*nz/l;ar[t]=l/2;
+   const w=t*18,P_=[ax,ay,az,bx,by,bz,bx,by,bz,qx,qy,qz,qx,qy,qz,ax,ay,az];for(let e=0;e<18;e++)wa[w+e]=P_[e]}
+  pos.needsUpdate=true;geo.attributes.normal.needsUpdate=true;wg.attributes.position.needsUpdate=true;geo.computeBoundingSphere()};
+ o.update();return o};
+
+/* field-line tracer (RK2) writing line segments into one big buffer */
+const mkTr=(maxL,maxS)=>{
+ const seg=new Float32Array(maxL*maxS*6),col=new Float32Array(maxL*maxS*6),ls=new Int32Array(maxL),ll=new Int32Array(maxL),geo=new T.BufferGeometry();
+ geo.setAttribute('position',new T.BufferAttribute(seg,3));geo.setAttribute('color',new T.BufferAttribute(col,3));
+ const obj=new T.LineSegments(geo,new T.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.5,blending:T.AdditiveBlending,depthWrite:false}));obj.frustumCulled=false;
+ const t={seg,col,ls,ll,geo,obj,nl:0,ns:0,reset(){t.nl=0;t.ns=0},
+  line(f,x,y,z,h,stop,ctr){if(t.nl>=maxL)return;const st=t.ns;ls[t.nl]=st;
+   for(let k=0;k<maxS-1;k++){f(x,y,z);let ux=D[0],uy=D[1],uz=D[2];f(x+ux*h*.5,y+uy*h*.5,z+uz*h*.5);ux=D[0];uy=D[1];uz=D[2];
+    const nx=x+ux*h,ny=y+uy*h,nz=z+uz*h,o=t.ns*6;seg[o]=x;seg[o+1]=y;seg[o+2]=z;seg[o+3]=nx;seg[o+4]=ny;seg[o+5]=nz;
+    if(ctr)ctr(o,x,y,z,nx,ny,nz,ux,uy,uz);t.ns++;x=nx;y=ny;z=nz;if(stop(x,y,z,k))break}
+   ll[t.nl]=t.ns-st;t.nl++},
+  done(){geo.setDrawRange(0,t.ns*2);geo.attributes.position.needsUpdate=true;geo.attributes.color.needsUpdate=true}};
+ return t};
+const flowPts=(t,pts,per,ph)=>{const a=pts.geometry.attributes.position;let j=0;for(let i=0;i<t.nl;i++){const L=t.ll[i];if(!L)continue;for(let m=0;m<per;m++){let f=(ph+m/per+i*.137)%1;if(f<0)f+=1;const o=(t.ls[i]+Math.floor(f*L))*6;a.setXYZ(j++,t.seg[o],t.seg[o+1],t.seg[o+2])}}a.needsUpdate=true;pts.geometry.setDrawRange(0,j)};
+
+/* flux of a field (written into FV by f) through the potato: also paints each patch by E·n */
+const fluxOver=(pot,f,co,ci,sat)=>{let fo=0,fi=0;const{ct,fn,ar,cA,nt}=pot;
+ for(let t=0;t<nt;t++){const o=t*3;f(ct[o],ct[o+1],ct[o+2]);const d=FV[0]*fn[o]+FV[1]*fn[o+1]+FV[2]*fn[o+2],q=d*ar[t];if(q>0)fo+=q;else fi+=q;
+  const m=Math.min(1,Math.abs(d)/sat)*.85+.04,c=d>0?co:ci;for(let v=0;v<3;v++){const p=(o+v)*3;cA[p]=c[0]*m;cA[p+1]=c[1]*m;cA[p+2]=c[2]*m}}
+ pot.geo.attributes.color.needsUpdate=true;return[fo,fi]};
+/* sample dA patches: normal (white), field vector, and its normal component */
+const mkSamples=(pot,n,fcol,ccol)=>{const sid=[...Array(n)].map((_,i)=>Math.floor((i+.5)/n*pot.nt)),nA=Arr(n,0xffffff,.5),eA=Arr(n,fcol,.9),cA=Arr(n,ccol,.9),sp=P(n,ccol,.1,.9);
+ return{objs:[nA,eA,cA,sp],nA,eA,cA,
+  upd(f){const a=sp.geometry.attributes.position;sid.forEach((t,i)=>{const o=t*3,x=pot.ct[o],y=pot.ct[o+1],z=pot.ct[o+2],nx=pot.fn[o],ny=pot.fn[o+1],nz=pot.fn[o+2];f(x,y,z);
+   const m=Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1]+FV[2]*FV[2])||1,d=FV[0]*nx+FV[1]*ny+FV[2]*nz,le=.55*Math.tanh(m/1.2),lc=.55*Math.tanh(Math.abs(d)/1.2)*Math.sign(d);
+   a.setXYZ(i,x,y,z);nA.set(i,x,y,z,nx*.34,ny*.34,nz*.34);eA.set(i,x,y,z,FV[0]/m*le,FV[1]/m*le,FV[2]/m*le);cA.set(i,x,y,z,nx*lc,ny*lc,nz*lc)});
+   a.needsUpdate=true;nA.up();eA.up();cA.up()}}};
+const graph=(cv,curves)=>{const x=cv.getContext('2d'),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);x.lineWidth=1;x.strokeStyle='rgba(255,255,255,.16)';x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke();
+ for(const c of curves){x.beginPath();x.strokeStyle=c.col;x.lineWidth=c.lw||2;x.setLineDash(c.dash||[]);for(let i=0;i<=W;i+=3){const y=H/2-c.f(i/W)*H*.4;i?x.lineTo(i,y):x.moveTo(i,y)}x.stroke()}
+ x.setLineDash([]);x.lineWidth=1;x.strokeStyle='rgba(255,255,255,.55)';x.beginPath();x.moveTo(W-1,0);x.lineTo(W-1,H);x.stroke();x.fillStyle='rgba(255,255,255,.5)';x.font='11px Newsreader,Georgia,serif';x.fillText('now',W-26,11)};
+
+/* panel builders */
+const rng=(id,lab,min,max,val,step)=>`<label class="rg"><span>${lab}</span><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output></output></label>`;
+const chk=(id,lab,on=true)=>`<label class="ck"><input type="checkbox" id="${id}"${on?' checked':''}>${lab}</label>`;
+const leg=(c,t)=>`<span class="lg"><i style="background:${c}"></i>${t}</span>`;
+const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+const sgn=(x,d=2)=>(x<-.5*Math.pow(10,-d)?'\u2212':'+')+Math.abs(x).toFixed(d);
+const lgq=(c,s,t)=>`<span class="lg"><i class="sg" style="color:${c}">${s}</i>${t}</span>`;
+const mkRd=(pn,tex)=>{const rd=pn.querySelector('.rd');rd.innerHTML=tex.map(t=>`<div class="row"><span>${tx(t)}</span><b></b></div>`).join('');return[...rd.querySelectorAll('b')]};
+const setRd=(bs,v)=>bs.forEach((b,i)=>{if(b.textContent!==v[i])b.textContent=v[i]});
+const mkPanel=(title,sub,legend,body)=>{const d=document.createElement('div');d.innerHTML=`<h2><span class="tt">${tx(title)}</span></h2><div class="bd"><p class="sb">${sub}</p><div class="lgs">${legend}</div>${body}<p class="tp">drag to rotate \u00b7 scroll to zoom</p></div>`;
+ d.querySelectorAll('input[type=range]').forEach(i=>{const o=i.nextElementSibling,f=()=>{o.textContent=(+i.value).toFixed(+i.step<.1?2:+i.step<1?1:0)};i.addEventListener('input',f);f()});return d};
+const HX='#ffb454',HB='#52d6ff',HS='#ffe6f0';
+
+/* ============ I. Gauss's law (electric) : potato surface with charges inside ============ */
+const gaussV=()=>{
+ const s=new T.Scene(),g=new T.Group();s.add(g);
+const pn=mkPanel('\\oint_S\\mathbf E\\!\\cdot\\! d\\mathbf A=\\dfrac{Q_{\\mathrm{enc}}}{\\varepsilon_0}','Net flux counts only the charge inside S.',
+  lgq(HX,'+','positive charge')+lgq(HB,'\u2212','negative charge')+leg(HX,'flux out')+leg(HB,'flux in')+leg(HS,'surface S'),
+  rng('g_q1','Inside charge q\u2081',0,4,2,.1)+rng('g_qe','Outside charge q\u2091',-4,4,3,.1)+chk('g_orb','Move outside charge')+chk('g_lines','Field lines')+chk('g_heat','Flux heat-map')+chk('g_dA','Patch vectors')+chk('g_cl','Charge cloud \u03c1')+'<div class="rd"></div>');
+ const rb=mkRd(pn,['\\mathbf E\\!\\cdot\\! d\\mathbf A>0\\ (\\text{out})','\\mathbf E\\!\\cdot\\! d\\mathbf A<0\\ (\\text{in})','\\oint_S\\mathbf E\\!\\cdot\\! d\\mathbf A','Q_{\\mathrm{enc}}','Q_{\\mathrm{enc}}/\\varepsilon_0=4\\pi Q_{\\mathrm{enc}}']);
+ const pot=Potato(10,1.5,1,1.15);window.__pot0=pot;
+ const heat=new T.Mesh(pot.geo,new T.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.42,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending})),skin=new T.Mesh(pot.geo,skinMat(S));
+ g.add(heat,skin,pot.wire);
+ const NI=6,ch=[{x:-.7,y:.15,z:.1,q:2},{x:-.2,y:.3,z:-.4,q:1.5},{x:-.5,y:-.3,z:.35,q:1},{x:.1,y:.35,z:.35,q:1},{x:.8,y:.05,z:.2,q:-2.5},{x:-.1,y:-.35,z:-.2,q:-1.2},{x:2.9,y:0,z:0,q:3},{x:-2.5,y:-.5,z:.9,q:-2.5}];
+ const vis=ch.map(c=>{const h=P(1,c.q>0?E:B,.5,.9),k=P(1,0xffffff,.2,.9),sp=sprite(c.q>0?'+':'\u2212',c.q>0?'#ffcf8a':'#9fe8ff',.3,true);g.add(h,k,sp);return{h,k,sp}});
+ const cl=P(NI*50,S,.05,.5),ca=cl.geometry.attributes.position;for(let c=0;c<NI;c++)for(let i=0;i<50;i++){const gs=()=>(Math.random()+Math.random()+Math.random()-1.5)*.3;ca.setXYZ(c*50+i,ch[c].x+gs(),ch[c].y+gs(),ch[c].z+gs())}g.add(cl);
+ const fld=(x,y,z)=>{let a=0,b=0,c=0;for(let i=0;i<ch.length;i++){const q=ch[i],dx=x-q.x,dy=y-q.y,dz=z-q.z,r2=dx*dx+dy*dy+dz*dz+4e-4,k=q.q/(r2*Math.sqrt(r2));a+=dx*k;b+=dy*k;c+=dz*k}FV[0]=a;FV[1]=b;FV[2]=c};
+ const dir=(x,y,z)=>{fld(x,y,z);const m=Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1]+FV[2]*FV[2])||1;D[0]=FV[0]/m;D[1]=FV[1]/m;D[2]=FV[2]/m};
+ window.__ef=(x,y,z)=>{fld(x,y,z);return FV.slice()};const tr=mkTr(170,440);g.add(tr.obj);const fl=P(170*3,E,.07,.95);g.add(fl);
+ const MC=700,cO=P(MC,E,.17,.95),cI=P(MC,B,.17,.95),cAr=Arr(MC,0xffffff,.6);g.add(cO,cI,cAr);
+ const sm=mkSamples(pot,36,E,S);sm.objs.forEach(o=>g.add(o));
+ let nOut=0,nIn=0,qenc=0,fo=0,fi=0;
+ const trace=()=>{tr.reset();nOut=0;nIn=0;let nc=0;qenc=0;const negs=ch.filter(c=>c.q<0);ch.forEach(c=>{if(pot.g(c.x,c.y,c.z)<0)qenc+=c.q});
+  const oa=cO.geometry.attributes.position.array,ia=cI.geometry.attributes.position.array;let go=0;
+  for(const c of ch){if(c.q<=0)continue;const n=Math.min(44,Math.round(10*c.q));
+   for(let i=0;i<n;i++){const yy=1-2*(i+.5)/n,rr=Math.sqrt(1-yy*yy),a=i*2.39996+c.x*3,x0=c.x+.07*rr*Math.cos(a),y0=c.y+.07*yy,z0=c.z+.07*rr*Math.sin(a);go=pot.g(x0,y0,z0);
+    tr.line(dir,x0,y0,z0,.05,(x,y,z)=>{if(x*x+y*y+z*z>70)return true;for(const q of negs){const dx=x-q.x,dy=y-q.y,dz=z-q.z;if(dx*dx+dy*dy+dz*dz<.007)return true}return false},
+     (o,x,y,z,nx,ny,nz,ux,uy,uz)=>{const gn=pot.g(nx,ny,nz),ins=gn<0;tr.col[o]=tr.col[o+3]=ins?1:.85;tr.col[o+1]=tr.col[o+4]=ins?.9:.55;tr.col[o+2]=tr.col[o+5]=ins?.65:.18;
+      if(go*gn<0&&nc<MC){const f=go/(go-gn),px=x+(nx-x)*f,py=y+(ny-y)*f,pz=z+(nz-z)*f;if(go<0){oa[nOut*3]=px;oa[nOut*3+1]=py;oa[nOut*3+2]=pz;nOut++}else{ia[nIn*3]=px;ia[nIn*3+1]=py;ia[nIn*3+2]=pz;nIn++}cAr.set(nc,px,py,pz,ux*.3,uy*.3,uz*.3);nc++}go=gn})}}
+  tr.done();cO.geometry.setDrawRange(0,nOut);cI.geometry.setDrawRange(0,nIn);cAr.geometry.setDrawRange(0,nc*6);cO.geometry.attributes.position.needsUpdate=true;cI.geometry.attributes.position.needsUpdate=true;cAr.up()};
+ const place=()=>ch.forEach((c,i)=>{const v=vis[i];[v.h,v.k].forEach(p=>{p.geometry.attributes.position.setXYZ(0,c.x,c.y,c.z);p.geometry.attributes.position.needsUpdate=true});v.sp.position.set(c.x,c.y,c.z)});
+ let ea=0,fp=0,pq=-9,pe=-9,fr=0;
+ const si=Math.floor(.5/36*pot.nt)*3,pc=()=>[pot.ct[si],pot.ct[si+1],pot.ct[si+2]];
+ const lb=mkLabs(g,[
+  ['ldiv','\\nabla\\!\\cdot\\!\\mathbf E>0','#ffd08a',.3,()=>[ch[0].x,ch[0].y+.8,ch[0].z]],
+  ['lrho','\\rho','#ffffff',.3,()=>[ch[0].x+.4,ch[0].y+.35,ch[0].z]],
+  ['leps','\\varepsilon_0','#ffe6f0',.28,()=>[ch[0].x-.9,ch[0].y-.75,ch[0].z+.5]],
+  ['lQ','Q_{\\mathrm{enc}}','#ffe6f0',.3,()=>[-.15,-.65,.1]],
+  ['lS','S','#ffe6f0',.34,()=>[pot.cx,pot.cy+pot.sy*pot.s*1.25,pot.cz]],
+  ['ldA','d\\mathbf A','#ffffff',.28,()=>{const p=pc();return[p[0]+pot.fn[si]*.6,p[1]+pot.fn[si+1]*.6,p[2]+pot.fn[si+2]*.6]}],
+  ['lE','\\mathbf E','#ffb454',.3,()=>{const p=pc();fld(p[0],p[1],p[2]);const m=Math.hypot(FV[0],FV[1],FV[2])||1;return[p[0]+FV[0]/m*.85,p[1]+FV[1]/m*.85,p[2]+FV[2]/m*.85]}]]);
+ const upd=(t,dt,w)=>{
+  const orb=ck(pn,'g_orb'),q1=nv(pn,'g_q1'),qe=nv(pn,'g_qe');ch[0].q=q1;ch[NI].q=qe;if(orb)ea+=dt*.28;
+  ch[NI].x=2.9*Math.cos(ea);ch[NI].y=.9*Math.sin(ea*.8);ch[NI].z=2.3*Math.sin(ea);
+  if(orb||q1!==pq||qe!==pe){pq=q1;pe=qe;trace();[fo,fi]=fluxOver(pot,fld,[1,.62,.2],[.32,.84,1],1.5);sm.upd(fld);place();fr=0}
+  if(fr--<=0){fr=8;setRd(rb,[sgn(fo),sgn(fi),sgn(fo+fi),sgn(qenc),sgn(4*Math.PI*qenc)])}
+  fp+=dt*.3;flowPts(tr,fl,3,fp);
+  tr.obj.visible=fl.visible=ck(pn,'g_lines');heat.visible=ck(pn,'g_heat');cl.visible=ck(pn,'g_cl');sm.objs.forEach(o=>o.visible=ck(pn,'g_dA'));
+  tr.obj.material.opacity=.3+.35*w('E')+.2*w('div');fl.material.size=.07+.06*w('E')+.05*w('div')+.05*w('flux');
+  skin.material.uniforms.k.value=1+1.2*w('sph');pot.wire.material.opacity=.07+.3*w('sph');heat.material.opacity=.38+.4*w('flux')+.1*w('sph');
+  cO.material.size=cI.material.size=.14+.14*w('flux');cAr.material.opacity=.3+.6*w('flux');
+  sm.nA.material.opacity=.3+.7*w('dA');sm.eA.material.opacity=.35+.5*w('E')+.4*w('dA');sm.cA.material.opacity=.35+.6*w('dA');sm.objs[3].material.opacity=.4+.5*w('dA');
+  cl.material.opacity=.4+.5*w('rho');cl.material.size=.05+.05*w('rho');
+  ch.forEach((c,i)=>{const v=vis[i],k=(.35+.2*Math.abs(c.q))*(1+.5*w('rho')*(i<NI?1:.4)+.3*w('eps0')+.12*w('rho')*Math.sin(t*5));v.h.material.size=k*1.5;v.k.material.size=k*.5;const sc=.3+.06*Math.abs(c.q);v.sp.scale.set(sc,sc,1)});
+ };
+ return{s,pn,upd:(t,d,w)=>{upd(t,d,w);lb(w)},dist:8.2};
+};
+
+/* ============ II. Gauss's law for magnetism: bar magnet, closed loops, potato surface ============ */
+const magV=()=>{
+ const s=new T.Scene(),g=new T.Group();s.add(g);
+const pn=mkPanel('\\oint_S\\mathbf B\\!\\cdot\\! d\\mathbf A=0','The whole magnet sits inside S: every line that leaves must come back in.',
+  leg('#ff8fbf','B out')+leg(HB,'B in')+leg('#ffc0d8','N pole')+leg('#8fe3ff','S pole')+leg(HS,'surface S'),
+  rng('m_y','Surface height',-1.5,1.5,0,.05)+rng('m_s','Surface size',.8,1.6,1.15,.05)+chk('m_fl','Flow along lines')+chk('m_fi','Iron filings')+chk('m_heat','Flux heat-map')+chk('m_dA','Patch vectors')+'<div class="rd"></div>');
+ const rb=mkRd(pn,['\\mathbf B\\!\\cdot\\! d\\mathbf A>0\\ (\\text{out})','\\mathbf B\\!\\cdot\\! d\\mathbf A<0\\ (\\text{in})','\\oint_S\\mathbf B\\!\\cdot\\! d\\mathbf A','\\text{crossings out / in}']);
+ /* bar magnet modelled as a stack of current loops (Biot\u2013Savart), so B is exactly divergence-free */
+ const KM=.5,NL=14,MS=16,ra=.3*KM,cp=[],ctn=[];
+ for(let j=0;j<NL;j++){const y=KM*(-1+2*j/(NL-1));for(let k=0;k<MS;k++){const p0=k/MS*TAU,p1=(k+1)/MS*TAU,pm=(p0+p1)/2;cp.push(ra*Math.cos(pm),y,ra*Math.sin(pm));ctn.push(ra*(Math.cos(p1)-Math.cos(p0)),0,ra*(Math.sin(p1)-Math.sin(p0)))}}
+ const NS=cp.length/3;let sg=1,bn=1;
+ const bf=(x,y,z)=>{let u=0,v=0,w=0;for(let i=0;i<NS;i++){const j=i*3,rx=x-cp[j],ry=y-cp[j+1],rz=z-cp[j+2],r2=rx*rx+ry*ry+rz*rz+.003,k=1/(r2*Math.sqrt(r2)),tx=ctn[j],tz=ctn[j+2];u-=tz*ry*k;v+=(tz*rx-tx*rz)*k;w+=tx*ry*k}FV[0]=u*sg*bn;FV[1]=v*sg*bn;FV[2]=w*sg*bn};
+ bf(0,0,0);sg=FV[1]<0?-1:1;bn=1/Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1]+FV[2]*FV[2]);
+ window.__bf=(x,y,z)=>{bf(x,y,z);return FV.slice()};const dir=(x,y,z)=>{bf(x,y,z);const m=Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1]+FV[2]*FV[2])||1;D[0]=FV[0]/m;D[1]=FV[1]/m;D[2]=FV[2]/m};
+ /* magnet body */
+ [[1,0xffb0cf],[-1,B]].forEach(([d,c])=>{const m=new T.Mesh(new T.CylinderGeometry(ra,ra,KM,32,1,true),ac(c,.26));m.position.y=d*KM/2;g.add(m);const cap=new T.Mesh(new T.CircleGeometry(ra,32),ac(c,.34));cap.rotation.x=-Math.PI/2*d;cap.position.y=d*KM;g.add(cap)});
+ const nS=sprite('N','#ffc0d8',.5),sS=sprite('S','#8fe3ff',.5);nS.position.set(0,KM+.3,0);sS.position.set(0,-KM-.3,0);g.add(nS,sS);
+ /* field lines */
+ const tr=mkTr(90,650);g.add(tr.obj);
+ const seeds=[];[.05,.14,.23].map(r=>r*KM).forEach((r,i)=>{for(let k=0;k<10;k++){const a=k/10*TAU+i*.3;seeds.push([r*Math.cos(a),0,r*Math.sin(a)])}});[.4,.55,.75,1,1.35].map(r=>r*KM*1.1).forEach((r,i)=>{for(let k=0;k<10;k++){const a=k/10*TAU+i*.5;seeds.push([r*Math.cos(a),0,r*Math.sin(a)])}});
+ seeds.forEach(([x0,y0,z0])=>{tr.line(dir,x0,y0,z0,.06,(x,y,z,k)=>(k>40&&(x-x0)*(x-x0)+(y-y0)*(y-y0)+(z-z0)*(z-z0)<.011)||x*x+y*y+z*z>40);
+  const i=tr.nl-1,e=(tr.ls[i]+tr.ll[i]-1)*6;if(tr.ll[i]>40&&(tr.seg[e+3]-x0)**2+(tr.seg[e+4]-y0)**2+(tr.seg[e+5]-z0)**2<.02){tr.seg.set([tr.seg[e+3],tr.seg[e+4],tr.seg[e+5],x0,y0,z0],tr.ns*6);tr.ns++;tr.ll[i]++}});
+ const fl=P(90*3,0xffb0cf,.06,.95);g.add(fl);
+ /* iron filings */
+ {const fa=[],fc=[];for(let i=-15;i<=15;i++)for(let j=-17;j<=17;j++){const x=i*.15,y=j*.15;bf(x,y,0);const m=Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1])||1,b=Math.min(1,.18+.5*Math.pow(Math.sqrt(FV[0]*FV[0]+FV[1]*FV[1]+FV[2]*FV[2]),.4)),ux=FV[0]/m*.055,uy=FV[1]/m*.055;fa.push(x-ux,y-uy,0,x+ux,y+uy,0);for(let v=0;v<2;v++)fc.push(.3*b,.85*b,b)}
+  const fg=new T.BufferGeometry();fg.setAttribute('position',new T.Float32BufferAttribute(fa,3));fg.setAttribute('color',new T.Float32BufferAttribute(fc,3));var fil=new T.LineSegments(fg,new T.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.6,blending:T.AdditiveBlending,depthWrite:false}));g.add(fil)}
+ /* surface */
+ const pot=Potato(8,.85,.8,.8);pot.cy=0;window.__pot1=pot;
+ const heat=new T.Mesh(pot.geo,new T.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.42,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending})),skin=new T.Mesh(pot.geo,skinMat(S));g.add(heat,skin,pot.wire);
+ const MC=900,cO=P(MC,0xff8fbf,.15,.95),cI=P(MC,B,.15,.95),cAr=Arr(MC,0xffffff,.55);g.add(cO,cI,cAr);
+ const sm=mkSamples(pot,34,B,0xff8fbf);sm.objs.forEach(o=>g.add(o));
+ let nOut=0,nIn=0,fo=0,fi=0;
+ const recompute=()=>{pot.cy=nv(pn,'m_y');pot.s=nv(pn,'m_s');pot.update();[fo,fi]=fluxOver(pot,bf,[1,.55,.78],[.32,.84,1],1.2);sm.upd(bf);
+  nOut=0;nIn=0;let nc=0;const oa=cO.geometry.attributes.position.array,ia=cI.geometry.attributes.position.array;
+  for(let i=0;i<tr.nl;i++){const st=tr.ls[i],L=tr.ll[i];let go=pot.g(tr.seg[st*6],tr.seg[st*6+1],tr.seg[st*6+2]);
+   for(let k=0;k<L;k++){const o=(st+k)*6,gn=pot.g(tr.seg[o+3],tr.seg[o+4],tr.seg[o+5]),ins=gn<0;tr.col[o]=tr.col[o+3]=ins?.8:.2;tr.col[o+1]=tr.col[o+4]=ins?.95:.62;tr.col[o+2]=tr.col[o+5]=ins?1:.85;
+    if(go*gn<0&&nc<MC){const f=go/(go-gn),dx=tr.seg[o+3]-tr.seg[o],dy=tr.seg[o+4]-tr.seg[o+1],dz=tr.seg[o+5]-tr.seg[o+2],dl=Math.sqrt(dx*dx+dy*dy+dz*dz)||1,px=tr.seg[o]+dx*f,py=tr.seg[o+1]+dy*f,pz=tr.seg[o+2]+dz*f;
+     if(go<0){oa[nOut*3]=px;oa[nOut*3+1]=py;oa[nOut*3+2]=pz;nOut++}else{ia[nIn*3]=px;ia[nIn*3+1]=py;ia[nIn*3+2]=pz;nIn++}cAr.set(nc,px,py,pz,dx/dl*.28,dy/dl*.28,dz/dl*.28);nc++}go=gn}}
+  tr.done();cO.geometry.setDrawRange(0,nOut);cI.geometry.setDrawRange(0,nIn);cAr.geometry.setDrawRange(0,nc*6);cO.geometry.attributes.position.needsUpdate=true;cI.geometry.attributes.position.needsUpdate=true;cAr.up();
+  setRd(rb,[sgn(fo),sgn(fi),sgn(fo+fi,3),nOut+' / '+nIn])};
+ let py_=-9,ps_=-9,fp=0;recompute();py_=pot.cy;ps_=pot.s;
+ const si=Math.floor(.5/34*pot.nt)*3,pc=()=>[pot.ct[si],pot.ct[si+1],pot.ct[si+2]];
+ const lb=mkLabs(g,[
+  ['lB','\\mathbf B','#ffb0cf',.3,()=>{const p=pc();bf(p[0],p[1],p[2]);const m=Math.hypot(FV[0],FV[1],FV[2])||1;return[p[0]+FV[0]/m*.8,p[1]+FV[1]/m*.8,p[2]+FV[2]/m*.8]}],
+  ['ldA','d\\mathbf A','#ffffff',.28,()=>{const p=pc();return[p[0]+pot.fn[si]*.6,p[1]+pot.fn[si+1]*.6,p[2]+pot.fn[si+2]*.6]}],
+  ['lS','S','#ffe6f0',.34,()=>[pot.cx,pot.cy+pot.sy*pot.s*1.25,pot.cz]],
+  ['lzero','0','#ffe6f0',.5,()=>[pot.cx,pot.cy,pot.cz]]]);
+ const upd=(t,dt,w)=>{
+  const y=nv(pn,'m_y'),sz=nv(pn,'m_s');if(y!==py_||sz!==ps_){py_=y;ps_=sz;recompute()}
+  fp+=dt*.1;flowPts(tr,fl,3,fp);fl.visible=ck(pn,'m_fl');fil.visible=ck(pn,'m_fi');heat.visible=ck(pn,'m_heat');sm.objs.forEach(o=>o.visible=ck(pn,'m_dA'));
+  tr.obj.material.opacity=.3+.4*w('B');fl.material.size=.06+.06*w('B');
+  skin.material.uniforms.k.value=1+1.2*w('sph');pot.wire.material.opacity=.07+.3*w('sph');heat.material.opacity=.38+.4*w('sph')+.1*w('sph')*Math.sin(t*4);
+  cO.material.size=cI.material.size=.13+.14*w('sph');cAr.material.opacity=.3+.6*w('sph');
+  sm.nA.material.opacity=.3+.7*w('dA');sm.eA.material.opacity=.4+.5*w('B');sm.cA.material.opacity=.35+.6*w('dA')+.3*w('B');sm.objs[3].material.opacity=.4+.5*w('dA')};
+ return{s,pn,upd:(t,d,w)=>{upd(t,d,w);lb(w)},dist:6.8};
+};
+
+/* ============ III. Faraday: changing B through a loop induces a circulating E ============ */
+const farV=()=>{
+ const s=new T.Scene(),g=new T.Group();s.add(g);
+const pn=mkPanel('\\oint_C\\mathbf E\\!\\cdot\\! d\\mathbf l=-\\dfrac{d\\Phi_B}{dt}','Changing B through S drives E round C.',
+  leg(HB,'B changing')+leg(HX,'induced E')+lgq(HX,'+','conventional current')+leg(HS,'coil')+leg('#ffd9a8','loop C'),
+  rng('f_A','B amplitude (mT)',5,100,50,1)+rng('f_f','Frequency (Hz)',.1,2,.5,.05)+chk('f_run','Run time')+chk('f_eg','Induced E arrows')+chk('f_wh','Paddle wheels')+'<div class="rd"></div><canvas class="gr" width="360" height="130"></canvas>');
+ const gr=pn.querySelector('.gr'),rb=mkRd(pn,['B\\ \\text{(coil)}','\\Phi_B','d\\Phi_B/dt','\\oint\\mathbf E\\!\\cdot\\! d\\mathbf l','\\text{induced }\\mathbf B']);
+ const a_=.42,R_=1,AC=Math.PI*.042*.042;
+ const hel=[];{const Tn=16,m=40,H=1.5;let q=null;for(let i=0;i<=Tn*m;i++){const f=i/(Tn*m),an=f*Tn*TAU,p=[.46*Math.cos(an),-H+2*H*f,.46*Math.sin(an)];if(q)hel.push(...q,...p);q=p}}
+ const coil=L(hel,S,.5),core=new T.Mesh(new T.CylinderGeometry(.4,.4,3,32,1,true),ac(B,.05));g.add(coil,core);
+ const cpt=P(70,S,.06,.9);g.add(cpt);
+ const lpt=(r0,Rm,az,u)=>{let r,y;if(u<.4){r=r0;y=-1.7+u/.4*3.4}else{const v=(u-.4)/.6;r=r0+(Rm-r0)*Math.sin(Math.PI*v);y=1.7*Math.cos(Math.PI*v)}return[r*Math.cos(az),y,r*Math.sin(az)]};
+ const BL=[],bs=[];[.08,.2,.32].forEach((r0,j)=>{for(let k=0;k<6;k++){const az=k/6*TAU+j*.5,Rm=[1.4,1.8,2.2][(j+k)%3];BL.push([r0,Rm,az]);let q=lpt(r0,Rm,az,0);for(let i=1;i<=64;i++){const n=lpt(r0,Rm,az,i/64);bs.push(...q,...n);q=n}}});
+ const bl=L(bs,B,.25),bp=P(BL.length*4,B,.06);g.add(bl,bp);
+ const torus=new T.Mesh(new T.TorusGeometry(R_,.02,8,120),ac(0xffd9a8,.7));torus.rotation.x=Math.PI/2;g.add(torus);
+ const sd=disc(R_,0,B);g.add(sd);
+ const bulb=P(1,E,.3,.9),cur=P(48,E,.07,.9);bulb.geometry.attributes.position.setXYZ(0,Math.cos(.9)*R_,0,Math.sin(.9)*R_);g.add(bulb,cur);
+ const dAr=Arr(13,S,.8),dlr=Arr(10,0xffffff,.8);
+ {let i=0;dAr.set(i++,0,0,0,0,.4,0);[[.5,6],[.9,6]].forEach(([r,n],j)=>{for(let k=0;k<n;k++){const a=k/n*TAU+j*.5;dAr.set(i++,r*Math.cos(a),0,r*Math.sin(a),0,.4,0)}});dAr.up();
+  for(let k=0;k<10;k++){const a=k/10*TAU;dlr.set(k,R_*Math.cos(a),0,R_*Math.sin(a),Math.sin(a)*.34,0,-Math.cos(a)*.34)}dlr.up()}
+ g.add(dAr,dlr);
+ const ER=[];[0,-.55,.55].forEach((y,li)=>[.15,.3,.45,.7,1,1.35,1.7].forEach(r=>{const n=Math.max(6,Math.round(r*12));for(let k=0;k<n;k++)ER.push([r,y,k/n*TAU+li*.4])}));
+ const ea=Arr(ER.length,E,.85);g.add(ea);
+ const wheels=[[.12,-.85,0,1],[.3,.75,.15,1],[-.2,.1,.25,1],[.95,.25,0,0]].map(([x,y,z,on])=>{const w=new T.Group();w.position.set(x,y,z);const b=L([-.14,0,0,.14,0,0,0,0,-.14,0,0,.14],0xffe6f0,.9),tp=P(4,S,.07,.95),ta=tp.geometry.attributes.position;[[.14,0,0],[-.14,0,0],[0,0,.14],[0,0,-.14]].forEach((p,i)=>ta.setXYZ(i,p[0],p[1],p[2]));w.add(b,tp);g.add(w);return{w,on}});
+ let ph=0,ang=0,pf=0,cph=0,fr=0;
+ const lb=mkLabs(g,[
+  ['lB','\\mathbf B','#8fe3ff',.32,()=>[0,1.85,0]],
+  ['lE','\\mathbf E','#ffb454',.32,()=>[-1.25,.12,0]],
+  ['ldl','d\\mathbf l','#ffffff',.28,()=>[0,.18,1.25]],
+  ['lC','C','#ffd9a8',.34,()=>[.9,.2,.9]],
+  ['lS','S','#8fe3ff',.34,()=>[.3,.12,-.3]],
+  ['ldA','d\\mathbf A','#ffffff',.28,()=>[.6,.55,0]],
+  ['ldB','\\dfrac{\\partial\\mathbf B}{\\partial t}','#8fe3ff',.46,()=>[.95,1.5,0]],
+  ['lcurl','\\nabla\\!\\times\\!\\mathbf E','#ffe6f0',.3,()=>[.12,-.45,0]],
+  ['lminus','\\text{opposes }\\Delta\\mathbf B','#ffb454',.26,()=>[-1.25,-.4,0]]]);
+ const upd=(t,dt,w)=>{
+  const A=nv(pn,'f_A'),f=nv(pn,'f_f');if(ck(pn,'f_run'))ph+=dt*TAU*f;
+  const Bt=A*Math.sin(ph),dBt=A*TAU*f*Math.cos(ph),amp=.3+.7*Math.min(1,A*f/100),en=amp*Math.cos(ph),Bn=amp*Math.sin(ph);
+  const emf=-AC*dBt*1e-3*1e3,Phi=AC*Bt*1e3;
+  pf+=dt*.14*Bn;cph+=dt*.35*Bn;ang+=dt*en*3;
+  bl.material.opacity=.14+.3*Math.abs(Bn)+.4*w('bp')+.25*w('pulse')*(.5+.5*Math.sin(t*6));
+  {const a=bp.geometry.attributes.position;let j=0;BL.forEach(([r0,Rm,az],i)=>{for(let m=0;m<4;m++){const p=lpt(r0,Rm,az,(((pf+m/4+i*.071)%1)+1)%1);a.setXYZ(j++,p[0],p[1],p[2])}});a.needsUpdate=true}
+  bp.material.size=.06+.05*w('bp')+.03*w('pulse');
+  {const a=cpt.geometry.attributes.position;for(let i=0;i<70;i++){const fq=(((cph+i/70)%1)+1)%1,an=fq*16*TAU;a.setXYZ(i,.46*Math.cos(an),-1.5+3*fq,.46*Math.sin(an))}a.needsUpdate=true}
+  coil.material.opacity=.35+.45*w('col');cpt.material.size=.06+.05*w('col');
+  torus.material.opacity=.55+.4*w('lp');sd.material.opacity=.07+.2*w('disc')+.05*w('disc')*Math.sin(t*4);
+  dAr.material.opacity=.25+.7*w('dA');dlr.material.opacity=.25+.7*Math.max(w('dl'),w('lp')*.6);
+  ea.visible=ck(pn,'f_eg');ea.material.opacity=.45+.5*Math.max(w('ring'),w('ep'));
+  ER.forEach(([r,y,an],i)=>{const m=r<a_?r/a_:a_/r,len=.3*m*en,dx=-Math.sin(an)*len,dz=Math.cos(an)*len;ea.set(i,r*Math.cos(an)-dx/2,y,r*Math.sin(an)-dz/2,dx,0,dz)});ea.up();
+  {const a=cur.geometry.attributes.position;for(let i=0;i<48;i++){const an=ang+i/48*TAU;a.setXYZ(i,R_*Math.cos(an),0,R_*Math.sin(an))}a.needsUpdate=true}
+  cur.material.size=.06+.08*Math.abs(en)+.04*w('lp');bulb.material.size=.12+.55*Math.abs(en);bulb.material.opacity=.5+.5*Math.abs(en);
+  wheels.forEach(o=>{o.w.rotation.y-=en*dt*9*o.on;o.w.visible=ck(pn,'f_wh');o.w.children[0].material.opacity=.6+.4*Math.max(w('wheel'),w('ring')*.5)});
+  gr.style.boxShadow=`0 0 ${(w('graph')*16).toFixed(1)}px rgba(255,180,84,${(.8*w('graph')).toFixed(2)})`;
+  const phs=u=>ph-TAU*f*4*(1-u);
+  graph(gr,[{col:HB,f:u=>Math.sin(phs(u))},{col:HX,f:u=>-Math.cos(phs(u)),lw:2.5}]);
+  if(fr--<=0){fr=4;setRd(rb,[sgn(Bt,1)+' mT',sgn(Phi,1)+' \u00b5Wb',sgn(-emf,2)+' mV',sgn(emf,2)+' mV',dBt>0?'\u2193 opposes rise':'\u2191 opposes fall'])}
+ };
+ return{s,pn,upd:(t,d,w)=>{upd(t,d,w);lb(w)},dist:7.6};
+};
+
+/* ============ IV. Amp\u00e8re\u2013Maxwell: wire + charging capacitor, two surfaces, one loop ============ */
+const ampV=()=>{
+ const s=new T.Scene(),g=new T.Group();s.add(g);
+ const PL=.55,Rp=1,rimY=-1.25,rimR=.85;
+const pn=mkPanel('\\oint_C\\mathbf B\\!\\cdot\\! d\\mathbf l=\\mu_0\\Big(I_{\\mathrm{enc}}+\\varepsilon_0\\dfrac{d\\Phi_E}{dt}\\Big)','Same loop C, two surfaces, same B.',
+  lgq(HX,'+','positive charge')+lgq(HB,'\u2212','negative charge')+leg(HS,'current J')+leg(HX,'E, \u2202E/\u2202t')+leg(HB,'B, loop C')+leg('#ffcf8a','S\u2082 (no wire)'),
+  rng('a_I','Current amplitude I\u2080 (mA)',5,100,40,1)+rng('a_f','Frequency (Hz)',.1,2,.5,.05)+chk('a_run','Run time')+chk('a_s1','Surface S\u2081: flat disc')+chk('a_s2','Surface S\u2082: bag')+chk('a_b','B arrows')+'<div class="rd"></div><canvas class="gr" width="360" height="130"></canvas>');
+ const gr=pn.querySelector('.gr'),rb=mkRd(pn,['I','Q_{\\text{top plate}}','S_1:\\ I_{\\mathrm{enc}},\\ \\varepsilon_0\\,d\\Phi_E/dt','S_2:\\ I_{\\mathrm{enc}},\\ \\varepsilon_0\\,d\\Phi_E/dt','B_C\\ (\\text{either surface})']);
+ const wire=[1,-1].map(d=>{const m=new T.Mesh(new T.CylinderGeometry(.03,.03,1.65,12),ac(S,.55));m.position.y=d*(PL+2.2)/2;g.add(m);return m});
+ const src=sprite('\u223f AC','#ffe6f0',1.3);src.position.set(0,2.5,0);g.add(src);
+ const plates=[-PL,PL].map(y=>{const grp=new T.Group();grp.position.y=y;const d=new T.Mesh(new T.CylinderGeometry(Rp,Rp,.05,72),ac(S,.12)),rl=[Rp,.75,.5,.25].map(r=>L(ring(r,0,80),S,r===Rp?.8:.22)),sp=[];for(let k=0;k<12;k++){const a=k/12*TAU;sp.push(0,0,0,Rp*Math.cos(a),0,Rp*Math.sin(a))}const spk=L(sp,S,.14);grp.add(d,spk,...rl);g.add(grp);return{d,rl,spk}});
+ const dots=(y,col)=>{const p=P(120,col,.08,0),a=p.geometry.attributes.position;for(let i=0;i<120;i++){const r=Math.sqrt(Math.random())*.94,an=Math.random()*TAU;a.setXYZ(i,r*Math.cos(an),y,r*Math.sin(an))}g.add(p);return p};
+ const tP=dots(PL-.04,E),tN=dots(PL-.04,B),bP=dots(-PL+.04,E),bN=dots(-PL+.04,B);
+ const sgS=(t,c,y)=>{const s=sprite(t,c,.36,true);s.position.set(.62,y,.62);s.material.opacity=0;g.add(s);return s};
+ const tPs=sgS('+','#ffcf8a',PL+.2),tNs=sgS('\u2212','#9fe8ff',PL+.2),bPs=sgS('+','#ffcf8a',-PL-.2),bNs=sgS('\u2212','#9fe8ff',-PL-.2);
+ const EL=[];[[0,1],[.25,6],[.5,10],[.75,14],[.95,18]].forEach(([r,n])=>{for(let k=0;k<n;k++)EL.push([r*Math.cos(k/n*TAU),r*Math.sin(k/n*TAU)])});
+ const eAr=Arr(EL.length,E,.8),dAr=Arr(5,S,.95),DL=[[.12,.12],[.55,.0],[-.55,.0],[0,.55],[0,-.55]];g.add(eAr,dAr);
+ const jp=P(64,S,.07,.9);g.add(jp);
+ /* B arrows: wire region (1/r) and gap region (r inside the plates, 1/r outside) */
+ const BR=[];[[.9,[.18,.3,.45,.65,1.1,1.4],[6,7,8,10,14,16],0],[-.9,[.18,.3,.45,.65,1.1,1.4],[6,7,8,10,14,16],0],[1.65,[.18,.3,.45,.65,1.1,1.4],[6,7,8,10,14,16],0],[-1.65,[.18,.3,.45,.65,1.1,1.4],[6,7,8,10,14,16],0],
+  [-.3,[.2,.4,.6,.8,1,1.25,1.55],[6,8,10,12,14,16,18],1],[0,[.2,.4,.6,.8,1,1.25,1.55],[6,8,10,12,14,16,18],1],[.3,[.2,.4,.6,.8,1,1.25,1.55],[6,8,10,12,14,16,18],1]].forEach(([y,rs,ns,gap],li)=>rs.forEach((r,ri)=>{for(let k=0;k<ns[ri];k++)BR.push([r,y,k/ns[ri]*TAU+li*.3,gap])}));
+ const bAr=Arr(BR.length,B,.85),rsg=[];[.18,.3,.45,.65,1.1,1.4].forEach(r=>[.9,-.9,1.65,-1.65].forEach(y=>rsg.push(...ring(r,y,48))));[.2,.4,.6,.8,1,1.25,1.55].forEach(r=>[-.3,0,.3].forEach(y=>rsg.push(...ring(r,y,48))));
+ const bring=L(rsg,B,.1);g.add(bAr,bring);
+ /* loop C and the two surfaces */
+ const rim=new T.Mesh(new T.TorusGeometry(rimR,.024,8,100),ac(B,.8));rim.rotation.x=Math.PI/2;rim.position.y=rimY;g.add(rim);
+ const s1=disc(rimR,rimY,S);g.add(s1);
+ const pr=[[rimR,rimY],[.98,-1.17],[1.14,-1],[1.26,-.82],[1.32,-.6],[1.34,-.35],[1.3,-.15],[1.2,-.03],[.9,0],[.5,0],[.02,0]].map(p=>new T.Vector2(p[0],p[1])),bagG=new T.LatheGeometry(pr,56);
+ const bag=new T.Mesh(bagG,ac(0xffcf8a,0)),bagW=new T.LineSegments(new T.WireframeGeometry(bagG),new T.LineBasicMaterial({color:0xffcf8a,transparent:true,opacity:.05,blending:T.AdditiveBlending,depthWrite:false}));g.add(bag,bagW);
+ const n1=Arr(5,S,.8),n2=Arr(5,0xffcf8a,.8);[[0,0],[.4,0],[-.4,0],[0,.4],[0,-.4]].forEach(([x,z],i)=>{n1.set(i,x,rimY+.2,z,0,-.4,0);n2.set(i,x*1.7,.2,z*1.7,0,-.4,0)});n1.up();n2.up();g.add(n1,n2);
+ let ph=0,jph=0,fr=0;
+ const lb=mkLabs(g,[
+  ['lJ','\\mathbf J','#ffe6f0',.32,()=>[.3,1.1,0]],
+  ['lE','\\mathbf E','#ffb454',.32,()=>[.35,0,.45]],
+  ['ldE','\\dfrac{\\partial\\mathbf E}{\\partial t}','#ffb454',.46,()=>[1.2,0,.3]],
+  ['lB','\\mathbf B','#8fe3ff',.32,()=>[1.35,.45,0]],
+  ['lmu','\\mu_0','#ffe6f0',.3,()=>[-1.05,.9,0]],
+  ['leps','\\varepsilon_0','#ffe6f0',.3,()=>[-1.2,0,.3]],
+  ['lC','C','#ffd9a8',.34,()=>[rimR+.2,rimY+.1,0]],
+  ['ldl','d\\mathbf l','#ffffff',.28,()=>[-rimR-.2,rimY+.18,0]],
+  ['ldA','d\\mathbf A','#ffffff',.28,()=>[.2,rimY+.5,.3]],
+  ['lI','I_{\\mathrm{enc}}','#ffe6f0',.32,()=>[.4,rimY-.4,0]],
+  ['lS2','S_2','#ffcf8a',.34,()=>[1.35,-.6,0]]]);
+ const upd=(t,dt,w)=>{
+  const I0=nv(pn,'a_I'),f=nv(pn,'a_f'),om=TAU*f;if(ck(pn,'a_run'))ph+=dt*om;
+  const amp=.35+.65*I0/100,In=amp*Math.cos(ph),Qn=amp*Math.sin(ph);jph+=dt*.5*In;
+  const I=I0*Math.cos(ph),Qf=p=>I0/om*Math.sin(p),dl=1e-3,Ed=(Qf(ph+om*dl)-Qf(ph-om*dl))/(2*dl);
+  wire.forEach(m=>m.material.opacity=.5+.3*w('jp')+.3*w('wire'));
+  plates.forEach(p=>{p.d.material.opacity=.1+.2*w('plates');p.rl.forEach((r,i)=>r.material.opacity=(i?.22:.8)+.2*w('plates'));p.spk.material.opacity=.14+.2*w('plates')});
+  tP.material.opacity=Math.max(Qn,0)*1.1;tN.material.opacity=Math.max(-Qn,0)*1.1;bP.material.opacity=Math.max(-Qn,0)*1.1;bN.material.opacity=Math.max(Qn,0)*1.1;[tP,tN,bP,bN].forEach(p=>p.material.size=.08+.04*w('plates'));tPs.material.opacity=Math.min(1,Math.max(Qn,0)*1.6);tNs.material.opacity=Math.min(1,Math.max(-Qn,0)*1.6);bPs.material.opacity=Math.min(1,Math.max(-Qn,0)*1.6);bNs.material.opacity=Math.min(1,Math.max(Qn,0)*1.6);
+  EL.forEach(([x,z],i)=>{const dy=-Qn*.95;eAr.set(i,x,-dy/2,z,0,dy,0,1,0,0)});eAr.up();eAr.material.opacity=.3+.6*Math.min(1,Math.abs(Qn)*1.6)+.3*w('ep');
+  DL.forEach(([x,z],i)=>{const dy=-In*.8;dAr.set(i,x,-dy/2,z,0,dy,0,1,0,0)});dAr.up();dAr.material.opacity=.5+.5*w('ep');
+  {const a=jp.geometry.attributes.position;for(let i=0;i<64;i++){const u=((((jph+(i%32)/32)%1)+1)%1);a.setXYZ(i,0,i<32?PL+(1-u)*1.65:-PL-u*1.65,0)}a.needsUpdate=true}jp.material.size=.07+.05*w('jp')+.04*w('wire');
+  BR.forEach(([r,y,an,gap],i)=>{const m=gap?(r<=Rp?r:1/r):Math.min(1,.3/r),len=.34*m*In,dx=-Math.sin(an)*len,dz=Math.cos(an)*len;bAr.set(i,r*Math.cos(an)-dx/2,y,r*Math.sin(an)-dz/2,dx,0,dz)});bAr.up();
+  bAr.visible=ck(pn,'a_b');bAr.material.opacity=.5+.4*w('bp')+.2*w('bring');bring.material.opacity=.07+.4*w('bring')+.1*w('bp');
+  const r1=Math.max(w('rimI'),w('rimE'));rim.material.opacity=.7+.3*r1;rim.scale.setScalar(1+.015*r1*Math.sin(t*5));
+  s1.visible=n1.visible=ck(pn,'a_s1');bag.visible=bagW.visible=n2.visible=ck(pn,'a_s2');
+  s1.material.opacity=.07+.28*w('diskI')+.05*w('diskI')*Math.sin(t*4);bag.material.opacity=.05+.2*w('diskE')+.04*w('diskE')*Math.sin(t*4);bagW.material.opacity=.05+.3*w('diskE');n1.material.opacity=.3+.6*w('diskI');n2.material.opacity=.3+.6*w('diskE');
+  gr.style.boxShadow=`0 0 ${(w('ep')*10).toFixed(1)}px rgba(255,180,84,${(.6*w('ep')).toFixed(2)})`;
+  const phs=u=>ph-TAU*f*4*(1-u);
+  graph(gr,[{col:HB,f:u=>Math.sin(phs(u)),lw:1.5},{col:HS,f:u=>Math.cos(phs(u)),lw:3},{col:HX,f:u=>Math.cos(phs(u)),lw:2,dash:[6,5]}]);
+  if(fr--<=0){fr=4;const Bl=2e-7*(I*1e-3)/.0425;const nb=Math.abs(Bl)*1e9;setRd(rb,[sgn(I,1)+' mA',sgn(Qf(ph),2)+' mC',sgn(I,1)+' mA, 0','0, '+sgn(Ed,1)+' mA',(Bl<0?'\u2212':'+')+nb.toFixed(0)+' nT'])}
+ };
+ return{s,pn,upd:(t,d,w)=>{upd(t,d,w);lb(w)},dist:8.2};
+};
+
+/* ===================== overlay plumbing ===================== */
+const HLX=[
+ {div:'div ldiv',E:'E lE',eq:'div rho E lrho',rho:'rho lrho',eps0:'eps0 leps',thm:'sph lS',oint:'sph flux lS',dot:'dA E ldA lE',dA:'dA sph ldA',eq2:'sph flux rho lS lQ',Q:'rho sph lQ lS'},
+ {div:'sph lzero',B:'B lB',eq:'sph B lzero',zero:'sph lzero',thm:'sph lS',oint:'sph lS',dot:'dA B ldA lB',dA:'dA ldA',eq2:'sph B lzero lS'},
+ {curl:'wheel ring lcurl',E:'ring lE',eq:'ring wheel bp col lE ldB',minus:'ring lp lminus',partial:'pulse bp graph ldB',B:'bp col lB',t:'graph pulse ldB',thm:'lp disc lC lS',ointC:'lp dl lC',dot:'dl dA ldl ldA',dl:'dl lp ldl',eq2:'lp disc graph ring lC ldB',ddt:'graph pulse ldB',intS:'disc dA bp lS ldA',dA:'dA disc ldA'},
+ {curl:'bring lB',B:'bp lB',eq:'bring jp ep lJ ldE',mu0:'jp ep bp lmu',J:'jp wire lJ',plus:'jp ep lJ ldE',eps0:'plates ep leps',partial:'ep plates ldE',E:'ep lE',t:'ep ldE',thm:'rimI rimE diskI diskE lC',ointC:'rimI rimE lC lB',dot:'bp ep ldl',dl:'rimI rimE ldl',eq2:'rimI rimE diskI diskE jp ep lC lJ ldE',Ienc:'diskI jp wire lI',ddt:'ep plates ldE',intS:'diskE ep lS2',dA:'diskI diskE ldA'},
+ {lap:'E B lam',E:'E lE',B:'B lB',eq:'E B pp k lE lB',eqB:'B E pp k lE lB',mu0:'B lB',eps0:'E lE',d2:'pr E B',t:'pr'}];
+const SRC=[['Sunlight',1361,5.45e14],['Laser pointer',6366,4.61e14],['Wi-Fi, 1 m',7.96e-3,2.4e9],['FM radio, 1 km',3.98e-3,1e8],['Phone, 10 cm',7.96,1.8e9]],C0=2.998e8,EP0=8.854e-12,WS={src:0,raw:false};
+const si=(v,u)=>{const Q=[[1e12,'T'],[1e9,'G'],[1e6,'M'],[1e3,'k'],[1,''],[1e-3,'m'],[1e-6,'\u00b5'],[1e-9,'n']],a=Math.abs(v),q=Q.find(z=>a>=z[0])||Q[7];return(v/q[0]).toPrecision(3)+' '+q[1]+u};
+const txs=(h,col)=>{const c=document.createElement('canvas');c.width=512;c.height=96;const m=new T.CanvasTexture(c),sp=new T.Sprite(new T.SpriteMaterial({map:m,transparent:true,depthTest:false,depthWrite:false}));sp.scale.set(h*5.33,h,1);let k='';sp.set=t=>{if(t===k)return;k=t;const x=c.getContext('2d');x.clearRect(0,0,512,96);x.font='600 46px Newsreader,Georgia,serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=10;x.fillText(t,256,50);m.needsUpdate=true};return sp};
+const DER=[
+{t:'s',pid:'start',b:'Start',k:'E B',h:'Start from Maxwell in empty space',m:rw`Far from any charge or current, set $\rho=0$ and $\mathbf J=0$. Four laws remain. The last two form a loop: the curl of E is fed by the change of B, and the curl of B by the change of E. To isolate one field, curl its own law, then let the other law turn the curl into a time derivative.`,f:rw`\begin{aligned}\nabla\!\cdot\mathbf E&=0&\nabla\!\times\mathbf E&=-\frac{\partial\mathbf B}{\partial t}\\[4pt]\nabla\!\cdot\mathbf B&=0&\nabla\!\times\mathbf B&=\mu_0\varepsilon_0\frac{\partial\mathbf E}{\partial t}\end{aligned}`,i:rw`Faraday and Ampère–Maxwell swap one field for the other (E1, E3, B1, B3). The two Gauss laws each remove one term (E5, B5).`},
+{t:'e',pid:'e',b:'E1',k:'E lE',h:'Take the curl of Faraday’s law',m:rw`Both sides of $\nabla\!\times\mathbf E=-\partial_t\mathbf B$ are vectors at every point, so we may apply the same operation to both. Apply the curl again.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf E)=\nabla\!\times\Big(-\frac{\partial\mathbf B}{\partial t}\Big)`,i:rw`Two curls in a row give **two space derivatives of E**, which is exactly what $\nabla^2\mathbf E$ is made of. On the right the curl of B now appears, and Ampère–Maxwell can rewrite that in terms of E. One move prepares both sides.`},
+{t:'e',pid:'e',b:'E2',k:'E B',h:'Swap space and time derivatives',m:rw`For smooth fields the order of differentiation does not matter, so $\partial/\partial t$ comes out of the curl and takes the minus sign with it.`,f:rw`\nabla\!\times\Big(-\frac{\partial\mathbf B}{\partial t}\Big)=-\frac{\partial}{\partial t}\big(\nabla\!\times\mathbf B\big)`,v:['Check in components',rw`Take the x-component. The middle step swaps $\partial_y\partial_t$ for $\partial_t\partial_y$ (mixed partial derivatives are equal). The y and z components work the same way.`,rw`[\nabla\!\times\partial_t\mathbf B]_x=\partial_y\partial_tB_z-\partial_z\partial_tB_y=\partial_t\big(\partial_yB_z-\partial_zB_y\big)=\partial_t(\nabla\!\times\mathbf B)_x`],i:rw`It makes no difference whether you first see how B curls and then how fast that curl changes, or first see how fast B changes and then take its curl. Space derivatives only look at space, the time derivative only at time.`},
+{t:'e',pid:'e',b:'E3',k:'E B pr',h:'Insert Ampère–Maxwell',m:rw`In empty space $\nabla\!\times\mathbf B=\mu_0\varepsilon_0\,\partial_t\mathbf E$. Substitute it, and take the constants out of the time derivative.`,f:rw`\begin{aligned}\nabla\!\times(\nabla\!\times\mathbf E)&=-\frac{\partial}{\partial t}\Big(\mu_0\varepsilon_0\frac{\partial\mathbf E}{\partial t}\Big)\\&=-\mu_0\varepsilon_0\frac{\partial^2\mathbf E}{\partial t^2}\end{aligned}`,i:rw`B has now vanished from the story. It was only a go-between: changing B makes E (Faraday), changing E makes B (Ampère–Maxwell), and one trip round the loop returns E’s own second time derivative. Maxwell’s displacement-current term is essential here: without it $\nabla\!\times\mathbf B$ would be zero in empty space and there would be no wave.`},
+{t:'e',pid:'e',b:'E4',k:'E lam',h:'Expand the curl of a curl',m:rw`Use the vector identity below, valid for any smooth vector field, with $\mathbf A=\mathbf E$.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf E)=\nabla(\nabla\!\cdot\mathbf E)-\nabla^{2}\mathbf E`,v:['Proof of the identity, x-component',rw`Expand each curl, regroup (mixed partials commute again), then add and subtract $\partial_x^2A_x$. The y and z components follow by symmetry.`,rw`\begin{aligned}[\nabla\!\times(\nabla\!\times\mathbf A)]_x&=\partial_y(\partial_xA_y-\partial_yA_x)-\partial_z(\partial_zA_x-\partial_xA_z)\\&=\partial_x(\partial_yA_y+\partial_zA_z)-(\partial_y^{2}+\partial_z^{2})A_x\\&=\partial_x(\partial_xA_x+\partial_yA_y+\partial_zA_z)-(\partial_x^{2}+\partial_y^{2}+\partial_z^{2})A_x\\&=\partial_x(\nabla\!\cdot\mathbf A)-\nabla^{2}A_x\end{aligned}`],i:rw`The Laplacian $\nabla^2$ adds up the curvature of a field in every direction: negative at a crest, positive in a trough. The identity splits a double swirl into a fan-out part, $\nabla(\nabla\!\cdot\mathbf E)$, and a pure curvature part.`},
+{t:'e',pid:'e',b:'E5',k:'E lam',h:'Use Gauss’s law',m:rw`Gauss’s law gives $\nabla\!\cdot\mathbf E=0$ in empty space, so the gradient of it is zero too.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf E)=\nabla(\underbrace{\nabla\!\cdot\mathbf E}_{0})-\nabla^{2}\mathbf E=-\nabla^{2}\mathbf E`,i:rw`With no charges, E has no sources or sinks, so all of its variation is swirl. For a pure swirl the curl of the curl is just minus the curvature. This same fact later forces E to be transverse.`},
+{t:'e',pid:'e',b:'E6',k:'E pr lam',h:'Set the two results equal',m:rw`E3 and E5 are two expressions for $\nabla\!\times(\nabla\!\times\mathbf E)$. Equate them and cancel the common minus sign.`,key:1,f:rw`\begin{aligned}-\nabla^{2}\mathbf E&=-\mu_0\varepsilon_0\frac{\partial^2\mathbf E}{\partial t^2}\\[6pt]\boxed{\;\nabla^{2}\mathbf E=\mu_0\varepsilon_0\frac{\partial^2\mathbf E}{\partial t^2}\;}\end{aligned}`,i:rw`Read it as a sentence: how E bends in space equals how E accelerates in time, with $\mu_0\varepsilon_0$ as the exchange rate. At a crest the curvature is negative, so the acceleration points down: each point is pulled back toward zero by its neighbours, like a mass on a spring. The two minus signs (Lenz’s law and the identity) cancel. Had only one flipped, disturbances would grow exponentially instead of travelling.`},
+{t:'b',pid:'b',b:'B1',k:'B lB',h:'Take the curl of Ampère–Maxwell',m:rw`Apply the curl to both sides of $\nabla\!\times\mathbf B=\mu_0\varepsilon_0\,\partial_t\mathbf E$.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf B)=\nabla\!\times\Big(\mu_0\varepsilon_0\frac{\partial\mathbf E}{\partial t}\Big)`,i:rw`Same idea as E1 with the roles swapped: a double space derivative of B on the left, and on the right the curl of E, which Faraday’s law can rewrite in terms of B.`},
+{t:'b',pid:'b',b:'B2',k:'E B',h:'Swap space and time derivatives',m:rw`The constants and $\partial/\partial t$ come out of the curl, for the same reason as in E2.`,f:rw`\nabla\!\times\Big(\mu_0\varepsilon_0\frac{\partial\mathbf E}{\partial t}\Big)=\mu_0\varepsilon_0\frac{\partial}{\partial t}\big(\nabla\!\times\mathbf E\big)`,i:rw`Space and time derivatives commute, so “how E curls, then how fast” equals “how fast, then how E curls”.`},
+{t:'b',pid:'b',b:'B3',k:'E B pr',h:'Insert Faraday’s law',m:rw`Replace $\nabla\!\times\mathbf E$ by $-\partial_t\mathbf B$.`,f:rw`\begin{aligned}\nabla\!\times(\nabla\!\times\mathbf B)&=\mu_0\varepsilon_0\frac{\partial}{\partial t}\Big(-\frac{\partial\mathbf B}{\partial t}\Big)\\&=-\mu_0\varepsilon_0\frac{\partial^2\mathbf B}{\partial t^2}\end{aligned}`,i:rw`The loop closes the other way round: now E is the go-between and B’s own second time derivative returns. The minus sign again comes from Lenz’s law, which is why both fields end up with the same sign.`},
+{t:'b',pid:'b',b:'B4',k:'B lam',h:'Expand the curl of a curl',m:rw`The identity proved in E4 holds for every smooth vector field, so it holds for $\mathbf B$.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf B)=\nabla(\nabla\!\cdot\mathbf B)-\nabla^{2}\mathbf B`,i:rw`The same split into a fan-out part and a curvature part.`},
+{t:'b',pid:'b',b:'B5',k:'B lam',h:'Use Gauss’s law for magnetism',m:rw`$\nabla\!\cdot\mathbf B=0$, so the gradient term vanishes.`,f:rw`\nabla\!\times(\nabla\!\times\mathbf B)=\nabla(\underbrace{\nabla\!\cdot\mathbf B}_{0})-\nabla^{2}\mathbf B=-\nabla^{2}\mathbf B`,i:rw`Unlike $\nabla\!\cdot\mathbf E=0$, which needs empty space, $\nabla\!\cdot\mathbf B=0$ holds everywhere because magnetic charges do not exist. B has no fan-out part at all.`},
+{t:'b',pid:'b',b:'B6',k:'B pr lam',h:'Set the two results equal',m:rw`B3 and B5 both equal $\nabla\!\times(\nabla\!\times\mathbf B)$. Equate them and cancel the minus sign.`,key:1,f:rw`\begin{aligned}-\nabla^{2}\mathbf B&=-\mu_0\varepsilon_0\frac{\partial^2\mathbf B}{\partial t^2}\\[6pt]\boxed{\;\nabla^{2}\mathbf B=\mu_0\varepsilon_0\frac{\partial^2\mathbf B}{\partial t^2}\;}\end{aligned}`,i:rw`The identical equation. E and B obey the same law, so they travel together at the same speed, each one sustaining the other with no charges nearby.`},
+{t:'s',pid:'read',b:'R1',k:'pp k lk',h:'Match the standard wave equation',m:rw`A shape $f(x-vt)$ slides along $+x$ at speed $v$. The chain rule shows which equation it obeys.`,f:rw`\frac{\partial^2 f}{\partial x^2}=f'',\quad\frac{\partial^2 f}{\partial t^2}=v^{2}f''\;\Rightarrow\;\frac{\partial^2 f}{\partial x^2}=\frac{1}{v^{2}}\frac{\partial^2 f}{\partial t^2}`,i:rw`So the number in front of the time derivative is $1/v^2$. Comparing with E6 and B6, $1/v^2=\mu_0\varepsilon_0$.`},
+{t:'s',pid:'read',b:'R2',k:'pp k lk',h:'Read off the speed',m:rw`Solve for $v$ and put in the measured constants.`,key:1,f:rw`v=\frac{1}{\sqrt{\mu_0\varepsilon_0}}=\frac{1}{\sqrt{(1.2566\times10^{-6})(8.854\times10^{-12})}}=2.998\times10^{8}\ \mathrm{m/s}=c`,v:['Units check',rw`The newtons, amperes and coulombs cancel and leave seconds squared per metre squared, so $1/\sqrt{\mu_0\varepsilon_0}$ really is a speed.`,rw`\mu_0\varepsilon_0=\frac{\mathrm N}{\mathrm A^{2}}\cdot\frac{\mathrm C^{2}}{\mathrm N\,\mathrm m^{2}}=\frac{\mathrm s^{2}}{\mathrm m^{2}}`],i:rw`Nothing in the derivation mentioned light. $\mu_0$ comes from magnets and currents and $\varepsilon_0$ from charges and capacitors, yet together they give the measured speed of light. Maxwell concluded that light is an electromagnetic wave.`},
+{t:'s',pid:'read',b:'R3',l:'Reading it',k:'E B',h:'What the result does and does not say',m:rw`Each of the three components of E and of B obeys the same scalar equation, six in all. But these second-order equations are only consequences of Maxwell’s laws. A real wave must also satisfy the four first-order laws, and those tie E and B together: perpendicular to each other and to the direction of travel, in step, with $E=cB$.`,f:rw`\frac{\partial^2E_x}{\partial x^2}+\frac{\partial^2E_x}{\partial y^2}+\frac{\partial^2E_x}{\partial z^2}=\mu_0\varepsilon_0\frac{\partial^2E_x}{\partial t^2}\quad(\text{and likewise }E_y,E_z,B_x,B_y,B_z)`},
+{t:'s',pid:'read',b:'Sum',l:'In one line',k:'E B pp',h:'The whole derivation',m:rw`Each equation is one chain: curl, swap, substitute the other law, expand, use Gauss.`,key:1,f:rw`\begin{aligned}-\nabla^{2}\mathbf E&=\nabla\!\times(\nabla\!\times\mathbf E)=-\frac{\partial}{\partial t}(\nabla\!\times\mathbf B)=-\mu_0\varepsilon_0\frac{\partial^2\mathbf E}{\partial t^2}\\-\nabla^{2}\mathbf B&=\nabla\!\times(\nabla\!\times\mathbf B)=\mu_0\varepsilon_0\frac{\partial}{\partial t}(\nabla\!\times\mathbf E)=-\mu_0\varepsilon_0\frac{\partial^2\mathbf B}{\partial t^2}\end{aligned}`}];
+const waveV=()=>{
+ const s=new T.Scene(),g=new T.Group();s.add(g);
+ const X=3.6,W=mkWave(g,170,-X,X),lam=TAU/WK,XP=-1,GP=[-.7,0,.7];mkAxes(g,X+.6,1.6,1.6);
+ g.add(L([0,1,-.07,0,1,.07,0,-1,-.07,0,-1,.07,0,-.07,1,0,.07,1,0,-.07,-1,0,.07,-1],0xffffff,.6));
+ const tl=[[.62,1,0,'#ffb454'],[.62,-1,0,'#ffb454'],[0,.22,1,'#8fe3ff'],[0,.22,-1,'#8fe3ff']].map(([x,y,z,c])=>{const q=txs(.2,c);q.position.set(x,y,z);g.add(q);return q}),lamT=txs(.24,'#ffe6f0'),xT=txs(.2,'#ffffff');xT.position.set(X-1,-.32,0);xT.set('direction of travel');g.add(lamT,xT);
+ const dsh=(y,z,c)=>{const a=[];for(let x=-X;x<X;x+=.24)a.push(x,y,z,x+.12,y,z);return L(a,c,0)},am=[dsh(1,0,E),dsh(-1,0,E),dsh(0,1,B),dsh(0,-1,B)];g.add(...am);
+ const br=L(new Array(18).fill(0),S,0),pl=new T.Mesh(new T.PlaneGeometry(2.1,2.1),new T.MeshBasicMaterial({color:S,transparent:true,opacity:0,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending})),pa={e:Arr(9,E,.75),b:Arr(9,B,.75)};pl.rotation.y=Math.PI/2;pl.position.x=XP;
+ const pp=P(90,S,.06,.8),pr=P(3,0xffffff,.2,.9);g.add(br,pl,pa.e,pa.b,pp,pr);let xc=0,fr=0;
+ const lb=mkLabs(g,[['lE','\\mathbf E','#ffb454',.34,()=>[xc+.3,1.3,0]],['lB','\\mathbf B','#8fe3ff',.34,()=>[xc+.3,0,1.4]],['lk','\\hat{\\mathbf k}\\ (c)','#ffffff',.34,()=>[X+.9,.4,0]],['lS','\\mathbf S','#ffe6f0',.32,()=>[1.2,.4,.4]]]);
+ /* left panel: real sources and live numbers */
+ const wp=$('wp'),dv=$('dv'),dvb=$('dvb');
+ wp.innerHTML='<h2><span>Real waves, real amplitudes</span></h2><div class="bd"><div class="chips">'+SRC.map((q,i)=>'<button type="button" class="chip'+(i?'':' on')+'" data-i="'+i+'">'+q[0]+'</button>').join('')+'</div><div class="rd">'+['Peak E\u2080','Peak B\u2080','E\u2080 / B\u2080','Intensity I','Frequency f','Wavelength \u03bb','Animation slowed','E at x = 0 now','B at x = 0 now'].map(l=>'<div class="row"><span>'+l+'</span><b></b></div>').join('')+'</div>'+chk('w_raw','Same scale (SI): B vanishes',false)+'<p class="tp">E and B sit on their own axes, each in its own unit, so that cB\u2080 = E\u2080 reach the same height. Tick labels show the real values. Light is slowed by the factor shown so you can watch it.</p></div>';
+ const rb=[...wp.querySelectorAll('.rd b')];if(innerWidth<760)wp.classList.add('min');
+ wp.addEventListener('click',e=>{const c=e.target.closest('.chip');if(c){WS.src=+c.dataset.i;wp.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c))}else if(e.target.closest('h2'))wp.classList.toggle('min')});
+ wp.querySelector('#w_raw').addEventListener('change',e=>WS.raw=e.target.checked);
+/* derivation: one scrolling page */
+ dv.innerHTML='<header><span>Derivation of the electromagnetic wave equations</span><button type="button" class="dx" aria-label="Close">\u00d7</button></header><div class="dbody"></div>';
+ const dTex=(f,k)=>'<div class="d-eq'+(k?' key':'')+'">'+tx(f)+'</div>',dLb=t=>'<div class="d-lbl">'+t+'</div>';
+ const derHTML=()=>DER.map(o=>{
+  return '<article class="d-step t-'+o.t+'" data-p="'+o.pid+'" data-k="'+o.k+'"><div class="d-sh"><span class="d-b">'+o.b+'</span><h4>'+o.h+'</h4></div>'+dLb(o.l||'The move')+'<p>'+rich(o.m)+'</p>'+dTex(o.f,o.key)+(o.v?'<div class="d-vf">'+dLb(o.v[0])+'<p>'+rich(o.v[1])+'</p>'+dTex(o.v[2])+'</div>':'')+(o.i?'<div class="d-iq">'+dLb('Intuition')+'<p>'+rich(o.i)+'</p></div>':'')+'</article>'}).join('');
+ const dbd=dv.querySelector('.dbody'),calm=matchMedia('(prefers-reduced-motion: reduce)').matches;let dCur=null;
+ const spy=()=>{let c=null;const y=dbd.scrollTop+30;dbd.querySelectorAll('[data-k]').forEach(x=>{if(!c||x.offsetTop<=y)c=x});if(c&&c!==dCur){dCur=c;act2=new Set(c.dataset.k.split(' '))}};
+ dbd.addEventListener('scroll',spy,{passive:true});
+ dv.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.classList.contains('dx')){dv.classList.remove('show');act2=new Set();return}});
+ dvb.onclick=()=>{if(!dv.classList.toggle('show')){act2=new Set();return}
+  if(!dbd.querySelector('.d-part'))dbd.innerHTML=(window.MathJax&&MathJax.tex2svg)?derHTML():'<p>The math is still loading. Close this and reopen it in a moment.</p>';
+  dbd.scrollTop=0;dCur=null;spy()};
+ const upd=(t,dt,w)=>{const q=SRC[WS.src],E0=Math.sqrt(2*q[1]/(EP0*C0)),B0=E0/C0,lamR=C0/q[2];
+  W.e.set(t,1);W.b.set(t,WS.raw?B0/E0:1);
+  [[W.e,'E'],[W.b,'B']].forEach(([o,k])=>{o.curve.material.opacity=.7+.3*w(k);o.stems.material.opacity=.3+.4*w(k);o.rib.material.opacity=.12+.2*w(k);o.tips.material.size=.06+.05*w(k)});
+  am.forEach(l=>l.material.opacity=.7*w('amp'));
+  xc=-1.2+(((WW*t/WK+1.2)%lam)+lam)%lam;
+  br.geometry.attributes.position.array.set([xc,1.5,0,xc+lam,1.5,0,xc,1.4,0,xc,1.6,0,xc+lam,1.4,0,xc+lam,1.6,0]);br.geometry.attributes.position.needsUpdate=true;br.material.opacity=.9*w('lam');
+  tl[0].set('+'+si(E0,'V/m'));tl[1].set('\u2212'+si(E0,'V/m'));tl[2].set(WS.raw?'B \u2248 '+(B0/E0).toExponential(1)+' \u00d7 E here':'+'+si(B0,'T'));tl[3].set(WS.raw?'':'\u2212'+si(B0,'T'));
+  lamT.position.set(xc+lam/2,1.78,0);lamT.set('\u03bb = '+si(lamR,'m'));lamT.material.opacity=.4+.6*w('lam');
+  pl.material.opacity=.04+.12*w('k');const ce=Math.cos(WK*XP-WW*t),cb=WS.raw?ce*B0/E0:ce;let n=0;GP.forEach(y=>GP.forEach(z=>{pa.e.set(n,XP,y,z,0,.5*ce,0,1,0,0);pa.b.set(n,XP,y,z,0,0,.5*cb,1,0,0);n++}));pa.e.up();pa.b.up();pa.e.material.opacity=.5+.4*w('k');pa.b.material.opacity=.5+.4*w('k');
+  let a=pp.geometry.attributes.position;for(let i=0;i<90;i++)a.setXYZ(i,-X+((t*.15+i/90)%1)*2*X,.06*Math.sin(i*5.3),.06*Math.cos(i*3.7));a.needsUpdate=true;pp.material.size=.06+.05*w('pp');
+  const c=Math.cos(WW*t);a=pr.geometry.attributes.position;a.setXYZ(0,0,c,0);a.setXYZ(1,0,0,WS.raw?c*B0/E0:c);a.setXYZ(2,0,0,0);a.needsUpdate=true;pr.material.size=.16+.2*w('pr');
+  if(fr--<=0){fr=5;setRd(rb,[si(E0,'V/m'),si(B0,'T'),'c = '+(E0/B0/1e8).toFixed(3)+'\u00d710\u2078 m/s',si(q[1],'W/m\u00b2'),si(q[2],'Hz'),si(lamR,'m'),'\u00d7'+(q[2]/(WW/TAU)).toExponential(1).replace('e+','\u00d710^'),si(E0*c,'V/m'),si(B0*c,'T')])}};
+ return{s,upd:(t,d,w)=>{upd(t,d,w);lb(w)},dist:9.4}};
+const wOn=c=>{['wp','dvb'].forEach(i=>$(i).style.display=c===4?'block':'none');$('dv').classList.remove('show')},wOff=()=>{['wp','dvb'].forEach(i=>$(i).style.display='none');$('dv').classList.remove('show')};
+const mk2=[gaussV,magV,farV,ampV,waveV],built=[];
+let cur2=-1,sc2=null,act2=new Set(),w2={},selk='',yaw=.6,pit=.25,zoom=1,idle=0,asp=1,ovLast=0,ovT=0,voff=0,zf=1,zt=1;
+/* lift the 3D view by half the bottom bar's height so the scene stays clear of the cards */
+const vt=()=>Math.min(obot.offsetHeight*.5,innerHeight*.28);
+const fit2=()=>{const w=innerWidth,h=innerHeight;R2.setSize(w,h,false);cam2.aspect=w/h;asp=w/h;voff=vt();cam2.setViewOffset(w,h,0,voff,w,h)};
+addEventListener('resize',()=>{if(ovOpen){fit2();fitEq()}});
+const oloop=ms=>{if(!ovOpen)return;requestAnimationFrame(oloop);
+ const now=ms/1e3,dt=Math.min(.05,Math.max(0,now-ovLast)),sd=paused?0:dt;ovLast=now;ovT+=sd;lt_+=sd;if(!paused)idle+=dt;if(idle>3&&!vt_&&!paused)yaw+=dt*.1;
+ for(const k of act2)if(!(k in w2))w2[k]=0;for(const k in w2)w2[k]+=((act2.has(k)?1:0)-w2[k])*Math.min(1,dt*7);
+ zt=fitD()/sc2.dist;zf+=(zt-zf)*Math.min(1,dt*3);const d=sc2.dist*zoom*zf;tg.lerp(tmpT.copy(tgT).add(panV),Math.min(1,dt*(pdrag?14:3)));cam2.position.set(tg.x+d*Math.sin(yaw)*Math.cos(pit),tg.y+d*Math.sin(pit),tg.z+d*Math.cos(yaw)*Math.cos(pit));cam2.lookAt(tg);
+ {const t=vt();if(Math.abs(t-voff)>.3){voff+=(t-voff)*Math.min(1,dt*6);cam2.setViewOffset(innerWidth,innerHeight,0,voff,innerWidth,innerHeight)}}
+ sc2.upd(ovT,sd,k=>w2[k]||0);LR(dt)};
+const openOv=c=>{
+ cur2=c;ovOpen=true;document.body.classList.add('used');document.documentElement.style.overflow=document.body.style.overflow='hidden';
+ if(!built[c])built[c]=mk2[c]();sc2=built[c];
+ oinfo.classList.remove('big');oeq.replaceChildren(cells[c].querySelector('.eqs').cloneNode(true));oeq.classList.remove('sel');selk='';oinfo.classList.remove('show');
+ act2=new Set();w2={};zt=zf=1;LZ=FOC=null;tg.set(0,0,0);tgT.set(0,0,0);panV.set(0,0,0);vt_=null;yaw=.6;pit=.25;zoom=1;idle=0;
+ const r=cells[c].getBoundingClientRect();ov.style.transformOrigin=(r.left+r.width/2)+'px '+(r.top+r.height/2)+'px';
+ ov.classList.add('on');fit2();requestAnimationFrame(fitEq);setTimeout(fitEq,700);ovLast=performance.now()/1e3;requestAnimationFrame(oloop);wOn(c)};
+const closeOv=()=>{wOff();ovOpen=false;ov.classList.remove('on');document.documentElement.style.overflow=document.body.style.overflow=''};
+document.addEventListener('click',e=>{if(ovOpen)return;const cell=e.target.closest('.cell');if(!cell)return;e.stopPropagation();e.preventDefault();openOv(cells.indexOf(cell))},true);
+ov.addEventListener('click',e=>e.stopPropagation());
+$('ox').addEventListener('click',closeOv);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&ovOpen){if(oinfo.classList.contains('big'))oinfo.classList.remove('big');else closeOv()}});
+oeq.addEventListener('click',e=>{const b=e.target.closest('.tok');if(!b)return;const k=b.dataset.k,same=selk===k;
+ oeq.querySelectorAll('.tok.on').forEach(t=>t.classList.remove('on'));
+ if(same){selk='';oeq.classList.remove('sel');oinfo.classList.remove('show');act2=new Set();return}
+ selk=k;oeq.classList.add('sel');oeq.querySelectorAll('.tok').forEach(t=>t.classList.toggle('on',t.dataset.k===k));
+ const[n,u,d]=DEF[cur2][k];oinfo.innerHTML='<div class="sym"></div><div class="hd"><h3></h3><small></small></div><p></p>';
+ const sym=oinfo.querySelector('.sym');sym.innerHTML=b.innerHTML;sym.style.color=getComputedStyle(b).color;oinfo.style.setProperty('--ac',sym.style.color);
+ oinfo.querySelector('h3').textContent=n;oinfo.querySelector('small').innerHTML=u?tx(u):'';oinfo.querySelector('p').textContent=d;oinfo.classList.add('show');
+ act2=new Set((HLX[cur2][k]||k).split(' '))});
+
+
+/* ---- lessons: drawn inside the real 3D diagram ---- */
+const modeOf=(c,k)=>c>3?'':({dot:c<2?'dA':'dl',E:c<2?'dA':'dl',B:c<2?'dA':'dl',dA:'dA',dl:'dl',oint:'surf',intS:'surf',div:'surf',thm:c<2?'surf':'loop',ointC:'loop',curl:'hand'})[k]||'';
+const LS=new T.Scene(),LG=new T.Group(),dimS=new T.Scene(),dimC=new T.OrthographicCamera(-1,1,1,-1,-1,1),dimM=new T.MeshBasicMaterial({color:0x02030a,transparent:true,opacity:0,depthTest:false,depthWrite:false});
+dimS.add(new T.Mesh(new T.PlaneGeometry(2,2),dimM));LS.add(LG,new T.AmbientLight(0xffffff,.8));{const dl=new T.DirectionalLight(0xffffff,.8);dl.position.set(2,4,3);LS.add(dl);const f2=new T.DirectionalLight(0xffc8a0,.45);f2.position.set(-3,1,-2);LS.add(f2)}
+let LY=0,FOC=null,LZ=null,lt_=0,LW=0,paused=false,vt_=null;const tg=new T.Vector3(),tgT=new T.Vector3();R2.autoClear=false;
+const nrm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l]},crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],add=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const mt=c=>new T.MeshBasicMaterial({color:c,depthTest:false,depthWrite:false,transparent:true});
+const arrow=(c,halo)=>{const g=new T.Group(),sh=new T.Mesh(new T.CylinderGeometry(1,1,1,16),mt(c)),hd=new T.Mesh(new T.ConeGeometry(1,1,20),mt(c));g.add(sh,hd);g.userData={sh,hd};
+ if(halo){const s2=new T.Mesh(sh.geometry,mt(c)),h2=new T.Mesh(hd.geometry,mt(c));s2.material.opacity=h2.material.opacity=.24;g.add(s2,h2);Object.assign(g.userData,{s2,h2})}LG.add(g);return g};
+const setA=(g,p,v,w=.03)=>{const l=Math.hypot(v[0],v[1],v[2])||1e-6,hl=Math.min(.42*l,w*9),sl=Math.max(l-hl,.001),{sh,hd}=g.userData;g.position.set(p[0],p[1],p[2]);g.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),new T.Vector3(v[0]/l,v[1]/l,v[2]/l));sh.scale.set(w,sl,w);sh.position.y=sl/2;hd.scale.set(w*3,hl,w*3);hd.position.y=sl+hl/2;const{s2,h2}=g.userData;if(s2){s2.scale.set(w*2.8,sl,w*2.8);s2.position.y=sl/2;h2.scale.set(w*6,hl*1.1,w*6);h2.position.y=sl+hl*.55}};
+const recol=(g,c)=>{const u=g.userData;[u.sh,u.hd,u.s2,u.h2].forEach(m=>m&&m.material.color.set(c))},opa=(g,o)=>{const u=g.userData;u.sh.material.opacity=u.hd.material.opacity=o;if(u.s2)u.s2.material.opacity=u.h2.material.opacity=o*.24};
+const ts=(h=.2)=>{const c=document.createElement('canvas');c.width=640;c.height=96;const m=new T.CanvasTexture(c),sp=new T.Sprite(new T.SpriteMaterial({map:m,transparent:true,depthTest:false,depthWrite:false}));sp.scale.set(h*6.67,h,1);sp.userData.set=(t,col='#fff')=>{const k=t+col;if(sp.userData.k===k)return;sp.userData.k=k;const x=c.getContext('2d');x.clearRect(0,0,640,96);let fs=52;x.font='600 52px Newsreader,Georgia,serif';while(x.measureText(t).width>600&&fs>18){fs-=2;x.font='600 '+fs+'px Newsreader,Georgia,serif'}x.textAlign='center';x.textBaseline='middle';x.shadowColor='#000';x.shadowBlur=12;x.fillStyle=col;x.fillText(t,320,48);m.needsUpdate=true};LG.add(sp);return sp};
+const dots=(n,c,z)=>{const p=P(n,c,z,1);p.material.depthTest=false;LG.add(p);return p},pset=(p,a)=>{const q=p.geometry.attributes.position;a.forEach((v,i)=>q.setXYZ(i,v[0],v[1],v[2]));q.needsUpdate=true};
+const lr_=$('lr'),say=(a,b,col)=>{const k=a+'|'+b+col;if(lr_._k===k)return;lr_._k=k;lr_.innerHTML='<span>'+a+'</span><small style="color:'+col+'">'+b+'</small>'};
+const panV=new T.Vector3(),tmpT=new T.Vector3();let pdrag=false;
+const fitD=()=>{if(FOC&&!LZ)return FOC.d;const th=Math.tan(cam2.fov*Math.PI/360),fr=Math.max(.34,1-2*voff/innerHeight),ex=LZ?LZ.ext:[2.2,2.1],need=Math.max(ex[0]/(th*asp*.9),ex[1]/(th*fr*.92));return LZ?need:Math.max(sc2.dist*Math.max(1,.95/asp),need)};
+const A1=arrow(0xffffff,1),A2=arrow(0xffffff),A3=arrow(0x7dffb0),AX=arrow(0xffffff),AF=[],AD=[];for(let i=0;i<20;i++){AF.push(arrow(0xffffff,1));AD.push(arrow(0xffffff))}
+[[A3,1],[A1,2],[A2,3]].forEach(([g,o])=>[g.userData.sh,g.userData.hd].forEach(m=>m.renderOrder=o));
+const arc=dots(30,0xffffff,.06),dash=dots(16,0xffffff,.05),axl=dots(30,0xffffff,.035),Lf=ts(.26),Ld=ts(.26),Lth=ts(.22),Lform=ts(.22),Lver=ts(.19);
+const rg=new T.Mesh(new T.TorusGeometry(1,.03,8,96),mt(0xffe6c8)),dc=new T.Mesh(new T.CircleGeometry(1,64),mt(0x52d6ff)),pch=new T.Mesh(new T.CircleGeometry(1,32),mt(0xffffff));rg.rotation.x=Math.PI/2;dc.rotation.x=-Math.PI/2;dc.material.opacity=.14;pch.material.opacity=.3;LG.add(rg,dc,pch);
+const skM=new T.MeshPhongMaterial({color:0xe9b996,emissive:0x1c0e08,specular:0x3a2418,shininess:14}),nlM=new T.MeshPhongMaterial({color:0xf6dcd2,specular:0xffffff,shininess:70}),slM=new T.MeshPhongMaterial({color:0x27325c,side:T.DoubleSide,shininess:6}),HG=new T.Group();
+const tap=(r0,r1)=>{const q=new T.Mesh(new T.CylinderGeometry(r1,r0,1,18),skM);HG.add(q);return q},bal=r=>{const q=new T.Mesh(new T.SphereGeometry(r,16,12),skM);HG.add(q);return q},ell=m=>{const q=new T.Mesh(new T.SphereGeometry(1,24,16),m||skM);HG.add(q);return q};
+const bm=new T.Matrix4(),v3=a=>new T.Vector3(a[0],a[1],a[2]),ori=(m,x,y)=>{const X=v3(x).normalize(),Y=v3(y);Y.addScaledVector(X,-Y.dot(X)).normalize();m.quaternion.setFromRotationMatrix(bm.makeBasis(X,Y,new T.Vector3().crossVectors(X,Y)))};
+/* index, middle, ring, little: base radius, tip radius, finger length */
+const FM=[[.062,.046,.55],[.066,.048,.6],[.06,.044,.55],[.05,.037,.44]],FS=[0,.45,.75,1],
+ fj=FM.map(([r0,r1])=>({s:[0,1,2].map(j=>tap(r0+(r1-r0)*FS[j],r0+(r1-r0)*FS[j+1])),j:[0,1,2,3].map(j=>bal(r0+(r1-r0)*FS[j])),n:ell(nlM)})),
+ palm=ell(),wr=ell(),thn=ell(),fa=tap(.1,.12),sv=new T.Mesh(new T.CylinderGeometry(.15,.16,.42,28,1,true),slM),
+ thS=[[.075,.066],[.066,.058],[.058,.05]].map(([x,y])=>tap(x,y)),thJ=[.075,.066,.058,.05].map(bal),thN=ell(nlM);HG.add(sv);LG.add(HG);
+const YY=new T.Vector3(0,1,0),between=(m,a,b)=>{const d=new T.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]),l=d.length();m.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);m.quaternion.setFromUnitVectors(YY,d.normalize());m.scale.set(1,l,1)};
+const FC={E:0xffb454,B:0x52d6ff},S1=(v,d=2)=>(v<0?'\u2212':'+')+Math.abs(v).toFixed(d),hx=c=>'#'+c.toString(16).padStart(6,'0'),show=(...o)=>o.forEach(x=>x.visible=true);
+/* ---- zoom focus: symbols without a lesson fly the camera to their own spot in the model ---- */
+const fring=new T.Mesh(new T.TorusGeometry(1,.03,8,64),mt(0xffffff)),rip=new T.Mesh(new T.TorusGeometry(1,.012,8,64),mt(0xffffff));LG.add(fring,rip);
+const S4=(a,b,c,d)=>[['What you are seeing',a],['In plain words',b],['Why it matters',c],['Common mix-up',d]],
+ FT={'0:rho':[0,0,0,3.2,'ρ: charge packed into a tiny volume',S4('The glowing dust around each charge is ρ. Brighter, denser dust means more charge in that little volume.','ρ is charge density, like the density of fog but measured in coulombs per cubic metre. Add up ρ over a region and you get the total charge inside it.','∇·E = ρ/ε₀ links the two at every point. Where ρ is positive, field lines are being created. Where ρ is zero, lines only pass through.','ρ is not the field. It is the cause, and E is the effect spread through all the space around it.')],
+ '0:Q':[0,0,0,4.4,'Q_enc: only charge inside S counts',S4('The whole lumpy surface S is in view. Only the charge inside it counts toward Q_enc.','Q_enc is every charge inside S added together, positive minus negative. It is the integral of ρ over the volume.','Move the outside charge and the flux pattern on S changes, but the total does not. Every line that enters through one side leaves through another.','Q_enc ignores where inside the charge sits and what shape S has. Only the total inside matters.')],
+ '0:eps0':[0,0,0,4.4,'ε₀: how much flux each coulomb makes',S4('The surface S and its flux. ε₀ is not an object in the picture. It is the conversion factor between charge and flux.','Divide the enclosed charge by ε₀ (about 8.854 × 10⁻¹² F/m) and you get the net flux. Because ε₀ is tiny, even 1 C gives roughly 1.1 × 10¹¹ V·m of flux.','It fixes how strongly charge shapes the field in empty space. A larger ε₀ would mean a weaker field for the same charge.','ε₀ belongs to empty space, not to the charge, so it stays the same from one situation to the next.')],
+ '1:zero':[0,0,0,3.6,'0: no magnetic charge',S4('The closed surface S around the magnetic field. Follow any field line through S: it enters, and it later leaves.','The 0 means the net flux of B through any closed surface is exactly zero, whatever its shape or position.','Electric charges can sit alone and act as sources or sinks. Magnetic poles always come as a north and south pair, so B lines form closed loops with no start or end.','Zero net flux does not mean B is zero. B can be strong. The inward and outward parts simply cancel exactly.')],
+ '2:partial':[0,0,0,2.7,'∂B/∂t: B inside the coil is changing',S4('The coil’s field B runs along its axis and pulses as the coil current rises and falls.','∂B/∂t is how fast B changes at one spot, in tesla per second. B rising from 0 to 0.1 T in one second means ∂B/∂t = 0.1 T/s.','Faraday’s law links the circulation of E to the rate of change of B, not to its size. The faster B changes, the stronger the induced E around the loop.','A strong steady magnet induces nothing. A weak field that changes quickly can induce a lot.')],
+ '2:minus':[.62,0,.78,2.4,'−: Lenz’s law',S4('A point on loop C, where the induced E runs along the loop. The sign decides which way round it points.','The induced E circulates in the direction whose current would make a magnetic field that opposes the change in flux.','Without the minus, a growing B would induce a current that makes B grow even more, feeding on itself and creating energy from nothing.','Lenz’s law opposes the change in B, not B itself. If B rises the loop pushes back. If B falls it props B up.')],
+ '3:partial':[0,0,0,2.7,'ε₀∂E/∂t: displacement current',S4('The gap between the plates. The amber arrows point from the positive plate to the negative one, and they swell and shrink as the plate charge oscillates.','No charge crosses the gap, yet E changes. ε₀ ∂E/∂t has the units of current density (A/m²), so Maxwell called it displacement current.','It makes B circle through the gap just as the wire’s current does. For an ideal capacitor it equals the wire current, so the flat disc S₁ and the bag S₂ give the same B on loop C.','Nothing physical flows across the gap. It is a changing field that plays the role of a current in the equation.')],
+ '3:J':[0,-1.4,0,2.6,'J: current in the wire',S4('The pink dots moving along the wire are the current J.','J is current per unit area, in A/m². Multiply by the wire’s cross-section and you get the current I in amps.','J makes B circle the wire. Outside a thin wire, B = μ₀I/(2πr), so the field is strongest close to the wire.','J is zero in the gap, because no charge carriers cross it. That is exactly why the second term is needed.')],
+ '3:Ienc':[0,-1.25,0,3.6,'I_enc: current through the flat disc',S4('Loop C with the flat disc S₁ stretched across it. The wire pierces the disc.','I_enc is the total current in amps passing through the chosen surface. Here it is the wire’s current I.','Through S₁ the wire’s current does all the work. Through S₂ the changing flux does it. Both give the same B around C.','I_enc counts only current through the surface you pick. A surface that avoids the wire has I_enc = 0.')],
+ '3:mu0':[0,-1.25,0,3.4,'μ₀: how strongly current makes B',S4('The circles of B around the wire. μ₀ sets how strong they are for a given current.','μ₀ is about 4π × 10⁻⁷ N/A². It converts amps into tesla.','It multiplies both terms equally. Together with ε₀ it fixes the speed of light, c = 1/√(μ₀ε₀).','μ₀ is a constant of nature. No current or magnet can change it.')],
+ '3:plus':[0,-.9,0,4.2,'+: two sources of B',S4('The wire and the gap are both in view. Current runs in the wire, and E changes between the plates.','The plus says B responds to two sources at once: moving charge, I_enc, and changing electric field, ε₀ dΦ_E/dt.','At the plates they hand over. Current stops at the plate and the changing E takes up the same amount across the gap, so the total never breaks.','They are not alternatives. On a given surface either one or both can be nonzero, and the sum is fixed by B around C.')]};
+FT['2:t']=FT['2:ddt']=FT['2:partial'];FT['3:t']=FT['3:ddt']=FT['3:eps0']=FT['3:partial'];
+const setFocus=(c,k)=>{FOC=null;const f=FT[c+':'+k];if(!f||LZ)return;const q=c<2?window['__pot'+c]:null,o=q?[q.cx,q.cy,q.cz]:[0,0,0],col=oinfo.style.getPropertyValue('--ac')||'#fff';
+ FOC={p:[o[0]+f[0],o[1]+f[1],o[2]+f[2]],d:f[3],t:f[4],col};tgT.set(...FOC.p);panV.set(0,0,0);zoom=1;vt_=null;show(fring,rip);
+ oinfo.insertAdjacentHTML('beforeend',f[5].map(([h,t])=>'<div class="sec"><h4>'+h+'</h4><p>'+t+'</p></div>').join(''))};
+const focUpd=()=>{const{p,d,t,col}=FOC,f=(lt_*.7)%1;[fring,rip].forEach(m=>{m.position.set(...p);m.quaternion.copy(cam2.quaternion);m.material.color.set(col)});
+ fring.scale.setScalar(d*.13*(1+.06*Math.sin(lt_*3)));fring.material.opacity=.85;rip.scale.setScalar(d*.13*(1+f*1.1));rip.material.opacity=.6*(1-f)};
+const hand=(a0,R,b,pr)=>{
+ const rot=(d,t)=>[d[0]*Math.cos(t)+d[2]*Math.sin(t),0,-d[0]*Math.sin(t)+d[2]*Math.cos(t)],tn=[Math.sin(a0),0,-Math.cos(a0)],rad=a=>[Math.cos(a),0,Math.sin(a)],up=[0,1,0];
+ FM.forEach(([r0,r1,L],i)=>{const o=fj[i];let P=pr(a0),th=.14+.14*b;P[1]=LY+.19-i*.125;o.j[0].position.set(...P);
+  for(let j=0;j<3;j++){const d=rot(tn,th),Q=add(P,d,L*(FS[j+1]-FS[j]));between(o.s[j],P,Q);o.j[j+1].position.set(...Q);
+   if(j===2){const nn=[-d[2],0,d[0]];o.n.position.set(...add(add(P,d,L*.12),nn,r1*.92));ori(o.n,nn,d);o.n.scale.set(.008,L*.08,r1*.7)}
+   P=Q;th+=.3+.2*b+.08*j}});
+ const w=a0+.36/R,B=[0,1,2,3].map(i=>{const q=add(pr(w),tn,[0,.04,.12,.19][i]);q[1]=LY+[.12,.4,.6,.76][i];return q});
+ B.forEach((q,i)=>thJ[i].position.set(...q));thS.forEach((m,i)=>between(m,B[i],B[i+1]));
+ {const d=nrm(add(B[3],B[2],-1)),n=rad(w);
+  thN.position.set(...add(add(B[2],B[3],1).map(v=>v/2),n,.048));ori(thN,n,d);thN.scale.set(.008,.075,.04)}
+ const ac=a0+.24/R,wa=a0+.56/R,W=pr(wa),ti=[-Math.sin(wa),0,Math.cos(wa)];
+ palm.position.set(...pr(ac));ori(palm,rad(ac),up);palm.scale.set(.085,.25,.3);
+ const tp=add(pr(a0+.34/R),rad(a0+.34/R),-.03);tp[1]=LY+.07;thn.position.set(...tp);ori(thn,rad(w),up);thn.scale.set(.085,.17,.13);
+ wr.position.set(...W);ori(wr,rad(wa),up);wr.scale.set(.07,.1,.09);
+ between(fa,W,add(W,ti,.55));sv.position.set(...add(W,ti,.51));sv.quaternion.setFromUnitVectors(YY,v3(ti))};
+/* expand-to-read */
+const nav=()=>{oinfo.scrollTop=0;const big=oinfo.classList.contains('big'),n=document.createElement('div');n.className='cn';
+ n.innerHTML='<button type="button" class="ex" aria-expanded="'+big+'"><span>'+(big?'Collapse':'Expand')+'</span></button>';oinfo.insertBefore(n,oinfo.firstChild)};
+oinfo.addEventListener('click',e=>{const b=e.target.closest('.ex');if(!b)return;const o=oinfo.classList.toggle('big');b.setAttribute('aria-expanded',o);b.firstChild.textContent=o?'Collapse':'Expand';requestAnimationFrame(fitEq)});
+/* fit the main equation to its card (no scrolling) */
+const fitEq=()=>{if(!ovOpen)return;const q=oeq.querySelector('.eqs');if(!q)return;q.style.fontSize='';let f=parseFloat(getComputedStyle(q).fontSize);
+ const ok=()=>oeq.scrollHeight<=oeq.clientHeight+1&&q.scrollWidth<=q.clientWidth+1&&[...q.children].every(r=>r.scrollWidth<=r.clientWidth+1);
+ for(let i=0;i<50&&!ok()&&f>8;i++){f*=.96;q.style.fontSize=f+'px'}};
+document.fonts&&document.fonts.ready.then(()=>fitEq());
+const setLesson=(c,k)=>{const m=modeOf(c,k);LG.children.forEach(o=>o.visible=false);vt_=null;
+ if(!m){LZ=null;zt=1;tgT.set(0,0,0);return}
+ LY=c===3&&(m==='loop'||m==='dl'||m==='hand')?-1.25:0;const RR=c===3?.85:1;rg.position.y=dc.position.y=LY;rg.scale.setScalar(RR);dc.scale.setScalar(RR);
+ const sur=m==='surf'||m==='dA',fl=sur?'EBBE'[c]:'EBEB'[c],pot=c===0?window.__pot0:c===1?window.__pot1:null,R=c===3?.85:1,cen=pot?[pot.cx,pot.cy,pot.cz]:[0,0,0];
+ LZ={m,c,fl,col:FC[fl],pot,R,cen,pts:[]};let dist=4,P0=cen;
+ if(m==='dA'||m==='dl'){
+  if(m==='dA'&&pot){let bi=0,bs=-9;for(let i=0;i<pot.nt;i++){const q=pot.ct[i*3+1]*.6+pot.ct[i*3+2]*.8;if(q>bs){bs=q;bi=i}}P0=[pot.ct[bi*3],pot.ct[bi*3+1],pot.ct[bi*3+2]];let n=nrm([pot.fn[bi*3],pot.fn[bi*3+1],pot.fn[bi*3+2]]);if(dot(n,add(P0,cen,-1))<0)n=n.map(v=>-v);LZ.n=n;LZ.t=nrm(Math.abs(n[1])>.9?crs(n,[1,0,0]):crs(n,[0,1,0]))}
+  else if(m==='dA'){P0=[.45*R,0,0];LZ.n=[0,1,0];LZ.t=[1,0,0]}
+  else{const a=.9;P0=[R*Math.cos(a),LY,R*Math.sin(a)];LZ.n=[Math.sin(a),0,-Math.cos(a)];LZ.t=[Math.cos(a),0,Math.sin(a)]}
+  LZ.P0=P0;let b=crs(LZ.n,LZ.t);if(b[1]<0)b=b.map(v=>-v);vt_=[Math.atan2(b[0],b[2]),Math.max(-1.2,Math.min(1.2,Math.asin(b[1])))];dist=3.1;tgT.set(P0[0],P0[1],P0[2]);
+  show(A1,A2,A3,arc,dash,axl,Lf,Ld,Lth);recol(A1,LZ.col);if(m==='dA')show(pch);if(m==='dl'||c>1)show(rg);if(c>1&&m==='dA')show(dc)}
+ else if(m==='surf'&&pot){const N=14;for(let i=0;i<N;i++){const t=Math.floor((i+.5)/N*pot.nt)*3,p=[pot.ct[t],pot.ct[t+1],pot.ct[t+2]];let n=nrm([pot.fn[t],pot.fn[t+1],pot.fn[t+2]]);if(dot(n,add(p,cen,-1))<0)n=n.map(v=>-v);let F,v;
+   if(c===0){const Ef=window.__ef(p[0],p[1],p[2]),mg=Math.hypot(Ef[0],Ef[1],Ef[2])||1;v=dot(Ef,n)*.35;F=Ef.map(q=>q/mg*(.3+.5*Math.min(1,mg*.5)))}else{const Bf=window.__bf(p[0],p[1],p[2]),mg=Math.hypot(Bf[0],Bf[1],Bf[2])||1;v=dot(Bf,n)*3;F=Bf.map(q=>q/mg*(.25+.55*Math.min(1,mg*1.5)))}
+   LZ.pts.push({p,n,F,v})}dist=5.4;tgT.set(cen[0],cen[1],cen[2]);show(pch)}
+ else if(m==='surf'){const q=[[0,0]];for(let i=0;i<6;i++)q.push([.5*Math.cos(i*1.047),.5*Math.sin(i*1.047)]);for(let i=0;i<10;i++)q.push([.95*Math.cos(i*.628),.95*Math.sin(i*.628)]);q.forEach(([x,z])=>{const F=[0,.45+.35*(1-x*x-z*z),0];LZ.pts.push({p:[x*R,0,z*R],n:[0,1,0],F,v:F[1]})});dist=3.9;tgT.set(0,0,0);show(rg,dc,pch)}
+ else if(m==='loop'){const N=16;for(let i=0;i<N;i++){const a=-i/N*TAU+.2,d=[Math.sin(a),0,-Math.cos(a)],q=.5+.25*Math.cos(2*a);LZ.pts.push({p:[R*Math.cos(a),LY,R*Math.sin(a)],n:d,F:d.map(x=>x*q),v:q})}dist=3.9;tgT.set(0,LY,0);show(rg,dc)}
+ else{dist=4.4;tgT.set(0,LY+.5,0);vt_=[-.2,.4];show(HG,rg,dc,AX,A1)}
+ if(m==='surf'||m==='loop'){LZ.pts.forEach((q,i)=>{show(AF[i],AD[i]);recol(AF[i],LZ.col)})}
+  const eh=pot?Math.max(pot.sx,pot.sz)*pot.s:R,ev=pot?pot.sy*pot.s:R;LZ.ext=m==='dA'||m==='dl'?[1.6,1.6]:m==='surf'&&pot?[eh+.9,ev+.9]:m==='surf'?[R+.7,1.4]:m==='loop'?[R+.6,1.4]:[1.5,1.4];panV.set(0,0,0)};
+const lsUpd=()=>{const{m,c,fl,col,R,cen}=LZ,tm=lt_,ch=hx(col);
+ if(m==='dA'||m==='dl'){const{P0,n,t:tt}=LZ,th=Math.PI*(.5+.5*Math.sin(tm*.8)),cs=Math.cos(th),LF=1.15,LD=.8,nm=m==='dA'?'dA':'dl',pc=cs>=0?'#7dffb0':'#ff7aa8';
+  const F2=[0,1,2].map(i=>(n[i]*cs+tt[i]*Math.sin(th))*LF),tip=add(P0,F2),foot=add(P0,n,LF*cs);
+  setA(A1,P0,F2,.062);opa(A1,1);setA(A2,P0,n.map(q=>q*LD),.013);setA(A3,P0,n.map(q=>q*LF*cs),.016);opa(A3,.95);recol(A3,cs>=0?0x7dffb0:0xff7aa8);
+  pset(dash,[...Array(16)].map((_,i)=>add(tip,add(foot,tip,-1),i/15)));pset(axl,[...Array(30)].map((_,i)=>add(P0,n,-1+i/29*2.6)));
+  pset(arc,[...Array(30)].map((_,i)=>{const q=th*i/29;return add(add(P0,n,.42*Math.cos(q)),tt,.42*Math.sin(q))}));
+  Lth.position.set(...add(add(P0,n,.7*Math.cos(th/2)),tt,.7*Math.sin(th/2)));Lth.userData.set('\u03b8 = '+(th*180/Math.PI).toFixed(0)+'\u00b0');
+  Lf.position.set(...add(P0,F2,1.15));Lf.userData.set(fl,ch);Ld.position.set(...add(P0,n,LD*1.2));Ld.userData.set(nm);
+  if(m==='dA'){pch.position.set(...P0);pch.lookAt(...add(P0,n));pch.scale.setScalar(.5)}
+  say(fl+'\u00b7'+nm+' = |'+fl+'||'+nm+'| cos\u03b8 = '+S1(LF*LD*cs),m==='dA'?(cs>.12?'field leaves the surface (+)':cs<-.12?'field enters the surface (\u2212)':'field skims the surface (0)'):(cs>.12?'field runs along the loop (+)':cs<-.12?'field runs against the loop (\u2212)':'field is across the loop (0)'),pc)}
+ else if(m==='surf'||m==='loop'){const N=LZ.pts.length,ai=Math.floor(tm*2.2)%N;let sum=0;
+  LZ.pts.forEach((q,i)=>{if(i<=ai)sum+=q.v;const on=i===ai;setA(AF[i],q.p,q.F,on?.07:.042);opa(AF[i],on?1:.85);setA(AD[i],q.p,q.n.map(x=>x*.42),on?.016:.009);opa(AD[i],on?1:.65);if(on&&m!=='loop'){pch.position.set(...q.p);pch.lookAt(...add(q.p,q.n));pch.scale.setScalar(.2)}});
+  const q=LZ.pts[ai];say(m==='loop'?'\u222e '+fl+'\u00b7dl = \u03a3 '+fl+'\u00b7dl':'\u222e '+fl+'\u00b7dA = \u03a3 '+fl+'\u00b7dA','this piece '+S1(q.v)+'   running \u03a3 = '+S1(sum),'#7dffb0')}
+ else{const b=.5+.5*Math.sin(tm*1.2),a0=2.4,pr=a=>[R*Math.cos(a),LY,R*Math.sin(a)],ph=.4+.45*b;
+  hand(a0,R,b,pr);
+  setA(AX,[0,LY-.2,0],[0,1.6,0],.04);recol(AX,col);const ac_=a0-tm*1.1,pp=pr(ac_);pp[1]=LY-.32;setA(A1,pp,[Math.sin(ac_)*.6,0,-Math.cos(ac_)*.6],.045);
+  say('\u2207\u00d7'+fl+' \u2014 right-hand rule','fingers follow the loop, thumb = curl direction',ch)}};
+const LR=dt=>{lr_.classList.toggle('on',!!LZ);R2.clear();R2.render(sc2.s,cam2);LW+=((LZ||FOC?1:0)-LW)*Math.min(1,dt*5);
+ if(vt_){const k=Math.min(1,dt*3),dy=Math.atan2(Math.sin(vt_[0]-yaw),Math.cos(vt_[0]-yaw));yaw+=dy*k;pit+=(vt_[1]-pit)*k}
+ if(LW>.01){dimM.opacity=(LZ?.66:.3)*LW;R2.render(dimS,dimC);if(LZ){R2.clearDepth();lsUpd();R2.render(LS,cam2)}else if(FOC){R2.clearDepth();focUpd();R2.render(LS,cam2)}}};
+oeq.addEventListener('click',e=>{if(!e.target.closest('.tok'))return;if(!selk){requestAnimationFrame(fitEq);FOC=null;LZ=null;zt=1;tgT.set(0,0,0);vt_=null;return}
+ oinfo.insertAdjacentHTML('beforeend',detail(cur2,selk));setLesson(cur2,selk);setFocus(cur2,selk);lt_=0;nav();requestAnimationFrame(fitEq)});
+const op=$('op'),tgl=()=>{paused=!paused;op.textContent=paused?'\u25b6':'\u275a\u275a';op.setAttribute('aria-label',paused?'Play animation':'Pause animation')};
+op.addEventListener('click',()=>{tgl();op.blur()});addEventListener('keydown',e=>{if(e.code==='Space'&&ovOpen&&e.target!==op){e.preventDefault();tgl()}});
+/* drag to orbit, wheel / pinch to zoom */
+const ptrs=new Map();let pd=0;
+oc.addEventListener('pointerdown',e=>{vt_=null;oc.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);if(ptrs.size===2){const v=[...ptrs.values()];pd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1])}oc.style.cursor='grabbing';idle=0});
+oc.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const o=ptrs.get(e.pointerId);
+ if(ptrs.size===1&&!(e.buttons&6||e.shiftKey)){yaw-=(e.clientX-o[0])*.008;pit=Math.max(-1.45,Math.min(1.45,pit+(e.clientY-o[1])*.008))}
+ ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+ if(ptrs.size===2){const v=[...ptrs.values()],d=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);if(pd)zoom=Math.max(.45,Math.min(2.2,zoom*pd/d));pd=d}idle=0});
+const pend=e=>{ptrs.delete(e.pointerId);pd=0;oc.style.cursor='grab'};oc.addEventListener('pointerup',pend);oc.addEventListener('pointercancel',pend);
+oc.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.45,Math.min(2.2,zoom*Math.exp(e.deltaY*.001)));idle=0},{passive:false});
+oc.addEventListener('contextmenu',e=>e.preventDefault());
+const panBy=(dx,dy)=>{const m=cam2.matrixWorld.elements,k=2*cam2.position.distanceTo(tg)*Math.tan(cam2.fov*Math.PI/360)/innerHeight;panV.x+=(-dx*m[0]+dy*m[4])*k;panV.y+=(-dx*m[1]+dy*m[5])*k;panV.z+=(-dx*m[2]+dy*m[6])*k;pdrag=true;vt_=null;idle=0};
+let pmid=null;
+oc.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;if(ptrs.size===1&&(e.buttons&6||e.shiftKey))panBy(e.movementX||0,e.movementY||0);else if(ptrs.size===2){const v=[...ptrs.values()],m=[(v[0][0]+v[1][0])/2,(v[0][1]+v[1][1])/2];if(pmid)panBy(m[0]-pmid[0],m[1]-pmid[1]);pmid=m}});
+const pend2=()=>{pmid=null;pdrag=false};oc.addEventListener('pointerup',pend2);oc.addEventListener('pointercancel',pend2);
+oc.addEventListener('dblclick',()=>{panV.set(0,0,0);zoom=1;idle=0});
+})();
+</script>
+</body>
+</html>

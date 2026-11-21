@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tic-Tac-Toe P2P • Serverless WebRTC</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- QR Code Generator & Camera QR Scanner Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            midnight: '#090d16',
+            cyanGlow: '#38bdf8',
+            roseGlow: '#fb7185',
+          },
+          animation: {
+            'radar-ping': 'radarPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite',
+            'radar-spin': 'spin 4s linear infinite',
+            'float-up': 'floatUp 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pop-in': 'popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          },
+          keyframes: {
+            radarPing: {
+              '0%': { transform: 'scale(0.35)', opacity: '0.75' },
+              '100%': { transform: 'scale(1.35)', opacity: '0' },
+            },
+            floatUp: {
+              '0%': { transform: 'translateY(12px) scale(0.7)', opacity: '0' },
+              '20%': { transform: 'translateY(0px) scale(1.1)', opacity: '1' },
+              '80%': { transform: 'translateY(-65px) scale(1)', opacity: '1' },
+              '100%': { transform: 'translateY(-95px) scale(0.9)', opacity: '0' },
+            },
+            popIn: {
+              '0%': { transform: 'scale(0.88)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Ambient background mesh gradients */
+    .ambient-bg {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.13) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(251, 113, 133, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.9) 0%, #090d16 100%);
+    }
+
+    /* Frosted glass card */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.68);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.65);
+    }
+
+    .glass-subcard {
+      background: rgba(30, 41, 59, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* SVG Draw Animations for X, O, and Win Line */
+    .svg-x-line {
+      stroke-dasharray: 90;
+      stroke-dashoffset: 90;
+      animation: drawStroke 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .svg-x-line-2 {
+      animation-delay: 0.1s;
+    }
+    .svg-o-circle {
+      stroke-dasharray: 185;
+      stroke-dashoffset: 185;
+      animation: drawStroke 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .svg-win-line {
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      animation: drawStroke 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes drawStroke {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Glow Filters */
+    .glow-x {
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.55));
+    }
+    .glow-o {
+      filter: drop-shadow(0 0 10px rgba(251, 113, 133, 0.55));
+    }
+
+    /* QR Code container styling */
+    .qr-wrapper img,
+    .qr-wrapper canvas {
+      border-radius: 12px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="ambient-bg min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- Fixed Top-Right Back Button -->
+  <a href="/" id="backHomeBtn" onclick="goBackHome(event)" aria-label="Back to Home" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-50 inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl glass-card hover:bg-slate-800/80 border border-white/15 hover:border-sky-400/40 text-xs sm:text-sm font-semibold text-slate-200 hover:text-white shadow-lg shadow-black/40 transition-all duration-200 active:scale-95 group">
+    <svg class="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    <span>Back</span>
+  </a>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-16 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4"></div>
+
+  <!-- Floating Reaction Overlay -->
+  <div id="reactionOverlay" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+  <!-- Top Header -->
+  <header class="w-full max-w-lg flex items-center justify-between py-2 pr-24 sm:pr-28">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400/20 to-rose-400/20 border border-white/10 flex items-center justify-center shadow-inner">
+        <span class="font-extrabold text-sm bg-gradient-to-r from-sky-400 to-rose-400 bg-clip-text text-transparent">#</span>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white leading-none">Tic-Tac-Toe <span class="text-sky-400">P2P</span></h1>
+        <p class="text-[11px] text-slate-400 mt-0.5">Direct WebRTC • Zero Servers</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Live Connection Status Pill -->
+      <div id="connectionPill" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="pingDisplay" class="font-mono text-[11px]">P2P</span>
+      </div>
+
+      <!-- Sound Toggle Button -->
+      <button id="soundToggleBtn" onclick="toggleSound()" title="Toggle Sound" class="p-2.5 rounded-xl glass-subcard hover:bg-white/10 text-slate-300 transition active:scale-95">
+        <svg id="soundOnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
+        </svg>
+        <svg id="soundOffIcon" class="w-4 h-4 hidden text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="w-full max-w-lg my-auto py-3">
+
+    <!-- ==================== LOBBY / CONNECTION VIEW ==================== -->
+    <section id="lobbyView" class="glass-card rounded-3xl p-5 sm:p-7 animate-pop-in">
+      <!-- Connection Mode Switcher Tabs -->
+      <div class="grid grid-cols-2 gap-1.5 p-1.5 rounded-2xl bg-slate-950/70 border border-white/5 mb-6">
+        <button id="tabLinkBtn" onclick="switchLobbyTab('link')" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sky-500/20 text-sky-300 border border-sky-400/30 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+          </svg>
+          <span>Link Connect</span>
+        </button>
+
+        <button id="tabNearbyBtn" onclick="switchLobbyTab('nearby')" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+          </svg>
+          <span>Nearby Connect</span>
+          <span id="nearbyBadge" class="hidden w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </button>
+      </div>
+
+      <!-- TAB 1: LINK CONNECT -->
+      <div id="linkConnectPanel" class="space-y-5">
+        <!-- Host Initial State: Create Link -->
+        <div id="hostStartSection" class="text-center space-y-4">
+          <div class="space-y-1.5">
+            <h2 class="text-xl sm:text-2xl font-bold text-white">Play Anywhere, Peer-to-Peer</h2>
+            <p class="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">Generate a direct invite link and send it to a friend. No accounts, no servers—just pure WebRTC.</p>
+          </div>
+
+          <button id="createGameBtn" onclick="startAsHost()" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-semibold text-sm sm:text-base shadow-lg shadow-sky-500/25 transition transform active:scale-[0.98] flex items-center justify-center gap-2.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Create Game Link</span>
+          </button>
+
+          <!-- Divider -->
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-3 text-[11px] uppercase tracking-wider text-slate-500 font-medium">or join with invite</span>
+            <div class="flex-grow border-t border-white/10"></div>
+          </div>
+
+          <!-- Manual Paste Invite Box -->
+          <div class="flex gap-2">
+            <input id="manualOfferInput" type="text" placeholder="Paste friend's invite link or code..." class="flex-1 bg-slate-950/70 border border-white/10 focus:border-sky-400/60 focus:outline-none rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 placeholder-slate-500 font-mono" />
+            <button onclick="handleManualOfferJoin()" class="px-4 py-2.5 rounded-xl glass-subcard hover:bg-white/10 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 whitespace-nowrap">
+              Join
+            </button>
+          </div>
+        </div>
+
+        <!-- Host Active State: Share Invite Link & Accept Reply -->
+        <div id="hostInviteSection" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+              Step 1 • Share Invite Link
+            </span>
+            <button onclick="resetConnection()" class="text-xs text-slate-400 hover:text-rose-400 transition">Cancel</button>
+          </div>
+
+          <!-- Invite Link Display & Copy -->
+          <div class="glass-subcard rounded-2xl p-3.5 space-y-3">
+            <div class="flex items-center gap-2">
+              <input id="inviteLinkOutput" type="text" readonly value="Generating P2P link..." class="flex-1 bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none select-all" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button id="copyInviteBtn" onclick="copyInviteLink()" class="py-2.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <span id="copyInviteLabel">Copy Link</span>
+              </button>
+
+              <button onclick="shareInviteLink()" class="py-2.5 px-3 rounded-xl glass-subcard hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                <span>Share</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Paste Reply Link from Friend -->
+          <div class="glass-subcard rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 2 • Paste Friend's Reply</span>
+              <button onclick="openQrScanner('answer')" class="inline-flex items-center gap-1 text-xs text-sky-300 hover:text-sky-200 font-medium">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Scan Reply QR
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400">When your friend opens your link, they'll get a Reply Link to send back. Paste it below to start:</p>
+            <div class="flex gap-2">
+              <input id="hostAnswerInput" type="text" oninput="onHostAnswerInput(this.value)" placeholder="Paste Reply Link or Code here..." class="flex-1 bg-slate-950/80 border border-white/10 focus:border-emerald-400/60 focus:outline-none rounded-xl px-3 py-2 text-xs font-mono text-slate-200 placeholder-slate-500" />
+              <button onclick="pasteAnswerFromClipboard()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-semibold text-xs transition active:scale-95">
+                Paste
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest State: Auto-Generated Reply Link -->
+        <div id="guestReplySection" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+              Invite Accepted • Send Reply
+            </span>
+            <button onclick="resetConnection()" class="text-xs text-slate-400 hover:text-rose-400 transition">Leave</button>
+          </div>
+
+          <p class="text-xs text-slate-300">Send this Reply Link back to the host (or let them scan your QR code) to connect instantly:</p>
+
+          <div class="glass-subcard rounded-2xl p-3.5 space-y-3">
+            <input id="replyLinkOutput" type="text" readonly value="Generating reply..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none select-all" />
+
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="copyReplyLink()" class="py-2.5 px-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-rose-500/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <span id="copyReplyLabel">Copy Reply</span>
+              </button>
+
+              <button onclick="shareReplyLink()" class="py-2.5 px-3 rounded-xl glass-subcard hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                <span>Share Reply</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Guest Reply QR Code for Proximity Pairing -->
+          <div class="glass-subcard rounded-2xl p-3.5 text-center space-y-2">
+            <p class="text-[11px] font-medium text-slate-400">Nearby Host? Let them scan this Reply QR:</p>
+            <div id="guestQrContainer" class="qr-wrapper bg-white p-2.5 rounded-2xl inline-block shadow-inner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: NEARBY DEVICE CONNECT -->
+      <div id="nearbyConnectPanel" class="hidden space-y-5">
+        <!-- Nearby Radar Auto-Discovery (Local Tabs / Same Device) -->
+        <div class="glass-subcard rounded-2xl p-4 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>Nearby Radar</span>
+                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Auto-Discovery</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Open another tab/window to connect with 1 tap</p>
+            </div>
+          </div>
+
+          <!-- Radar Graphic + Discovered Peers -->
+          <div class="relative flex flex-col items-center justify-center py-4 min-h-[135px]">
+            <!-- Concentric Sonar Rings -->
+            <div class="absolute w-28 h-28 rounded-full border border-sky-400/20 pointer-events-none"></div>
+            <div class="absolute w-44 h-44 rounded-full border border-sky-400/10 pointer-events-none"></div>
+            <div class="absolute w-28 h-28 rounded-full bg-sky-400/10 animate-radar-ping pointer-events-none"></div>
+
+            <!-- Center Self Node -->
+            <div class="relative z-10 w-10 h-10 rounded-full bg-sky-500/20 border border-sky-400/50 flex items-center justify-center shadow-lg shadow-sky-500/20 mb-3">
+              <span class="text-xs font-bold text-sky-300">YOU</span>
+            </div>
+
+            <!-- Discovered Nearby Peers List -->
+            <div id="nearbyPeersList" class="relative z-10 w-full flex flex-col items-center gap-2">
+              <p id="radarScanningText" class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone-to-Phone Instant QR Pairing -->
+        <div class="glass-subcard rounded-2xl p-4 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">Phone-to-Phone QR Pair</h3>
+              <p class="text-[11px] text-slate-400">Zero typing • Works over Wi-Fi, Hotspot, or Internet</p>
+            </div>
+            <span class="text-lg">📱</span>
+          </div>
+
+          <!-- Host QR Display Area (shown when hosting) -->
+          <div id="nearbyHostQrBox" class="hidden text-center space-y-2.5 pt-1">
+            <div id="hostQrContainer" class="qr-wrapper bg-white p-2.5 rounded-2xl inline-block shadow-lg"></div>
+            <p class="text-xs text-slate-300 font-medium">1. Have your friend scan this QR code</p>
+            <button onclick="openQrScanner('answer')" class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>2. Scan Friend's Reply QR</span>
+            </button>
+          </div>
+
+          <!-- Default Nearby QR Buttons -->
+          <div id="nearbyQrActions" class="grid grid-cols-2 gap-2.5">
+            <button onclick="startNearbyHostQr()" class="py-3 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-sky-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+              </svg>
+              <span>Show Game QR</span>
+            </button>
+
+            <button onclick="openQrScanner('auto')" class="py-3 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 font-semibold text-xs sm:text-sm transition active:scale-95 flex flex-col items-center gap-1.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>Scan Nearby QR</span>
+            </button>
+          </div>
+
+          <!-- OS Quick Share / AirDrop Beam Button -->
+          <button onclick="beamNearbyShare()" class="w-full py-2.5 px-4 rounded-xl glass-subcard hover:bg-white/10 text-slate-200 font-medium text-xs transition active:scale-95 flex items-center justify-center gap-2 border border-white/10">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            <span>Beam via AirDrop / Quick Share</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ACTIVE GAME ARENA VIEW ==================== -->
+    <section id="gameView" class="hidden space-y-4 animate-pop-in">
+
+      <!-- Scoreboard Card -->
+      <div class="glass-card rounded-3xl p-4 sm:p-5">
+        <div class="grid grid-cols-3 gap-2 items-center text-center">
+          <!-- Player X (Host) -->
+          <div id="cardPlayerX" class="rounded-2xl p-2.5 transition-all duration-300 border border-sky-400/40 bg-sky-500/10">
+            <div class="flex items-center justify-center gap-1.5">
+              <span class="font-extrabold text-sky-400 text-base">X</span>
+              <span id="labelPlayerX" class="text-xs font-semibold text-slate-200 truncate">You</span>
+            </div>
+            <div id="scoreX" class="text-2xl font-extrabold text-white mt-0.5 font-mono">0</div>
+          </div>
+
+          <!-- Draws -->
+          <div class="rounded-2xl p-2.5 glass-subcard">
+            <div class="text-xs font-semibold text-slate-400">Draws</div>
+            <div id="scoreDraw" class="text-2xl font-extrabold text-slate-300 mt-0.5 font-mono">0</div>
+          </div>
+
+          <!-- Player O (Guest) -->
+          <div id="cardPlayerO" class="rounded-2xl p-2.5 transition-all duration-300 border border-transparent bg-slate-900/40">
+            <div class="flex items-center justify-center gap-1.5">
+              <span class="font-extrabold text-rose-400 text-base">O</span>
+              <span id="labelPlayerO" class="text-xs font-semibold text-slate-200 truncate">Friend</span>
+            </div>
+            <div id="scoreO" class="text-2xl font-extrabold text-white mt-0.5 font-mono">0</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Turn / Status Banner -->
+        <div class="mt-4 flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-950/70 border border-white/5">
+          <div class="flex items-center gap-2">
+            <span id="turnDot" class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+            <span id="turnStatusText" class="text-xs sm:text-sm font-semibold text-white">Your Turn (X)</span>
+          </div>
+
+          <button onclick="disconnectGame()" class="text-xs text-slate-400 hover:text-rose-400 font-medium px-2 py-1 rounded-lg hover:bg-white/5 transition">
+            Leave
+          </button>
+        </div>
+      </div>
+
+      <!-- 3x3 Tic-Tac-Toe Board -->
+      <div class="glass-card rounded-3xl p-4 sm:p-6 relative">
+        <div class="relative aspect-square w-full max-w-[360px] mx-auto">
+          <!-- Grid Cells -->
+          <div id="boardGrid" class="grid grid-cols-3 grid-rows-3 gap-2.5 sm:gap-3 w-full h-full">
+            <!-- 9 cells injected via JS -->
+          </div>
+
+          <!-- SVG Winning Strike-Through Overlay -->
+          <svg id="winLineSvg" class="absolute inset-0 w-full h-full pointer-events-none hidden" viewBox="0 0 300 300">
+            <line id="winLine" x1="0" y1="0" x2="0" y2="0" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" class="svg-win-line" />
+          </svg>
+        </div>
+
+        <!-- Round Over Rematch Bar -->
+        <div id="rematchBar" class="hidden mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 animate-pop-in">
+          <div class="text-center sm:text-left">
+            <p id="roundResultTitle" class="text-base font-bold text-white">You Won! 🎉</p>
+            <p id="roundResultSub" class="text-xs text-slate-400">Ready for the next round?</p>
+          </div>
+          <button id="rematchBtn" onclick="requestRematch()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-sky-500/25 transition active:scale-95">
+            Play Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Live P2P Emoji Reactions Bar -->
+      <div class="glass-card rounded-2xl p-2.5 flex items-center justify-between gap-1">
+        <span class="text-[11px] font-medium text-slate-400 pl-2 hidden sm:inline">Send Reaction:</span>
+        <div class="flex items-center justify-around sm:justify-end gap-1.5 flex-1">
+          <button onclick="sendReaction('👋')" class="p-2 rounded-xl hover:bg-white/10 active:scale-90 transition text-lg">👋</button>
+          <button onclick="sendReaction('🔥')" class="p-2 rounded-xl hover:bg-white/10 active:scale-90 transition text-lg">🔥</button>
+          <button onclick="sendReaction('😂')" class="p-2 rounded-xl hover:bg-white/10 active:scale-90 transition text-lg">😂</button>
+          <button onclick="sendReaction('😱')" class="p-2 rounded-xl hover:bg-white/10 active:scale-90 transition text-lg">😱</button>
+          <button onclick="sendReaction('GG!')" class="px-2.5 py-1.5 rounded-xl hover:bg-white/10 active:scale-90 transition text-xs font-extrabold text-sky-300 border border-sky-400/25">GG!</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-lg text-center py-2">
+    <p class="text-[11px] text-slate-500">Encrypted End-to-End via WebRTC DataChannel • No Server Relay</p>
+  </footer>
+
+  <!-- ==================== CAMERA QR SCANNER MODAL ==================== -->
+  <div id="qrScannerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+    <div class="glass-card rounded-3xl p-5 w-full max-w-sm space-y-4 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-white">Scan Nearby QR Code</h3>
+          <p id="scannerSubtitle" class="text-xs text-slate-400">Point camera at your friend's screen</p>
+        </div>
+        <button onclick="closeQrScanner()" class="p-2 rounded-xl glass-subcard hover:bg-white/10 text-slate-300">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="relative aspect-square w-full rounded-2xl overflow-hidden bg-black border border-white/15">
+        <video id="qrVideo" playsinline class="w-full h-full object-cover"></video>
+        <canvas id="qrCanvas" class="hidden"></canvas>
+        <!-- Viewfinder Overlay -->
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div class="w-48 h-48 border-2 border-sky-400/80 rounded-2xl shadow-[0_0_0_9999px_rgba(9,13,22,0.5)]"></div>
+        </div>
+      </div>
+
+      <p class="text-[11px] text-center text-slate-400">Scanning automatically • Keep QR inside the frame</p>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION LOGIC ==================== -->
+  <script>
+    /**
+     * 1. GLOBAL STATE & CONFIGURATION
+     */
+    const ICE_SERVERS = [
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' }
+    ];
+
+    const state = {
+      role: null,             // 'host' | 'guest'
+      mySymbol: 'X',          // Host is 'X', Guest is 'O'
+      pc: null,               // RTCPeerConnection
+      dc: null,               // RTCDataChannel
+      connected: false,
+      board: Array(9).fill(null),
+      currentTurn: 'X',
+      startingTurn: 'X',
+      roundOver: false,
+      scores: { X: 0, O: 0, draw: 0 },
+      rematchRequestedByMe: false,
+      rematchRequestedByPeer: false,
+      soundEnabled: true,
+      pingInterval: null,
+      lastOfferToken: '',
+      lastAnswerToken: '',
+      peerId: Math.random().toString(36).substring(2, 8).toUpperCase(),
+      nearbyPeers: new Map(), // peerId -> { id, lastSeen }
+      scannerStream: null,
+      scannerAnimFrame: null,
+      scannerMode: 'auto'     // 'auto' | 'answer'
+    };
+
+    const WIN_COMBOS = [
+      { cells: [0, 1, 2], coords: [30, 50, 270, 50] },
+      { cells: [3, 4, 5], coords: [30, 150, 270, 150] },
+      { cells: [6, 7, 8], coords: [30, 250, 270, 250] },
+      { cells: [0, 3, 6], coords: [50, 30, 50, 270] },
+      { cells: [1, 4, 7], coords: [150, 30, 150, 270] },
+      { cells: [2, 5, 8], coords: [250, 30, 250, 270] },
+      { cells: [0, 4, 8], coords: [35, 35, 265, 265] },
+      { cells: [2, 4, 6], coords: [265, 35, 35, 265] }
+    ];
+
+    /**
+     * 2. SYNTHESIZED WEB AUDIO SOUND ENGINE
+     */
+    let audioCtx = null;
+    function playTone(type) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'moveX') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'moveO') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(420, now);
+          osc.frequency.exponentialRampToValueAtTime(320, now + 0.1);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } else if (type === 'connect') {
+          [523.25, 659.25, 783.99].forEach((freq, i) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(freq, now + i * 0.07);
+            g.gain.setValueAtTime(0.11, now + i * 0.07);
+            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.start(now + i * 0.07);
+            o.stop(now + i * 0.07 + 0.26);
+          });
+        } else if (type === 'win') {
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + i * 0.09);
+            g.gain.setValueAtTime(0.15, now + i * 0.09);
+            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.35);
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.start(now + i * 0.09);
+            o.stop(now + i * 0.09 + 0.36);
+          });
+        } else if (type === 'draw') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(330, now);
+          osc.frequency.linearRampToValueAtTime(260, now + 0.25);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        }
+      } catch (err) {
+        // Ignore audio errors on restricted devices
+      }
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById('soundOnIcon').classList.toggle('hidden', !state.soundEnabled);
+      document.getElementById('soundOffIcon').classList.toggle('hidden', state.soundEnabled);
+      showToast(state.soundEnabled ? 'Sound effects enabled' : 'Sound muted');
+    }
+
+    /**
+     * 3. SDP COMPRESSION & URL-SAFE TOKEN CODEC
+     * Compresses WebRTC SDP offers/answers to ~350 chars so links & QR codes stay compact.
+     */
+    function minifySdp(sdp) {
+      const keepPrefixes = [
+        'v=', 'o=', 's=', 't=', 'a=group:', 'm=', 'c=',
+        'a=ice-ufrag:', 'a=ice-pwd:', 'a=fingerprint:',
+        'a=setup:', 'a=mid:', 'a=sctp-port:', 'a=candidate:'
+      ];
+      return sdp
+        .split(/\r?\n/)
+        .filter(line => keepPrefixes.some(prefix => line.startsWith(prefix)))
+        .join('\r\n') + '\r\n';
+    }
+
+    function toBase64Url(bytes) {
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function fromBase64Url(str) {
+      let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    async function encodeSignalToken(sessionDesc) {
+      const payload = JSON.stringify({
+        t: sessionDesc.type === 'offer' ? 'o' : 'a',
+        s: minifySdp(sessionDesc.sdp)
+      });
+      const rawBytes = new TextEncoder().encode(payload);
+
+      if ('CompressionStream' in window) {
+        try {
+          const cs = new CompressionStream('deflate-raw');
+          const writer = cs.writable.getWriter();
+          writer.write(rawBytes);
+          writer.close();
+          const compressedBuf = await new Response(cs.readable).arrayBuffer();
+          return 'z.' + toBase64Url(new Uint8Array(compressedBuf));
+        } catch (e) {
+          // Fallback to uncompressed
+        }
+      }
+      return 'u.' + toBase64Url(rawBytes);
+    }
+
+    async function decodeSignalToken(rawInput) {
+      const token = extractTokenString(rawInput);
+      if (!token) throw new Error('Invalid invite or reply code.');
+
+      const isCompressed = token.startsWith('z.');
+      const cleanB64 = token.startsWith('z.') || token.startsWith('u.') ? token.slice(2) : token;
+      const bytes = fromBase64Url(cleanB64);
+
+      let jsonText = '';
+      if (isCompressed && 'DecompressionStream' in window) {
+        const ds = new DecompressionStream('deflate-raw');
+        const writer = ds.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const decompressedBuf = await new Response(ds.readable).arrayBuffer();
+        jsonText = new TextDecoder().decode(decompressedBuf);
+      } else {
+        jsonText = new TextDecoder().decode(bytes);
+      }
+
+      const parsed = JSON.parse(jsonText);
+      return {
+        type: parsed.t === 'o' ? 'offer' : 'answer',
+        sdp: parsed.s
+      };
+    }
+
+    function extractTokenString(input) {
+      if (!input) return '';
+      const trimmed = input.trim();
+      const hashMatch = trimmed.match(/#(?:offer|answer)=([A-Za-z0-9\-_.]+)/);
+      if (hashMatch) return hashMatch[1];
+      const paramMatch = trimmed.match(/(?:offer|answer)=([A-Za-z0-9\-_.]+)/);
+      if (paramMatch) return paramMatch[1];
+      return trimmed;
+    }
+
+    function buildShareUrl(kind, token) {
+      const baseUrl = window.location.href.split('#')[0];
+      return `${baseUrl}#${kind}=${token}`;
+    }
+
+    /**
+     * 4. PURE SERVERLESS WEBRTC ENGINE
+     */
+    function createPeerConnection() {
+      cleanupPeerConnection();
+
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      state.pc = pc;
+
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+          if (state.connected) {
+            showToast('Peer disconnected from session');
+            disconnectGame();
+          }
+        }
+      };
+
+      return pc;
+    }
+
+    function waitForIceGathering(pc, timeoutMs = 1800) {
+      return new Promise(resolve => {
+        if (pc.iceGatheringState === 'complete') {
+          resolve();
+          return;
+        }
+        const timer = setTimeout(() => {
+          resolve();
+        }, timeoutMs);
+
+        pc.onicecandidate = (event) => {
+          if (!event.candidate) {
+            clearTimeout(timer);
+            resolve();
+          }
+        };
+
+        pc.onicegatheringstatechange = () => {
+          if (pc.iceGatheringState === 'complete') {
+            clearTimeout(timer);
+            resolve();
+          }
+        };
+      });
+    }
+
+    function setupDataChannel(dc) {
+      state.dc = dc;
+
+      dc.onopen = () => {
+        state.connected = true;
+        closeQrScanner();
+        playTone('connect');
+        showToast('Connected peer-to-peer! 🎮');
+        enterGameArena();
+
+        // Start heartbeat ping for live latency measurement
+        sendP2PMessage({ type: 'ping', ts: Date.now() });
+        state.pingInterval = setInterval(() => {
+          if (state.dc && state.dc.readyState === 'open') {
+            sendP2PMessage({ type: 'ping', ts: Date.now() });
+          }
+        }, 2500);
+      };
+
+      dc.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          handleP2PMessage(msg);
+        } catch (err) {
+          console.error('Invalid P2P payload', err);
+        }
+      };
+
+      dc.onclose = () => {
+        if (state.connected) {
+          showToast('Connection closed by peer');
+          disconnectGame();
+        }
+      };
+    }
+
+    function sendP2PMessage(payload) {
+      if (state.dc && state.dc.readyState === 'open') {
+        state.dc.send(JSON.stringify(payload));
+      }
+    }
+
+    function handleP2PMessage(msg) {
+      switch (msg.type) {
+        case 'ping':
+          sendP2PMessage({ type: 'pong', ts: msg.ts });
+          break;
+
+        case 'pong': {
+          const rtt = Math.max(1, Date.now() - msg.ts);
+          document.getElementById('pingDisplay').textContent = `P2P • ${rtt}ms`;
+          break;
+        }
+
+        case 'move':
+          applyMove(msg.index, msg.symbol, false);
+          break;
+
+        case 'rematch_request':
+          state.rematchRequestedByPeer = true;
+          if (state.rematchRequestedByMe) {
+            startNewRound();
+          } else {
+            document.getElementById('roundResultSub').textContent = 'Friend wants a rematch!';
+            document.getElementById('rematchBtn').textContent = 'Accept Rematch';
+            showToast('Opponent requested a rematch!');
+          }
+          break;
+
+        case 'rematch_start':
+          state.startingTurn = msg.startingTurn;
+          resetBoardForRound();
+          break;
+
+        case 'reaction':
+          spawnFloatingReaction(msg.emoji, false);
+          break;
+      }
+    }
+
+    function cleanupPeerConnection() {
+      if (state.pingInterval) {
+        clearInterval(state.pingInterval);
+        state.pingInterval = null;
+      }
+      if (state.dc) {
+        try { state.dc.close(); } catch (e) {}
+        state.dc = null;
+      }
+      if (state.pc) {
+        try { state.pc.close(); } catch (e) {}
+        state.pc = null;
+      }
+      state.connected = false;
+    }
+
+    /**
+     * 5. HOST & GUEST HANDSHAKE FLOWS
+     */
+    async function startAsHost() {
+      try {
+        state.role = 'host';
+        state.mySymbol = 'X';
+
+        document.getElementById('hostStartSection').classList.add('hidden');
+        document.getElementById('hostInviteSection').classList.remove('hidden');
+        document.getElementById('inviteLinkOutput').value = 'Creating direct P2P link...';
+
+        const pc = createPeerConnection();
+        const dc = pc.createDataChannel('tictactoe', { ordered: true });
+        setupDataChannel(dc);
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        await waitForIceGathering(pc);
+
+        const token = await encodeSignalToken(pc.localDescription);
+        state.lastOfferToken = token;
+        const inviteUrl = buildShareUrl('offer', token);
+
+        document.getElementById('inviteLinkOutput').value = inviteUrl;
+        renderQrCode('hostQrContainer', inviteUrl);
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to initialize WebRTC');
+        resetConnection();
+      }
+    }
+
+    async function startAsGuest(offerInput) {
+      try {
+        const remoteDesc = await decodeSignalToken(offerInput);
+        if (remoteDesc.type !== 'offer') {
+          showToast('Please provide a valid Game Invite link');
+          return;
+        }
+
+        state.role = 'guest';
+        state.mySymbol = 'O';
+
+        switchLobbyTab('link');
+        document.getElementById('hostStartSection').classList.add('hidden');
+        document.getElementById('hostInviteSection').classList.add('hidden');
+        document.getElementById('guestReplySection').classList.remove('hidden');
+        document.getElementById('replyLinkOutput').value = 'Generating reply link...';
+
+        const pc = createPeerConnection();
+        pc.ondatachannel = (event) => {
+          setupDataChannel(event.channel);
+        };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        await waitForIceGathering(pc);
+
+        const answerToken = await encodeSignalToken(pc.localDescription);
+        state.lastAnswerToken = answerToken;
+        const replyUrl = buildShareUrl('answer', answerToken);
+
+        document.getElementById('replyLinkOutput').value = replyUrl;
+        renderQrCode('guestQrContainer', replyUrl);
+
+        // If the Host is open in another tab on the same browser, auto-deliver the answer!
+        if (nearbyChannel) {
+          nearbyChannel.postMessage({
+            type: 'auto_answer',
+            from: state.peerId,
+            answerToken
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Invalid or expired invite link');
+        resetConnection();
+      }
+    }
+
+    async function completeHostHandshake(answerInput) {
+      if (!state.pc || state.role !== 'host') return;
+      try {
+        const remoteDesc = await decodeSignalToken(answerInput);
+        if (remoteDesc.type !== 'answer') {
+          showToast('That looks like an Invite, not a Reply link');
+          return;
+        }
+        if (state.pc.signalingState === 'have-local-offer') {
+          await state.pc.setRemoteDescription(new RTCSessionDescription(remoteDesc));
+          showToast('Handshake accepted! Connecting...');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Could not parse reply link');
+      }
+    }
+
+    function handleManualOfferJoin() {
+      const val = document.getElementById('manualOfferInput').value;
+      if (!val.trim()) {
+        showToast('Paste an invite link or code first');
+        return;
+      }
+      startAsGuest(val);
+    }
+
+    function onHostAnswerInput(val) {
+      if (val && val.trim().length > 25) {
+        completeHostHandshake(val);
+      }
+    }
+
+    async function pasteAnswerFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('hostAnswerInput').value = text;
+          completeHostHandshake(text);
+        }
+      } catch (err) {
+        document.getElementById('hostAnswerInput').focus();
+        showToast('Press Ctrl+V / Paste into the box');
+      }
+    }
+
+    function resetConnection() {
+      cleanupPeerConnection();
+      state.role = null;
+      state.lastOfferToken = '';
+      state.lastAnswerToken = '';
+      document.getElementById('hostStartSection').classList.remove('hidden');
+      document.getElementById('hostInviteSection').classList.add('hidden');
+      document.getElementById('guestReplySection').classList.add('hidden');
+      document.getElementById('nearbyHostQrBox').classList.add('hidden');
+      document.getElementById('nearbyQrActions').classList.remove('hidden');
+      document.getElementById('hostAnswerInput').value = '';
+      document.getElementById('manualOfferInput').value = '';
+    }
+
+    /**
+     * 6. CLIPBOARD & NATIVE SHARE HELPERS
+     */
+    function copyTextSafe(text, labelId, defaultLabel) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        if (labelId) {
+          const el = document.getElementById(labelId);
+          el.textContent = 'Copied!';
+          setTimeout(() => { el.textContent = defaultLabel; }, 2000);
+        }
+        showToast('Copied to clipboard!');
+      } catch (e) {
+        showToast('Select and copy the link manually');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function copyInviteLink() {
+      const url = document.getElementById('inviteLinkOutput').value;
+      copyTextSafe(url, 'copyInviteLabel', 'Copy Link');
+    }
+
+    function copyReplyLink() {
+      const url = document.getElementById('replyLinkOutput').value;
+      copyTextSafe(url, 'copyReplyLabel', 'Copy Reply');
+    }
+
+    async function shareUrlNative(url, title, text) {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text, url });
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+        }
+      }
+      copyTextSafe(url);
+    }
+
+    function shareInviteLink() {
+      const url = document.getElementById('inviteLinkOutput').value;
+      shareUrlNative(url, 'Join my P2P Tic-Tac-Toe game!', 'Tap to connect directly via WebRTC:');
+    }
+
+    function shareReplyLink() {
+      const url = document.getElementById('replyLinkOutput').value;
+      shareUrlNative(url, 'Tic-Tac-Toe Reply Link', 'Open this reply link to start our P2P match:');
+    }
+
+    /**
+     * 7. NEARBY DEVICE CONNECT (RADAR AUTO-DISCOVERY + QR CODE + CAMERA SCANNER)
+     */
+    const nearbyChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('p2p-ttt-nearby-radar') : null;
+
+    if (nearbyChannel) {
+      nearbyChannel.onmessage = async (event) => {
+        const msg = event.data;
+        if (!msg || msg.from === state.peerId) return;
+
+        if (msg.type === 'beacon') {
+          state.nearbyPeers.set(msg.from, { id: msg.from, lastSeen: Date.now() });
+          renderNearbyRadar();
+        } else if (msg.type === 'direct_offer' && msg.to === state.peerId) {
+          // Another nearby peer tapped us on the radar! Auto-accept and send answer back
+          showToast(`Nearby player #${msg.from} connecting...`);
+          await startAsGuest(msg.offerToken);
+          nearbyChannel.postMessage({
+            type: 'direct_answer',
+            from: state.peerId,
+            to: msg.from,
+            answerToken: state.lastAnswerToken
+          });
+        } else if (msg.type === 'direct_answer' && msg.to === state.peerId) {
+          await completeHostHandshake(msg.answerToken);
+        } else if (msg.type === 'auto_answer' && state.role === 'host' && !state.connected) {
+          await completeHostHandshake(msg.answerToken);
+        }
+      };
+
+      // Broadcast presence immediately and every 1.5s while in lobby
+      nearbyChannel.postMessage({ type: 'beacon', from: state.peerId });
+      setInterval(() => {
+        if (!state.connected) {
+          nearbyChannel.postMessage({ type: 'beacon', from: state.peerId });
+        }
+        // Prune stale peers older than 4s
+        const now = Date.now();
+        let changed = false;
+        for (const [id, peer] of state.nearbyPeers.entries()) {
+          if (now - peer.lastSeen > 4000) {
+            state.nearbyPeers.delete(id);
+            changed = true;
+          }
+        }
+        if (changed) renderNearbyRadar();
+      }, 1500);
+    }
+
+    function renderNearbyRadar() {
+      const listEl = document.getElementById('nearbyPeersList');
+      const badgeEl = document.getElementById('nearbyBadge');
+      const peers = Array.from(state.nearbyPeers.values());
+
+      badgeEl.classList.toggle('hidden', peers.length === 0);
+
+      if (peers.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 animate-pulse">Scanning nearby windows & tabs...</p>`;
+        return;
+      }
+
+      listEl.innerHTML = peers.map(peer => `
+        <button onclick="connectToNearbyPeer('${peer.id}')" class="w-full max-w-xs py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold flex items-center justify-between transition active:scale-95 shadow-lg shadow-emerald-500/10">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Player #${peer.id}</span>
+          </span>
+          <span class="px-2 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[11px]">Tap to Play</span>
+        </button>
+      `).join('');
+    }
+
+    async function connectToNearbyPeer(targetPeerId) {
+      if (!nearbyChannel) return;
+      showToast(`Connecting to Player #${targetPeerId}...`);
+      await startAsHost();
+      nearbyChannel.postMessage({
+        type: 'direct_offer',
+        from: state.peerId,
+        to: targetPeerId,
+        offerToken: state.lastOfferToken
+      });
+    }
+
+    function renderQrCode(containerId, text) {
+      const container = document.getElementById(containerId);
+      if (!container || typeof QRCode === 'undefined') return;
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: text,
+        width: 176,
+        height: 176,
+        colorDark: '#090d16',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    }
+
+    async function startNearbyHostQr() {
+      await startAsHost();
+      document.getElementById('nearbyQrActions').classList.add('hidden');
+      document.getElementById('nearbyHostQrBox').classList.remove('hidden');
+    }
+
+    async function beamNearbyShare() {
+      if (!state.lastOfferToken) {
+        await startAsHost();
+      }
+      const inviteUrl = buildShareUrl('offer', state.lastOfferToken);
+      shareUrlNative(inviteUrl, 'Tic-Tac-Toe P2P Invite', 'Join my nearby game:');
+    }
+
+    /**
+     * 8. CAMERA QR CODE SCANNER (jsQR)
+     */
+    async function openQrScanner(mode = 'auto') {
+      state.scannerMode = mode;
+      const modal = document.getElementById('qrScannerModal');
+      const video = document.getElementById('qrVideo');
+      const canvas = document.getElementById('qrCanvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+      document.getElementById('scannerSubtitle').textContent =
+        mode === 'answer' ? "Scan your friend's Reply QR code" : "Point camera at your friend's Game QR";
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+        state.scannerStream = stream;
+        video.srcObject = stream;
+        await video.play();
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const scanFrame = () => {
+          if (!state.scannerStream) return;
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            if (typeof jsQR !== 'undefined') {
+              const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: 'dontInvert'
+              });
+              if (code && code.data) {
+                handleScannedQrData(code.data);
+                return;
+              }
+            }
+          }
+          state.scannerAnimFrame = requestAnimationFrame(scanFrame);
+        };
+        state.scannerAnimFrame = requestAnimationFrame(scanFrame);
+      } catch (err) {
+        console.error(err);
+        showToast('Camera unavailable — use Link Connect instead');
+      }
+    }
+
+    function closeQrScanner() {
+      if (state.scannerAnimFrame) {
+        cancelAnimationFrame(state.scannerAnimFrame);
+        state.scannerAnimFrame = null;
+      }
+      if (state.scannerStream) {
+        state.scannerStream.getTracks().forEach(t => t.stop());
+        state.scannerStream = null;
+      }
+      const modal = document.getElementById('qrScannerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function handleScannedQrData(data) {
+      closeQrScanner();
+      try {
+        const decoded = await decodeSignalToken(data);
+        if (decoded.type === 'offer') {
+          showToast('Game QR scanned! Show your Reply QR to host.');
+          await startAsGuest(data);
+        } else if (decoded.type === 'answer') {
+          await completeHostHandshake(data);
+        }
+      } catch (e) {
+        showToast('Unrecognized QR code');
+      }
+    }
+
+    /**
+     * 9. UI NAVIGATION & LOBBY TABS
+     */
+    function switchLobbyTab(tab) {
+      const isLink = tab === 'link';
+      const tabLinkBtn = document.getElementById('tabLinkBtn');
+      const tabNearbyBtn = document.getElementById('tabNearbyBtn');
+
+      if (isLink) {
+        tabLinkBtn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sky-500/20 text-sky-300 border border-sky-400/30 shadow-sm';
+        tabNearbyBtn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200';
+        document.getElementById('linkConnectPanel').classList.remove('hidden');
+        document.getElementById('nearbyConnectPanel').classList.add('hidden');
+      } else {
+        tabNearbyBtn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sky-500/20 text-sky-300 border border-sky-400/30 shadow-sm';
+        tabLinkBtn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200';
+        document.getElementById('nearbyConnectPanel').classList.remove('hidden');
+        document.getElementById('linkConnectPanel').classList.add('hidden');
+      }
+    }
+
+    function enterGameArena() {
+      document.getElementById('lobbyView').classList.add('hidden');
+      document.getElementById('gameView').classList.remove('hidden');
+
+      const pill = document.getElementById('connectionPill');
+      pill.classList.remove('hidden');
+      pill.classList.add('flex');
+
+      // Update player labels
+      document.getElementById('labelPlayerX').textContent = state.mySymbol === 'X' ? 'You' : 'Friend';
+      document.getElementById('labelPlayerO').textContent = state.mySymbol === 'O' ? 'You' : 'Friend';
+
+      state.scores = { X: 0, O: 0, draw: 0 };
+      state.startingTurn = 'X';
+      updateScoreboardUI();
+      resetBoardForRound();
+    }
+
+    function disconnectGame() {
+      resetConnection();
+      document.getElementById('gameView').classList.add('hidden');
+      document.getElementById('lobbyView').classList.remove('hidden');
+      const pill = document.getElementById('connectionPill');
+      pill.classList.add('hidden');
+      pill.classList.remove('flex');
+    }
+
+    function goBackHome(event) {
+      if (event) event.preventDefault();
+      cleanupPeerConnection();
+      closeQrScanner();
+      try {
+        history.replaceState(null, '', '/');
+      } catch (e) {}
+      window.location.href = '/';
+    }
+
+    /**
+     * 10. TIC-TAC-TOE GAMEPLAY & BOARD RENDERING
+     */
+    function renderBoard() {
+      const grid = document.getElementById('boardGrid');
+      const isMyTurn = state.connected && !state.roundOver && state.currentTurn === state.mySymbol;
+
+      grid.innerHTML = state.board.map((cell, index) => {
+        let innerSvg = '';
+        if (cell === 'X') {
+          innerSvg = `
+            <svg class="w-12 h-12 sm:w-16 sm:h-16 glow-x" viewBox="0 0 80 80">
+              <line x1="18" y1="18" x2="62" y2="62" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" class="svg-x-line" />
+              <line x1="62" y1="18" x2="18" y2="62" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" class="svg-x-line svg-x-line-2" />
+            </svg>`;
+        } else if (cell === 'O') {
+          innerSvg = `
+            <svg class="w-12 h-12 sm:w-16 sm:h-16 glow-o" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="24" fill="none" stroke="#fb7185" stroke-width="8" stroke-linecap="round" class="svg-o-circle" />
+            </svg>`;
+        } else if (isMyTurn) {
+          // Subtle hover ghost preview on empty playable squares
+          innerSvg = state.mySymbol === 'X'
+            ? `<span class="opacity-0 group-hover:opacity-25 text-sky-400 font-extrabold text-3xl sm:text-4xl transition-opacity select-none">X</span>`
+            : `<span class="opacity-0 group-hover:opacity-25 text-rose-400 font-extrabold text-3xl sm:text-4xl transition-opacity select-none">O</span>`;
+        }
+
+        const interactiveClasses = (!cell && isMyTurn)
+          ? 'cursor-pointer hover:bg-slate-800/80 hover:border-white/20 active:scale-95'
+          : 'cursor-default';
+
+        return `
+          <button
+            type="button"
+            onclick="handleCellClick(${index})"
+            ${cell || !isMyTurn ? 'disabled' : ''}
+            aria-label="Cell ${index + 1}"
+            class="group relative w-full h-full rounded-2xl bg-slate-900/75 border border-white/10 flex items-center justify-center transition-all duration-150 shadow-inner ${interactiveClasses}">
+            ${innerSvg}
+          </button>`;
+      }).join('');
+    }
+
+    function handleCellClick(index) {
+      if (!state.connected || state.roundOver) return;
+      if (state.currentTurn !== state.mySymbol) return;
+      if (state.board[index] !== null) return;
+
+      applyMove(index, state.mySymbol, true);
+    }
+
+    function applyMove(index, symbol, isLocal) {
+      if (state.board[index] !== null || state.roundOver) return;
+
+      state.board[index] = symbol;
+      playTone(symbol === 'X' ? 'moveX' : 'moveO');
+
+      if (isLocal) {
+        sendP2PMessage({ type: 'move', index, symbol });
+      }
+
+      const winResult = checkWinner(state.board);
+      if (winResult) {
+        state.roundOver = true;
+        state.scores[winResult.winner] += 1;
+        updateScoreboardUI();
+        renderBoard();
+        drawWinningLine(winResult);
+        showRoundOutcome(winResult.winner);
+        return;
+      }
+
+      if (state.board.every(cell => cell !== null)) {
+        state.roundOver = true;
+        state.scores.draw += 1;
+        updateScoreboardUI();
+        renderBoard();
+        showRoundOutcome('draw');
+        return;
+      }
+
+      state.currentTurn = state.currentTurn === 'X' ? 'O' : 'X';
+      updateTurnIndicatorUI();
+      renderBoard();
+    }
+
+    function checkWinner(board) {
+      for (const combo of WIN_COMBOS) {
+        const [a, b, c] = combo.cells;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return { winner: board[a], coords: combo.coords };
+        }
+      }
+      return null;
+    }
+
+    function drawWinningLine(winResult) {
+      const svg = document.getElementById('winLineSvg');
+      const line = document.getElementById('winLine');
+      const [x1, y1, x2, y2] = winResult.coords;
+
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke', winResult.winner === 'X' ? '#38bdf8' : '#fb7185');
+
+      // Re-trigger SVG stroke animation
+      line.classList.remove('svg-win-line');
+      void line.offsetWidth;
+      line.classList.add('svg-win-line');
+
+      svg.classList.remove('hidden');
+    }
+
+    function showRoundOutcome(winner) {
+      const rematchBar = document.getElementById('rematchBar');
+      const titleEl = document.getElementById('roundResultTitle');
+      const subEl = document.getElementById('roundResultSub');
+      const btnEl = document.getElementById('rematchBtn');
+      const statusText = document.getElementById('turnStatusText');
+      const turnDot = document.getElementById('turnDot');
+
+      state.rematchRequestedByMe = false;
+      state.rematchRequestedByPeer = false;
+      btnEl.disabled = false;
+      btnEl.textContent = 'Play Again';
+
+      if (winner === 'draw') {
+        playTone('draw');
+        titleEl.textContent = "It's a Draw! 🤝";
+        statusText.textContent = 'Round ended in a tie';
+        turnDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+      } else if (winner === state.mySymbol) {
+        playTone('win');
+        titleEl.textContent = 'You Won! 🎉';
+        statusText.textContent = `Victory for ${winner}!`;
+        turnDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+      } else {
+        playTone('draw');
+        titleEl.textContent = 'Friend Won! 👏';
+        statusText.textContent = `${winner} takes this round`;
+        turnDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+      }
+
+      subEl.textContent = 'Ready for the next round?';
+      rematchBar.classList.remove('hidden');
+    }
+
+    function requestRematch() {
+      if (!state.connected) return;
+      state.rematchRequestedByMe = true;
+      sendP2PMessage({ type: 'rematch_request' });
+
+      if (state.rematchRequestedByPeer) {
+        startNewRound();
+      } else {
+        const btnEl = document.getElementById('rematchBtn');
+        btnEl.disabled = true;
+        btnEl.textContent = 'Waiting for Friend...';
+        document.getElementById('roundResultSub').textContent = 'Rematch invite sent!';
+      }
+    }
+
+    function startNewRound() {
+      // Alternate who starts each round for fairness
+      state.startingTurn = state.startingTurn === 'X' ? 'O' : 'X';
+      sendP2PMessage({ type: 'rematch_start', startingTurn: state.startingTurn });
+      resetBoardForRound();
+    }
+
+    function resetBoardForRound() {
+      state.board = Array(9).fill(null);
+      state.roundOver = false;
+      state.currentTurn = state.startingTurn;
+      state.rematchRequestedByMe = false;
+      state.rematchRequestedByPeer = false;
+
+      document.getElementById('winLineSvg').classList.add('hidden');
+      document.getElementById('rematchBar').classList.add('hidden');
+      updateTurnIndicatorUI();
+      renderBoard();
+    }
+
+    function updateScoreboardUI() {
+      document.getElementById('scoreX').textContent = state.scores.X;
+      document.getElementById('scoreO').textContent = state.scores.O;
+      document.getElementById('scoreDraw').textContent = state.scores.draw;
+    }
+
+    function updateTurnIndicatorUI() {
+      const isMyTurn = state.currentTurn === state.mySymbol;
+      const statusText = document.getElementById('turnStatusText');
+      const turnDot = document.getElementById('turnDot');
+      const cardX = document.getElementById('cardPlayerX');
+      const cardO = document.getElementById('cardPlayerO');
+
+      if (state.currentTurn === 'X') {
+        cardX.className = 'rounded-2xl p-2.5 transition-all duration-300 border border-sky-400/50 bg-sky-500/15 shadow-md shadow-sky-500/10';
+        cardO.className = 'rounded-2xl p-2.5 transition-all duration-300 border border-transparent bg-slate-900/40 opacity-70';
+      } else {
+        cardO.className = 'rounded-2xl p-2.5 transition-all duration-300 border border-rose-400/50 bg-rose-500/15 shadow-md shadow-rose-500/10';
+        cardX.className = 'rounded-2xl p-2.5 transition-all duration-300 border border-transparent bg-slate-900/40 opacity-70';
+      }
+
+      if (isMyTurn) {
+        statusText.textContent = `Your Turn (${state.mySymbol})`;
+        turnDot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${state.mySymbol === 'X' ? 'bg-sky-400' : 'bg-rose-400'}`;
+      } else {
+        statusText.textContent = `Friend's Turn (${state.currentTurn})...`;
+        turnDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
+      }
+    }
+
+    /**
+     * 11. LIVE REACTIONS & TOAST NOTIFICATIONS
+     */
+    function sendReaction(emoji) {
+      if (!state.connected) return;
+      sendP2PMessage({ type: 'reaction', emoji });
+      spawnFloatingReaction(emoji, true);
+    }
+
+    function spawnFloatingReaction(emoji, isLocal) {
+      const overlay = document.getElementById('reactionOverlay');
+      const el = document.createElement('div');
+      const randomX = isLocal ? (60 + Math.random() * 25) : (15 + Math.random() * 25);
+
+      el.className = 'absolute bottom-24 px-3 py-1.5 rounded-2xl glass-card text-2xl sm:text-3xl font-extrabold text-white shadow-xl animate-float-up select-none';
+      el.style.left = `${randomX}%`;
+      el.textContent = emoji;
+
+      overlay.appendChild(el);
+      setTimeout(() => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 1850);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-2.5 rounded-2xl glass-card border border-white/15 text-xs sm:text-sm font-medium text-white shadow-xl animate-pop-in text-center';
+      toast.textContent = message;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 260);
+      }, 2600);
+    }
+
+    /**
+     * 12. INITIALIZATION & DEEP-LINK HASH HANDLER
+     */
+    async function processUrlHash() {
+      const hash = window.location.hash || '';
+      if (hash.startsWith('#offer=')) {
+        const token = hash.slice('#offer='.length);
+        try {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {}
+        await startAsGuest(token);
+      } else if (hash.startsWith('#answer=')) {
+        const token = hash.slice('#answer='.length);
+        try {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {}
+        if (state.role === 'host' && !state.connected) {
+          await completeHostHandshake(token);
+        } else if (nearbyChannel) {
+          // Relay reply token to an open Host tab on the same browser
+          nearbyChannel.postMessage({
+            type: 'auto_answer',
+            from: state.peerId,
+            answerToken: token
+          });
+          showToast('Reply sent to your open Host tab!');
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', processUrlHash);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderBoard();
+      processUrlHash();
+    });
+  </script>
+</body>
+</html>

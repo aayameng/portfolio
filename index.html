@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -655,7 +654,7 @@
                        type="text"
                        oninput="handleProjSearch(this.value)"
                        onkeydown="if(event.key==='Escape'){clearProjSearch();}"
-                       placeholder="Filter CAD, Math, Physics..."
+                       placeholder="Filter CAD, Math, Physics, Programming..."
                        aria-label="Filter projects mind map"
                        class="w-full pl-3.5 pr-24 py-2 rounded-xl bg-slate-900/95 text-slate-100 placeholder-slate-400 font-mono text-xs border border-amber-500/30 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-lg transition-all" />
                 <button id="proj-search-clear"
@@ -1516,6 +1515,12 @@
                     { name: "Peacock Feather (Interference) 🦚", keywords: "thin film optical interference structural color wavelength", url: "./projects/Physics/peacock_feather_interference.html", subnodes: [] },
                     { name: "Car Suspension (Oscillator) 🚗", keywords: "car suspension damped harmonic oscillator spring damper resonance vibration mechanics", url: "./projects/Physics/car_suspension_oscillator.html", subnodes: [] },
                     { name: "Electromagnetism ⚡", keywords: "electromagnetism maxwell equations electric magnetic fields gauss faraday ampere lorentz force", url: "./projects/Physics/electromagnetism.html", subnodes: [] }
+                ]
+            },
+            programming: {
+                name: "Programming 💻",
+                nodes: [
+                    { name: "PeerDirect 📞", keywords: "peerdirect peer to peer p2p chat video audio call webrtc socket networking messaging", url: "./projects/Programming/peer_to_peer_chat_and_call.html", subnodes: [] }
                 ]
             }
         };

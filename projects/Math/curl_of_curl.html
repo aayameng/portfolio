@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>River Flow: Curl of Curl Intuition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #1a4e6e 0%, #3b7b8f 45%, #112921 100%);
+            color: #f1f5f9;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            z-index: 1;
+        }
+        .glass-panel {
+            background: rgba(9, 24, 36, 0.68);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(125, 211, 252, 0.2);
+            box-shadow: 0 20px 44px -12px rgba(3, 12, 20, 0.68), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+        }
+        .safe-ui-inset {
+            padding-top: max(0.85rem, env(safe-area-inset-top));
+            padding-bottom: max(0.85rem, env(safe-area-inset-bottom));
+            padding-left: max(0.85rem, env(safe-area-inset-left));
+            padding-right: max(0.85rem, env(safe-area-inset-right));
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="select-none">
+
+    <!-- 3D River Viewport -->
+    <div id="canvas-container"></div>
+
+    <!-- Floating UI Overlay -->
+    <div class="relative z-10 pointer-events-none flex flex-col justify-between h-[100dvh] safe-ui-inset sm:p-6">
+        
+        <!-- Top Row: Minimal Vector Legend & Zoomed Angular Velocity Readout -->
+        <div class="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-start gap-2.5 w-full">
+            <!-- Zoomed Paddle Angular Velocity & Curl Readout (shown when Zoom Curl is active) -->
+            <div id="zoom-readout" class="hidden glass-panel pointer-events-auto rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-[11px] sm:text-xs flex flex-col gap-1 sm:gap-1.5 border-amber-400/25 self-start">
+                <div class="flex items-center justify-between gap-4">
+                    <span class="text-slate-400">Angular Velocity (ω)</span>
+                    <span id="val-omega" class="font-mono font-semibold text-teal-300">0.00 rad/s</span>
+                </div>
+                <div class="flex items-center justify-between gap-4">
+                    <span class="text-slate-400">Local Curl (2ω)</span>
+                    <span id="val-curl" class="font-mono font-semibold text-amber-300">0.00 s⁻¹</span>
+                </div>
+                <div id="val-spin-dir" class="text-[10px] sm:text-[11px] text-slate-300 pt-1 border-t border-slate-700/50">
+                    Right-hand rule → Up (+z)
+                </div>
+            </div>
+            <div class="hidden sm:block w-1"></div>
+
+            <!-- Vector Color Legend -->
+            <div class="glass-panel pointer-events-auto rounded-2xl px-3 py-2 sm:px-4 sm:py-3 text-[11px] sm:text-xs flex flex-wrap sm:flex-col gap-x-3.5 gap-y-1.5 sm:gap-2 self-end sm:self-auto">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#00f0ff] shadow-[0_0_12px_rgba(0,240,255,0.9)]"></span>
+                    <span class="text-slate-100 font-medium">Velocity</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#10ffb0] shadow-[0_0_12px_rgba(16,255,176,0.9)]"></span>
+                    <span class="text-slate-100 font-medium">Angular Velocity (ω)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffc400] shadow-[0_0_12px_rgba(255,196,0,0.9)]"></span>
+                    <span class="text-slate-100 font-medium">Curl (2ω)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff3b6b] shadow-[0_0_12px_rgba(255,59,107,0.9)]"></span>
+                    <span class="text-slate-100 font-medium">Curl of Curl</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Controls: Minimal River Probe & Layer Toggles -->
+        <div class="w-full max-w-md mx-auto pointer-events-auto">
+            <div class="glass-panel rounded-2xl px-2.5 py-2 sm:px-4 sm:py-3 flex items-center justify-center">
+                <div class="grid grid-cols-4 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-center">
+                    <button id="btn-zoom-probe" class="px-2 py-2.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-medium bg-teal-500/15 text-teal-200 border border-teal-400/30 hover:bg-teal-500/25 active:scale-95 transition whitespace-nowrap">
+                        Zoom Curl
+                    </button>
+                    <button id="toggle-wheels" class="px-2 py-2.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-medium bg-amber-500/25 text-amber-100 border border-amber-400/50 hover:bg-amber-500/35 active:scale-95 transition whitespace-nowrap">
+                        Curl
+                    </button>
+                    <button id="toggle-field" class="px-2 py-2.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-medium bg-cyan-500/25 text-cyan-100 border border-cyan-400/50 hover:bg-cyan-500/35 transition active:scale-95 whitespace-nowrap">
+                        Velocity
+                    </button>
+                    <button id="toggle-curlcurl" class="px-2 py-2.5 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-medium bg-rose-500/25 text-rose-100 border border-rose-400/50 hover:bg-rose-500/35 active:scale-95 transition whitespace-nowrap">
+                        Curl²
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. SIMULATION STATE & OBSTACLE DEFINITIONS
+        // ==========================================
+        let probeMathX = 0.0;
+        let probeMathY = 1.1;
+        let showWheels = true;
+        let showField = true;
+        let showCurlCurl = true;
+        let isZoomedIn = false;
+        let isDraggingProbe = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        // Shared river boulder definitions (used for rendering, water foam, and collision avoidance)
+        const RIVER_BOULDERS = [
+            { x: -2.2, y: 1.55, r: 0.34, sx: 1.32, sy: 0.78, sz: 1.08, rotY: 0.4, seed: 11.3, tiltX: 0.08, tiltZ: -0.06 },
+            { x: 1.8, y: -1.5, r: 0.38, sx: 1.24, sy: 0.82, sz: 1.15, rotY: 2.1, seed: 27.7, tiltX: -0.07, tiltZ: 0.09 },
+            { x: -0.35, y: -1.85, r: 0.26, sx: 1.38, sy: 0.68, sz: 0.96, rotY: 1.2, seed: 43.1, tiltX: 0.05, tiltZ: 0.04 }
+        ];
+
+        function isInsideBoulder(mx, my, margin = 0.42) {
+            for (let i = 0; i < RIVER_BOULDERS.length; i++) {
+                const b = RIVER_BOULDERS[i];
+                const effectiveR = b.r * Math.max(b.sx, b.sz) + margin;
+                if (Math.hypot(mx - b.x, my - b.y) < effectiveR) return true;
+            }
+            return false;
+        }
+
+        function resolveBoulderCollision(mx, my, margin = 0.44) {
+            let x = mx;
+            let y = my;
+            for (let i = 0; i < RIVER_BOULDERS.length; i++) {
+                const b = RIVER_BOULDERS[i];
+                const minDist = b.r * Math.max(b.sx, b.sz) + margin;
+                const dx = x - b.x;
+                const dy = y - b.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist < minDist) {
+                    const nx = dist > 1e-4 ? dx / dist : 0;
+                    const ny = dist > 1e-4 ? dy / dist : 1;
+                    x = b.x + nx * minDist;
+                    y = b.y + ny * minDist;
+                }
+            }
+            return { x, y };
+        }
+
+        // ==========================================
+        // 2. THREE.JS SCENE SETUP & PROCEDURAL TEXTURES
+        // ==========================================
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x82b0c2);
+        scene.fog = new THREE.FogExp2(0x82b0c2, 0.026);
+
+        const isCompactScreen = () => window.innerWidth < 640;
+        const camera = new THREE.PerspectiveCamera(isCompactScreen() ? 54 : 45, window.innerWidth / window.innerHeight, 0.1, 160);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.98;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // Procedural Canvas Textures for Organic Realism
+        function makeOrganicTexture(baseHex, speckleColors, repeatX = 4, repeatY = 4) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = baseHex;
+            ctx.fillRect(0, 0, 256, 256);
+
+            for (let i = 0; i < 2200; i++) {
+                ctx.fillStyle = speckleColors[i % speckleColors.length];
+                ctx.globalAlpha = 0.1 + (i % 7) * 0.035;
+                const x = (Math.sin(i * 12.9898) * 43758.5453 % 1 + 1) % 1 * 256;
+                const y = (Math.sin(i * 78.233) * 43758.5453 % 1 + 1) % 1 * 256;
+                const r = 1 + (i % 5) * 1.4;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(repeatX, repeatY);
+            return tex;
+        }
+
+        const riverbedTex = makeOrganicTexture('#143138', ['#0b2026', '#264d52', '#385c56', '#193c42'], 54, 5);
+        const grassTex = makeOrganicTexture('#224929', ['#15331b', '#316132', '#447537', '#275229'], 52, 16);
+        const rockTex = makeOrganicTexture('#3a464a', ['#222a2e', '#535f63', '#2d3d37', '#49524c'], 3, 3);
+
+        // Realistic Sky Dome with Golden-Hour Horizon Mist
+        const skyGeo = new THREE.SphereGeometry(75, 32, 20);
+        const skyMat = new THREE.ShaderMaterial({
+            side: THREE.BackSide,
+            depthWrite: false,
+            uniforms: {
+                topColor: { value: new THREE.Color(0x1b5278) },
+                horizonColor: { value: new THREE.Color(0x82b0c2) },
+                sunColor: { value: new THREE.Color(0xffe0a8) },
+                sunDir: { value: new THREE.Vector3(0.5, 0.48, 0.38).normalize() }
+            },
+            vertexShader: `
+                precision highp float;
+                varying vec3 vWorldPos;
+                void main() {
+                    vec4 wp = modelMatrix * vec4(position, 1.0);
+                    vWorldPos = wp.xyz;
+                    gl_Position = projectionMatrix * viewMatrix * wp;
+                }
+            `,
+            fragmentShader: `
+                precision highp float;
+                uniform vec3 topColor;
+                uniform vec3 horizonColor;
+                uniform vec3 sunColor;
+                uniform vec3 sunDir;
+                varying vec3 vWorldPos;
+                void main() {
+                    vec3 dir = normalize(vWorldPos);
+                    float h = clamp(dir.y * 1.6, 0.0, 1.0);
+                    vec3 col = mix(horizonColor, topColor, pow(h, 0.62));
+                    float sunAmt = max(dot(dir, sunDir), 0.0);
+                    col += sunColor * pow(sunAmt, 14.0) * 0.34;
+                    gl_FragColor = vec4(col, 1.0);
+                }
+            `
+        });
+        scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+        // Warm Golden-Hour Sunlight & Cool Alpine Sky Fill
+        const hemiLight = new THREE.HemisphereLight(0x9bd1e8, 0x22402b, 0.62);
+        scene.add(hemiLight);
+
+        const ambientFill = new THREE.AmbientLight(0x9ac8db, 0.12);
+        scene.add(ambientFill);
+
+        const sunLight = new THREE.DirectionalLight(0xffe2b0, 1.72);
+        sunLight.position.set(9, 10.5, 7);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = isCompactScreen() ? 1024 : 2048;
+        sunLight.shadow.mapSize.height = isCompactScreen() ? 1024 : 2048;
+        sunLight.shadow.camera.near = 1;
+        sunLight.shadow.camera.far = 35;
+        sunLight.shadow.camera.left = -10;
+        sunLight.shadow.camera.right = 10;
+        sunLight.shadow.camera.top = 10;
+        sunLight.shadow.camera.bottom = -10;
+        sunLight.shadow.bias = -0.0008;
+        scene.add(sunLight);
+
+        const rimLight = new THREE.DirectionalLight(0x64d2e8, 0.28);
+        rimLight.position.set(-7, 6, -8);
+        scene.add(rimLight);
+
+        const worldGroup = new THREE.Group();
+        scene.add(worldGroup);
+        const RIVER_LEN = 36.0;
+        const RIVER_VISUAL_LEN = 128.0;
+        const RIVER_HALF_W = 3.2;
+
+        // ==========================================
+        // 3. REALISTIC RIVER CHANNEL, WATER & VALLEY TERRAIN
+        // ==========================================
+        function getRiverbedHeight(bx, bz) {
+            const bankSlope = Math.pow(Math.min(1, Math.abs(bz) / (RIVER_HALF_W + 0.4)), 2.5) * 0.28;
+            const pebbleBump = Math.sin(bx * 2.1 + bz * 1.7) * 0.03 + Math.cos(bx * 3.7 - bz * 2.9) * 0.02;
+            return -0.26 + bankSlope + pebbleBump;
+        }
+
+        function getBankHeight(sideSign, x, worldZ) {
+            const bankHalfDepth = 22;
+            const centerZ = sideSign * (RIVER_HALF_W + bankHalfDepth - 0.15);
+            const localZ = worldZ - centerZ;
+            const distFromWater = sideSign < 0 ? (bankHalfDepth - localZ) : (localZ + bankHalfDepth);
+            const shorelineRise = Math.min(0.45, Math.max(0, distFromWater) * 0.22);
+            const rollingMound =
+                Math.sin(x * 0.35 + distFromWater * 0.4) * 0.16 * Math.min(1, Math.max(0, distFromWater) * 0.3) +
+                Math.cos(x * 0.7 - distFromWater * 0.5) * 0.08 * Math.min(1, Math.max(0, distFromWater) * 0.25);
+            return -0.05 + shorelineRise + rollingMound;
+        }
+
+        // Textured Pebble & Silt Riverbed extending to the horizon
+        const bedGeo = new THREE.PlaneGeometry(RIVER_VISUAL_LEN, RIVER_HALF_W * 2 + 1.6, 160, 24);
+        bedGeo.rotateX(-Math.PI / 2);
+        const bedPos = bedGeo.attributes.position;
+        for (let i = 0; i < bedPos.count; i++) {
+            const bx = bedPos.getX(i);
+            const bz = bedPos.getZ(i);
+            bedPos.setY(i, getRiverbedHeight(bx, bz));
+        }
+        bedGeo.computeVertexNormals();
+        const bedMat = new THREE.MeshStandardMaterial({
+            map: riverbedTex,
+            bumpMap: riverbedTex,
+            bumpScale: 0.025,
+            roughness: 0.92,
+            metalness: 0.04
+        });
+        const bedMesh = new THREE.Mesh(bedGeo, bedMat);
+        bedMesh.receiveShadow = true;
+        worldGroup.add(bedMesh);
+
+        // Sculpted Grassy & Mossy Riverbanks stretching into the distant mist
+        function createSculptedBank(sideSign) {
+            const bankDepth = 44;
+            const bankGeo = new THREE.PlaneGeometry(RIVER_VISUAL_LEN, bankDepth, 160, 32);
+            bankGeo.rotateX(-Math.PI / 2);
+            const pos = bankGeo.attributes.position;
+            const centerZ = sideSign * (RIVER_HALF_W + bankDepth * 0.5 - 0.15);
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i);
+                const localZ = pos.getZ(i);
+                pos.setY(i, getBankHeight(sideSign, x, localZ + centerZ));
+            }
+            bankGeo.computeVertexNormals();
+            const mat = new THREE.MeshStandardMaterial({
+                map: grassTex,
+                bumpMap: grassTex,
+                bumpScale: 0.03,
+                roughness: 0.94,
+                metalness: 0.01
+            });
+            const mesh = new THREE.Mesh(bankGeo, mat);
+            mesh.position.set(0, 0, centerZ);
+            mesh.receiveShadow = true;
+            return mesh;
+        }
+        worldGroup.add(createSculptedBank(-1), createSculptedBank(1));
+
+        // Distant Atmospheric Valley Hills framing the infinite river corridor
+        const hillMat = new THREE.MeshStandardMaterial({
+            color: 0x33595e,
+            roughness: 0.94,
+            metalness: 0.0
+        });
+        [
+            { x: -38.0, z: -15.5, r: 6.5, sx: 2.6, sy: 0.95 },
+            { x: -24.0, z: -16.5, r: 6.2, sx: 2.5, sy: 0.90 },
+            { x: -9.5, z: -15.5, r: 5.5, sx: 2.4, sy: 0.85 },
+            { x: 1.5, z: -16.5, r: 6.5, sx: 2.8, sy: 1.05 },
+            { x: 14.5, z: -15.0, r: 5.8, sx: 2.4, sy: 0.88 },
+            { x: 28.5, z: -16.2, r: 6.6, sx: 2.7, sy: 1.00 },
+            { x: 42.0, z: -15.0, r: 6.2, sx: 2.5, sy: 0.92 },
+            { x: -36.0, z: 16.0, r: 6.4, sx: 2.6, sy: 0.95 },
+            { x: -21.0, z: 15.2, r: 5.6, sx: 2.3, sy: 0.85 },
+            { x: -8.0, z: 15.8, r: 5.8, sx: 2.5, sy: 0.90 },
+            { x: 5.5, z: 16.2, r: 6.2, sx: 2.6, sy: 0.95 },
+            { x: 19.5, z: 15.4, r: 6.0, sx: 2.5, sy: 0.90 },
+            { x: 34.0, z: 16.4, r: 6.8, sx: 2.8, sy: 1.02 },
+            { x: 46.0, z: 15.2, r: 6.0, sx: 2.4, sy: 0.88 }
+        ].forEach(h => {
+            const hill = new THREE.Mesh(new THREE.SphereGeometry(h.r, 24, 16), hillMat);
+            hill.scale.set(h.sx, h.sy, 1.35);
+            hill.position.set(h.x, -0.5, h.z);
+            worldGroup.add(hill);
+        });
+
+        // Natural Conifer Trees, Shoreline Rocks & Riverbank Reeds
+        const envGroup = new THREE.Group();
+        worldGroup.add(envGroup);
+
+        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3b2920, roughness: 0.92 });
+        const foliageMat1 = new THREE.MeshStandardMaterial({ color: 0x1a4028, roughness: 0.85 });
+        const foliageMat2 = new THREE.MeshStandardMaterial({ color: 0x265735, roughness: 0.82 });
+
+        function createPineTree(x, z, scale = 1.0) {
+            const tree = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.045 * scale, 0.08 * scale, 0.5 * scale, 8), trunkMat);
+            trunk.position.y = 0.25 * scale;
+            trunk.castShadow = true;
+            tree.add(trunk);
+
+            for (let tier = 0; tier < 4; tier++) {
+                const cone = new THREE.Mesh(
+                    new THREE.ConeGeometry((0.46 - tier * 0.08) * scale, (0.62 - tier * 0.07) * scale, 9),
+                    tier % 2 === 0 ? foliageMat1 : foliageMat2
+                );
+                cone.position.y = (0.58 + tier * 0.28) * scale;
+                cone.castShadow = true;
+                cone.receiveShadow = true;
+                tree.add(cone);
+            }
+            tree.position.set(x, 0.34, z);
+            envGroup.add(tree);
+        }
+
+        for (let i = 0; i < 56; i++) {
+            const side = i % 2 === 0 ? -1 : 1;
+            const tx = -44.0 + (i / 55) * 88.0 + Math.sin(i * 4.7) * 0.85;
+            const bankOffset = 4.6 + ((i * 7) % 5) * 0.55 + Math.abs(Math.cos(i * 2.3)) * 0.6;
+            const tz = side * bankOffset;
+            const scale = 0.9 + ((i * 11) % 5) * 0.09;
+            createPineTree(tx, tz, scale);
+        }
+
+        // Helper to sculpt unique organic faceted rocks
+        function createOrganicRockGeometry(radius, seed, detail = 2, flatTop = 0.72) {
+            const geo = new THREE.IcosahedronGeometry(radius, detail);
+            const pos = geo.attributes.position;
+            const v = new THREE.Vector3();
+            let minY = Infinity;
+
+            for (let i = 0; i < pos.count; i++) {
+                v.fromBufferAttribute(pos, i);
+                const dir = v.clone().normalize();
+                const n1 = Math.sin(dir.x * 3.7 + seed) * Math.cos(dir.z * 3.3 - seed * 0.7);
+                const n2 = Math.sin(dir.y * 5.2 + dir.x * 4.1 + seed * 1.9) * 0.5;
+                const ridge = Math.abs(Math.sin((dir.x + dir.z) * 2.6 + seed * 0.4));
+                const disp = 1.0 + n1 * 0.19 + n2 * 0.11 - ridge * 0.12;
+                v.multiplyScalar(disp);
+                if (v.y > 0) v.y *= flatTop;
+                if (v.y < minY) minY = v.y;
+                pos.setXYZ(i, v.x, v.y, v.z);
+            }
+            for (let i = 0; i < pos.count; i++) {
+                pos.setY(i, pos.getY(i) - minY);
+            }
+            geo.computeVertexNormals();
+            return geo;
+        }
+
+        const shorelineRockMats = [
+            new THREE.MeshStandardMaterial({ map: rockTex, color: 0x3b494e, roughness: 0.38, metalness: 0.08 }),
+            new THREE.MeshStandardMaterial({ map: rockTex, color: 0x4c5856, roughness: 0.45, metalness: 0.05 }),
+            new THREE.MeshStandardMaterial({ map: rockTex, color: 0x2f3e3b, roughness: 0.34, metalness: 0.08 }),
+            new THREE.MeshStandardMaterial({ map: rockTex, color: 0x565a52, roughness: 0.52, metalness: 0.04 })
+        ];
+
+        // Wet Shoreline Stones & Varied Riverbank Rocks resting naturally on the ground surface
+        for (let i = 0; i < 180; i++) {
+            const side = i % 2 === 0 ? -1 : 1;
+            const px = -44.0 + (i / 179) * 88.0 + Math.sin(i * 3.1) * 0.32;
+            const pz = side * (RIVER_HALF_W + 0.05 + ((i * 7) % 6) * 0.14);
+            const pr = 0.065 + ((i * 13) % 7) * 0.026;
+            const rockGeo = createOrganicRockGeometry(pr, i * 17.3 + 3.1, 1, 0.58 + (i % 4) * 0.07);
+            const pebble = new THREE.Mesh(rockGeo, shorelineRockMats[i % shorelineRockMats.length]);
+            pebble.scale.set(1.15 + (i % 4) * 0.18, 0.72 + (i % 3) * 0.14, 0.95 + ((i + 2) % 4) * 0.16);
+            pebble.rotation.set(Math.sin(i * 2.1) * 0.08, i * 1.37, Math.cos(i * 1.7) * 0.08);
+
+            const groundY = Math.max(getRiverbedHeight(px, pz), getBankHeight(side, px, pz));
+            pebble.position.set(px, groundY - 0.015, pz);
+            pebble.castShadow = true;
+            pebble.receiveShadow = true;
+            envGroup.add(pebble);
+        }
+
+        // Photorealistic Custom Shader Water Surface (Fresnel Sky Reflection + Sun Specular + Ripples + Foam + Horizon Fog)
+        const waterUniforms = {
+            uTime: { value: 0 },
+            uSunDir: { value: new THREE.Vector3(9, 10.5, 7).normalize() },
+            uSunColor: { value: new THREE.Color(0xffe3b3) },
+            uSkyColor: { value: new THREE.Color(0x7fb4c9) },
+            uDeepColor: { value: new THREE.Color(0x06394a) },
+            uShallowColor: { value: new THREE.Color(0x187d78) },
+            uFogColor: { value: new THREE.Color(0x82b0c2) },
+            uFogDensity: { value: 0.026 },
+            uRiverHalfW: { value: RIVER_HALF_W }
+        };
+
+        const surfaceGeo = new THREE.PlaneGeometry(RIVER_VISUAL_LEN, RIVER_HALF_W * 2 + 0.25, 240, 48);
+        surfaceGeo.rotateX(-Math.PI / 2);
+
+        const surfaceMat = new THREE.ShaderMaterial({
+            transparent: true,
+            depthWrite: false,
+            uniforms: waterUniforms,
+            vertexShader: `
+                precision highp float;
+                uniform float uTime;
+                varying vec3 vWorldPos;
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    float w1 = sin(pos.x * 1.6 - uTime * 2.4 + pos.z * 0.9) * 0.011;
+                    float w2 = cos(pos.x * 2.9 - uTime * 1.9 - pos.z * 2.1) * 0.006;
+                    pos.y += w1 + w2;
+                    vec4 wp = modelMatrix * vec4(pos, 1.0);
+                    vWorldPos = wp.xyz;
+                    gl_Position = projectionMatrix * viewMatrix * wp;
+                }
+            `,
+            fragmentShader: `
+                precision highp float;
+                uniform float uTime;
+                uniform vec3 uSunDir;
+                uniform vec3 uSunColor;
+                uniform vec3 uSkyColor;
+                uniform vec3 uDeepColor;
+                uniform vec3 uShallowColor;
+                uniform vec3 uFogColor;
+                uniform float uFogDensity;
+                uniform float uRiverHalfW;
+                varying vec3 vWorldPos;
+                varying vec2 vUv;
+
+                float waveHeight(vec2 p) {
+                    float t = uTime;
+                    float h = 0.0;
+                    h += sin(p.x * 2.4 - t * 2.6 + p.y * 1.3) * 0.35;
+                    h += cos(p.x * 4.7 - t * 3.1 - p.y * 3.8) * 0.22;
+                    h += sin(p.x * 9.5 - t * 4.2 + p.y * 7.2) * 0.12;
+                    h += cos(p.x * 17.0 - t * 5.0 - p.y * 14.0) * 0.06;
+                    return h;
+                }
+
+                void main() {
+                    vec2 p = vec2(vWorldPos.x, -vWorldPos.z);
+                    float e = 0.03;
+                    float hC = waveHeight(p);
+                    float hX = waveHeight(p + vec2(e, 0.0));
+                    float hY = waveHeight(p + vec2(0.0, e));
+                    vec3 normal = normalize(vec3(-(hX - hC) / e * 0.14, 1.0, (hY - hC) / e * 0.14));
+
+                    vec3 viewDir = normalize(cameraPosition - vWorldPos);
+                    float NdotV = max(dot(normal, viewDir), 0.001);
+
+                    // Schlick Fresnel reflection
+                    float fresnel = 0.03 + 0.97 * pow(1.0 - NdotV, 4.0);
+
+                    // Depth-based water absorption
+                    float bankDist = clamp(1.0 - abs(vWorldPos.z) / uRiverHalfW, 0.0, 1.0);
+                    vec3 waterBody = mix(uShallowColor, uDeepColor, smoothstep(0.0, 0.65, bankDist));
+
+                    // Sun specular sparkle across ripples
+                    vec3 halfVec = normalize(uSunDir + viewDir);
+                    float spec = pow(max(dot(normal, halfVec), 0.0), 150.0) * 1.15;
+                    float softSpec = pow(max(dot(normal, halfVec), 0.0), 26.0) * 0.14;
+
+                    // Subtle organic shoreline & rock wake foam
+                    float rock1Dist = length(p - vec2(-2.2, 1.55));
+                    float rock2Dist = length(p - vec2(1.8, -1.5));
+                    float rock3Dist = length(p - vec2(-0.35, -1.85));
+                    float wakeFoam = smoothstep(0.62, 0.30, rock1Dist) + smoothstep(0.66, 0.34, rock2Dist) + smoothstep(0.48, 0.24, rock3Dist);
+                    float bankFoam = smoothstep(0.22, 0.0, bankDist) * (0.45 + 0.55 * sin(p.x * 5.0 - uTime * 2.0 + hC * 3.0));
+                    float foam = clamp((wakeFoam * 0.42 + bankFoam * 0.24), 0.0, 0.62);
+
+                    vec3 finalCol = mix(waterBody, uSkyColor, fresnel * 0.52);
+                    finalCol += uSunColor * (spec + softSpec);
+                    finalCol = mix(finalCol, vec3(0.84, 0.93, 0.94), foam);
+
+                    float alpha = mix(0.36, 0.82, smoothstep(0.0, 0.45, bankDist));
+                    alpha = max(alpha, fresnel * 0.68);
+                    alpha = clamp(alpha + foam * 0.2, 0.0, 0.92);
+
+                    // Exponential horizon mist blend
+                    float camDist = length(cameraPosition - vWorldPos);
+                    float fogFactor = clamp(1.0 - exp(-uFogDensity * uFogDensity * camDist * camDist), 0.0, 1.0);
+                    finalCol = mix(finalCol, uFogColor, fogFactor);
+                    alpha = mix(alpha, 1.0, smoothstep(0.25, 0.95, fogFactor));
+
+                    gl_FragColor = vec4(finalCol, alpha);
+                }
+            `
+        });
+        const waterSurfaceMesh = new THREE.Mesh(surfaceGeo, surfaceMat);
+        waterSurfaceMesh.position.y = 0.135;
+        worldGroup.add(waterSurfaceMesh);
+
+        // Luminous Velocity-Graded Streamline Ribbons
+        const streamlineGroup = new THREE.Group();
+        worldGroup.add(streamlineGroup);
+        const LANE_COUNT = 21;
+
+        // ==========================================
+        // 4. VECTOR FIELD PHYSICS ENGINE
+        // ==========================================
+        function getRiverOffset(mx) {
+            return 0.65 * Math.sin(mx * 0.42);
+        }
+
+        function getVelocity(mx, my) {
+            const centerOffset = getRiverOffset(mx);
+            const yRel = my - centerOffset;
+            const normY = yRel / RIVER_HALF_W;
+            const baseProfile = Math.max(0.05, 1.85 * (1 - normY * normY));
+
+            // Base meandering flow
+            let vx = baseProfile;
+            let vy = baseProfile * 0.65 * 0.42 * Math.cos(mx * 0.42);
+
+            // Add realistic river eddies / boulders creating mixed swirling regions
+            const eddies = [
+                { x: -2.2, y: 1.15, strength: 1.15, radius: 1.35 },
+                { x: 1.8, y: -1.1, strength: -1.25, radius: 1.45 },
+                { x: 0.1, y: 0.2, strength: 0.55, radius: 1.1 },
+                { x: -0.35, y: -1.55, strength: -0.75, radius: 1.05 }
+            ];
+
+            for (let i = 0; i < eddies.length; i++) {
+                const e = eddies[i];
+                const dx = mx - e.x;
+                const dy = my - e.y;
+                const r2 = dx * dx + dy * dy;
+                const factor = e.strength * Math.exp(-r2 / (e.radius * e.radius));
+                vx += -dy * factor;
+                vy += dx * factor;
+            }
+
+            // Smoothly damp velocity near solid channel walls
+            const wallFactor = Math.max(0.05, 1 - Math.pow(my / RIVER_HALF_W, 4));
+            return { vx: vx * wallFactor, vy: vy * wallFactor };
+        }
+
+        function getDerivatives(mx, my) {
+            // Finite difference numerical derivatives for mixed meandering & eddy river field:
+            // curl(F)_z = dF_y/dx - dF_x/dy
+            // curl(curl(F)) = ( d(curl_z)/dy , -d(curl_z)/dx )
+            const eps = 0.06;
+            const getCurlZ = (x, y) => {
+                const dFy_dx = (getVelocity(x + eps, y).vy - getVelocity(x - eps, y).vy) / (2 * eps);
+                const dFx_dy = (getVelocity(x, y + eps).vx - getVelocity(x, y - eps).vx) / (2 * eps);
+                return dFy_dx - dFx_dy;
+            };
+
+            const curlZ = getCurlZ(mx, my);
+            const curlCurlX = (getCurlZ(mx, my + eps) - getCurlZ(mx, my - eps)) / (2 * eps);
+            const curlCurlY = -(getCurlZ(mx + eps, my) - getCurlZ(mx - eps, my)) / (2 * eps);
+            return { curlZ, curlCurlX, curlCurlY };
+        }
+
+        // Integrate organic 3D streamline ribbons along the mixed velocity field
+        for (let i = 0; i < LANE_COUNT; i++) {
+            const startY = -2.85 + (i / (LANE_COUNT - 1)) * 5.7;
+            let cx = -RIVER_LEN / 2;
+            let cy = startY;
+            const points = [];
+            let avgSpeed = 0;
+
+            for (let step = 0; step < 235; step++) {
+                points.push(new THREE.Vector3(cx, 0.048, -cy));
+                const { vx, vy } = getVelocity(cx, cy);
+                const spd = Math.hypot(vx, vy);
+                avgSpeed += spd;
+                if (spd < 0.02 || cx > RIVER_LEN / 2) break;
+                const ds = 0.16;
+                cx += (vx / spd) * ds;
+                cy += (vy / spd) * ds;
+                cy = Math.max(-RIVER_HALF_W * 0.95, Math.min(RIVER_HALF_W * 0.95, cy));
+            }
+
+            if (points.length > 2) {
+                avgSpeed /= points.length;
+                const speedRatio = Math.min(1, avgSpeed / 1.9);
+                const laneColor = new THREE.Color().setHSL(
+                    0.51 - speedRatio * 0.05,
+                    0.82,
+                    0.50 + speedRatio * 0.26
+                );
+
+                const curve = new THREE.CatmullRomCurve3(points);
+                const tubeGeo = new THREE.TubeGeometry(curve, 180, 0.01 + speedRatio * 0.009, 5, false);
+                const tubeMat = new THREE.MeshBasicMaterial({
+                    color: laneColor,
+                    transparent: true,
+                    opacity: 0.12 + speedRatio * 0.12,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                streamlineGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+            }
+        }
+
+        // Wet River Boulders / Eddy Obstacles with Unique Faceted Geometry Seated on Riverbed
+        const boulderColors = [0x35444a, 0x2c3b3f, 0x434d49];
+        RIVER_BOULDERS.forEach((rk, idx) => {
+            const boulderGeo = createOrganicRockGeometry(rk.r, rk.seed, 2, 0.76);
+            const boulderMat = new THREE.MeshStandardMaterial({
+                map: rockTex,
+                bumpMap: rockTex,
+                bumpScale: 0.035,
+                color: boulderColors[idx % boulderColors.length],
+                roughness: 0.28,
+                metalness: 0.1
+            });
+            const rock = new THREE.Mesh(boulderGeo, boulderMat);
+            rock.scale.set(rk.sx, rk.sy, rk.sz);
+            rock.rotation.set(rk.tiltX, rk.rotY, rk.tiltZ);
+            const bedY = getRiverbedHeight(rk.x, -rk.y);
+            rock.position.set(rk.x, bedY - 0.02, -rk.y);
+            rock.castShadow = true;
+            rock.receiveShadow = true;
+            worldGroup.add(rock);
+        });
+
+        // ==========================================
+        // 5. FLOWING STREAMLINE STREAKS
+        // ==========================================
+        const PARTICLE_COUNT = 960;
+        const particles = [];
+        const pGeo = new THREE.CylinderGeometry(0.01, 0.01, 1, 6);
+        pGeo.rotateZ(Math.PI / 2);
+        const pMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.28,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const particleInstanced = new THREE.InstancedMesh(pGeo, pMat, PARTICLE_COUNT);
+        worldGroup.add(particleInstanced);
+
+        const dummy = new THREE.Object3D();
+        const tempColor = new THREE.Color();
+
+        function resetParticle(p, randomX = false) {
+            p.mx = randomX ? (Math.random() - 0.5) * RIVER_LEN : -RIVER_LEN / 2 + Math.random() * 0.6;
+            p.my = (Math.random() - 0.5) * (RIVER_HALF_W * 1.88);
+            p.age = Math.random() * 12.0;
+            p.phase = Math.random() * Math.PI * 2;
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const p = { mx: 0, my: 0, age: 0, phase: 0 };
+            resetParticle(p, true);
+            const { vx, vy } = getVelocity(p.mx, p.my);
+            const speedRatio = Math.min(1, Math.hypot(vx, vy) / 2.0);
+            tempColor.setHSL(0.50 - speedRatio * 0.05, 0.88, 0.46 + speedRatio * 0.32);
+            particleInstanced.setColorAt(i, tempColor);
+            particles.push(p);
+        }
+        if (particleInstanced.instanceColor) {
+            particleInstanced.instanceColor.needsUpdate = true;
+        }
+
+        // ==========================================
+        // 6. VELOCITY ARROWS & SPINNING PADDLEWHEELS
+        // ==========================================
+        function createArrowMesh(colorHex, shaftRadius = 0.024, headRadius = 0.065, headLen = 0.18, emissiveHex = colorHex, emissiveIntensity = 0.92) {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({
+                color: colorHex,
+                emissive: emissiveHex,
+                emissiveIntensity: emissiveIntensity,
+                roughness: 0.18,
+                metalness: 0.08
+            });
+
+            const shaftGeo = new THREE.CylinderGeometry(shaftRadius, shaftRadius, 1, 12);
+            shaftGeo.translate(0, 0.5, 0);
+            const shaft = new THREE.Mesh(shaftGeo, mat);
+
+            const headGeo = new THREE.ConeGeometry(headRadius, headLen, 14);
+            headGeo.translate(0, 0.5 * headLen, 0);
+            const head = new THREE.Mesh(headGeo, mat);
+
+            group.add(shaft, head);
+            group.userData = { shaft, head, headLen };
+            return group;
+        }
+
+        const UP_VEC = new THREE.Vector3(0, 1, 0);
+        const tempDirVec = new THREE.Vector3();
+
+        function setArrow(arrow, dirX, dirY, dirZ, length) {
+            if (length < 0.015) {
+                arrow.visible = false;
+                return;
+            }
+            arrow.visible = true;
+            tempDirVec.set(dirX, dirY, dirZ).normalize();
+            arrow.quaternion.setFromUnitVectors(UP_VEC, tempDirVec);
+
+            const headLen = arrow.userData.headLen;
+            const actualHeadLen = Math.min(headLen, length * 0.48);
+            const shaftLen = Math.max(0.001, length - actualHeadLen);
+            arrow.userData.shaft.scale.set(1, shaftLen, 1);
+            arrow.userData.head.scale.set(1, actualHeadLen / headLen, 1);
+            arrow.userData.head.position.set(0, shaftLen, 0);
+        }
+
+        // Velocity Vector Grid across cross-sections
+        const fieldGroup = new THREE.Group();
+        worldGroup.add(fieldGroup);
+        const fieldArrows = [];
+        const GRID_X = [-3.2, 0.0, 3.2];
+        const GRID_Y = [-2.4, -1.6, -0.8, 0.0, 0.8, 1.6, 2.4];
+
+        GRID_X.forEach(gx => {
+            GRID_Y.forEach(gy => {
+                const arrow = createArrowMesh(0x00f0ff, 0.024, 0.068, 0.18, 0x00b8ff, 0.95);
+                arrow.position.set(gx, 0.13, -gy);
+                fieldGroup.add(arrow);
+                fieldArrows.push({ arrow, mx: gx, my: gy });
+            });
+        });
+
+        // Spinning Paddlewheels (Visualizing Local Curl = nabla x F)
+        const wheelGroup = new THREE.Group();
+        worldGroup.add(wheelGroup);
+        const paddleWheels = [];
+
+        function createPaddleWheel() {
+            const container = new THREE.Group();
+            const spinner = new THREE.Group();
+
+            const hubMat = new THREE.MeshStandardMaterial({
+                color: 0xffb703,
+                emissive: 0xf59e0b,
+                emissiveIntensity: 0.65,
+                roughness: 0.22
+            });
+            const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.062, 0.14, 14), hubMat);
+            spinner.add(hub);
+
+            const bladeMat = new THREE.MeshStandardMaterial({
+                color: 0xffe066,
+                emissive: 0xffaa00,
+                emissiveIntensity: 0.42,
+                roughness: 0.28,
+                side: THREE.DoubleSide
+            });
+            for (let b = 0; b < 4; b++) {
+                const blade = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.1, 0.022), bladeMat);
+                blade.rotation.y = (b * Math.PI) / 4;
+                spinner.add(blade);
+            }
+
+            // Vertical Curl Vector Arrow along spin axis
+            const curlArrow = createArrowMesh(0xffc400, 0.025, 0.07, 0.18, 0xff9500, 0.95);
+            curlArrow.position.y = 0.08;
+
+            container.add(spinner, curlArrow);
+            container.userData = { spinner, curlArrow };
+            return container;
+        }
+
+        const WHEEL_X = [-3.0, -1.0, 1.0, 3.0];
+        const WHEEL_Y = [-2.2, -1.1, 0.0, 1.1, 2.2];
+        WHEEL_X.forEach(wx => {
+            WHEEL_Y.forEach(wy => {
+                if (isInsideBoulder(wx, wy, 0.48)) return;
+                const wheel = createPaddleWheel();
+                wheel.position.set(wx, 0.14, -wy);
+                wheelGroup.add(wheel);
+                paddleWheels.push({
+                    wheel,
+                    mx: wx,
+                    my: wy,
+                    angle: Math.random() * Math.PI * 2
+                });
+            });
+        });
+
+        // ==========================================
+        // 7. INTERACTIVE PROBE & CURL-OF-CURL VECTOR
+        // ==========================================
+        const probeGroup = new THREE.Group();
+        worldGroup.add(probeGroup);
+
+        // Invisible enlarged touch/pointer hit target so grabbing the probe on mobile is effortless
+        const probeHitTarget = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.95, 0.95, 0.75, 16),
+            new THREE.MeshBasicMaterial({ visible: false })
+        );
+        probeHitTarget.position.y = 0.25;
+        probeGroup.add(probeHitTarget);
+
+        // Glowing Probe Ring on Water Surface
+        const ringGeo = new THREE.RingGeometry(0.24, 0.32, 36);
+        ringGeo.rotateX(-Math.PI / 2);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0xff3b6b,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.95
+        });
+        const probeRing = new THREE.Mesh(ringGeo, ringMat);
+        probeRing.position.y = 0.12;
+        probeGroup.add(probeRing);
+
+        // Soft outer halo around probe ring for clear touch affordance
+        const outerHaloGeo = new THREE.RingGeometry(0.35, 0.43, 36);
+        outerHaloGeo.rotateX(-Math.PI / 2);
+        const outerHaloMat = new THREE.MeshBasicMaterial({
+            color: 0xff4d7d,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.32
+        });
+        const probeOuterHalo = new THREE.Mesh(outerHaloGeo, outerHaloMat);
+        probeOuterHalo.position.y = 0.118;
+        probeGroup.add(probeOuterHalo);
+
+        // Probe Paddlewheel + Curl-of-Curl Arrow (Vibrant Neon Coral-Rose)
+        const probeWheel = createPaddleWheel();
+        probeWheel.position.y = 0.15;
+        probeGroup.add(probeWheel);
+
+        // Tangential Velocity Vectors attached directly onto the rotating paddle tips
+        const bladeTipArrowsGroup = new THREE.Group();
+        probeWheel.userData.spinner.add(bladeTipArrowsGroup);
+        const bladeTipAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        const bladeTipRadius = 0.22;
+        const bladeTipVectors = bladeTipAngles.map(ang => {
+            const holder = new THREE.Group();
+            holder.position.set(Math.cos(ang) * bladeTipRadius, 0.052, -Math.sin(ang) * bladeTipRadius);
+            holder.rotation.y = ang;
+            const arrow = createArrowMesh(0x18f2ff, 0.0075, 0.024, 0.072, 0x00c8ff, 1.0);
+            holder.add(arrow);
+            bladeTipArrowsGroup.add(holder);
+            return { holder, arrow };
+        });
+
+        // Curved Angular Velocity (omega) Arc & Arrowhead around the Paddle Hub
+        const omegaRingGroup = new THREE.Group();
+        omegaRingGroup.position.y = 0.25;
+        probeGroup.add(omegaRingGroup);
+
+        const omegaArcVisual = new THREE.Group();
+        omegaRingGroup.add(omegaArcVisual);
+
+        const omegaArcRadius = 0.30;
+        const omegaArcCurve = new THREE.EllipseCurve(0, 0, omegaArcRadius, omegaArcRadius, 0.25, Math.PI * 1.65, false, 0);
+        const omegaArcPoints = omegaArcCurve.getPoints(36).map(pt => new THREE.Vector3(pt.x, 0, -pt.y));
+        const omegaArcCatmull = new THREE.CatmullRomCurve3(omegaArcPoints);
+        const omegaArcGeo = new THREE.TubeGeometry(omegaArcCatmull, 36, 0.01, 10, false);
+        const omegaArcMat = new THREE.MeshStandardMaterial({
+            color: 0x10ffb0,
+            emissive: 0x00e699,
+            emissiveIntensity: 0.95,
+            roughness: 0.2
+        });
+        const omegaArcMesh = new THREE.Mesh(omegaArcGeo, omegaArcMat);
+
+        const omegaHeadGeo = new THREE.ConeGeometry(0.03, 0.084, 14);
+        const omegaHeadMesh = new THREE.Mesh(omegaHeadGeo, omegaArcMat);
+        const endPt = omegaArcCatmull.getPoint(1);
+        const endTangent = omegaArcCatmull.getTangent(1).normalize();
+        omegaHeadMesh.position.copy(endPt).addScaledVector(endTangent, 0.028);
+        omegaHeadMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), endTangent);
+
+        omegaArcVisual.add(omegaArcMesh, omegaHeadMesh);
+
+        // Local Blade-Pushing Velocity Vectors around Probe (shows origin of Curl!)
+        const localBladeGroup = new THREE.Group();
+        probeGroup.add(localBladeGroup);
+        const bladeSampleOffsets = [
+            { dx: 0, dy: 0.36 },
+            { dx: 0, dy: -0.36 },
+            { dx: 0.36, dy: 0 },
+            { dx: -0.36, dy: 0 }
+        ];
+
+        const sampleGuideGeo = new THREE.RingGeometry(0.355, 0.365, 64);
+        sampleGuideGeo.rotateX(-Math.PI / 2);
+        const sampleGuideMat = new THREE.MeshBasicMaterial({
+            color: 0x00f0ff,
+            transparent: true,
+            opacity: 0.34,
+            side: THREE.DoubleSide
+        });
+        const sampleGuideRing = new THREE.Mesh(sampleGuideGeo, sampleGuideMat);
+        sampleGuideRing.position.y = 0.155;
+        localBladeGroup.add(sampleGuideRing);
+
+        const bladeArrows = bladeSampleOffsets.map(off => {
+            const arrow = createArrowMesh(0x00f5ff, 0.0085, 0.028, 0.088, 0x00c4ff, 1.0);
+            arrow.position.set(off.dx, 0.16, -off.dy);
+            localBladeGroup.add(arrow);
+
+            const dot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.018, 12, 12),
+                new THREE.MeshBasicMaterial({ color: 0x80f8ff })
+            );
+            dot.position.set(off.dx, 0.16, -off.dy);
+            localBladeGroup.add(dot);
+
+            const haloGeo = new THREE.RingGeometry(0.023, 0.035, 24);
+            haloGeo.rotateX(-Math.PI / 2);
+            const halo = new THREE.Mesh(
+                haloGeo,
+                new THREE.MeshBasicMaterial({
+                    color: 0x00f0ff,
+                    transparent: true,
+                    opacity: 0.72,
+                    side: THREE.DoubleSide
+                })
+            );
+            halo.position.set(off.dx, 0.16, -off.dy);
+            localBladeGroup.add(halo);
+
+            return { arrow, dot, halo, dx: off.dx, dy: off.dy };
+        });
+
+        const arrowCurlCurl = createArrowMesh(0xff3b6b, 0.04, 0.105, 0.27, 0xff1755, 1.0);
+        arrowCurlCurl.position.y = 0.24;
+        probeGroup.add(arrowCurlCurl);
+
+        // ==========================================
+        // 8. FIELD & PROBE VISUAL UPDATERS
+        // ==========================================
+        const zoomReadoutEl = document.getElementById('zoom-readout');
+        const valOmegaEl = document.getElementById('val-omega');
+        const valCurlEl = document.getElementById('val-curl');
+        const valSpinDirEl = document.getElementById('val-spin-dir');
+
+        function updateFieldVisuals() {
+            fieldGroup.visible = showField;
+            if (showField) {
+                for (let i = 0; i < fieldArrows.length; i++) {
+                    const item = fieldArrows[i];
+                    if (isInsideBoulder(item.mx, item.my, 0.35)) {
+                        item.arrow.visible = false;
+                        continue;
+                    }
+                    const { vx, vy } = getVelocity(item.mx, item.my);
+                    const speed = Math.hypot(vx, vy);
+                    setArrow(item.arrow, vx, 0, -vy, speed * 0.42);
+                }
+            }
+
+            wheelGroup.visible = showWheels;
+            if (showWheels) {
+                for (let i = 0; i < paddleWheels.length; i++) {
+                    const pw = paddleWheels[i];
+                    const { vx, vy } = getVelocity(pw.mx, pw.my);
+                    const speed = Math.hypot(vx, vy);
+                    if (speed < 0.14) {
+                        pw.wheel.visible = false;
+                        continue;
+                    }
+                    pw.wheel.visible = true;
+                    const { curlZ } = getDerivatives(pw.mx, pw.my);
+                    const curlMag = Math.abs(curlZ);
+                    const curlDirY = curlZ >= 0 ? 1 : -1;
+                    pw.wheel.userData.curlArrow.position.y = curlDirY >= 0 ? 0.07 : -0.05;
+                    setArrow(pw.wheel.userData.curlArrow, 0, curlDirY, 0, Math.min(0.95, curlMag * 0.42));
+                }
+            }
+        }
+
+        function updateProbe() {
+            probeGroup.position.set(probeMathX, 0, -probeMathY);
+
+            const { vx, vy } = getVelocity(probeMathX, probeMathY);
+            const speed = Math.hypot(vx, vy);
+            const { curlZ, curlCurlX, curlCurlY } = getDerivatives(probeMathX, probeMathY);
+            const omega = curlZ * 0.5;
+
+            // Update probe paddlewheel curl vector
+            const curlMag = Math.abs(curlZ);
+            const curlSign = curlZ >= 0 ? 1 : -1;
+            probeWheel.userData.curlArrow.position.y = curlSign >= 0 ? 0.07 : -0.05;
+            setArrow(probeWheel.userData.curlArrow, 0, curlSign, 0, Math.min(1.15, curlMag * 0.46));
+
+            // Show zoomed-in local velocity & blade-tip tangential vectors
+            localBladeGroup.visible = isZoomedIn;
+            bladeTipArrowsGroup.visible = isZoomedIn && Math.abs(omega) > 0.03;
+            omegaRingGroup.visible = isZoomedIn && Math.abs(omega) > 0.03;
+
+            if (isZoomedIn) {
+                // Flip omega arc orientation cleanly without negative scale face inversion
+                omegaArcVisual.rotation.x = omega >= 0 ? 0 : Math.PI;
+
+                // Update tangential vectors attached to rotating paddle tips
+                const tipSpeedLen = Math.min(0.32, Math.abs(omega) * bladeTipRadius * 1.45);
+                const tangSign = omega >= 0 ? 1 : -1;
+                for (let i = 0; i < bladeTipVectors.length; i++) {
+                    const tv = bladeTipVectors[i];
+                    setArrow(tv.arrow, 0, 0, -tangSign, tipSpeedLen);
+                }
+
+                // Update the 4 surrounding river velocity sample arrows
+                for (let i = 0; i < bladeArrows.length; i++) {
+                    const ba = bladeArrows[i];
+                    const sx = probeMathX + ba.dx;
+                    const sy = probeMathY + ba.dy;
+                    const vLocal = getVelocity(sx, sy);
+                    const localSpd = Math.hypot(vLocal.vx, vLocal.vy);
+                    setArrow(ba.arrow, vLocal.vx, 0, -vLocal.vy, Math.min(0.55, localSpd * 0.28));
+                }
+
+                // Update live readout HUD
+                valOmegaEl.textContent = `${omega >= 0 ? '+' : ''}${omega.toFixed(2)} rad/s`;
+                valCurlEl.textContent = `${curlZ >= 0 ? '+' : ''}${curlZ.toFixed(2)} s⁻¹`;
+                if (Math.abs(omega) < 0.03 || speed < 0.12) {
+                    valSpinDirEl.textContent = 'Irrotational / Balanced shear → Curl ≈ 0';
+                } else if (omega > 0) {
+                    valSpinDirEl.textContent = 'CCW spin → Right-hand rule Up (+z)';
+                } else {
+                    valSpinDirEl.textContent = 'CW spin → Right-hand rule Down (−z)';
+                }
+            }
+
+            // Update horizontal Curl-of-Curl vector (visible outside zoomed blade inspection)
+            const ccMag = Math.hypot(curlCurlX, curlCurlY);
+            if (showCurlCurl && !isZoomedIn && ccMag > 0.03) {
+                setArrow(arrowCurlCurl, curlCurlX, 0, -curlCurlY, Math.min(1.45, ccMag * 0.45));
+            } else {
+                arrowCurlCurl.visible = false;
+            }
+        }
+
+        // ==========================================
+        // 9. RAYCASTING, DRAG & ORBIT CAMERA CONTROLS
+        // ==========================================
+        const raycaster = new THREE.Raycaster();
+        const waterPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.14);
+        const pointerNDC = new THREE.Vector2();
+        const planeHitPoint = new THREE.Vector3();
+
+        const getDefaultRadius = () => (isCompactScreen() ? 11.2 : 8.6);
+        const currentLookAt = new THREE.Vector3(0, 0.1, 0);
+        const spherical = { radius: getDefaultRadius(), theta: 0.36, phi: 0.94 };
+        const targetSpherical = { radius: getDefaultRadius(), theta: 0.36, phi: 0.94 };
+        let isDragging = false;
+        let prevMouse = { x: 0, y: 0 };
+
+        function setPointerNDC(clientX, clientY) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointerNDC, camera);
+        }
+
+        function getWaterHit(clientX, clientY) {
+            setPointerNDC(clientX, clientY);
+            return raycaster.ray.intersectPlane(waterPlane, planeHitPoint);
+        }
+
+        function isPointerOnProbe(clientX, clientY, isTouch = false) {
+            setPointerNDC(clientX, clientY);
+            if (raycaster.intersectObject(probeHitTarget, false).length > 0) {
+                return true;
+            }
+            const hit = raycaster.ray.intersectPlane(waterPlane, planeHitPoint);
+            if (!hit) return false;
+            const hitRadius = isTouch ? 1.25 : 0.78;
+            return Math.hypot(hit.x - probeMathX, -hit.z - probeMathY) < hitRadius;
+        }
+
+        function startProbeDrag(clientX, clientY, isTouch = false) {
+            if (!isPointerOnProbe(clientX, clientY, isTouch)) return false;
+            const hit = getWaterHit(clientX, clientY);
+            if (!hit) return false;
+            isDraggingProbe = true;
+            dragOffsetX = probeMathX - hit.x;
+            dragOffsetY = probeMathY - (-hit.z);
+            return true;
+        }
+
+        function moveProbeToPointer(clientX, clientY) {
+            const hit = getWaterHit(clientX, clientY);
+            if (!hit) return;
+            const rawX = hit.x + dragOffsetX;
+            const rawY = -hit.z + dragOffsetY;
+            const clampedX = Math.max(-4.8, Math.min(4.8, rawX));
+            const clampedY = Math.max(-2.6, Math.min(2.6, rawY));
+            const resolved = resolveBoulderCollision(clampedX, clampedY, 0.44);
+            // Direct 1:1 lag-free tracking
+            probeMathX = resolved.x;
+            probeMathY = resolved.y;
+            updateProbe();
+        }
+
+        function updateCamera() {
+            // Keep camera steady while actively dragging in zoomed-in mode to prevent cursor feedback drift
+            if (!(isZoomedIn && isDraggingProbe)) {
+                const targetFocus = isZoomedIn
+                    ? new THREE.Vector3(probeMathX, 0.15, -probeMathY)
+                    : new THREE.Vector3(0, 0.1, 0);
+                currentLookAt.lerp(targetFocus, 0.16);
+            }
+
+            spherical.radius += (targetSpherical.radius - spherical.radius) * 0.16;
+            spherical.theta += (targetSpherical.theta - spherical.theta) * 0.16;
+            spherical.phi += (targetSpherical.phi - spherical.phi) * 0.16;
+
+            camera.position.x = currentLookAt.x + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+            camera.position.y = currentLookAt.y + spherical.radius * Math.cos(spherical.phi);
+            camera.position.z = currentLookAt.z + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+            camera.lookAt(currentLookAt);
+        }
+        updateCamera();
+
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            if (startProbeDrag(e.clientX, e.clientY, false)) {
+                renderer.domElement.style.cursor = 'grabbing';
+                return;
+            }
+            isDragging = true;
+            prevMouse = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            isDraggingProbe = false;
+            renderer.domElement.style.cursor = 'default';
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingProbe) {
+                moveProbeToPointer(e.clientX, e.clientY);
+                return;
+            }
+            if (!isDragging) {
+                renderer.domElement.style.cursor = isPointerOnProbe(e.clientX, e.clientY, false) ? 'grab' : 'default';
+                return;
+            }
+            const dx = e.clientX - prevMouse.x;
+            const dy = e.clientY - prevMouse.y;
+            targetSpherical.theta -= dx * 0.007;
+            targetSpherical.phi = Math.max(0.25, Math.min(1.42, targetSpherical.phi - dy * 0.007));
+            prevMouse = { x: e.clientX, y: e.clientY };
+        });
+
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            targetSpherical.radius = Math.max(1.8, Math.min(20, targetSpherical.radius + e.deltaY * 0.008));
+        }, { passive: false });
+
+        // Touch Orbit, Probe Drag & Pinch Zoom
+        let lastPinchDist = 0;
+        renderer.domElement.addEventListener('touchstart', (e) => {
+            if (e.cancelable) e.preventDefault();
+            if (e.touches.length === 1) {
+                const t = e.touches[0];
+                if (startProbeDrag(t.clientX, t.clientY, true)) {
+                    isDragging = false;
+                    return;
+                }
+                isDragging = true;
+                prevMouse = { x: t.clientX, y: t.clientY };
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                isDraggingProbe = false;
+                lastPinchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }, { passive: false });
+
+        renderer.domElement.addEventListener('touchmove', (e) => {
+            if (e.cancelable) e.preventDefault();
+            if (e.touches.length === 1 && isDraggingProbe) {
+                moveProbeToPointer(e.touches[0].clientX, e.touches[0].clientY);
+                return;
+            }
+            if (e.touches.length === 1 && isDragging) {
+                const dx = e.touches[0].clientX - prevMouse.x;
+                const dy = e.touches[0].clientY - prevMouse.y;
+                targetSpherical.theta -= dx * 0.008;
+                targetSpherical.phi = Math.max(0.25, Math.min(1.42, targetSpherical.phi - dy * 0.008));
+                prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (lastPinchDist > 0) {
+                    targetSpherical.radius = Math.max(1.8, Math.min(20, targetSpherical.radius - (dist - lastPinchDist) * 0.02));
+                }
+                lastPinchDist = dist;
+            }
+        }, { passive: false });
+
+        const endTouchDrag = () => {
+            isDragging = false;
+            isDraggingProbe = false;
+            lastPinchDist = 0;
+        };
+        renderer.domElement.addEventListener('touchend', endTouchDrag);
+        renderer.domElement.addEventListener('touchcancel', endTouchDrag);
+
+        // ==========================================
+        // 10. UI BUTTON CONTROLS & RESPONSIVE RESIZE
+        // ==========================================
+        const btnZoomProbe = document.getElementById('btn-zoom-probe');
+        const btnToggleWheels = document.getElementById('toggle-wheels');
+        const btnToggleField = document.getElementById('toggle-field');
+        const btnToggleCurlCurl = document.getElementById('toggle-curlcurl');
+
+        function setButtonActive(btn, active, activeClasses, inactiveClasses) {
+            btn.classList.remove(...activeClasses, ...inactiveClasses);
+            btn.classList.add(...(active ? activeClasses : inactiveClasses));
+        }
+
+        btnZoomProbe.addEventListener('click', () => {
+            isZoomedIn = !isZoomedIn;
+            zoomReadoutEl.classList.toggle('hidden', !isZoomedIn);
+            btnZoomProbe.textContent = isZoomedIn ? 'Overview' : 'Zoom Curl';
+
+            if (isZoomedIn) {
+                targetSpherical.radius = isCompactScreen() ? 2.55 : 2.15;
+                targetSpherical.phi = 0.68;
+            } else {
+                targetSpherical.radius = getDefaultRadius();
+                targetSpherical.phi = 0.94;
+            }
+
+            setButtonActive(
+                btnZoomProbe,
+                isZoomedIn,
+                ['bg-teal-500/35', 'text-teal-100', 'border-teal-300/60'],
+                ['bg-teal-500/15', 'text-teal-200', 'border-teal-400/30']
+            );
+            updateProbe();
+        });
+
+        btnToggleWheels.addEventListener('click', () => {
+            showWheels = !showWheels;
+            setButtonActive(
+                btnToggleWheels,
+                showWheels,
+                ['bg-amber-500/25', 'text-amber-100', 'border-amber-400/50'],
+                ['bg-slate-800/40', 'text-slate-400', 'border-slate-700/40']
+            );
+            updateFieldVisuals();
+        });
+
+        btnToggleField.addEventListener('click', () => {
+            showField = !showField;
+            setButtonActive(
+                btnToggleField,
+                showField,
+                ['bg-cyan-500/25', 'text-cyan-100', 'border-cyan-400/50'],
+                ['bg-slate-800/40', 'text-slate-400', 'border-slate-700/40']
+            );
+            updateFieldVisuals();
+        });
+
+        btnToggleCurlCurl.addEventListener('click', () => {
+            showCurlCurl = !showCurlCurl;
+            setButtonActive(
+                btnToggleCurlCurl,
+                showCurlCurl,
+                ['bg-rose-500/25', 'text-rose-100', 'border-rose-400/50'],
+                ['bg-slate-800/40', 'text-slate-400', 'border-slate-700/40']
+            );
+            updateProbe();
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.fov = isCompactScreen() ? 54 : 45;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+
+        // Initial render state
+        updateFieldVisuals();
+        updateProbe();
+
+        // ==========================================
+        // 11. MAIN ANIMATION LOOP
+        // ==========================================
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min(0.05, clock.getDelta());
+            const elapsed = clock.elapsedTime;
+            waterUniforms.uTime.value = elapsed;
+
+            // Advance flowing streamline water streaks
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const p = particles[i];
+                const { vx, vy } = getVelocity(p.mx, p.my);
+                p.mx += vx * dt * 1.15;
+                p.my += vy * dt * 1.15;
+                p.age += dt;
+
+                // Keep particles within channel and outside boulders
+                if (
+                    p.mx > RIVER_LEN / 2 ||
+                    Math.abs(p.my) > RIVER_HALF_W * 0.96 ||
+                    isInsideBoulder(p.mx, p.my, 0.28)
+                ) {
+                    resetParticle(p, false);
+                }
+
+                const speed = Math.hypot(vx, vy);
+                const angle = Math.atan2(vy, vx);
+                const streakLen = Math.max(0.08, Math.min(0.45, speed * 0.22));
+                const rippleY = 0.055 + Math.sin(p.mx * 1.8 - elapsed * 2.5 + p.phase) * 0.008;
+
+                dummy.position.set(p.mx, rippleY, -p.my);
+                dummy.rotation.set(0, angle, 0);
+                dummy.scale.set(streakLen, 1, 1);
+                dummy.updateMatrix();
+                particleInstanced.setMatrixAt(i, dummy.matrix);
+            }
+            particleInstanced.instanceMatrix.needsUpdate = true;
+
+            // Spin field paddlewheels according to local angular velocity omega = 0.5 * curl_z
+            if (showWheels) {
+                for (let i = 0; i < paddleWheels.length; i++) {
+                    const pw = paddleWheels[i];
+                    if (!pw.wheel.visible) continue;
+                    const { curlZ } = getDerivatives(pw.mx, pw.my);
+                    const omega = curlZ * 0.5;
+                    pw.angle += omega * dt * 2.2;
+                    pw.wheel.userData.spinner.rotation.y = pw.angle;
+                }
+            }
+
+            // Spin interactive probe paddlewheel & animate omega ring
+            const probeCurlZ = getDerivatives(probeMathX, probeMathY).curlZ;
+            const probeOmega = probeCurlZ * 0.5;
+            probeWheel.userData.spinner.rotation.y += probeOmega * dt * 2.2;
+            if (omegaRingGroup.visible) {
+                omegaRingGroup.rotation.y += probeOmega * dt * 1.4;
+            }
+
+            // Subtle pulse on probe ring & outer touch halo
+            const pulse = 1 + Math.sin(elapsed * 3.4) * 0.045;
+            probeRing.scale.set(pulse, pulse, 1);
+            probeOuterHalo.scale.set(1 + Math.sin(elapsed * 2.6 + 1.0) * 0.06, 1 + Math.sin(elapsed * 2.6 + 1.0) * 0.06, 1);
+
+            updateCamera();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            animate();
+        };
+    </script>
+</body>
+</html>

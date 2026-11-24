@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>e^{iθ} = cos θ + i sin θ</title>
+
+  <!-- Tailwind CSS for responsive layout and minimal UI styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Three.js r128 for 3D WebGL rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- MathJax configuration and loader for crisp LaTeX equations -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    /* Full-bleed light viewport without scrollbars or text selection during orbit drag */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #f8fafc;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    /* Custom sleek range input for angular velocity control */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(100, 116, 139, 0.25);
+      height: 5px;
+      border-radius: 9999px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #0284c7;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border: none;
+      border-radius: 50%;
+      background: #0284c7;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+      transition: transform 0.15s ease;
+    }
+  </style>
+</head>
+<body class="relative w-full h-full bg-slate-50 text-slate-900 overflow-hidden">
+
+  <!-- Full-screen Three.js WebGL Container -->
+  <div id="canvas-container" class="fixed inset-0 w-full h-full"></div>
+
+  <!-- Floating 3D-Projected MathJax Labels -->
+  <div id="labels-layer" class="fixed inset-0 pointer-events-none overflow-hidden z-10">
+    <div id="label-one" class="absolute -translate-x-1/2 -translate-y-1/2 text-slate-500 text-xs sm:text-sm font-medium transition-opacity duration-150">$1$</div>
+    <div id="label-minus-one" class="absolute -translate-x-1/2 -translate-y-1/2 text-amber-600 text-xs sm:text-sm font-semibold transition-opacity duration-150">$-1$</div>
+    <div id="label-i" class="absolute -translate-x-1/2 -translate-y-1/2 text-slate-500 text-xs sm:text-sm font-medium transition-opacity duration-150">$i$</div>
+    <div id="label-minus-i" class="absolute -translate-x-1/2 -translate-y-1/2 text-slate-500 text-xs sm:text-sm font-medium transition-opacity duration-150">$-i$</div>
+    <div id="label-theta" class="absolute -translate-x-1/2 -translate-y-1/2 text-indigo-600 text-xs sm:text-sm font-semibold transition-opacity duration-150">$\theta$</div>
+    <div id="label-euler" class="absolute -translate-x-1/2 -translate-y-1/2 text-sky-600 text-xs sm:text-sm font-semibold transition-opacity duration-150">$e^{i\theta}$</div>
+    <div id="label-cos" class="absolute -translate-x-1/2 -translate-y-1/2 text-emerald-600 text-xs sm:text-sm font-semibold transition-opacity duration-150">$\cos\theta$</div>
+    <div id="label-sin" class="absolute -translate-x-1/2 -translate-y-1/2 text-pink-600 text-xs sm:text-sm font-semibold transition-opacity duration-150">$\sin\theta$</div>
+  </div>
+
+  <!-- Top-Right Back Button -->
+  <a
+    href="/"
+    aria-label="Back"
+    class="fixed top-4 right-4 sm:top-6 sm:right-6 z-30 inline-flex items-center gap-1.5 bg-white/85 hover:bg-white active:scale-95 backdrop-blur-md border border-slate-200/90 shadow-sm hover:shadow rounded-full px-3.5 py-2 sm:px-4 sm:py-2.5 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-medium transition"
+  >
+    <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"></path>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    <span>Back</span>
+  </a>
+
+  <!-- Top-Center Euler's Formula Overlay -->
+  <header class="fixed top-4 sm:top-6 inset-x-0 flex justify-start sm:justify-center pointer-events-none z-20 px-4">
+    <div class="bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-sm rounded-2xl px-5 py-2 sm:px-7 sm:py-2.5 text-slate-900 text-base sm:text-xl md:text-2xl">
+      $$e^{i\theta} = \cos\theta + i\sin\theta$$
+    </div>
+  </header>
+
+  <!-- Bottom-Center Minimal Angular Velocity Control Bar -->
+  <footer class="fixed bottom-5 sm:bottom-7 inset-x-0 flex justify-center z-20 px-4">
+    <div class="flex items-center gap-3 sm:gap-4 bg-white/85 backdrop-blur-md border border-slate-200/90 shadow-lg rounded-full px-4 py-2.5 sm:px-6 sm:py-3">
+      <!-- Play / Pause Button -->
+      <button
+        id="toggle-btn"
+        type="button"
+        aria-label="Play or Pause"
+        class="w-9 h-9 flex items-center justify-center rounded-full bg-sky-600 hover:bg-sky-500 active:scale-95 text-white shadow-sm transition"
+      >
+        <svg id="icon-pause" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+          <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+        </svg>
+        <svg id="icon-play" class="w-4 h-4 hidden ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="6,4 20,12 6,20"></polygon>
+        </svg>
+      </button>
+
+      <!-- Angular Velocity Slider -->
+      <input
+        id="speed-slider"
+        type="range"
+        min="0"
+        max="4"
+        step="0.05"
+        value="1.15"
+        aria-label="Angular velocity"
+        class="w-32 sm:w-44 md:w-52"
+      />
+
+      <!-- Angular Velocity Equation -->
+      <div class="text-slate-700 text-xs sm:text-sm font-medium pr-1">
+        $\omega = \frac{\theta}{t}$
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.onload = function () {
+      try {
+        // 1. DOM References & Simulation Parameters
+        const container = document.getElementById('canvas-container');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const iconPause = document.getElementById('icon-pause');
+        const iconPlay = document.getElementById('icon-play');
+        const slider = document.getElementById('speed-slider');
+
+        const labelOne = document.getElementById('label-one');
+        const labelMinusOne = document.getElementById('label-minus-one');
+        const labelI = document.getElementById('label-i');
+        const labelMinusI = document.getElementById('label-minus-i');
+        const labelTheta = document.getElementById('label-theta');
+        const labelEuler = document.getElementById('label-euler');
+        const labelCos = document.getElementById('label-cos');
+        const labelSin = document.getElementById('label-sin');
+
+        const TWO_PI = Math.PI * 2;
+        const R = 1.65;                      // Unit circle radius in 3D scene units
+        const PROJ_OFFSET = 2.25;            // Offset of orthogonal cos & sin planes
+        const SPAN_RADIANS = TWO_PI * 2.25;  // Continuous visible wave span (4.5 pi)
+        const Z_SCALE = 0.58;                // Axial spacing per radian along Z
+        const zMax = SPAN_RADIANS * Z_SCALE;
+        const MAX_SEGMENTS = 320;
+        const ARC_SEGMENTS = 72;
+
+        let theta = 0.65;
+        let speed = parseFloat(slider.value);
+        let isPlaying = true;
+
+        // 2. Three.js Scene, Camera & Renderer Initialization
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf8fafc);
+        scene.fog = new THREE.FogExp2(0xf8fafc, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(
+          42,
+          container.clientWidth / container.clientHeight,
+          0.1,
+          100
+        );
+
+        const renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        container.appendChild(renderer.domElement);
+
+        // Spherical orbit camera centered on the spiral and projection planes
+        const camTarget = new THREE.Vector3(-0.35, -0.35, zMax * 0.42);
+        const camSpherical = {
+          radius: 11.6,
+          theta: 0.78,
+          phi: 1.16
+        };
+
+        function updateCameraPosition() {
+          const sinPhi = Math.sin(camSpherical.phi);
+          camera.position.set(
+            camTarget.x + camSpherical.radius * sinPhi * Math.sin(camSpherical.theta),
+            camTarget.y + camSpherical.radius * Math.cos(camSpherical.phi),
+            camTarget.z + camSpherical.radius * sinPhi * Math.cos(camSpherical.theta)
+          );
+          camera.lookAt(camTarget);
+        }
+        updateCameraPosition();
+
+        // 3. Helper Functions for Thicker 3D Tubular Curves & 3D-to-2D Label Projection
+        const _upVec = new THREE.Vector3(0, 1, 0);
+
+        function createAxisLine(p1, p2, colorHex, opacity, radius = 0.012) {
+          const dir = new THREE.Vector3().subVectors(p2, p1);
+          const len = dir.length();
+          const geo = new THREE.CylinderGeometry(radius, radius, len, 10);
+          const mat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: opacity
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.copy(p1).addScaledVector(dir, 0.5);
+          mesh.quaternion.setFromUnitVectors(_upVec, dir.normalize());
+          return mesh;
+        }
+
+        function createDynamicTube(numPoints, radius, colorHex, opacity) {
+          const radialSegments = 8;
+          const points = new Float32Array(numPoints * 3);
+          const ringStride = radialSegments + 1;
+          const vertices = new Float32Array(numPoints * ringStride * 3);
+          const indices = [];
+
+          for (let i = 0; i < numPoints - 1; i++) {
+            for (let j = 0; j < radialSegments; j++) {
+              const a = i * ringStride + j;
+              const b = (i + 1) * ringStride + j;
+              const c = (i + 1) * ringStride + (j + 1);
+              const d = i * ringStride + (j + 1);
+              indices.push(a, b, d, b, c, d);
+            }
+          }
+
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+          geo.setIndex(indices);
+
+          const mat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: opacity,
+            side: THREE.DoubleSide
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.frustumCulled = false;
+
+          const cosTable = new Float32Array(ringStride);
+          const sinTable = new Float32Array(ringStride);
+          for (let j = 0; j <= radialSegments; j++) {
+            const angle = (j / radialSegments) * TWO_PI;
+            cosTable[j] = Math.cos(angle) * radius;
+            sinTable[j] = Math.sin(angle) * radius;
+          }
+
+          function update() {
+            for (let i = 0; i < numPoints; i++) {
+              const i0 = Math.max(0, i - 1) * 3;
+              const i1 = Math.min(numPoints - 1, i + 1) * 3;
+              const ic = i * 3;
+
+              let tx = points[i1] - points[i0];
+              let ty = points[i1 + 1] - points[i0 + 1];
+              let tz = points[i1 + 2] - points[i0 + 2];
+              const tLen = Math.hypot(tx, ty, tz);
+
+              if (tLen > 1e-6) {
+                tx /= tLen;
+                ty /= tLen;
+                tz /= tLen;
+              } else {
+                tx = 1;
+                ty = 0;
+                tz = 0;
+              }
+
+              // Stable non-collinear reference vector for Frenet-like ring frame
+              const refX = 0;
+              const refY = Math.abs(tz) < 0.9 ? 0 : 1;
+              const refZ = Math.abs(tz) < 0.9 ? 1 : 0;
+
+              // Binormal B = normalize(T x ref)
+              let bx = ty * refZ - tz * refY;
+              let by = tz * refX - tx * refZ;
+              let bz = tx * refY - ty * refX;
+              const bLen = Math.hypot(bx, by, bz) || 1;
+              bx /= bLen;
+              by /= bLen;
+              bz /= bLen;
+
+              // Normal N = B x T
+              const nx = by * tz - bz * ty;
+              const ny = bz * tx - bx * tz;
+              const nz = bx * ty - by * tx;
+
+              const px = points[ic];
+              const py = points[ic + 1];
+              const pz = points[ic + 2];
+
+              for (let j = 0; j <= radialSegments; j++) {
+                const c = cosTable[j];
+                const s = sinTable[j];
+                const vIdx = (i * ringStride + j) * 3;
+                vertices[vIdx] = px + c * nx + s * bx;
+                vertices[vIdx + 1] = py + c * ny + s * by;
+                vertices[vIdx + 2] = pz + c * nz + s * bz;
+              }
+            }
+            geo.attributes.position.needsUpdate = true;
+          }
+
+          return { mesh, geo, positions: points, update };
+        }
+
+        function createDashedConnector(numDashes, radius, colorHex, opacity) {
+          const group = new THREE.Group();
+          const unitGeo = new THREE.CylinderGeometry(radius, radius, 1, 8);
+          const mat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: opacity
+          });
+          const dashes = [];
+          for (let i = 0; i < numDashes; i++) {
+            const m = new THREE.Mesh(unitGeo, mat);
+            group.add(m);
+            dashes.push(m);
+          }
+
+          const _dir = new THREE.Vector3();
+          const _quat = new THREE.Quaternion();
+
+          function setEndpoints(p1, p2) {
+            _dir.subVectors(p2, p1);
+            const totalLen = _dir.length();
+            if (totalLen < 0.08) {
+              group.visible = false;
+              return;
+            }
+            group.visible = true;
+            _dir.divideScalar(totalLen);
+            _quat.setFromUnitVectors(_upVec, _dir);
+
+            const step = totalLen / numDashes;
+            const dashLen = step * 0.56;
+            for (let i = 0; i < numDashes; i++) {
+              const distAlong = (i + 0.5) * step;
+              const m = dashes[i];
+              m.position.copy(p1).addScaledVector(_dir, distAlong);
+              m.quaternion.copy(_quat);
+              m.scale.set(1, dashLen, 1);
+            }
+          }
+
+          return { group, setEndpoints };
+        }
+
+        function projectToScreen(vec3, el) {
+          const projected = vec3.clone().project(camera);
+          if (projected.z > 1) {
+            el.style.opacity = '0';
+            return;
+          }
+          const x = (projected.x * 0.5 + 0.5) * container.clientWidth;
+          const y = (-projected.y * 0.5 + 0.5) * container.clientHeight;
+          el.style.left = `${x.toFixed(1)}px`;
+          el.style.top = `${y.toFixed(1)}px`;
+        }
+
+        // 4. Complex Plane Axes (XY at Z = 0) & Theta Axis (Z)
+        const axisExtent = R * 1.28;
+        scene.add(createAxisLine(
+          new THREE.Vector3(-axisExtent, 0, 0),
+          new THREE.Vector3(axisExtent, 0, 0),
+          0x94a3b8, 0.65, 0.012
+        ));
+        scene.add(createAxisLine(
+          new THREE.Vector3(0, -axisExtent, 0),
+          new THREE.Vector3(0, axisExtent, 0),
+          0x94a3b8, 0.65, 0.012
+        ));
+        scene.add(createAxisLine(
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, 0, zMax + 0.4),
+          0x6366f1, 0.5, 0.012
+        ));
+
+        // Cardinal markers (+1, -1, +i, -i) on the XY unit circle
+        const cardinalCoords = [
+          { pos: new THREE.Vector3(R, 0, 0), color: 0x64748b, size: 0.05 },
+          { pos: new THREE.Vector3(-R, 0, 0), color: 0xd97706, size: 0.065 },
+          { pos: new THREE.Vector3(0, R, 0), color: 0x64748b, size: 0.05 },
+          { pos: new THREE.Vector3(0, -R, 0), color: 0x64748b, size: 0.05 }
+        ];
+        cardinalCoords.forEach((item) => {
+          const dot = new THREE.Mesh(
+            new THREE.SphereGeometry(item.size, 16, 16),
+            new THREE.MeshBasicMaterial({ color: item.color })
+          );
+          dot.position.copy(item.pos);
+          scene.add(dot);
+        });
+
+        // Half-period (pi) and full-period (2*pi) milestone markers along the Z-axis
+        [Math.PI * Z_SCALE, TWO_PI * Z_SCALE, 3 * Math.PI * Z_SCALE, zMax].forEach((zPos, idx) => {
+          const tick = new THREE.Mesh(
+            new THREE.SphereGeometry(idx % 2 === 0 ? 0.042 : 0.055, 14, 14),
+            new THREE.MeshBasicMaterial({ color: idx % 2 === 0 ? 0x94a3b8 : 0x6366f1 })
+          );
+          tick.position.set(0, 0, zPos);
+          scene.add(tick);
+        });
+
+        // 5. Reference Unit Circle on the XY Complex Plane (z = 0)
+        const unitCircle = new THREE.Mesh(
+          new THREE.TorusGeometry(R, 0.02, 14, 128),
+          new THREE.MeshBasicMaterial({ color: 0xcbd5e1, transparent: true, opacity: 0.92 })
+        );
+        scene.add(unitCircle);
+
+        // 6. Orthogonal Projection Planes for cos(theta) and sin(theta)
+        const planeHalfSpan = R * 1.15;
+
+        // Bottom Plane (y = -PROJ_OFFSET): Real vs Theta -> cos(theta) wave
+        const cosPlaneMesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(planeHalfSpan * 2, zMax),
+          new THREE.MeshBasicMaterial({
+            color: 0x10b981,
+            transparent: true,
+            opacity: 0.075,
+            side: THREE.DoubleSide
+          })
+        );
+        cosPlaneMesh.rotation.x = Math.PI / 2;
+        cosPlaneMesh.position.set(0, -PROJ_OFFSET, zMax / 2);
+        scene.add(cosPlaneMesh);
+
+        // Zero-axis baseline on the cosine projection plane
+        scene.add(createAxisLine(
+          new THREE.Vector3(0, -PROJ_OFFSET, 0),
+          new THREE.Vector3(0, -PROJ_OFFSET, zMax),
+          0x059669, 0.38, 0.011
+        ));
+
+        // Left Plane (x = -PROJ_OFFSET): Imaginary vs Theta -> sin(theta) wave
+        const sinPlaneMesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(zMax, planeHalfSpan * 2),
+          new THREE.MeshBasicMaterial({
+            color: 0xec4899,
+            transparent: true,
+            opacity: 0.075,
+            side: THREE.DoubleSide
+          })
+        );
+        sinPlaneMesh.rotation.y = Math.PI / 2;
+        sinPlaneMesh.position.set(-PROJ_OFFSET, 0, zMax / 2);
+        scene.add(sinPlaneMesh);
+
+        // Zero-axis baseline on the sine projection plane
+        scene.add(createAxisLine(
+          new THREE.Vector3(-PROJ_OFFSET, 0, 0),
+          new THREE.Vector3(-PROJ_OFFSET, 0, zMax),
+          0xdb2777, 0.38, 0.011
+        ));
+
+        // 7. Thick Tubular 3D Spiral, Wave Projections & Connectors
+        const activeHelix = createDynamicTube(MAX_SEGMENTS + 1, 0.036, 0x0284c7, 0.96);
+        scene.add(activeHelix.mesh);
+
+        const activeCos = createDynamicTube(MAX_SEGMENTS + 1, 0.033, 0x059669, 0.96);
+        scene.add(activeCos.mesh);
+
+        const activeSin = createDynamicTube(MAX_SEGMENTS + 1, 0.033, 0xdb2777, 0.96);
+        scene.add(activeSin.mesh);
+
+        // Principal angle arc on the z = 0 complex plane
+        const activeArc = createDynamicTube(ARC_SEGMENTS + 1, 0.023, 0x4f46e5, 0.88);
+        scene.add(activeArc.mesh);
+
+        // Rotating phasor radius vector on z = 0
+        const phasorGeo = new THREE.CylinderGeometry(0.026, 0.026, R, 12);
+        phasorGeo.translate(0, R * 0.5, 0);
+        phasorGeo.rotateZ(-Math.PI * 0.5);
+        const phasorMesh = new THREE.Mesh(
+          phasorGeo,
+          new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+        );
+        scene.add(phasorMesh);
+
+        // Dashed projection rays connecting the rotating tip at z = 0 to the cos and sin planes
+        const cosProjRay = createDashedConnector(12, 0.012, 0x059669, 0.65);
+        scene.add(cosProjRay.group);
+
+        const sinProjRay = createDashedConnector(12, 0.012, 0xdb2777, 0.65);
+        scene.add(sinProjRay.group);
+
+        const planeCosLeg = createDashedConnector(8, 0.011, 0x059669, 0.48);
+        scene.add(planeCosLeg.group);
+
+        const planeSinLeg = createDashedConnector(8, 0.011, 0xdb2777, 0.48);
+        scene.add(planeSinLeg.group);
+
+        // Tip Spheres anchored at z = 0
+        const planeTip = new THREE.Mesh(
+          new THREE.SphereGeometry(0.095, 20, 20),
+          new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+        );
+        scene.add(planeTip);
+
+        const cosTip = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08, 18, 18),
+          new THREE.MeshBasicMaterial({ color: 0x059669 })
+        );
+        scene.add(cosTip);
+
+        const sinTip = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08, 18, 18),
+          new THREE.MeshBasicMaterial({ color: 0xdb2777 })
+        );
+        scene.add(sinTip);
+
+        // 8. Geometry & Projection Update Function
+        const _tipVec = new THREE.Vector3();
+        const _targetVec = new THREE.Vector3();
+
+        function updateGeometry(currentTheta) {
+          const cosT = Math.cos(currentTheta);
+          const sinT = Math.sin(currentTheta);
+          const x = R * cosT;
+          const y = R * sinT;
+
+          // Update rotating phasor and tip on z = 0
+          phasorMesh.rotation.z = currentTheta;
+          planeTip.position.set(x, y, 0);
+
+          // Update projection tips on the cosine and sine planes at z = 0
+          cosTip.position.set(x, -PROJ_OFFSET, 0);
+          sinTip.position.set(-PROJ_OFFSET, y, 0);
+
+          // Update dashed projection rays from unit circle tip (x, y, 0) to orthogonal planes
+          _tipVec.set(x, y, 0);
+
+          _targetVec.set(x, -PROJ_OFFSET, 0);
+          cosProjRay.setEndpoints(_tipVec, _targetVec);
+
+          _targetVec.set(-PROJ_OFFSET, y, 0);
+          sinProjRay.setEndpoints(_tipVec, _targetVec);
+
+          // Update in-plane right-triangle legs on z = 0
+          _targetVec.set(x, 0, 0);
+          planeCosLeg.setEndpoints(_tipVec, _targetVec);
+
+          _targetVec.set(0, y, 0);
+          planeSinLeg.setEndpoints(_tipVec, _targetVec);
+
+          // Highlight point on unit circle as it sweeps past -1
+          const principalTheta = ((currentTheta % TWO_PI) + TWO_PI) % TWO_PI;
+          const isAtPi = Math.abs(principalTheta - Math.PI) < 0.08;
+          planeTip.material.color.setHex(isAtPi ? 0xd97706 : 0x0284c7);
+
+          // Update perpetual 3D helix and its orthogonal cos & sin waves along Z in [0, zMax]
+          const hPos = activeHelix.positions;
+          const cPos = activeCos.positions;
+          const sPos = activeSin.positions;
+
+          for (let i = 0; i <= MAX_SEGMENTS; i++) {
+            const s = (i / MAX_SEGMENTS) * SPAN_RADIANS;
+            const phase = currentTheta - s;
+            const px = R * Math.cos(phase);
+            const py = R * Math.sin(phase);
+            const pz = s * Z_SCALE;
+            const idx = i * 3;
+
+            // 3D complex spiral
+            hPos[idx] = px;
+            hPos[idx + 1] = py;
+            hPos[idx + 2] = pz;
+
+            // Bottom plane cosine wave projection
+            cPos[idx] = px;
+            cPos[idx + 1] = -PROJ_OFFSET;
+            cPos[idx + 2] = pz;
+
+            // Left plane sine wave projection
+            sPos[idx] = -PROJ_OFFSET;
+            sPos[idx + 1] = py;
+            sPos[idx + 2] = pz;
+          }
+
+          activeHelix.update();
+          activeCos.update();
+          activeSin.update();
+
+          // Update principal angle arc on z = 0
+          const arcRadius = R * 0.28;
+          const arcPos = activeArc.positions;
+          for (let i = 0; i <= ARC_SEGMENTS; i++) {
+            const a = (i / ARC_SEGMENTS) * principalTheta;
+            const idx = i * 3;
+            arcPos[idx] = arcRadius * Math.cos(a);
+            arcPos[idx + 1] = arcRadius * Math.sin(a);
+            arcPos[idx + 2] = 0;
+          }
+          activeArc.update();
+        }
+
+        // 9. Update Floating 3D MathJax Labels
+        function updateLabels(currentTheta) {
+          const labelPad = R * 1.16;
+          projectToScreen(new THREE.Vector3(labelPad, 0, 0), labelOne);
+          projectToScreen(new THREE.Vector3(0, labelPad, 0), labelI);
+          projectToScreen(new THREE.Vector3(-labelPad, 0, 0), labelMinusOne);
+          projectToScreen(new THREE.Vector3(0, -labelPad, 0), labelMinusI);
+
+          // Live e^{i\theta} label tracking the rotating tip at z = 0
+          const cosT = Math.cos(currentTheta);
+          const sinT = Math.sin(currentTheta);
+          const x = R * cosT;
+          const y = R * sinT;
+          projectToScreen(new THREE.Vector3(x * 1.16, y * 1.16, 0), labelEuler);
+
+          // Live cos(theta) and sin(theta) labels on the projection planes
+          projectToScreen(new THREE.Vector3(x, -PROJ_OFFSET - 0.36, 0), labelCos);
+          projectToScreen(new THREE.Vector3(-PROJ_OFFSET - 0.44, y, 0), labelSin);
+
+          // Live theta label near the principal angle arc bisector
+          const principalTheta = ((currentTheta % TWO_PI) + TWO_PI) % TWO_PI;
+          if (principalTheta > 0.18) {
+            const midA = principalTheta * 0.5;
+            const rMid = R * 0.43;
+            projectToScreen(
+              new THREE.Vector3(rMid * Math.cos(midA), rMid * Math.sin(midA), 0),
+              labelTheta
+            );
+            labelTheta.style.opacity = '0.95';
+          } else {
+            labelTheta.style.opacity = '0';
+          }
+        }
+
+        // 10. UI & Camera Event Listeners
+        function setPlayState(playing) {
+          isPlaying = playing;
+          if (isPlaying) {
+            iconPause.classList.remove('hidden');
+            iconPlay.classList.add('hidden');
+          } else {
+            iconPause.classList.add('hidden');
+            iconPlay.classList.remove('hidden');
+          }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+          setPlayState(!isPlaying);
+        });
+
+        slider.addEventListener('input', (e) => {
+          speed = parseFloat(e.target.value);
+          if (speed > 0 && !isPlaying) {
+            setPlayState(true);
+          }
+        });
+
+        // Mouse & Touch Orbit Interaction on Canvas
+        let isDragging = false;
+        let prevPointer = { x: 0, y: 0 };
+        let pinchStartDist = 0;
+
+        const domEl = renderer.domElement;
+
+        domEl.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          prevPointer = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mousemove', (e) => {
+          if (!isDragging) return;
+          const dx = e.clientX - prevPointer.x;
+          const dy = e.clientY - prevPointer.y;
+          prevPointer = { x: e.clientX, y: e.clientY };
+
+          camSpherical.theta -= dx * 0.0065;
+          camSpherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, camSpherical.phi - dy * 0.0065));
+          updateCameraPosition();
+        });
+
+        window.addEventListener('mouseup', () => {
+          isDragging = false;
+        });
+
+        domEl.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          camSpherical.radius = Math.max(6.5, Math.min(24, camSpherical.radius + e.deltaY * 0.008));
+          updateCameraPosition();
+        }, { passive: false });
+
+        // Touch Events (Single-finger orbit + Two-finger pinch zoom)
+        domEl.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 1) {
+            isDragging = true;
+            prevPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          } else if (e.touches.length === 2) {
+            isDragging = false;
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            pinchStartDist = Math.hypot(dx, dy);
+          }
+        }, { passive: true });
+
+        domEl.addEventListener('touchmove', (e) => {
+          if (e.touches.length === 1 && isDragging) {
+            const dx = e.touches[0].clientX - prevPointer.x;
+            const dy = e.touches[0].clientY - prevPointer.y;
+            prevPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+            camSpherical.theta -= dx * 0.0075;
+            camSpherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, camSpherical.phi - dy * 0.0075));
+            updateCameraPosition();
+          } else if (e.touches.length === 2 && pinchStartDist > 0) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.hypot(dx, dy);
+            const delta = pinchStartDist - dist;
+            pinchStartDist = dist;
+
+            camSpherical.radius = Math.max(6.5, Math.min(24, camSpherical.radius + delta * 0.025));
+            updateCameraPosition();
+          }
+        }, { passive: true });
+
+        domEl.addEventListener('touchend', () => {
+          isDragging = false;
+          pinchStartDist = 0;
+        });
+
+        // Responsive Window Resize
+        window.addEventListener('resize', () => {
+          if (!container) return;
+          camera.aspect = container.clientWidth / container.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(container.clientWidth, container.clientHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        });
+
+        // 11. Main Animation Loop (Perpetual Continuous Motion)
+        updateGeometry(theta);
+        updateLabels(theta);
+
+        let lastTime = performance.now();
+
+        function animate(now) {
+          requestAnimationFrame(animate);
+
+          const dt = Math.min((now - lastTime) / 1000, 0.1);
+          lastTime = now;
+
+          if (isPlaying && speed > 0) {
+            theta += speed * dt;
+            updateGeometry(theta);
+          }
+
+          updateLabels(theta);
+          renderer.render(scene, camera);
+        }
+
+        requestAnimationFrame(animate);
+      } catch (err) {
+        console.error('Visualization initialization error:', err);
+      }
+    };
+  </script>
+</body>
+</html>

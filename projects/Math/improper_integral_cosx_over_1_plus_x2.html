@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Feynman’s Trick: ∫ cos x/(1+x²) dx = π/e</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+--bg:#0f172a;--pn:#121828;--fg:#0c1322;--bt:#1b1f28;--au:#ffbe00;--lt:#ffd950;--ac:#ffe699;--dm:#a77f05;--tr:#3f3921;
+--ink:#f6ecc8;--mu:#a89a63;--ln:rgba(255,190,0,.13);--bd:rgba(255,190,0,.28);--dv:rgba(255,190,0,.18);
+--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;overflow-x:clip;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--ink);font:500 14px/1.5 var(--mono);overflow-x:hidden;overflow-x:clip;
+background:radial-gradient(circle,rgba(255,255,255,.07) 1.4px,transparent 1.8px) 0 0/28px 28px,var(--bg)}
+main{width:100%;max-width:760px;margin:0 auto;padding:16px 16px calc(100px + env(safe-area-inset-bottom,0px))}
+.pend{visibility:hidden}
+
+.hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:2px 2px 0}
+h1{flex:1;min-width:0;margin:0;font-weight:500;font-size:clamp(17px,5.2vw,28px);line-height:1.3;color:var(--au);filter:drop-shadow(0 0 10px rgba(255,190,0,.3))}
+h1 mjx-container{max-width:100%}
+.back{flex:none;width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:var(--au);color:var(--bg);box-shadow:0 0 26px rgba(255,190,0,.35)}
+.back svg{width:24px;height:24px}
+
+.st{display:none}.st.on{display:block}
+.pnl{background:var(--pn);border:1px solid var(--bd);border-radius:28px;box-shadow:0 22px 50px rgba(0,0,0,.4);min-width:0}
+.ph{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--dv)}
+.dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--au);box-shadow:0 0 14px 2px rgba(255,190,0,.6)}
+.ph h2{flex:1;min-width:0;margin:0;font:700 clamp(13px,3.9vw,18px)/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--au)}
+.chip{flex:none;font:700 12px var(--mono);letter-spacing:.08em;padding:6px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--tr);color:var(--au)}
+.pb{padding:16px 20px 20px;min-width:0}
+
+.eqs{background:var(--bt);border:1px solid var(--dv);border-radius:18px;padding:6px 10px;min-width:0}
+mjx-container[display="true"]{display:block;text-align:center}
+.eqs mjx-container[display="true"]{margin:.55em 0!important;padding:2px 0;max-width:100%;overflow-x:auto;overflow-y:hidden;color:var(--ink)}
+.qed{text-align:right;font-size:18px;color:var(--au);margin:0 4px 2px}
+
+.fig{margin-top:16px;background:var(--fg);border:1px solid var(--dv);border-radius:20px;padding:12px;min-width:0}
+canvas{display:block;width:100%;max-width:100%;height:250px}
+.lg{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--mu)}
+.lg span{display:inline-flex;align-items:center;gap:8px;min-width:0;max-width:100%}
+.lg span::before{content:"";flex:none;width:14px;height:3px;border-radius:2px;background:var(--c)}
+.lg .ds::before{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.lg mjx-container,.ctl mjx-container,.bt mjx-container{color:inherit}
+.lg mjx-container{color:var(--ink)}
+
+.ctl{margin-top:14px}
+.ctl .r{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--ink);font-size:15px;min-height:24px}
+.ctl .v{color:var(--au);font-weight:700;font-size:14px;letter-spacing:.06em}
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;height:32px;margin:4px 0 0;padding:0;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:var(--tr)}
+input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:var(--tr)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-10px;border:0;border-radius:50%;background:var(--au);box-shadow:0 0 16px rgba(255,190,0,.55)}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radius:50%;background:var(--au);box-shadow:0 0 16px rgba(255,190,0,.55)}
+input[type=range]:focus-visible{outline:2px solid var(--lt);outline-offset:3px;border-radius:8px}
+
+.ro{margin-top:12px;padding-top:10px;border-top:1px solid var(--dv);color:var(--au);font-size:14px}
+.ro>div{min-height:2.1em;display:flex;align-items:center;max-width:100%;overflow-x:auto;overflow-y:hidden}
+.bt{display:block;width:100%;margin-top:12px;padding:14px 12px;border-radius:16px;border:1px solid var(--bd);background:var(--bt);color:var(--au);font:700 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:16px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 60%,rgba(15,23,42,0))}
+.nav div{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nav button{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;padding:16px 10px;border-radius:18px;border:1px solid var(--bd);background:var(--bt);color:var(--au);font:700 14px var(--mono);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.nav button svg{flex:none;width:18px;height:18px}
+.nav #nx{background:var(--au);border-color:var(--au);color:var(--bg);box-shadow:0 0 24px rgba(255,190,0,.3)}
+.nav button:disabled{opacity:.3;cursor:default;box-shadow:none}
+button{transition:transform .12s}button:not(:disabled):active{transform:scale(.97)}
+.nav button:focus-visible,.back:focus-visible,.bt:focus-visible{outline:2px solid var(--lt);outline-offset:3px}
+
+@media(max-width:380px){main{padding-left:12px;padding-right:12px}.ph{padding:14px 16px}.pb{padding:12px 14px 16px}.fig{padding:10px}.nav button{letter-spacing:.08em}}
+</style></head><body><main>
+
+<header class="hd">
+<h1 id="ttl" class="pend" aria-label="Integral from minus infinity to infinity of cosine x over one plus x squared, dx, equals pi over e">\(\displaystyle\int_{-\infty}^{\infty}\frac{\cos x}{1+x^{2}}\,\mathrm{d}x=\frac{\pi}{\mathrm{e}}\)</h1>
+<a class="back" href="/" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+</header>
+
+<section class="st on pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>Add a parameter</h2><span class="chip">1/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$I(1)=\int_{-\infty}^{\infty}\frac{\cos x}{1+x^{2}}\,\mathrm{d}x$$
+$$I(a)=\int_{-\infty}^{\infty}\frac{\cos(ax)}{1+x^{2}}\,\mathrm{d}x,\quad a\ge 0$$
+</div>
+<div class="fig"><canvas id="c0"></canvas>
+<div class="lg"><span style="--c:var(--au)">\(\frac{\cos(ax)}{1+x^{2}}\)</span><span class="ds" style="--c:var(--mu)">\(\pm\frac{1}{1+x^{2}}\)</span></div>
+<div class="ctl"><div class="r"><b>\(a\)</b><span class="v" data-i="s0"></span></div><input id="s0" type="range" min="0" max="4" step="0.05" value="1"></div>
+<div class="ro" id="o0"></div></div>
+</div></div></section>
+
+<section class="st pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>Set \(a=0\)</h2><span class="chip">2/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$\begin{aligned}
+I(0)&=\int_{-\infty}^{\infty}\frac{\mathrm{d}x}{1+x^{2}}\\
+&=\Bigl[\arctan x\Bigr]_{-\infty}^{\infty}\\
+&=\frac{\pi}{2}-\Bigl(-\frac{\pi}{2}\Bigr)=\pi
+\end{aligned}$$
+</div>
+<div class="fig"><canvas id="c1"></canvas>
+<div class="lg"><span style="--c:var(--ac)">\(\frac{1}{1+x^{2}}\)</span><span style="--c:var(--au)">\(\arctan x\)</span><span class="ds" style="--c:var(--mu)">\(\pm\frac{\pi}{2}\)</span></div>
+<div class="ctl"><div class="r"><b>\(t\)</b><span class="v" data-i="s1"></span></div><input id="s1" type="range" min="0.1" max="30" step="0.1" value="3"></div>
+<div class="ro" id="o1"></div></div>
+</div></div></section>
+
+<section class="st pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>Differentiate in \(a\)</h2><span class="chip">3/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$\begin{aligned}
+I'(a)&=\frac{\mathrm{d}}{\mathrm{d}a}\int_{-\infty}^{\infty}\frac{\cos(ax)}{1+x^{2}}\,\mathrm{d}x\\
+&=-\int_{-\infty}^{\infty}\frac{x\sin(ax)}{1+x^{2}}\,\mathrm{d}x
+\end{aligned}$$
+$$\frac{x}{1+x^{2}}=\frac{1}{x}-\frac{1}{x\,(1+x^{2})}$$
+$$\begin{aligned}
+I'(a)&=-\underbrace{\int_{-\infty}^{\infty}\frac{\sin(ax)}{x}\,\mathrm{d}x}_{\displaystyle I_{1}(a)}\\
+&\quad+\underbrace{\int_{-\infty}^{\infty}\frac{\sin(ax)}{x\,(1+x^{2})}\,\mathrm{d}x}_{\displaystyle I_{2}(a)}
+\end{aligned}$$
+</div>
+<div class="fig"><canvas id="c2"></canvas>
+<div class="lg"><span style="--c:var(--ac)">\(-\frac{\sin(ax)}{x}\)</span><span style="--c:var(--mu)">\(\frac{\sin(ax)}{x(1+x^{2})}\)</span><span style="--c:var(--au)">\(-\frac{x\sin(ax)}{1+x^{2}}\)</span></div>
+<div class="ctl"><div class="r"><b>\(a\)</b><span class="v" data-i="s2"></span></div><input id="s2" type="range" min="0.2" max="3" step="0.1" value="1.5"></div></div>
+</div></div></section>
+
+<section class="st pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>Dirichlet integral \(I_{1}\)</h2><span class="chip">4/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$I_{1}(a,s)=\int_{0}^{\infty}\mathrm{e}^{-sx}\,\frac{\sin(ax)}{x}\,\mathrm{d}x$$
+$$\begin{aligned}
+\frac{\partial I_{1}}{\partial a}&=\int_{0}^{\infty}\mathrm{e}^{-sx}\cos(ax)\,\mathrm{d}x\\
+&=\frac{s}{s^{2}+a^{2}}
+\end{aligned}$$
+$$\begin{aligned}
+I_{1}(a,s)&=\arctan\frac{a}{s}\\
+&\qquad\bigl(I_{1}(0,s)=0\bigr)
+\end{aligned}$$
+$$\begin{aligned}
+\int_{0}^{\infty}\frac{\sin(ax)}{x}\,\mathrm{d}x&=\lim_{s\to0^{+}}\arctan\frac{a}{s}\\
+&=\frac{\pi}{2}\qquad(a>0)\\[6pt]
+\int_{-\infty}^{\infty}\frac{\sin(ax)}{x}\,\mathrm{d}x&=2\int_{0}^{\infty}\frac{\sin(ax)}{x}\,\mathrm{d}x\\
+&=\pi
+\end{aligned}$$
+</div>
+<div class="fig"><canvas id="c3"></canvas>
+<div class="lg"><span style="--c:var(--au)">\(\mathrm{e}^{-sx}\frac{\sin(ax)}{x}\)</span><span class="ds" style="--c:var(--mu)">\(\pm\frac{\mathrm{e}^{-sx}}{x}\)</span></div>
+<div class="ctl"><div class="r"><b>\(a\)</b><span class="v" data-i="s3a"></span></div><input id="s3a" type="range" min="0.5" max="3" step="0.1" value="1"></div>
+<div class="ctl"><div class="r"><b>\(s\)</b><span class="v" data-i="s3s"></span></div><input id="s3s" type="range" min="0.02" max="1.5" step="0.01" value="0.5"></div>
+<div class="ro" id="o3"></div></div>
+</div></div></section>
+
+<section class="st pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>\(I''=I\)</h2><span class="chip">5/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$I'(a)=-\pi+I_{2}(a)\qquad(a>0)$$
+$$\begin{aligned}
+I''(a)&=I_{2}'(a)\\
+&=\int_{-\infty}^{\infty}\frac{x\cos(ax)}{x\,(1+x^{2})}\,\mathrm{d}x\\
+&=\int_{-\infty}^{\infty}\frac{\cos(ax)}{1+x^{2}}\,\mathrm{d}x\\
+&=I(a)
+\end{aligned}$$
+$$\boxed{I''(a)=I(a)}$$
+</div>
+<div class="fig"><canvas id="c4"></canvas>
+<div class="lg"><span style="--c:var(--ac)">\(I(a)\)</span><span style="--c:var(--au)">\(I_{2}(a)\)</span><span class="ds" style="--c:var(--ink)">tangent of \(I_{2}\), slope \(=I(a)\)</span></div>
+<div class="ctl"><div class="r"><b>\(a\)</b><span class="v" data-i="s4"></span></div><input id="s4" type="range" min="0" max="5" step="0.1" value="1"></div>
+<div class="ro" id="o4"></div></div>
+</div></div></section>
+
+<section class="st pend"><div class="pnl">
+<div class="ph"><i class="dot" aria-hidden="true"></i><h2>Solve</h2><span class="chip">6/6</span></div>
+<div class="pb">
+<div class="eqs">
+$$r^{2}-1=0\;\Longrightarrow\;r=\pm1$$
+$$I(a)=C_{1}\mathrm{e}^{a}+C_{2}\mathrm{e}^{-a}$$
+$$\begin{aligned}
+\lim_{a\to\infty}I(a)=0&\;\Longrightarrow\;C_{1}=0,\\
+\lim_{a\to0^{+}}I(a)=\pi&\;\Longrightarrow\;C_{2}=\pi
+\end{aligned}$$
+$$I(a)=\pi\,\mathrm{e}^{-a}\qquad(a\ge 0)$$
+$$\boxed{\int_{-\infty}^{\infty}\frac{\cos x}{1+x^{2}}\,\mathrm{d}x=\frac{\pi}{\mathrm{e}}}$$
+<div class="qed" aria-hidden="true">∎</div>
+</div>
+<div class="fig"><canvas id="c5"></canvas>
+<div class="lg"><span style="--c:var(--au)">\(C_{1}\mathrm{e}^{a}+C_{2}\mathrm{e}^{-a}\)</span><span style="--c:var(--ac)">numerical \(I(a)\)</span></div>
+<div class="ctl"><div class="r"><b>\(C_{1}\)</b><span class="v" data-i="s5a"></span></div><input id="s5a" type="range" min="-0.5" max="0.5" step="any" value="0.2"></div>
+<div class="ctl"><div class="r"><b>\(C_{2}\)</b><span class="v" data-i="s5b"></span></div><input id="s5b" type="range" min="0" max="5" step="any" value="2"></div>
+<div class="ro" id="o5"></div>
+<button class="bt" id="sv" type="button">Set \(C_{1}=0,\ C_{2}=\pi\)</button></div>
+</div></div></section>
+
+</main>
+
+<nav class="nav" aria-label="Steps"><div>
+<button id="pv" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Previous</button>
+<button id="nx" type="button">Next<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+</div></nav>
+
+<script>
+MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],tags:'none'},startup:{typeset:false},svg:{fontCache:'local'}};
+</script>
+<script>
+const $=s=>document.querySelector(s),V=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),val=i=>+$('#'+i).value,PI=Math.PI,f4=x=>x.toFixed(4),
+MONO='11px "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace';
+let mj=0,cur=0,T;
+const nice=r=>{const p=10**Math.floor(Math.log10(r)),m=r/p;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*p};
+const integ=(f,a,b,h)=>{const n=Math.round((b-a)/h);let s=0;for(let i=0;i<=n;i++)s+=(i&&i<n?1:.5)*f(a+i*h);return s*h};
+const sinc=(a,x)=>Math.abs(x)<1e-9?a:Math.sin(a*x)/x;
+const tab=()=>T||(T={I:[],J:[]},[...Array(51).keys()].forEach(k=>{const a=k/10;T.I.push(2*integ(x=>Math.cos(a*x)/(1+x*x),0,800,.02));T.J.push(2*integ(x=>sinc(a,x)/(1+x*x),0,300,.02))}),T);
+const L=(v,x)=>{const p=Math.max(0,Math.min(50,x*10)),i=Math.min(49,Math.floor(p+1e-9));return v[i]+(v[i+1]-v[i])*(p-i)};
+
+/* LaTeX readouts: MathJax converts each line to a detached SVG, so nothing flashes while dragging */
+const ro=(id,lines)=>{if(!mj)return;const el=$('#'+id);
+el.replaceChildren(...lines.map(l=>{const d=document.createElement('div');d.append(MathJax.tex2svg(l,{display:false}));return d}))};
+
+function Cv(id,x0,x1,y0,y1){
+const c=$(id),g=c.getContext('2d'),o={x0,x1,y0,y1,pl:34,pr:10,pt:10,pb:22};
+o.X=x=>o.pl+(x-o.x0)/(o.x1-o.x0)*(o.w-o.pl-o.pr);
+o.Y=y=>o.h-o.pb-(y-o.y0)/(o.y1-o.y0)*(o.h-o.pt-o.pb);
+o.begin=()=>{const r=devicePixelRatio||1,ln=V('--ln'),mu=V('--mu');o.w=c.clientWidth;o.h=c.clientHeight;if(!o.w)return 0;
+c.width=o.w*r;c.height=o.h*r;g.setTransform(r,0,0,r,0,0);g.font=MONO;g.lineWidth=1;g.setLineDash([]);
+let s=nice((o.x1-o.x0)/6);
+for(let x=Math.ceil(o.x0/s)*s;x<=o.x1+1e-9;x+=s){const p=o.X(x);g.strokeStyle=ln;g.beginPath();g.moveTo(p,o.pt);g.lineTo(p,o.h-o.pb);g.stroke();g.fillStyle=mu;g.textAlign='center';g.fillText(+x.toFixed(6)+'',p,o.h-7)}
+s=nice((o.y1-o.y0)/5);
+for(let y=Math.ceil(o.y0/s)*s;y<=o.y1+1e-9;y+=s){const p=o.Y(y);g.strokeStyle=ln;g.beginPath();g.moveTo(o.pl,p);g.lineTo(o.w-o.pr,p);g.stroke();g.fillStyle=mu;g.textAlign='right';g.fillText(+y.toFixed(6)+'',o.pl-5,p+4)}
+g.strokeStyle=mu;g.beginPath();
+if(o.y0<0&&o.y1>0){g.moveTo(o.pl,o.Y(0));g.lineTo(o.w-o.pr,o.Y(0))}
+if(o.x0<0&&o.x1>0){g.moveTo(o.X(0),o.pt);g.lineTo(o.X(0),o.h-o.pb)}
+g.stroke();return 1};
+o.clip=()=>{g.save();g.beginPath();g.rect(o.pl,o.pt,o.w-o.pl-o.pr,o.h-o.pt-o.pb);g.clip()};
+o.f=(f,col,lw,a=o.x0,b=o.x1,n=700,d=[])=>{o.clip();g.beginPath();for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;g[i?'lineTo':'moveTo'](o.X(x),o.Y(f(x)))}g.strokeStyle=col;g.lineWidth=lw;g.lineJoin='round';g.setLineDash(d);g.stroke();g.restore()};
+o.area=(f,col,a,b,n=900)=>{o.clip();g.beginPath();g.moveTo(o.X(a),o.Y(0));for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;g.lineTo(o.X(x),o.Y(f(x)))}g.lineTo(o.X(b),o.Y(0));g.globalAlpha=.3;g.fillStyle=col;g.fill();g.restore()};
+o.dot=(x,y,c,r=5)=>{g.beginPath();g.arc(o.X(x),o.Y(y),r,0,7);g.fillStyle=c;g.fill();g.strokeStyle=V('--fg');g.lineWidth=2;g.setLineDash([]);g.stroke()};
+return o}
+const C=[Cv('#c0',-8,8,-1.1,1.1),Cv('#c1',-10,10,-1.7,1.7),Cv('#c2',-12,12,-1.3,1.3),Cv('#c3',0,30,-.3,1.1),Cv('#c4',0,5,-.2,3.6),Cv('#c5',0,4,-.5,4)];
+const D=[
+()=>{const o=C[0],a=val('s0'),f=x=>Math.cos(a*x)/(1+x*x);if(!o.begin())return;
+o.area(f,V('--au'),o.x0,o.x1);o.f(x=>1/(1+x*x),V('--mu'),1,o.x0,o.x1,400,[4,4]);o.f(x=>-1/(1+x*x),V('--mu'),1,o.x0,o.x1,400,[4,4]);o.f(f,V('--au'),2.2);
+ro('o0',['I('+a.toFixed(2)+')\\approx'+f4(2*integ(f,0,800,.02))])},
+()=>{const o=C[1],t=val('s1');if(!o.begin())return;
+o.area(x=>1/(1+x*x),V('--ac'),-t,t,1200);o.f(x=>PI/2,V('--mu'),1,o.x0,o.x1,2,[4,4]);o.f(x=>-PI/2,V('--mu'),1,o.x0,o.x1,2,[4,4]);
+o.f(x=>1/(1+x*x),V('--ac'),2.2);o.f(Math.atan,V('--au'),2.2);o.dot(t,Math.atan(t),V('--au'));
+ro('o1',['\\int_{-t}^{t}\\frac{\\mathrm{d}x}{1+x^{2}}=2\\arctan t='+f4(2*Math.atan(t)),'t\\to\\infty:\\ \\pi\\approx'+f4(PI)])},
+()=>{const o=C[2],a=val('s2');o.y1=Math.max(1,a)+.3;o.y0=-o.y1;if(!o.begin())return;
+const A=x=>-sinc(a,x),B=x=>sinc(a,x)/(1+x*x);
+o.f(A,V('--ac'),1.6);o.f(B,V('--mu'),1.6);o.f(x=>A(x)+B(x),V('--au'),2.6)},
+()=>{const o=C[3],a=val('s3a'),s=val('s3s'),f=x=>Math.exp(-s*x)*sinc(a,x);o.y0=-.3*a;o.y1=1.1*a;if(!o.begin())return;
+o.f(x=>Math.exp(-s*x)/x,V('--mu'),1,.05,30,400,[4,4]);o.f(x=>-Math.exp(-s*x)/x,V('--mu'),1,.05,30,400,[4,4]);
+o.area(f,V('--au'),0,30);o.f(f,V('--au'),2.2,0,30,900);
+ro('o3',['I_{1}(a,s)\\approx'+f4(integ(f,0,400,.01)),'\\arctan\\frac{a}{s}='+f4(Math.atan(a/s)),'s\\to0^{+}:\\ \\frac{\\pi}{2}\\approx'+f4(PI/2)])},
+()=>{const o=C[4],a=val('s4'),t=tab();if(!o.begin())return;
+o.f(x=>L(t.I,x),V('--ac'),2.4,0,5,50);o.f(x=>L(t.J,x),V('--au'),2.4,0,5,50);
+const m=L(t.I,a),y=L(t.J,a);o.f(x=>y+m*(x-a),V('--ink'),1.4,a-.7,a+.7,2,[5,4]);
+o.dot(a,y,V('--au'));o.dot(a,m,V('--ac'));ro('o4',["I_{2}'(a)=I(a)="+f4(m)])},
+()=>{const o=C[5],c1=val('s5a'),c2=val('s5b'),t=tab(),f=x=>c1*Math.exp(x)+c2*Math.exp(-x);if(!o.begin())return;
+o.f(f,V('--au'),2.6,0,4,200);for(let k=0;k<=40;k+=2)o.dot(k/10,t.I[k],V('--ac'),4);o.dot(1,f(1),V('--ink'));
+ro('o5',['C_{1}='+c1.toFixed(3)+',\\ C_{2}='+c2.toFixed(3),'I(1)='+f4(f(1))+',\\ \\frac{\\pi}{\\mathrm{e}}='+f4(PI/Math.E)])}];
+
+const secs=[...document.querySelectorAll('.st')];
+const sync=()=>secs[cur].querySelectorAll('.v').forEach(v=>{const i=$('#'+v.dataset.i),st=i.step;v.textContent=(+i.value).toFixed(st==='any'?3:(st.split('.')[1]||'').length)});
+const draw=()=>{D[cur]();sync()};
+
+/* shrink any display equation that is wider than its box, so the page never scrolls sideways */
+function fit(s){s.querySelectorAll('mjx-container[display="true"]').forEach(m=>{m.style.fontSize='';
+const v=m.querySelector('svg')||m.firstElementChild;if(!v)return;
+const w=v.getBoundingClientRect().width,a=m.clientWidth;
+if(w>a)m.style.fontSize=Math.max(.55,a/w*.98)*parseFloat(getComputedStyle(m).fontSize)+'px'})}
+function typ(){const s=secs[cur];if(!mj||s.dataset.t)return;s.dataset.t=1;
+MathJax.typesetPromise([s]).then(()=>{fit(s);s.classList.remove('pend')})}
+function show(i){cur=i;secs.forEach((s,j)=>s.classList.toggle('on',i==j));$('#pv').disabled=!i;$('#nx').disabled=i==secs.length-1;typ();draw();scrollTo(0,0)}
+
+function mjLoad(){MathJax.startup.promise.then(()=>MathJax.typesetPromise([$('#ttl')])).then(()=>{$('#ttl').classList.remove('pend');mj=1;typ();draw()})}
+function mjFail(){document.querySelectorAll('.pend').forEach(e=>e.classList.remove('pend'))}
+setTimeout(()=>{if(!mj)mjFail()},8000);
+
+document.querySelectorAll('input').forEach(e=>e.oninput=draw);
+$('#pv').onclick=()=>show(cur-1);$('#nx').onclick=()=>show(cur+1);
+$('#sv').onclick=()=>{$('#s5a').value=0;$('#s5b').value=PI;draw()};
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&cur<secs.length-1)show(cur+1);if(e.key==='ArrowLeft'&&cur>0)show(cur-1)});
+addEventListener('resize',()=>{draw();fit(secs[cur])});
+if(document.fonts)document.fonts.ready.then(draw);
+show(0);setTimeout(tab,900);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" onload="mjLoad()" onerror="mjFail()"></script>
+</body></html>

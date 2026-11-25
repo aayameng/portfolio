@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stirling’s Approximation</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'},startup:{typeset:false}};</script>
+<style>
+:root{--bg:#0d1526;--panel:#111a2c;--btn:#1a2030;--amber:#ffc107;--dim:#a68000;--line:rgba(255,193,7,.28);--ink:#d8cfae;--mute:#8f8967;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);overflow-x:hidden}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background-color:var(--bg);background-image:radial-gradient(rgba(255,193,7,.13) 1px,transparent 1px);background-size:42px 42px;color:var(--ink);font:14px/1.65 'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+main{max-width:640px;margin:0 auto;padding:12px 16px 120px}
+.back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px;width:48px;height:48px;border-radius:14px;background:var(--amber);color:#1a1300;display:grid;place-items:center;box-shadow:0 0 24px rgba(255,193,7,.35);z-index:5}
+.hd{min-height:48px;display:flex;align-items:center;gap:12px;padding-right:64px;margin-bottom:16px}
+.dot{flex:none;width:16px;height:16px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px var(--amber)}
+h1{margin:0;font-size:14px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:20px}
+.tag{display:inline-block;border:1px solid var(--line);background:rgba(255,193,7,.1);color:var(--amber);border-radius:6px;padding:1px 10px;font-size:11px;font-weight:600;letter-spacing:.08em}
+h2{margin:12px 0 8px;font-size:18px;color:var(--amber)}
+p{margin:8px 0}
+.th{border-left:3px solid var(--amber);padding-left:12px}.th b,.pf{color:var(--amber)}.pf{font-style:italic}
+.qed{text-align:right;color:var(--amber);margin:0}
+.pg{display:none}.pg.on{display:block}
+mjx-container{color:inherit}
+mjx-container.wide{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden}
+p,h2,figcaption{overflow-wrap:anywhere}
+@media(max-width:480px){mjx-container[display]{font-size:80%;padding:8px}main{padding:12px 12px 120px}.card{padding:16px}}
+mjx-container[display]{background:var(--btn);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:12px 0!important;color:var(--amber);overflow-x:auto;overflow-y:hidden;max-width:100%}
+figure{margin:14px 0 0}
+figcaption{font-size:13px;margin-top:12px}figcaption b{color:var(--amber)}
+.gr{background:#0b1222;border:1px solid var(--line);border-radius:16px;padding:8px;margin:0 0 10px}
+.gr svg{display:block;width:100%;height:auto}
+.gr text{fill:var(--mute);font:10px 'JetBrains Mono',monospace}.gr text.lb{fill:var(--amber)}
+.g{stroke:rgba(255,193,7,.1)}.z{stroke:rgba(255,193,7,.5)}.v{stroke:var(--dim);stroke-dasharray:3 3}
+.a{stroke:var(--amber);stroke-width:2.5;fill:none}.c{stroke:#e8e4d4;stroke-width:2;stroke-dasharray:5 4;fill:none}.d{stroke:#5eead4;stroke-width:2;stroke-dasharray:1.5 3.5;fill:none}
+.fl{fill:var(--amber);opacity:.28}.pt{fill:var(--amber);stroke:var(--bg);stroke-width:2}
+.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;padding:4px 8px 0}
+.lg i{display:inline-block;width:18px;margin-right:6px;vertical-align:middle;border-top:2px solid var(--amber)}
+.lg i.c{border-top:2px dashed #e8e4d4}.lg i.d{border-top:2px dotted #5eead4}
+.sl{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute)}.sl b{color:var(--amber);font-size:15px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#3a3017;margin:12px 0;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px rgba(255,193,7,.6);border:0}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px rgba(255,193,7,.6);border:0}
+.ro{display:flex;gap:8px;flex-wrap:wrap}
+.ro div{flex:1 1 90px;background:var(--btn);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:11px;color:var(--mute)}
+.ro b{display:block;color:var(--amber);font-size:14px;margin-top:2px}
+#mjerr{color:var(--amber);font-size:12px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:24px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 45%);z-index:4}
+.bar>div{max-width:640px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.b{height:52px;padding:0 18px;border-radius:14px;border:1px solid var(--line);background:var(--btn);color:var(--amber);font:600 13px 'JetBrains Mono',monospace;cursor:pointer}
+.b.p{background:var(--amber);color:#1a1300;border-color:var(--amber);box-shadow:0 0 20px rgba(255,193,7,.3)}
+.b:disabled{opacity:.35;box-shadow:none;cursor:default}
+.b:focus-visible,.back:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#dots{display:flex;gap:6px}#dots i{width:6px;height:6px;border-radius:3px;background:#3a3017}#dots i.on{width:18px;background:var(--amber)}
+</style>
+</head>
+<body>
+<a class="back" href="/" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+<main>
+<div class="hd"><span class="dot"></span><h1>Stirling’s approximation</h1></div>
+<p id="mjerr" hidden>The math renderer could not load, so equations show as raw LaTeX. Check your connection and reload.</p>
+<section class="card">
+<span class="tag" id="ct"></span>
+
+<section class="pg">
+<h2>The goal</h2>
+<p>We want a simple estimate of $n!$ for large $n$. The target is Stirling’s formula:</p>
+$$n!\;\approx\;\sqrt{2\pi n}\left(\frac{n}{e}\right)^{n}\tag{1}$$
+<p>Here “$\approx$” means the ratio of the two sides tends to $1$ as $n\to\infty$. The plan (Laplace’s method): write $n!$ as an integral, find the sharp peak of the integrand, approximate it by a Gaussian, and integrate.</p>
+<p>For real $z>0$ the Gamma function is</p>
+$$\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}\,dt.\tag{2}$$
+<p class="th"><b>Lemma 1.</b> $\Gamma(z+1)=z\,\Gamma(z)$, and therefore $\Gamma(n+1)=n!$ for every integer $n\ge0$.</p>
+<p><span class="pf">Proof.</span> Integrate (2) by parts with $u=t^{z}$ and $dv=e^{-t}dt$:</p>
+$$\begin{aligned}\Gamma(z+1)&amp;=\Big[-t^{z}e^{-t}\Big]_0^\infty+z\int_0^\infty t^{z-1}e^{-t}\,dt\\&amp;=z\,\Gamma(z).\end{aligned}\tag{3}$$
+<p>The boundary term vanishes: $t^ze^{-t}\to0$ as $t\to\infty$ (the exponential wins) and as $t\to0^+$ (since $z>0$). Since $\Gamma(1)=\int_0^\infty e^{-t}dt=1$, repeated use of (3) gives</p>
+$$\begin{aligned}\Gamma(n+1)&amp;=n\,\Gamma(n)=n(n-1)\,\Gamma(n-1)\\&amp;=\cdots=n!\,\Gamma(1)=n!\end{aligned}\tag{4}$$
+<p class="qed">□</p>
+</section>
+
+<section class="pg">
+<h2>Move it into the exponent</h2>
+<p>Setting $z=n+1$ in (2) and using Lemma 1,</p>
+$$n!=\int_0^\infty x^{n}e^{-x}\,dx.\tag{5}$$
+<p>Write $x^n=e^{n\ln x}$, so the whole integrand becomes a single exponential:</p>
+$$\begin{aligned}n!&amp;=\int_0^\infty e^{\,n\ln x-x}\,dx=\int_0^\infty e^{f(x)}\,dx,\\f(x)&amp;=n\ln x-x.\end{aligned}\tag{6}$$
+<p>An exponential is dominated by the region where its exponent is largest. This is the idea behind Laplace’s method, so we study the maximum of $f$.</p>
+<figure data-f="0"><figcaption><b>Figure 1.</b> The integrand of (6) divided by its peak value $e^{f(n)}=n^ne^{-n}$, that is $e^{f(x)-f(n)}$. The shaded area equals $n!/(n^ne^{-n})$. The mass sits around $x=n$ (proved next) and the bump becomes relatively narrower as $n$ grows.</figcaption></figure>
+</section>
+
+<section class="pg">
+<h2>Find the peak</h2>
+<p class="th"><b>Lemma 2.</b> For $n>0$, $f(x)=n\ln x-x$ has a unique maximum on $(0,\infty)$ at $x=n$, with $f(n)=n\ln n-n$ and $f''(n)=-1/n$.</p>
+<p><span class="pf">Proof.</span> Differentiate:</p>
+$$f'(x)=\frac{n}{x}-1.\tag{7}$$
+<p>This vanishes only at $x=n$. For $0&lt;x&lt;n$ we have $f'(x)>0$, and for $x>n$ we have $f'(x)&lt;0$, so $f$ increases up to $x=n$ and decreases afterwards. The second derivative is</p>
+$$f''(x)=-\frac{n}{x^{2}}\quad\Longrightarrow\quad f''(n)=-\frac1n&lt;0,\tag{8}$$
+<p>which confirms a maximum. Finally $f(n)=n\ln n-n$ by direct substitution.</p>
+<p class="qed">□</p>
+<figure data-f="1"><figcaption><b>Figure 2.</b> The derivative $f'(x)=n/x-1$. It is positive left of $x=n$, negative right of it, and crosses zero exactly at the maximum of $f$.</figcaption></figure>
+</section>
+
+<section class="pg">
+<h2>Expand around the peak</h2>
+<p>By Taylor’s theorem about $x=n$, for some $\xi$ between $x$ and $n$,</p>
+$$\begin{aligned}f(x)&amp;=f(n)+f'(n)(x-n)\\&amp;\quad+\frac{f''(n)}{2}(x-n)^2+\frac{f'''(\xi)}{6}(x-n)^3.\end{aligned}\tag{9}$$
+<p>From Lemma 2 the first three coefficients are</p>
+$$\begin{gathered}f(n)=n\ln n-n,\\f'(n)=0,\qquad f''(n)=-\frac1n.\end{gathered}\tag{10}$$
+<p>The third derivative is $f'''(x)=2n/x^{3}$, so the cubic coefficient is $f'''(n)/6=1/(3n^2)$. Dropping the cubic term and inserting (10) into (9):</p>
+$$f(x)\approx(n\ln n-n)-\frac{(x-n)^2}{2n}.\tag{11}$$
+<p><span class="pf">Why drop the cubic term?</span> The integrand is negligible unless $|x-n|$ is a few multiples of $\sqrt n$. On that scale the quadratic term $(x-n)^2/2n$ is of order $1$, while the cubic term $(x-n)^3/3n^2$ is of order $n^{-1/2}\to0$.</p>
+<figure data-f="2"><figcaption><b>Figure 3.</b> $f(x)-f(n)$ against the quadratic approximation (11) and the quadratic-plus-cubic version. All agree near $x=n$.</figcaption></figure>
+</section>
+
+<section class="pg">
+<h2>The Gaussian approximation</h2>
+<p>Substitute (11) into (6):</p>
+$$n!\approx\int_0^\infty\exp\!\left[n\ln n-n-\frac{(x-n)^2}{2n}\right]dx.\tag{12}$$
+<p>The factor $e^{n\ln n-n}=n^ne^{-n}$ does not depend on $x$, so it comes out front:</p>
+$$n!\approx n^{n}e^{-n}\int_0^\infty e^{-(x-n)^2/(2n)}\,dx.\tag{13}$$
+<p>The remaining integrand is a bell curve with mean $n$ and variance $\sigma^2=n$, that is, width $\sqrt n$.</p>
+<figure data-f="3"><figcaption><b>Figure 4.</b> The exact normalised integrand $e^{f(x)-f(n)}$ and the Gaussian $e^{-(x-n)^2/2n}$ that replaces it. The ratio of their areas tends to $1$.</figcaption></figure>
+</section>
+
+<section class="pg">
+<h2>Solve the Gaussian integral</h2>
+<p>Let $t=x-n$, so $dt=dx$ and the lower limit $x=0$ becomes $t=-n$:</p>
+$$\int_0^\infty e^{-(x-n)^2/(2n)}dx=\int_{-n}^{\infty}e^{-t^2/(2n)}\,dt.\tag{14}$$
+<div class="th"><p><b>Lemma 3.</b> The tail of the Gaussian beyond $t=-n$ satisfies</p>$$0&lt;\int_{-\infty}^{-n}e^{-t^2/(2n)}dt\le2e^{-n/2}.$$</div>
+<p><span class="pf">Proof.</span> For $t\le-n$ we have $t^2=|t|\,|t|\ge n|t|$, so $e^{-t^2/2n}\le e^{-|t|/2}$ and</p>
+$$\begin{aligned}\int_{-\infty}^{-n}e^{-t^2/(2n)}dt&amp;\le\int_{n}^{\infty}e^{-u/2}\,du\\&amp;=2e^{-n/2}.\end{aligned}\tag{15}$$
+<p class="qed">□</p>
+<p>This tail is exponentially small, so the lower limit can be pushed to $-\infty$:</p>
+$$\begin{aligned}\int_{-n}^{\infty}e^{-t^2/(2n)}dt&amp;=\int_{-\infty}^{\infty}e^{-t^2/(2n)}dt\\&amp;\quad-O\!\left(e^{-n/2}\right).\end{aligned}\tag{16}$$
+<p>For the full integral, let $a>0$ and $J=\int_{-\infty}^{\infty}e^{-at^2}dt$. Squaring and passing to polar coordinates:</p>
+$$\begin{aligned}J^2&amp;=\int\!\!\int_{\mathbb R^2}e^{-a(s^2+t^2)}\,ds\,dt\\&amp;=\int_0^{2\pi}\!\!\int_0^\infty e^{-ar^2}\,r\,dr\,d\theta\\&amp;=2\pi\left[-\frac{e^{-ar^2}}{2a}\right]_0^\infty=\frac{\pi}{a}.\end{aligned}\tag{17}$$
+<p>So $J=\sqrt{\pi/a}$, and with $a=1/(2n)$:</p>
+$$\int_{-\infty}^{\infty}e^{-t^2/(2n)}dt=\sqrt{2\pi n}.\tag{18}$$
+<figure data-f="4"><figcaption><b>Figure 5.</b> The Gaussian in the variable $t$. The dashed line marks $t=-n$ (that is, $x=0$). The tail to its left is the only part discarded in (16), and Lemma 3 bounds it.</figcaption></figure>
+</section>
+
+<section class="pg">
+<h2>Stirling’s formula</h2>
+<p class="th"><b>Theorem.</b> As $n\to\infty$, $\;n!\sim\sqrt{2\pi n}\,(n/e)^{n}$.</p>
+<p><span class="pf">Derivation.</span> Combine (13), (16) and (18):</p>
+$$\boxed{\begin{aligned}n!&amp;\approx n^{n}e^{-n}\sqrt{2\pi n}\\&amp;=\sqrt{2\pi n}\left(\frac{n}{e}\right)^{n}\end{aligned}}\tag{19}$$
+<p>The one step not made exact above is the control of the cubic remainder in (9). A fully rigorous proof bounds it uniformly.</p>
+<p><span class="pf">Remark.</span> (19) is the first term of the asymptotic series</p>
+$$\begin{aligned}n!&amp;=\sqrt{2\pi n}\left(\frac ne\right)^{n}\bigg(1+\frac1{12n}\\&amp;\qquad+\frac1{288n^2}-\frac{139}{51840\,n^3}+\cdots\bigg),\end{aligned}\tag{20}$$
+<p>so the relative error of (19) is about $1/(12n)$, already below $1\%$ at $n=10$.</p>
+<figure data-f="5"><figcaption><b>Figure 6.</b> Relative error $100\,(n!-S_n)/n!$ in percent, where $S_n=\sqrt{2\pi n}(n/e)^n$, compared with $100/(12n)$.</figcaption></figure>
+</section>
+
+</section>
+</main>
+<nav class="bar"><div><button class="b" id="prev">‹ Previous</button><div id="dots"></div><button class="b p" id="next">Next ›</button></div></nav>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const LF=[0];for(let k=1;k<=60;k++)LF[k]=LF[k-1]+Math.log(k);
+const F=(x,n)=>n*Math.log(x)-x,F0=n=>n*Math.log(n)-n;
+const H=(x,n)=>Math.exp(F(x,n)-F0(n)),G=(x,n)=>Math.exp(-(x-n)*(x-n)/(2*n));
+const Q=(x,n)=>{const d=x-n;return -d*d/(2*n)},CU=(x,n)=>(x-n)**3/(3*n*n);
+const fm=v=>v<1e6?(+v.toFixed(2)).toString():v.toExponential(3);
+const S=n=>Math.sqrt(2*Math.PI*n)*Math.pow(n/Math.E,n);
+const err=k=>100*(1-S(k)/Math.exp(LF[k]));
+const erfc=x=>{const t=1/(1+.3275911*x);return t*(.254829592+t*(-.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))))*Math.exp(-x*x)};
+const pct=p=>p<1e-4?'< 0.0001 %':p.toPrecision(2)+' %';
+
+function plot(o){
+ const W=400,H=230,L=40,R=12,T=14,B=26,[x0,x1]=o.x,[y0,y1]=o.y;
+ const X=x=>L+(x-x0)/(x1-x0)*(W-L-R),Y=y=>H-B-(y-y0)/(y1-y0)*(H-T-B);
+ const nc=r=>{const p=10**Math.floor(Math.log10(r)),m=r/p;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*p};
+ const tk=(a,b,k)=>{const d=nc((b-a)/k),r=[];for(let v=Math.ceil(a/d-1e-9)*d;v<=b+1e-9;v+=d)r.push(+v.toPrecision(8));return r};
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img"><clipPath id="cp"><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}"/></clipPath>`;
+ tk(x0,x1,5).forEach(v=>s+=`<line class="g" x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H-B}"/><text x="${X(v)}" y="${H-B+14}" text-anchor="middle">${v}</text>`);
+ tk(y0,y1,4).forEach(v=>s+=`<line class="g" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-5}" y="${Y(v)+3}" text-anchor="end">${v}</text>`);
+ if(y0<0&&y1>0)s+=`<line class="z" x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+ if(x0<0&&x1>0)s+=`<line class="z" x1="${X(0)}" x2="${X(0)}" y1="${T}" y2="${H-B}"/>`;
+ s+='<g clip-path="url(#cp)">';let lg='';
+ o.c.forEach(c=>{
+  const P=c.pts||Array.from({length:241},(_,k)=>{const x=x0+(x1-x0)*k/240;return[x,c.f(x)]});
+  let d='',up=0;
+  P.forEach(([x,y])=>{if(isFinite(y)&&Math.abs(y)<1e6){d+=(up?'L':'M')+X(x).toFixed(1)+' '+Y(y).toFixed(1);up=1}else up=0});
+  if(c.fill)s+=`<path class="fl" d="${d}L${X(x1)} ${Y(Math.max(y0,0))}L${X(x0)} ${Y(Math.max(y0,0))}Z"/>`;
+  s+=`<path class="${c.k}" d="${d}"/>`;lg+=`<span><i class="${c.k}"></i>${c.nm}</span>`;
+ });
+ s+='</g>';
+ (o.v||[]).forEach(([x,t])=>s+=`<line class="v" x1="${X(x)}" x2="${X(x)}" y1="${T}" y2="${H-B}"/><text class="lb" x="${X(x)+4}" y="${T+10}">${t}</text>`);
+ (o.p||[]).forEach(([x,y])=>s+=`<circle class="pt" cx="${X(x)}" cy="${Y(y)}" r="5"/>`);
+ return s+`</svg><div class="lg">${lg}</div>`;
+}
+
+const FIG=[
+{g:n=>({x:[0,2*n+8],y:[0,1.1],c:[{f:x=>H(x,n),k:'a',fill:1,nm:'e^(f(x) − f(n))'}],v:[[n,'x = n']]}),
+ r:n=>[['n!',fm(Math.exp(LF[n]))],['peak at','x = '+n]]},
+{g:n=>({x:[0.05,2*n+8],y:[-1.5,2.5],c:[{f:x=>n/x-1,k:'a',nm:'f′(x) = n/x − 1'}],v:[[n,'x = n']],p:[[n,0]]}),
+ r:n=>[['f′(n)','0'],['f″(n) = −1/n',(-1/n).toFixed(3)]]},
+{g:n=>({x:[0.05,2*n+8],y:[-.9*n-3,1.5],c:[{f:x=>F(x,n)-F0(n),k:'a',nm:'f(x) − f(n)'},{f:x=>Q(x,n),k:'c',nm:'quadratic'},{f:x=>Q(x,n)+CU(x,n),k:'d',nm:'+ cubic'}],v:[[n,'x = n']]}),
+ r:n=>[['quadratic term at |x−n| = √n','0.500'],['cubic term',(1/(3*Math.sqrt(n))).toFixed(3)]]},
+{g:n=>({x:[0,2*n+8],y:[0,1.1],c:[{f:x=>H(x,n),k:'a',nm:'exact'},{f:x=>G(x,n),k:'c',nm:'Gaussian'}],v:[[n,'x = n']]}),
+ r:n=>[['width σ = √n',Math.sqrt(n).toFixed(2)],['area: exact ÷ Gaussian',(Math.exp(LF[n]-F0(n))/Math.sqrt(2*Math.PI*n)).toFixed(4)]]},
+{g:n=>{const R=Math.max(n,4*Math.sqrt(n))+1;return{x:[-R,R],y:[0,1.1],c:[{f:t=>Math.exp(-t*t/(2*n)),k:'a',fill:1,nm:'e^(−t²/2n)'}],v:[[-n,'t = −n']]}},
+ r:n=>[['total area √(2πn)',Math.sqrt(2*Math.PI*n).toFixed(2)],['tail beyond t = −n',pct(50*erfc(Math.sqrt(n/2)))],['Lemma 3 bound',pct(200*Math.exp(-n/2)/Math.sqrt(2*Math.PI*n))]]},
+{g:n=>({x:[1,40],y:[0,9],c:[{pts:Array.from({length:40},(_,k)=>[k+1,err(k+1)]),k:'a',nm:'actual error (%)'},{pts:Array.from({length:40},(_,k)=>[k+1,100/(12*(k+1))]),k:'c',nm:'100/(12n)'}],p:[[n,err(n)]]}),
+ r:n=>[['n! exact',fm(Math.exp(LF[n]))],['Stirling S_n',fm(S(n))],['error',err(n).toFixed(2)+' %']]}
+];
+
+let n=10,i=0,mj=0;const P=$$('.pg');
+$$('figure[data-f]').forEach(f=>f.insertAdjacentHTML('afterbegin','<div class="gr"></div><div class="sl"><span>1</span><b class="nv"></b><span>40</span></div><input type="range" min="1" max="40" aria-label="Value of n"><div class="ro"></div>'));
+document.addEventListener('input',e=>{if(e.target.type=='range'){n=+e.target.value;upd()}});
+function upd(){const s=P[i],f=s.querySelector('[data-f]');
+ if(f){const q=FIG[+f.dataset.f];f.querySelector('.gr').innerHTML=plot(q.g(n));f.querySelector('.ro').innerHTML=q.r(n).map(([a,b])=>`<div>${a}<b>${b}</b></div>`).join('')}
+ s.querySelectorAll('.nv').forEach(e=>e.textContent='n = '+n);s.querySelectorAll('input').forEach(e=>e.value=n)}
+function fit(){P[i].querySelectorAll('mjx-container:not([display])').forEach(m=>{m.classList.remove('wide');const p=m.parentElement;if(m.getBoundingClientRect().width>p.clientWidth-14)m.classList.add('wide')})}
+addEventListener('resize',fit);
+function typeset(){const s=P[i];if(!mj||s.dataset.t)return;s.dataset.t=1;MathJax.typesetPromise([s]).then(fit).catch(e=>console.error(e))}
+function load(u){
+ const s=document.createElement('script');s.src=u[0];
+ s.onload=()=>{try{MathJax.startup.promise.then(()=>{mj=1;typeset()})}catch(e){s.onerror()}};
+ s.onerror=()=>{s.remove();u.length>1?load(u.slice(1)):$('#mjerr').hidden=false};
+ document.head.append(s);
+}
+function render(){
+ P.forEach((p,k)=>p.classList.toggle('on',k==i));
+ $('#ct').textContent=`STEP ${i+1} / ${P.length}`;
+ $('#dots').innerHTML=P.map((_,k)=>`<i class="${k==i?'on':''}"></i>`).join('');
+ $('#prev').disabled=!i;$('#next').disabled=i==P.length-1;
+ upd();scrollTo(0,0);typeset();fit();
+}
+const rd=()=>{const m=/^#s(\d+)$/.exec(location.hash);i=m?Math.min(P.length,Math.max(1,+m[1]))-1:0;render()};
+addEventListener('hashchange',rd);
+$('#prev').onclick=()=>{location.hash='s'+i};
+$('#next').onclick=()=>{location.hash='s'+(i+2)};
+rd();
+load(['https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js','https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js']);
+</script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<meta name="description" content="An interactive derivation of the Sophomore’s Dream identity using power series, substitutions, and the Gamma integral.">
+<title>Sophomore’s Dream: ∫₀¹ x⁻ˣ dx = Σ n⁻ⁿ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#08111f;
+  --panel:#101d30;
+  --panel-soft:#142238;
+  --button:#19283d;
+  --line:rgba(230,190,92,.22);
+  --line-strong:rgba(230,190,92,.42);
+  --amber:#ffd166;
+  --gold:#b88b2b;
+  --ink:#f1eee5;
+  --dim:#b1b4b0;
+  --teal:#72d6c1;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{width:100%;min-width:320px;max-width:100%;overflow-x:hidden;background:var(--bg);scroll-behavior:smooth;scroll-padding-top:20px}
+body{
+  width:100%;min-width:320px;max-width:100%;min-height:100vh;margin:0;overflow-x:hidden;position:relative;
+  color:var(--ink);background:
+    radial-gradient(ellipse at 50% -12%,rgba(255,193,7,.13),transparent 48%),
+    radial-gradient(circle,rgba(255,209,102,.105) 1px,transparent 1.35px) 0 0/32px 32px,
+    var(--bg);
+  font:18px/1.78 var(--serif);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 12% 38%,rgba(48,103,128,.09),transparent 40%),radial-gradient(ellipse at 90% 72%,rgba(151,105,23,.07),transparent 42%)}
+main{position:relative;width:min(100%,900px);margin:0 auto;padding:clamp(30px,5.2vw,62px) clamp(15px,4vw,30px) 76px}
+.top-actions{display:flex;justify-content:flex-end;align-items:center;margin:-12px 0 16px}
+.back-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;
+  padding:8px 14px;border:1px solid var(--line-strong);border-radius:999px;
+  background:rgba(20,34,56,.82);color:var(--amber);text-decoration:none;
+  font:600 12px/1 var(--mono);letter-spacing:.04em;
+  box-shadow:0 5px 18px rgba(0,0,0,.18);transition:background .18s,border-color .18s,transform .18s;
+}
+.back-link:hover{background:rgba(255,209,102,.1);border-color:var(--amber);transform:translateY(-1px)}
+.back-link:focus-visible{outline:2px solid var(--amber);outline-offset:4px}
+h1{
+  max-width:850px;margin:0 0 12px;color:var(--amber);
+  font:600 clamp(2.1rem,7.2vw,4.15rem)/1.08 var(--mono);
+  letter-spacing:-.065em;text-wrap:balance;
+  text-shadow:0 0 30px rgba(255,209,102,.19);
+}
+.sub{max-width:720px;margin:0 0 30px;color:var(--dim);font-size:clamp(16px,2vw,18px);font-style:italic;line-height:1.55}
+p{margin:0 0 1.05em;hyphens:auto;overflow-wrap:break-word}
+.abs{
+  position:relative;margin:0 0 24px;padding:19px 22px 18px;
+  border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(145deg,rgba(255,209,102,.055),transparent 62%),rgba(16,29,48,.92);
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+}
+.abs>b,.note b{color:var(--amber);font:600 12px/1.4 var(--mono);letter-spacing:.13em}
+.abs p{margin:.55em 0 0;color:#e5e3dc}
+h2{
+  display:flex;align-items:flex-start;gap:12px;margin:clamp(38px,5.5vw,54px) 0 15px;
+  color:var(--amber);font:600 clamp(12px,1.6vw,14px)/1.6 var(--mono);
+  letter-spacing:.105em;text-transform:uppercase;
+}
+h2::before{content:"";flex:0 0 10px;width:10px;height:10px;margin-top:.35em;border-radius:50%;background:var(--amber);box-shadow:0 0 13px rgba(255,209,102,.8)}
+h2 span,
+summary .t{
+  min-width:0;
+  max-width:100%;
+  overflow-wrap:break-word;
+}
+
+/* Display math box: allow smooth horizontal scrolling for wide equations on small screens
+   and let MathJax SVGs scale proportionally using their intrinsic ex units. */
+main mjx-container[jax="SVG"][display="true"]{
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:1.15em 0 1.25em;
+  padding:14px clamp(10px,2.1vw,20px);
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid rgba(255,209,102,.13);
+  border-left:3px solid var(--amber);
+  border-radius:0 13px 13px 0;
+  background:linear-gradient(100deg,rgba(255,209,102,.075),rgba(255,209,102,.025));
+}
+mjx-container{
+  color:var(--ink);
+  box-sizing:border-box;
+  max-width:100%;
+  min-width:0;
+  font-size:1em!important;
+  line-height:normal;
+}
+mjx-container[jax="SVG"]{
+  display:inline-block;
+  box-sizing:border-box;
+  max-width:100%;
+  min-width:0;
+  vertical-align:middle;
+}
+mjx-container[jax="SVG"] > svg{
+  display:inline-block;
+  max-width:100%!important;
+  height:auto!important;
+  vertical-align:middle;
+}
+main mjx-container[jax="SVG"][display="true"] > svg{
+  display:block;
+  max-width:100%!important;
+  height:auto!important;
+  margin:0 auto;
+}
+mjx-container[jax="SVG"]:not([display="true"]){max-width:100%;vertical-align:middle}
+.read mjx-container[jax="SVG"]{display:inline-block;max-width:100%}
+.read mjx-container[jax="SVG"] > svg{max-width:100%!important;height:auto!important}
+h2 mjx-container,summary mjx-container{color:inherit}
+
+/* Compact display math blocks on narrow screens so multi-step equations like (6)
+   fit comfortably or scroll cleanly without abrupt clipping. */
+.eq-compact mjx-container[jax="SVG"][display="true"]{
+  font-size:0.94em!important;
+  padding:12px 12px;
+}
+
+.note{margin:22px 0;padding:13px 16px 13px 18px;border:1px solid rgba(184,139,43,.19);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;background:rgba(184,139,43,.055);color:#c3c3b9;font-size:16px;line-height:1.7}
+.note b{display:inline-block;margin-right:7px}
+.note mjx-container[display="true"]{margin:.55em 0 0!important;padding:7px 0!important;border:0!important;background:none!important}
+.panel{
+  margin:25px 0 29px;overflow:hidden;border:1px solid var(--line);
+  border-radius:22px;background:linear-gradient(150deg,rgba(255,209,102,.035),transparent 38%),rgba(16,29,48,.96);
+  box-shadow:0 20px 46px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.025);
+}
+summary{
+  min-height:62px;display:flex;align-items:center;gap:13px;padding:17px 21px;
+  list-style:none;cursor:pointer;color:var(--amber);
+  font:600 13px/1.5 var(--mono);letter-spacing:.085em;
+  transition:background .18s ease;
+}
+summary:hover{background:rgba(255,209,102,.045)}
+summary::-webkit-details-marker{display:none}
+summary .d{flex:0 0 11px;width:11px;height:11px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px rgba(255,209,102,.8)}
+summary .t{flex:1}
+summary .b{flex:none;padding:5px 9px;border:1px solid var(--line-strong);border-radius:7px;background:rgba(184,139,43,.1);color:#e8ca82;font-size:10px;letter-spacing:.1em;white-space:nowrap}
+summary::after{content:"";flex:0 0 10px;width:10px;height:10px;margin:0 3px 5px 5px;border-right:2px solid var(--amber);border-bottom:2px solid var(--amber);transform:rotate(45deg);transition:transform .2s ease}
+details[open]>summary::after{transform:rotate(225deg);margin-bottom:-4px}
+details[open]>summary{border-bottom:1px solid var(--line)}
+summary:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:4px}
+.body{padding:20px 22px 22px}
+.panel svg[id]{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.panel svg[id] text{font:12px var(--mono);fill:#aeb8bd;paint-order:stroke;stroke:rgba(16,29,48,.5);stroke-width:2px;stroke-linejoin:round}
+.panel svg[id] .gr{stroke:rgba(193,209,215,.11);stroke-width:1}
+.panel svg[id] .ax{stroke:rgba(255,209,102,.62);stroke-width:1.4}
+.panel svg[id] .area{fill:rgba(255,209,102,.16)}
+.panel svg[id] .main{fill:none;stroke:var(--amber);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.panel svg[id] .dash{fill:none;stroke:var(--teal);stroke-width:2.2;stroke-dasharray:7 5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.panel svg[id] .bar{fill:rgba(255,209,102,.22);stroke:rgba(255,209,102,.35);stroke-width:1}
+.panel svg[id] .bar.on{fill:rgba(255,209,102,.85);stroke:var(--amber)}
+.grid{display:grid;width:100%;max-width:100%;min-width:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.grid>div{min-width:0;padding:12px 10px 8px;border:1px solid rgba(230,190,92,.13);border-radius:13px;background:rgba(7,16,29,.34)}
+.grid p{margin:0 0 7px;color:#c7b77f;font:600 10px/1.5 var(--mono);letter-spacing:.09em}
+.lab{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:13px 0 7px;color:#b9c0bd;font:600 11px/1.45 var(--mono);letter-spacing:.07em}
+.lab span:nth-child(2){color:var(--amber);text-align:center}
+.lab span:last-child{text-align:right}
+.lab b{color:var(--amber);font-weight:600}
+input[type=range]{display:block;width:100%;height:22px;margin:8px 0 15px;padding:0;background:transparent;cursor:pointer;touch-action:pan-y;-webkit-appearance:none;appearance:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border:1px solid rgba(255,209,102,.17);border-radius:8px;background:linear-gradient(90deg,rgba(255,209,102,.44),rgba(255,209,102,.12))}
+input[type=range]::-moz-range-track{height:6px;border:1px solid rgba(255,209,102,.17);border-radius:8px;background:linear-gradient(90deg,rgba(255,209,102,.44),rgba(255,209,102,.12))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;height:21px;margin-top:-8px;border:2px solid #fff1c5;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px rgba(255,209,102,.14),0 0 15px rgba(255,209,102,.55)}
+input[type=range]::-moz-range-thumb{width:19px;height:19px;border:2px solid #fff1c5;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px rgba(255,209,102,.14),0 0 15px rgba(255,209,102,.55)}
+.read{min-width:0;padding:12px 15px;border:1px solid rgba(230,190,92,.15);border-radius:12px;background:rgba(5,13,25,.58);color:#e8e9e2;font:12px/1.8 var(--mono);overflow-wrap:anywhere}
+.read .ln{max-width:100%;min-width:0;padding:2px 0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.read .ln+.ln{margin-top:4px;padding-top:6px;border-top:1px solid rgba(230,190,92,.1)}
+.read mjx-container{margin:0!important}
+.read b{color:var(--amber)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding-top:13px;border-top:1px solid var(--line);color:#c6b77e;font:600 11px/1.4 var(--mono);letter-spacing:.12em}
+.tg{position:relative;flex:none;width:54px;height:30px;padding:0;border:1px solid rgba(230,190,92,.32);border-radius:18px;background:#26344a;cursor:pointer;transition:background .2s,border-color .2s}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#8b9aa1;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .2s,background .2s}
+.tg[aria-pressed="true"]{border-color:rgba(255,209,102,.65);background:#66511d}
+.tg[aria-pressed="true"]::after{transform:translateX(24px);background:var(--amber);box-shadow:0 0 12px rgba(255,209,102,.55)}
+.cap{margin:14px 0 0;color:#aeb4b2;font-size:14px;font-style:italic;line-height:1.6}
+.qed{margin:-5px 0 0;text-align:right;font-size:22px}
+footer{margin-top:60px;padding-top:17px;border-top:1px solid var(--line);color:#9da7a7;font:11px/1.8 var(--mono)}
+
+main,.abs,.note,.panel,.body,.read,.cap,p,h2{min-width:0;max-width:100%}
+@media(max-width:700px){
+  body{font-size:16.5px;line-height:1.72}
+  main{padding:22px 15px 58px}
+  .top-actions{margin:0 0 15px}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .grid>div{padding:11px 12px 8px}
+  .grid svg[id]{max-height:230px}
+  .body{padding:15px 14px 17px}
+  .panel{margin:21px 0 25px;border-radius:18px}
+  summary{min-height:56px;padding:14px 15px;gap:10px;font-size:11px;letter-spacing:.06em}
+  summary .b{padding:4px 7px;font-size:9px}
+  summary::after{width:9px;height:9px;margin-left:1px}
+  .abs{padding:16px 16px 15px;border-radius:15px}
+  .note{padding:11px 12px 11px 14px;font-size:15px}
+  main mjx-container[jax="SVG"][display="true"]{margin:1em 0;padding:10px 9px;font-size:88%}
+  .eq-compact mjx-container[jax="SVG"][display="true"]{font-size:76%!important;padding:10px 7px}
+  .read{padding:10px 11px;font-size:11px}
+  .cap{font-size:13px}
+}
+@media(max-width:390px){
+  .back-link{min-height:36px;padding:7px 12px;font-size:11px}
+  h1{font-size:clamp(1.9rem,9vw,2.3rem);letter-spacing:-.07em}
+  .lab{font-size:9px;letter-spacing:.035em;gap:4px}
+  .lab span:first-child,.lab span:last-child{max-width:32%}
+  summary{font-size:10px;gap:8px}
+  summary .b{display:none}
+  main mjx-container[jax="SVG"][display="true"]{font-size:78%;padding:9px 7px}
+  .eq-compact mjx-container[jax="SVG"][display="true"]{font-size:66%!important;padding:8px 6px}
+  .panel svg[id] text{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    tags: 'ams'
+  },
+  svg: {
+    fontCache: 'global',
+    displayOverflow: 'linebreak',
+    linebreaks: {
+      inline: false,
+      width: '100%'
+    }
+  },
+  startup: { typeset: true }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" onerror="var s=document.createElement('script');s.async=true;s.src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js';document.head.appendChild(s)"></script>
+</head>
+<body>
+<main>
+<div class="top-actions"><a class="back-link" href="/" aria-label="Back to home">← <span>Back</span></a></div>
+<h1>Sophomore’s Dream</h1>
+<p class="sub">A derivation of Bernoulli’s identity by power series, substitution and the Gamma integral</p>
+
+<div class="abs"><b>ABSTRACT</b><p style="margin:.5em 0 0">We show that the integral of the self-power function $x^{-x}$ over the unit interval equals a sum of self-powers of the positive integers. The proof expands $e^{-x\ln x}$ as a power series, integrates termwise, and evaluates each term with the substitutions $x=e^{-u}$ and $t=(k+1)u$. Each step comes with an interactive figure.</p></div>
+
+$$\int_{0}^{1}x^{-x}\,dx=\sum_{n=1}^{\infty}n^{-n}\tag{1}\label{eq:goal}$$
+
+<h2><span>1 · Series for $x^{-x}$</span></h2>
+<p>Start from the exponential series, valid for every real $u$:</p>
+$$e^{u}=\sum_{k=0}^{\infty}\frac{u^{k}}{k!}\tag{2}\label{eq:exp}$$
+<p>Since $x^{-x}=e^{-x\ln x}$, put $u=-x\ln x$ in \eqref{eq:exp}:</p>
+$$\begin{aligned}x^{-x}&=e^{-x\ln x}=\sum_{k=0}^{\infty}\frac{(-x\ln x)^{k}}{k!}\\&=\sum_{k=0}^{\infty}\frac{(-1)^{k}\,x^{k}(\ln x)^{k}}{k!}\end{aligned}\tag{3}\label{eq:series}$$
+
+<details class="panel" open><summary><i class="d"></i><span class="t">TAYLOR PARTIAL SUMS</span><span class="b">FIG. 1</span></summary><div class="body">
+<svg id="s1" role="img" aria-label="Graph of x to the minus x with polynomial partial sums"></svg>
+<div class="lab"><span>FEWER TERMS</span><span>$K=$<b id="v1"></b></span><span>MORE</span></div>
+<input type="range" id="r1" min="0" max="8" value="3" aria-label="Number of terms K">
+<div class="read" id="o1"></div>
+<div class="row"><span>AUTO-PLAY</span><button class="tg" id="t1" aria-pressed="false" aria-label="Auto-play"></button></div>
+<p class="cap">Figure 1. The solid curve is $x^{-x}$ and the dashed curve is the partial sum $S_K(x)=\sum_{k\le K}(-x\ln x)^k/k!$. The shaded area is $\int_0^1 S_K\,dx$.</p>
+</div></details>
+
+<h2><span>2 · Termwise integration</span></h2>
+<p>Integrating \eqref{eq:series} term by term gives</p>
+$$\begin{aligned}\int_{0}^{1}x^{-x}\,dx&=\sum_{k=0}^{\infty}\frac{(-1)^{k}}{k!}\,I_k,\\I_k&:=\int_{0}^{1}x^{k}(\ln x)^{k}\,dx\end{aligned}\tag{4}\label{eq:termwise}$$
+<p class="note"><b>JUSTIFICATION</b> On $(0,1]$ we have $u=-x\ln x\ge 0$, so every term $u^k/k!$ is nonnegative. Tonelli’s theorem therefore lets us swap sum and integral with no extra hypothesis.</p>
+
+<h2><span>3 · Substitution $x=e^{-u}$</span></h2>
+<p>Let $x=e^{-u}$. Then $\ln x=-u$ and $dx=-e^{-u}du$. As $x$ runs over $[0,1]$, $u$ runs from $\infty$ down to $0$, so</p>
+$$\begin{aligned}I_k&=\int_{\infty}^{0}\left(e^{-u}\right)^{k}(-u)^{k}\left(-e^{-u}\right)du\\&=(-1)^{k}\int_{0}^{\infty}u^{k}e^{-(k+1)u}\,du\end{aligned}\tag{5}\label{eq:sub}$$
+
+<h2><span>4 · The Gamma integral</span></h2>
+<p>Let $t=(k+1)u$, so $u=\frac{t}{k+1}$ and $du=\frac{dt}{k+1}$. Then</p>
+<div class="eq-compact">
+$$\begin{aligned}\int_{0}^{\infty}u^{k}e^{-(k+1)u}\,du&=\int_{0}^{\infty}\left(\frac{t}{k+1}\right)^{k}e^{-t}\,\frac{dt}{k+1}\\&=\frac{1}{(k+1)^{k+1}}\int_{0}^{\infty}t^{k}e^{-t}\,dt\\&=\frac{\Gamma(k+1)}{(k+1)^{k+1}}=\frac{k!}{(k+1)^{k+1}}\end{aligned}\tag{6}\label{eq:gamma}$$
+</div>
+<p>Combining \eqref{eq:sub} and \eqref{eq:gamma}:</p>
+$$I_k=\frac{(-1)^{k}\,k!}{(k+1)^{k+1}}\tag{7}\label{eq:Ik}$$
+
+<details class="panel" open><summary><i class="d"></i><span class="t">THREE CHANGES OF VARIABLE</span><span class="b">FIG. 2</span></summary><div class="body">
+<div class="grid">
+<div><p>A · x-SPACE</p><svg id="sa" role="img" aria-label="Integrand in x"></svg></div>
+<div><p>B · u-SPACE</p><svg id="sb" role="img" aria-label="Integrand in u"></svg></div>
+<div><p>C · t-SPACE</p><svg id="sc" role="img" aria-label="Integrand in t"></svg></div>
+</div>
+<div class="lab"><span>$k=0$</span><span>$k=$<b id="v2"></b></span><span>$8$</span></div>
+<input type="range" id="r2" min="0" max="8" value="2" aria-label="Exponent k">
+<div class="read" id="o2"></div>
+<div class="row"><span>AUTO-PLAY</span><button class="tg" id="t2" aria-pressed="false" aria-label="Auto-play"></button></div>
+<p class="cap">Figure 2. Panel A plots $x^k(-\ln x)^k$ on $[0,1]$, panel B plots $u^ke^{-(k+1)u}$, panel C plots $t^ke^{-t}$. Panels A and B have equal area, and C has $(k+1)^{k+1}$ times as much. The sign $(-1)^k$ is factored out.</p>
+</div></details>
+
+<h2><span>5 · Assembling the result</span></h2>
+<p>Insert \eqref{eq:Ik} into \eqref{eq:termwise}. The factorials cancel and the signs combine to $(-1)^{2k}=1$:</p>
+$$\begin{aligned}\int_{0}^{1}x^{-x}\,dx&=\sum_{k=0}^{\infty}\frac{(-1)^{k}}{k!}\cdot\frac{(-1)^{k}\,k!}{(k+1)^{k+1}}\\&=\sum_{k=0}^{\infty}\frac{1}{(k+1)^{k+1}}\end{aligned}\tag{8}$$
+<p>Setting $n=k+1$ gives the claim:</p>
+$$\boxed{\int_{0}^{1}x^{-x}\,dx=\sum_{n=1}^{\infty}n^{-n}}\tag{9}$$
+<p class="qed">$\blacksquare$</p>
+
+<h2><span>6 · Numerical convergence</span></h2>
+<p>Because $n^{-n}$ decays faster than any geometric sequence, each added term gains more digits than the last.</p>
+<details class="panel" open><summary><i class="d"></i><span class="t">PARTIAL SUMS OF $\sum n^{-n}$</span><span class="b">FIG. 3</span></summary><div class="body">
+<svg id="s3" role="img" aria-label="Digits of accuracy gained by each term"></svg>
+<div class="lab"><span>1 TERM</span><span>$N=$<b id="v3"></b></span><span>$10$</span></div>
+<input type="range" id="r3" min="1" max="10" value="5" aria-label="Number of terms N">
+<div class="read" id="o3"></div>
+<div class="row"><span>AUTO-PLAY</span><button class="tg" id="t3" aria-pressed="false" aria-label="Auto-play"></button></div>
+<p class="cap">Figure 3. Bar $n$ has height $-\log_{10}(n^{-n})=n\log_{10}n$, the number of decimal places that term pins down.</p>
+</div></details>
+
+<div class="note"><p style="margin:0"><b>REMARK</b> The same argument with $x^{x}=e^{x\ln x}$ has no $(-1)^k$ in its series, so the sign from $I_k$ survives and gives the alternating companion</p>
+\[\int_0^1 x^{x}\,dx=\sum_{n=1}^{\infty}(-1)^{n+1}n^{-n}=0.78343051\ldots\]</div>
+
+<footer>J. Bernoulli, 1697 (Opera Omnia, vol. 3, 1742). The identity is nicknamed the “sophomore’s dream” because it is almost too good to be true.</footer>
+</main>
+<script>
+'use strict';
+const $ = selector => document.querySelector(selector);
+const TRUE = 1.2912859970626636;
+
+function tickLabel(value){
+  if(Math.abs(value) < 1e-9) return '0';
+  if(Math.abs(value) >= 10) return Number(value.toFixed(1)).toString();
+  return Number(value.toFixed(2)).toString();
+}
+
+function fr(svg,xMax,yMax,xTicks,yTicks){
+  const W=520,H=280,L=54,R=18,T=18,B=39;
+  const plotW=W-L-R, plotH=H-T-B;
+  const X=x=>L+(x/xMax)*plotW;
+  const Y=y=>H-B-(y/yMax)*plotH;
+  xTicks=xTicks||[0,1,2,3,4].map(i=>xMax*i/4);
+  yTicks=yTicks||[0,.5,1].map(i=>yMax*i);
+  let g='';
+  xTicks.forEach(x=>{
+    const xx=X(x);
+    g+=`<line class="gr" x1="${xx}" x2="${xx}" y1="${T}" y2="${H-B}"/>`;
+    g+=`<text x="${xx}" y="${H-12}" text-anchor="middle">${tickLabel(x)}</text>`;
+  });
+  yTicks.forEach(y=>{
+    const yy=Y(y);
+    g+=`<line class="gr" x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}"/>`;
+    g+=`<text x="${L-10}" y="${yy+4}" text-anchor="end">${tickLabel(y)}</text>`;
+  });
+  g+=`<line class="ax" x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  g+=`<line class="ax" x1="${L}" x2="${L}" y1="${T}" y2="${H-B}"/>`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  return {X,Y,g};
+}
+
+function pts(f,a,b,X,Y,n=280){
+  const points=[];
+  for(let i=0;i<=n;i++){
+    const x=a+(b-a)*i/n;
+    let y=f(x);
+    if(!Number.isFinite(y)) y=0;
+    points.push(`${X(x).toFixed(2)},${Y(y).toFixed(2)}`);
+  }
+  return points.join(' ');
+}
+function area(f,a,b,X,Y){return `${X(a)},${Y(0)} ${pts(f,a,b,X,Y)} ${X(b)},${Y(0)}`;}
+function trap(f,a,b,n=8000){
+  const h=(b-a)/n;let sum=0;
+  for(let i=0;i<=n;i++){
+    const value=f(a+i*h);
+    sum+=((i===0||i===n)?0.5:1)*(Number.isFinite(value)?value:0);
+  }
+  return sum*h;
+}
+function bind(index,render){
+  const range=$('#r'+index),toggle=$('#t'+index);
+  if(!range||!toggle)return;
+  let timer=null;
+  const update=()=>{
+    $('#v'+index).textContent=range.value;
+    render(Number(range.value));
+  };
+  const stop=()=>{
+    if(timer!==null)clearInterval(timer);
+    timer=null;
+    toggle.setAttribute('aria-pressed','false');
+  };
+  range.addEventListener('input',update);
+  toggle.addEventListener('click',()=>{
+    if(timer!==null){stop();return;}
+    toggle.setAttribute('aria-pressed','true');
+    timer=setInterval(()=>{
+      if(document.hidden)return;
+      range.value=Number(range.value)>=Number(range.max)?range.min:Number(range.value)+1;
+      update();
+    },1250);
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&timer!==null)stop();});
+  update();
+}
+
+const factorial=n=>{let value=1;for(let i=2;i<=n;i++)value*=i;return value;};
+const tx=value=>String(value).replace(/e([+-]?)(\d+)/,(match,sign,digits)=>`\\times10^{${sign==='-'?'-':''}${Number(digits)}}`);
+const ln=content=>`<div class="ln">${content}</div>`;
+function setMathContent(element,markup){
+  const mathJax=window.MathJax;
+  if(mathJax&&mathJax.startup&&mathJax.startup.promise){
+    mathJax.startup.promise.then(async()=>{
+      if(!mathJax.typesetPromise)return;
+      try{
+        mathJax.typesetClear?.([element]);
+        element.innerHTML=markup;
+        await mathJax.typesetPromise([element]);
+      }catch(err){
+        element.textContent='Math rendering is temporarily unavailable.';
+      }
+    }).catch(()=>{ element.textContent='Math rendering is temporarily unavailable.'; });
+  }else{
+    element.innerHTML=markup;
+  }
+}
+
+bind(1,K=>{
+  const svg=$('#s1');
+  const curve=x=>x<=0?1:Math.exp(-x*Math.log(x));
+  const partial=x=>{
+    const u=x<=0?0:-x*Math.log(x);let sum=0,term=1;
+    for(let k=0;k<=K;k++){sum+=term;term*=u/(k+1);}
+    return sum;
+  };
+  const {X,Y,g}=fr(svg,1,1.6,[0,.25,.5,.75,1],[0,.4,.8,1.2,1.6]);
+  svg.innerHTML=`<title>Exact curve and Taylor partial sum</title>${g}`+
+    `<polygon class="area" points="${area(partial,0,1,X,Y)}"/>`+
+    `<polyline class="dash" points="${pts(partial,0,1,X,Y)}"/>`+
+    `<polyline class="main" points="${pts(curve,0,1,X,Y)}"/>`;
+  let sum=0;for(let n=1;n<=K+1;n++)sum+=Math.pow(n,-n);
+  const output=$('#o1');
+  setMathContent(output,
+    ln(`$\\displaystyle\\int_0^1 S_K\\,dx=\\sum_{n=1}^{${K+1}}n^{-n}=\\mathbf{${sum.toFixed(10)}}$`)+
+    ln(`$\\displaystyle\\int_0^1 x^{-x}\\,dx=\\mathbf{${TRUE.toFixed(10)}}$`));
+});
+
+bind(2,k=>{
+  const fA=x=>x<=0?(k?0:1):Math.pow(-x*Math.log(x),k);
+  const fB=u=>Math.pow(u,k)*Math.exp(-(k+1)*u);
+  const fC=t=>Math.pow(t,k)*Math.exp(-t);
+  const uMax=Math.max(14,k+8);
+  const tMax=Math.max(17,k+9+4*Math.sqrt(k+1));
+  const plots=[
+    {f:fA,xMax:1,id:'#sa',ticks:[0,.25,.5,.75,1]},
+    {f:fB,xMax:uMax,id:'#sb'},
+    {f:fC,xMax:tMax,id:'#sc'}
+  ];
+  const numerical=[];
+  plots.forEach(({f,xMax,id,ticks})=>{
+    const svg=$(id);let maximum=0;
+    for(let i=0;i<=500;i++)maximum=Math.max(maximum,f(xMax*i/500));
+    const yMax=Math.max(maximum*1.18,1e-8);
+    const yTicks=[0,yMax/2,yMax];
+    const xTicks=ticks||[0,1,2,3,4].map(i=>xMax*i/4);
+    const {X,Y,g}=fr(svg,xMax,yMax,xTicks,yTicks);
+    svg.innerHTML=`<title>Transformed integrand</title>${g}`+
+      `<polygon class="area" points="${area(f,0,xMax,X,Y)}"/>`+
+      `<polyline class="main" points="${pts(f,0,xMax,X,Y)}"/>`;
+    numerical.push(trap(f,0,xMax));
+  });
+  const exact=factorial(k)/Math.pow(k+1,k+1);
+  const output=$('#o2');
+  setMathContent(output,
+    ln(`$\\dfrac{k!}{(k+1)^{k+1}}=\\mathbf{${tx(exact.toPrecision(6))}}$`)+
+    ln(`$A\\approx${tx(numerical[0].toPrecision(6))}$`)+
+    ln(`$B\\approx${tx(numerical[1].toPrecision(6))}$`)+
+    ln(`$\\Gamma(k+1)=k!=\\mathbf{${factorial(k)}}$`)+
+    ln(`$C\\approx${tx(numerical[2].toPrecision(6))}$`));
+});
+
+bind(3,N=>{
+  const svg=$('#s3');
+  const {X,Y,g}=fr(svg,11,11,[0,2,4,6,8,10],[0,2,4,6,8,10]);
+  let bars='',sum=0;
+  for(let n=1;n<=10;n++){
+    const height=n*Math.log10(n),barWidth=23;
+    bars+=`<rect class="bar${n<=N?' on':''}" x="${X(n)-barWidth/2}" y="${Y(height)}" width="${barWidth}" height="${Y(0)-Y(height)}" rx="5"/>`;
+    if(n<=N)sum+=Math.pow(n,-n);
+  }
+  svg.innerHTML=`<title>Decimal-place contribution of each term</title>${g}${bars}`+
+    `<text x="${X(5.5)}" y="${Y(10.5)}" text-anchor="middle">decimal places contributed by term n</text>`;
+  const output=$('#o3');
+  setMathContent(output,
+    ln(`$S_N=\\mathbf{${sum.toFixed(12)}}$`)+
+    ln(`$\\displaystyle\\int_0^1 x^{-x}\\,dx=\\mathbf{${TRUE.toFixed(12)}}$`)+
+    ln(`$\\text{error}=${tx((TRUE-sum).toExponential(2))}$`)+
+    ln(`$\\text{next term}=${tx(Math.pow(N+1,-(N+1)).toExponential(2))}$`));
+});
+</script>
+</body>
+</html>

@@ -91,8 +91,8 @@
                     <div class="space-y-5 sm:space-y-6 relative z-10">
                         <!-- Profile Image & Header -->
                         <div class="flex flex-col items-center text-center">
-                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 border-2 border-sky-500/40 shadow-md mb-3 sm:mb-4 flex-shrink-0">
-                                <img id="profile-img-preview" src="https://media.licdn.com/dms/image/v2/D5603AQGMKMHR2c6JCw/profile-displayphoto-crop_800_800/B56aGpbTKkGgAI-/0/1793843870547?e=1795651200&v=beta&t=5Z52-AQFDjJrHm0i_2vi1Ikti8jNiOmmdCPGpPZZ4mg" alt="Aayam Shrestha" class="w-full h-full object-cover">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 border-2 border-sky-500/40 shadow-md mb-3 sm:mb-4 flex-shrink-0 relative">
+                                <img id="profile-img-preview" src="./profile.jpg" onerror="handleProfileImgError(this)" alt="Aayam Shrestha" class="w-full h-full object-cover object-center">
                             </div>
                             
                             <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Aayam Shrestha</h1>
@@ -173,7 +173,7 @@
             <div class="flex items-center justify-between pb-4 border-b border-slate-200 flex-wrap gap-4">
                 <div class="flex items-center gap-3.5">
                     <div class="relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 border-2 border-sky-500/50 shadow-md flex-shrink-0">
-                        <img src="https://media.licdn.com/dms/image/v2/D5603AQGMKMHR2c6JCw/profile-displayphoto-crop_800_800/B56aGpbTKkGgAI-/0/1793843870547?e=1795651200&v=beta&t=5Z52-AQFDjJrHm0i_2vi1Ikti8jNiOmmdCPGpPZZ4mg" alt="Aayam Shrestha" class="w-full h-full object-cover">
+                        <img src="./profile.jpg" onerror="handleProfileImgError(this)" alt="Aayam Shrestha" class="w-full h-full object-cover object-center">
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
@@ -698,6 +698,39 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // ================= PROFILE IMAGE FALLBACK HANDLER =================
+        const PROFILE_FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0284c7"/>
+                        <stop offset="100%" stop-color="#0f172a"/>
+                    </linearGradient>
+                </defs>
+                <rect width="200" height="200" fill="url(#bg)"/>
+                <circle cx="100" cy="76" r="34" fill="#e0f2fe" opacity="0.92"/>
+                <path d="M42 178c6-34 30-52 58-52s52 18 58 52" fill="#e0f2fe" opacity="0.92"/>
+                <text x="100" y="190" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#7dd3fc">AS • IOE</text>
+            </svg>`
+        );
+
+        function handleProfileImgError(imgEl) {
+            if (!imgEl) return;
+            const step = parseInt(imgEl.dataset.fallbackStep || '0', 10);
+            const fallbackSources = [
+                './profile.png',
+                './assets/profile.jpg',
+                'https://unavatar.io/linkedin/aayam-shrestha-824186448',
+                PROFILE_FALLBACK_SVG
+            ];
+            if (step < fallbackSources.length) {
+                imgEl.dataset.fallbackStep = String(step + 1);
+                imgEl.src = fallbackSources[step];
+            } else {
+                imgEl.onerror = null;
+            }
+        }
+
         // ================= ABOUT ME & OVERLAY CONTROLS =================
         function openAboutMeExperience() {
             const overlay = document.getElementById('about-me-overlay');
@@ -1533,11 +1566,19 @@
                         subnodes: []
                     },
                     {
-                        name: "Stirling's Formula n! ≈ √(2πn)(n/e)^n",
+                        name: "Stirling's Formula (n! ≈ √(2πn)(n/e)^n)",
                         prefix: "Stirling's Formula ",
-                        latex: "n! \\approx \\sqrt{2\\pi n}\\left(\\frac{n}{e}\\right)^n",
-                        keywords: "stirling's formula stirling approximation factorial asymptotic n! sqrt(2pi n)(n/e)^n gamma function combinatorics",
+                        latex: "n! \\sim \\sqrt{2\\pi n}\\left(\\frac{n}{e}\\right)^n",
+                        keywords: "stirling's formula stirling approximation factorial asymptotic n! sqrt(2 pi n) (n/e)^n gamma function combinatorics",
                         url: "./projects/Math/stirlings_formula.html",
+                        subnodes: []
+                    },
+                    {
+                        name: "Sophomore's Dream (∫_0^1 x^{-x} dx = ∑_{n=1}^∞ n^{-n})",
+                        prefix: "Sophomore's Dream ",
+                        latex: "\\int_0^1 x^{-x}\\,dx = \\sum_{n=1}^{\\infty} n^{-n}",
+                        keywords: "sophomore's dream integral from 0 to 1 of x^-x dx sum of n^-n bernoulli series gamma function",
+                        url: "./projects/Math/sophomores_dream.html",
                         subnodes: []
                     }
                 ]

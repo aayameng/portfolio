@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive PDF Viewer</title>
+
+  <!-- Load Inter font and Tailwind CSS CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Load PDF.js cleanly with reliable multi-CDN fallback -->
+  <script>
+    (function () {
+      const sources = [
+        {
+          lib: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+          worker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+        },
+        {
+          lib: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          worker: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+        },
+        {
+          lib: 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js',
+          worker: 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+        },
+      ];
+
+      function attachLib(workerUrl) {
+        const lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+        if (lib && typeof lib.getDocument === 'function') {
+          try {
+            if (lib.GlobalWorkerOptions) {
+              lib.GlobalWorkerOptions.workerSrc = workerUrl;
+            }
+          } catch (e) {
+            console.warn('Could not set PDF.js workerSrc:', e);
+          }
+          window.pdfjsLib = lib;
+          window.__pdfjsWorkerUrl = workerUrl;
+          window.__pdfjsReady = true;
+          return true;
+        }
+        return false;
+      }
+
+      function tryLoadSource(index) {
+        if (window.pdfjsLib && typeof window.pdfjsLib.getDocument === 'function') {
+          window.__pdfjsReady = true;
+          return;
+        }
+        if (index >= sources.length) {
+          window.__pdfjsReady = true;
+          window.__pdfjsFailed = true;
+          return;
+        }
+        const current = sources[index];
+        const script = document.createElement('script');
+        script.src = current.lib;
+        script.async = true;
+        script.onload = function () {
+          if (!attachLib(current.worker)) {
+            tryLoadSource(index + 1);
+          }
+        };
+        script.onerror = function () {
+          tryLoadSource(index + 1);
+        };
+        document.head.appendChild(script);
+      }
+
+      tryLoadSource(0);
+    })();
+  </script>
+
+  <!-- Configure Tailwind to use Inter and system-aware styling -->
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          boxShadow: {
+            'doc': '0 12px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(15, 23, 42, 0.06)',
+            'float': '0 8px 24px -6px rgba(15, 23, 42, 0.08)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Subtle custom scrollbar for smooth document reading */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.65);
+    }
+
+    @keyframes setCompleteCardIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.84);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes setCompleteRingPulse {
+      0% {
+        transform: scale(0.82);
+        opacity: 0.75;
+      }
+      100% {
+        transform: scale(1.65);
+        opacity: 0;
+      }
+    }
+
+    @keyframes setCompleteHaloFloat {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    @keyframes setCompleteCheckPop {
+      0% {
+        transform: scale(0.35) rotate(-14deg);
+        opacity: 0;
+      }
+      65% {
+        transform: scale(1.12) rotate(3deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .set-complete-card-anim {
+      animation: setCompleteCardIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .set-complete-ring-anim {
+      animation: setCompleteRingPulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .set-complete-ring-anim-delayed {
+      animation: setCompleteRingPulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s infinite;
+    }
+
+    .set-complete-halo-anim {
+      animation: setCompleteHaloFloat 2.4s ease-in-out infinite;
+    }
+
+    .set-complete-check-anim {
+      animation: setCompleteCheckPop 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+    }
+
+    /* Animated Hydration (5m) & Break (30m) Reminder Keyframes */
+    @keyframes reminderOverlayIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes reminderCardIn {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes reminderCardOut {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.94);
+      }
+    }
+
+    @keyframes waterRippleExpand {
+      0% {
+        transform: scale(0.75);
+        opacity: 0.75;
+      }
+      100% {
+        transform: scale(1.75);
+        opacity: 0;
+      }
+    }
+
+    @keyframes waterDropletBob {
+      0%, 100% {
+        transform: translateY(0px) scale(1);
+      }
+      50% {
+        transform: translateY(-5px) scale(1.04);
+      }
+    }
+
+    @keyframes waterWaveFlow {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes waterBubbleRise {
+      0% {
+        transform: translateY(6px) scale(0.6);
+        opacity: 0;
+      }
+      40% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: translateY(-14px) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes breakBreatheAura {
+      0%, 100% {
+        transform: scale(0.88);
+        opacity: 0.45;
+      }
+      50% {
+        transform: scale(1.38);
+        opacity: 0.15;
+      }
+    }
+
+    @keyframes breakRaysSpin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes breakIconFloat {
+      0%, 100% {
+        transform: translateY(0px) rotate(-2deg);
+      }
+      50% {
+        transform: translateY(-5px) rotate(2deg);
+      }
+    }
+
+    .reminder-overlay-in {
+      animation: reminderOverlayIn 0.28s ease-out forwards;
+    }
+
+    .reminder-card-in {
+      animation: reminderCardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .reminder-card-out {
+      animation: reminderCardOut 0.24s ease-in forwards;
+    }
+
+    .water-ripple-1 {
+      animation: waterRippleExpand 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .water-ripple-2 {
+      animation: waterRippleExpand 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.75s infinite;
+    }
+
+    .water-droplet-bob {
+      animation: waterDropletBob 2.6s ease-in-out infinite;
+    }
+
+    .water-wave-flow {
+      animation: waterWaveFlow 2.4s linear infinite;
+    }
+
+    .water-bubble-1 {
+      animation: waterBubbleRise 2s ease-in-out infinite;
+    }
+
+    .water-bubble-2 {
+      animation: waterBubbleRise 2.4s ease-in-out 0.8s infinite;
+    }
+
+    .break-breathe-aura {
+      animation: breakBreatheAura 4.2s ease-in-out infinite;
+    }
+
+    .break-rays-spin {
+      animation: breakRaysSpin 16s linear infinite;
+    }
+
+    .break-icon-float {
+      animation: breakIconFloat 3s ease-in-out infinite;
+    }
+
+    #page-wrapper {
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
+</head>
+<body class="min-h-screen w-full overflow-x-hidden bg-white text-slate-900 antialiased selection:bg-indigo-500/20 selection:text-indigo-600">
+  <!-- Top-Right Back Symbol Button (redirects to "/" on home/upload view, returns to upload view on PDF page) -->
+  <button
+    id="top-right-back-btn"
+    type="button"
+    title="Back"
+    aria-label="Back"
+    class="fixed top-2.5 right-3 z-[100] w-9 h-9 rounded-full bg-white/95 hover:bg-slate-100 active:scale-95 text-slate-800 border border-slate-200 shadow-sm flex items-center justify-center transition cursor-pointer touch-manipulation select-none"
+  >
+    <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  <!-- Main Application Shell -->
+  <div id="viewer-app" class="min-h-screen w-full flex flex-col bg-white">
+    <!-- Hidden Legacy Header Elements kept in DOM for state sync -->
+    <header class="hidden" aria-hidden="true">
+      <h1 id="doc-title">PDF Viewer</h1>
+      <p id="doc-meta"></p>
+      <div id="doc-controls">
+        <button id="prev-page-btn" type="button"></button>
+        <input id="page-input" type="number" min="1" value="1" />
+        <span id="page-count">1</span>
+        <button id="next-page-btn" type="button"></button>
+        <button id="zoom-out-btn" type="button"></button>
+        <button id="zoom-reset-btn" type="button"><span id="zoom-label">100%</span></button>
+        <button id="zoom-in-btn" type="button"></button>
+      </div>
+      <button id="rotate-btn" type="button"></button>
+      <button id="fullscreen-btn" type="button"></button>
+      <button id="close-doc-btn" type="button"></button>
+    </header>
+
+    <!-- Non-blocking Floating Status / Error Banner -->
+    <div id="status-banner" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[110] max-w-lg w-[calc(100%-2rem)]">
+      <div class="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50/95 backdrop-blur px-4 py-3 text-sm text-rose-800 shadow-lg">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="status-message" class="truncate">Unable to load PDF document.</span>
+        </div>
+        <button id="dismiss-status-btn" type="button" class="text-rose-600 hover:text-rose-900 font-semibold text-xs cursor-pointer shrink-0">
+          Dismiss
+        </button>
+      </div>
+    </div>
+
+    <!-- Periodic Animated Study Reminder Overlay (5m Drink Water / 30m Take a Break) -->
+    <div
+      id="study-reminder-toast"
+      role="dialog"
+      aria-live="polite"
+      aria-labelledby="study-reminder-title"
+      class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[3px] reminder-overlay-in"
+    >
+      <div
+        id="study-reminder-card"
+        class="reminder-card-in relative w-full max-w-xs sm:max-w-sm rounded-3xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl p-6 flex flex-col items-center text-center gap-4 overflow-hidden"
+      >
+        <!-- Ambient Top Glow -->
+        <div
+          id="study-reminder-glow"
+          aria-hidden="true"
+          class="pointer-events-none absolute -top-16 inset-x-0 h-32 bg-gradient-to-b from-sky-400/20 to-transparent blur-xl"
+        ></div>
+
+        <!-- Animated Drink Water Visual (5 Minutes) -->
+        <div id="water-reminder-visual" class="hidden relative flex items-center justify-center w-24 h-24">
+          <span class="water-ripple-1 absolute inset-1 rounded-full border-2 border-sky-400/55" aria-hidden="true"></span>
+          <span class="water-ripple-2 absolute inset-1 rounded-full border border-cyan-400/45" aria-hidden="true"></span>
+          <div class="water-droplet-bob relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 text-white shadow-lg shadow-sky-500/30">
+            <svg class="w-9 h-9" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              <defs>
+                <clipPath id="droplet-clip">
+                  <path d="M18 4.5C18 4.5 8.5 15.1 8.5 22.2C8.5 27.45 12.75 31.5 18 31.5C23.25 31.5 27.5 27.45 27.5 22.2C27.5 15.1 18 4.5 18 4.5Z" />
+                </clipPath>
+              </defs>
+              <path
+                d="M18 4.5C18 4.5 8.5 15.1 8.5 22.2C8.5 27.45 12.75 31.5 18 31.5C23.25 31.5 27.5 27.45 27.5 22.2C27.5 15.1 18 4.5 18 4.5Z"
+                stroke="white"
+                stroke-width="2.2"
+                fill="rgba(255,255,255,0.16)"
+              />
+              <g clip-path="url(#droplet-clip)">
+                <path
+                  class="water-wave-flow"
+                  d="M0 20 Q 4.5 18, 9 20 T 18 20 T 27 20 T 36 20 T 45 20 T 54 20 V 34 H 0 Z"
+                  fill="rgba(255,255,255,0.45)"
+                />
+                <circle class="water-bubble-1" cx="15" cy="25" r="1.4" fill="white" />
+                <circle class="water-bubble-2" cx="21" cy="27" r="1.1" fill="white" />
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Animated Take a Break Visual (30 Minutes) -->
+        <div id="break-reminder-visual" class="hidden relative flex items-center justify-center w-24 h-24">
+          <span class="break-breathe-aura absolute inset-0 rounded-full bg-gradient-to-tr from-amber-300/60 via-orange-300/50 to-rose-300/60" aria-hidden="true"></span>
+          <svg class="break-rays-spin absolute inset-0 w-24 h-24 text-amber-400/55" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7" />
+          </svg>
+          <div class="break-icon-float relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/30">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="relative space-y-1">
+          <span
+            id="study-reminder-badge"
+            class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-sky-50 text-sky-700"
+          >
+            5 Minute Check-In
+          </span>
+          <h2 id="study-reminder-title" class="text-base sm:text-lg font-bold text-slate-900">
+            Time to Drink Water
+          </h2>
+          <p id="study-reminder-text" class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            Take a refreshing sip of water to stay hydrated and focused.
+          </p>
+        </div>
+
+        <button
+          id="dismiss-reminder-btn"
+          type="button"
+          class="relative w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer touch-manipulation"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+
+    <!-- Centered 5-Page Set Completion Animation Overlay -->
+    <div
+      id="five-page-celebration"
+      role="status"
+      aria-live="polite"
+      class="hidden fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-900/15 backdrop-blur-[2px] pointer-events-none"
+    >
+      <div class="set-complete-card-anim relative flex items-center justify-center w-32 h-32 rounded-full bg-white/95 shadow-2xl border border-emerald-100/90">
+        <span class="set-complete-ring-anim absolute inset-2 rounded-full border-2 border-emerald-400/55" aria-hidden="true"></span>
+        <span class="set-complete-ring-anim-delayed absolute inset-2 rounded-full border border-teal-400/40" aria-hidden="true"></span>
+        <div class="set-complete-halo-anim relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 text-white shadow-lg shadow-emerald-500/30">
+          <svg class="set-complete-check-anim h-10 w-10" fill="none" stroke="currentColor" stroke-width="2.75" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area: Soft Studio Dropzone or Rendered PDF Stage -->
+    <main id="viewer-stage" class="flex-1 w-full bg-white flex flex-col">
+      <!-- Step 1: Empty / Dropzone State on Soft Studio Backdrop -->
+      <div id="dropzone-view" class="flex-1 w-full min-h-screen overflow-y-auto flex items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-slate-50/70 via-white to-indigo-50/30">
+        <div
+          id="dropzone-card"
+          class="relative w-full max-w-md rounded-3xl border-2 border-dashed border-slate-200 hover:border-indigo-400 bg-white/95 backdrop-blur-sm p-6 sm:p-8 flex flex-col items-stretch gap-6 transition-all duration-200 shadow-float"
+        >
+          <!-- Loading Overlay while reading/parsing an uploaded PDF -->
+          <div id="upload-loader" class="hidden absolute inset-0 z-20 rounded-3xl bg-white/90 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3">
+            <span class="w-8 h-8 rounded-full border-[3px] border-indigo-600 border-t-transparent animate-spin"></span>
+            <span class="text-xs font-medium text-slate-600">Opening PDF...</span>
+          </div>
+
+          <!-- Upload Drop Area -->
+          <div class="flex flex-col items-center gap-3.5 text-center pt-1">
+            <!-- Direct transparent file input overlay ensures instant native file picker across iOS, Android, WebViews, and Desktop -->
+            <div
+              id="upload-icon-box"
+              role="button"
+              tabindex="0"
+              title="Upload PDF"
+              aria-label="Upload PDF"
+              class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-indigo-50 via-indigo-100/70 to-violet-100/70 hover:from-indigo-100 hover:to-violet-100 active:scale-95 text-indigo-600 flex items-center justify-center ring-8 ring-indigo-50/60 shadow-sm transition cursor-pointer overflow-hidden"
+            >
+              <input
+                id="pdf-file-input"
+                type="file"
+                accept=".pdf,application/pdf,application/x-pdf"
+                aria-label="Choose PDF file"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <svg class="w-10 h-10 sm:w-11 sm:h-11 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </div>
+            <label for="pdf-file-input" id="upload-caption-trigger" class="block space-y-1 cursor-pointer select-none">
+              <span class="block text-base font-semibold text-slate-900">Upload a PDF to study</span>
+              <span class="block text-xs text-slate-500">Click here or drag &amp; drop a PDF file</span>
+            </label>
+          </div>
+
+          <!-- Session Range Inputs -->
+          <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div class="space-y-1.5">
+              <label for="start-page-input" class="block text-xs font-semibold text-slate-700">
+                Starting page
+              </label>
+              <input
+                id="start-page-input"
+                type="number"
+                min="1"
+                value="1"
+                aria-label="Starting page"
+                placeholder="1"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/80 focus:bg-white text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="pages-to-study-input" class="block text-xs font-semibold text-slate-700">
+                Pages to study
+              </label>
+              <input
+                id="pages-to-study-input"
+                type="number"
+                min="1"
+                value="5"
+                aria-label="Number of pages to study"
+                placeholder="5"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/80 focus:bg-white text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
+              />
+            </div>
+          </div>
+
+          <!-- Saved Textbooks List on Home Screen -->
+          <div id="textbooks-home-section" class="hidden w-full rounded-2xl bg-gradient-to-b from-slate-50/90 via-indigo-50/45 to-violet-50/40 border border-indigo-100/80 p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
+              <span>Textbooks</span>
+              <span id="textbooks-count-badge" class="px-2 py-0.5 rounded-full bg-indigo-100/80 text-indigo-700 text-[11px] font-semibold tabular-nums">0</span>
+            </div>
+            <div id="textbooks-list" class="space-y-2 max-h-56 overflow-y-auto pr-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Full-Viewport PDF Canvas and Minimal Bottom Navigation -->
+      <div id="canvas-view" class="hidden fixed inset-0 w-screen h-screen bg-white flex flex-col overflow-hidden">
+        <!-- Top Visual Sets Dots Strip -->
+        <div
+          id="top-sets-strip"
+          aria-label="Study Sets Progress"
+          class="relative w-full min-h-[42px] px-14 pt-3 pb-1.5 bg-white/95 flex items-center justify-center shrink-0 z-20"
+        >
+          <div
+            id="top-sets-track"
+            class="flex items-center justify-center gap-2 overflow-x-auto max-w-full py-1 px-2"
+          ></div>
+        </div>
+
+        <!-- Centered Rendered PDF Canvas Stage (supports horizontal & vertical scroll without swipe page flips) -->
+        <div id="page-wrapper" class="relative w-full flex-1 min-h-0 overflow-auto touch-pan-x touch-pan-y bg-white flex p-2 sm:p-4">
+          <!-- Loading Overlay during page render -->
+          <div id="render-loader" class="hidden absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
+            <div class="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white shadow border border-slate-200 text-xs font-medium text-slate-700">
+              <span class="w-3.5 h-3.5 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></span>
+              <span>Rendering page...</span>
+            </div>
+          </div>
+
+          <canvas id="pdf-canvas" class="block m-auto shrink-0 touch-pan-x touch-pan-y bg-white rounded-sm shadow-doc"></canvas>
+        </div>
+
+        <!-- Very Bottom Minimal Navigation, Zoom Controls, and Study Timer -->
+        <div
+          id="very-bottom-nav"
+          aria-label="Bottom Page Navigation"
+          class="relative shrink-0 z-30 grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 sm:px-5 py-2 bg-white/95 backdrop-blur-[2px] border-t border-slate-200/70"
+        >
+          <!-- Compact Zoom Out / Fit Reset / Zoom In Controls -->
+          <div class="justify-self-start inline-flex items-center gap-0.5 p-0.5 rounded-full bg-slate-100/80 border border-slate-200/70" aria-label="Zoom Controls">
+            <button
+              id="bottom-zoom-out-btn"
+              type="button"
+              aria-label="Zoom Out"
+              title="Zoom Out (-)"
+              class="w-7 h-7 rounded-full text-slate-600 hover:text-slate-900 hover:bg-white active:bg-slate-200 flex items-center justify-center transition cursor-pointer touch-manipulation"
+            >
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+              </svg>
+            </button>
+            <button
+              id="bottom-zoom-reset-btn"
+              type="button"
+              aria-label="Reset Zoom to Fit"
+              title="Fit Page (0)"
+              class="px-2 py-0.5 rounded-full text-[11px] font-semibold text-slate-700 hover:text-slate-900 hover:bg-white transition cursor-pointer tabular-nums select-none"
+            >
+              <span id="bottom-zoom-label">Fit</span>
+            </button>
+            <button
+              id="bottom-zoom-in-btn"
+              type="button"
+              aria-label="Zoom In"
+              title="Zoom In (+)"
+              class="w-7 h-7 rounded-full text-slate-600 hover:text-slate-900 hover:bg-white active:bg-slate-200 flex items-center justify-center transition cursor-pointer touch-manipulation"
+            >
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Prev / Studied Page Progress / Next -->
+          <div class="justify-self-center flex items-center justify-center gap-3 sm:gap-5">
+            <button
+              id="very-bottom-prev-btn"
+              type="button"
+              aria-label="Previous Page"
+              title="Previous Page"
+              class="p-2 rounded-full text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer touch-manipulation"
+            >
+              <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div class="flex flex-col items-center leading-tight select-none min-w-[54px]">
+              <span
+                id="studied-pages-count"
+                aria-label="Pages studied from starting page"
+                class="text-xs font-semibold text-slate-800 tabular-nums"
+              >
+                1
+              </span>
+              <span
+                id="bottom-page-indicator"
+                class="text-[10px] text-slate-400 tabular-nums"
+              >
+                1 / 1
+              </span>
+            </div>
+            <button
+              id="very-bottom-next-btn"
+              type="button"
+              aria-label="Next Page"
+              title="Next Page"
+              class="p-2 rounded-full text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer touch-manipulation"
+            >
+              <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Clickable Minimal Total Study Time Indicator (click to Pause / Resume) -->
+          <button
+            id="minimal-page-timer"
+            type="button"
+            title="Click to pause or resume study timer"
+            aria-label="Total study time"
+            class="justify-self-end shrink-0 px-2.5 py-1 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white/95 font-mono text-[11px] tracking-tight transition cursor-pointer select-none tabular-nums"
+          >
+            00:00
+          </button>
+        </div>
+
+        <!-- Responsive Side Drawer for 5-Page Selection Cards & Timer Controls -->
+        <div
+          id="page-sets-backdrop"
+          class="hidden fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-[1px] transition-opacity"
+          aria-hidden="true"
+        ></div>
+        <aside
+          id="page-sets-drawer"
+          aria-label="Page Selection Cards"
+          class="fixed top-0 right-0 z-50 h-full w-full max-w-sm sm:max-w-md bg-white border-l border-slate-200/90 shadow-2xl transform translate-x-full transition-transform duration-200 ease-out flex flex-col"
+        >
+          <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-100 shrink-0">
+            <div class="min-w-0">
+              <span class="block text-sm font-semibold text-slate-900">Study Sets</span>
+              <span id="drawer-doc-name" class="block text-[11px] text-slate-400 truncate max-w-[240px]"></span>
+            </div>
+            <button
+              id="close-sets-drawer-btn"
+              type="button"
+              aria-label="Close Page Sets"
+              class="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Timer & Quick Actions inside Drawer -->
+          <div class="px-5 py-3 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between gap-2 shrink-0">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 font-mono text-sm font-semibold">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span id="study-timer-display">00:00</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button
+                id="timer-toggle-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 transition cursor-pointer"
+              >
+                Pause
+              </button>
+              <button
+                id="timer-reset-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-600 transition cursor-pointer"
+              >
+                Reset
+              </button>
+              <button
+                id="drawer-rotate-btn"
+                type="button"
+                title="Rotate 90°"
+                aria-label="Rotate 90 degrees"
+                class="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="page-sets-container" class="flex-1 overflow-y-auto p-4 sm:p-5">
+            <div id="page-set-buttons" class="grid grid-cols-1 gap-2.5"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- Application JavaScript -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'responsive_pdf_study_textbooks_v1';
+
+      // Application state for the PDF study sets flow
+      const state = {
+        pdfDoc: null,
+        fileName: '',
+        filePath: '',
+        step: 1, // 1: upload + starting page & pages to study, 3: 5-page sets + timer + canvas
+        currentPage: 1,
+        totalPages: 0,
+        zoom: 1.0,
+        fitToWidth: false,
+        fitFullPage: true,
+        baseFitScale: 1.0,
+        basePageWidth: 0,
+        basePageHeight: 0,
+        renderedScale: 0,
+        zoomRenderTimer: null,
+        zoomRafId: null,
+        rotation: 0,
+        rendering: false,
+        currentRenderTask: null,
+        pendingPage: null,
+        pendingZoomRerender: false,
+        rangeStart: 1,
+        rangeEnd: 1,
+        pageSets: [],
+        completedSets: {},
+        visitedPages: {},
+        activeSetIndex: 0,
+        rangeSetsDrawerOpen: false,
+        elapsedSeconds: 0,
+        timerRunning: false,
+        timerIntervalId: null,
+        lastTickAt: 0,
+        lastWaterReminderMinute: 0,
+        lastWalkReminderMinute: 0,
+        congratulatedSets: {},
+        textbooks: [],
+        textbookSearchQuery: '',
+        activeTextbookId: null,
+        pendingResumeBook: null,
+        pdfSourcesByKey: {},
+        pdfDocsByKey: {},
+      };
+
+      // Cache DOM references
+      const els = {
+        app: document.getElementById('viewer-app'),
+        docTitle: document.getElementById('doc-title'),
+        docMeta: document.getElementById('doc-meta'),
+        drawerDocName: document.getElementById('drawer-doc-name'),
+        docControls: document.getElementById('doc-controls'),
+        prevPageBtn: document.getElementById('prev-page-btn'),
+        nextPageBtn: document.getElementById('next-page-btn'),
+        veryBottomPrevBtn: document.getElementById('very-bottom-prev-btn'),
+        veryBottomNextBtn: document.getElementById('very-bottom-next-btn'),
+        studiedPagesCount: document.getElementById('studied-pages-count'),
+        bottomPageIndicator: document.getElementById('bottom-page-indicator'),
+        bottomZoomOutBtn: document.getElementById('bottom-zoom-out-btn'),
+        bottomZoomResetBtn: document.getElementById('bottom-zoom-reset-btn'),
+        bottomZoomLabel: document.getElementById('bottom-zoom-label'),
+        bottomZoomInBtn: document.getElementById('bottom-zoom-in-btn'),
+        topSetsRemaining: document.getElementById('top-sets-remaining'),
+        pageInput: document.getElementById('page-input'),
+        pageCount: document.getElementById('page-count'),
+        zoomInBtn: document.getElementById('zoom-in-btn'),
+        zoomOutBtn: document.getElementById('zoom-out-btn'),
+        zoomResetBtn: document.getElementById('zoom-reset-btn'),
+        zoomLabel: document.getElementById('zoom-label'),
+        rotateBtn: document.getElementById('rotate-btn'),
+        drawerRotateBtn: document.getElementById('drawer-rotate-btn'),
+        fullscreenBtn: document.getElementById('fullscreen-btn'),
+        closeDocBtn: document.getElementById('close-doc-btn'),
+        topRightBackBtn: document.getElementById('top-right-back-btn'),
+        fileInput: document.getElementById('pdf-file-input'),
+        uploadIconBox: document.getElementById('upload-icon-box'),
+        uploadCaptionTrigger: document.getElementById('upload-caption-trigger'),
+        dropzoneView: document.getElementById('dropzone-view'),
+        dropzoneCard: document.getElementById('dropzone-card'),
+        uploadLoader: document.getElementById('upload-loader'),
+        startPageInput: document.getElementById('start-page-input'),
+        pagesToStudyInput: document.getElementById('pages-to-study-input'),
+        textbooksHomeSection: document.getElementById('textbooks-home-section'),
+        textbooksSearchInput: null,
+        textbooksCountBadge: document.getElementById('textbooks-count-badge'),
+        textbooksList: document.getElementById('textbooks-list'),
+        canvasView: document.getElementById('canvas-view'),
+        topSetsStrip: document.getElementById('top-sets-strip'),
+        topSetsTrack: document.getElementById('top-sets-track'),
+        closeSetsDrawerBtn: document.getElementById('close-sets-drawer-btn'),
+        pageSetsBackdrop: document.getElementById('page-sets-backdrop'),
+        pageSetsDrawer: document.getElementById('page-sets-drawer'),
+        studyTimerDisplay: document.getElementById('study-timer-display'),
+        timerToggleBtn: document.getElementById('timer-toggle-btn'),
+        timerResetBtn: document.getElementById('timer-reset-btn'),
+        minimalPageTimer: document.getElementById('minimal-page-timer'),
+        studyReminderToast: document.getElementById('study-reminder-toast'),
+        studyReminderCard: document.getElementById('study-reminder-card'),
+        studyReminderGlow: document.getElementById('study-reminder-glow'),
+        waterReminderVisual: document.getElementById('water-reminder-visual'),
+        breakReminderVisual: document.getElementById('break-reminder-visual'),
+        studyReminderBadge: document.getElementById('study-reminder-badge'),
+        studyReminderTitle: document.getElementById('study-reminder-title'),
+        studyReminderText: document.getElementById('study-reminder-text'),
+        dismissReminderBtn: document.getElementById('dismiss-reminder-btn'),
+        fivePageCelebration: document.getElementById('five-page-celebration'),
+        pageSetsContainer: document.getElementById('page-sets-container'),
+        pageSetButtons: document.getElementById('page-set-buttons'),
+        pageWrapper: document.getElementById('page-wrapper'),
+        renderLoader: document.getElementById('render-loader'),
+        canvas: document.getElementById('pdf-canvas'),
+        statusBanner: document.getElementById('status-banner'),
+        statusMessage: document.getElementById('status-message'),
+        dismissStatusBtn: document.getElementById('dismiss-status-btn'),
+      };
+
+      const ctx = els.canvas ? els.canvas.getContext('2d') : null;
+
+      /**
+       * Waits for PDF.js to finish loading from CDN (or injects a fallback script if needed).
+       */
+      function waitForPdfJs(timeoutMs = 12000) {
+        return new Promise((resolve, reject) => {
+          const existing = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+          if (existing && typeof existing.getDocument === 'function') {
+            window.pdfjsLib = existing;
+            resolve(existing);
+            return;
+          }
+
+          const startedAt = Date.now();
+          let injectedBackup = false;
+
+          const intervalId = setInterval(() => {
+            const lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+            if (lib && typeof lib.getDocument === 'function') {
+              clearInterval(intervalId);
+              window.pdfjsLib = lib;
+              resolve(lib);
+              return;
+            }
+
+            if (!injectedBackup && (window.__pdfjsFailed || Date.now() - startedAt > 3500)) {
+              injectedBackup = true;
+              const backup = document.createElement('script');
+              backup.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+              backup.async = true;
+              backup.onload = () => {
+                const loaded = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+                if (loaded && loaded.GlobalWorkerOptions) {
+                  loaded.GlobalWorkerOptions.workerSrc =
+                    'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+                }
+              };
+              document.head.appendChild(backup);
+            }
+
+            if (Date.now() - startedAt >= timeoutMs) {
+              clearInterval(intervalId);
+              reject(new Error('PDF engine could not load. Please check your internet connection and retry.'));
+            }
+          }, 60);
+        });
+      }
+
+      /**
+       * Reads a File object into an ArrayBuffer with a FileReader fallback for older WebViews.
+       */
+      function readFileAsArrayBuffer(file) {
+        if (!file) {
+          return Promise.reject(new Error('No file was selected.'));
+        }
+        if (typeof file.arrayBuffer === 'function') {
+          return file.arrayBuffer().catch(() => readWithFileReader(file));
+        }
+        return readWithFileReader(file);
+      }
+
+      function readWithFileReader(file) {
+        return new Promise((resolve, reject) => {
+          try {
+            const reader = new FileReader();
+            reader.onload = () => {
+              if (reader.result instanceof ArrayBuffer) {
+                resolve(reader.result);
+              } else {
+                reject(new Error('Unable to read PDF file contents.'));
+              }
+            };
+            reader.onerror = () => {
+              reject(new Error('Failed to read the selected file from your device.'));
+            };
+            reader.readAsArrayBuffer(file);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      }
+
+      /**
+       * Checks whether raw bytes look like a PDF document (supports leading whitespace/BOM).
+       */
+      function looksLikePdfBytes(bytes) {
+        if (!bytes || bytes.length < 5) return false;
+        const scanLen = Math.min(bytes.length, 1024);
+        let headerText = '';
+        for (let i = 0; i < scanLen; i += 1) {
+          headerText += String.fromCharCode(bytes[i]);
+        }
+        return headerText.indexOf('%PDF-') !== -1;
+      }
+
+      /**
+       * Loads saved textbook metadata from localStorage safely.
+       */
+      function loadSavedTextbooksFromStorage() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (err) {
+          console.warn('Could not read saved textbooks:', err);
+          return [];
+        }
+      }
+
+      /**
+       * Saves lightweight textbook metadata (never raw PDF bytes) to localStorage.
+       */
+      function saveTextbooksToStorage() {
+        try {
+          const sanitized = (Array.isArray(state.textbooks) ? state.textbooks : [])
+            .slice(0, 25)
+            .map((b) => ({
+              id: b.id,
+              title: b.title,
+              filePath: b.filePath,
+              totalPages: b.totalPages || 0,
+              startPage: b.startPage || 1,
+              pagesToStudy: b.pagesToStudy || 5,
+              lastReadPage: b.lastReadPage || b.startPage || 1,
+              studiedPages: b.studiedPages || 0,
+              elapsedSeconds: b.elapsedSeconds || 0,
+              updatedAt: b.updatedAt || Date.now(),
+            }));
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+        } catch (err) {
+          console.warn('Could not persist saved textbooks:', err);
+        }
+      }
+
+      /**
+       * Displays a non-blocking status/error banner message.
+       */
+      function showStatus(msg) {
+        if (!els.statusBanner || !els.statusMessage) return;
+        els.statusMessage.textContent = msg || 'Unable to load PDF document.';
+        els.statusBanner.classList.remove('hidden');
+      }
+
+      /**
+       * Hides the status/error banner.
+       */
+      function hideStatus() {
+        if (!els.statusBanner) return;
+        els.statusBanner.classList.add('hidden');
+      }
+
+      /**
+       * Shows or hides the upload spinner overlay on the dropzone card.
+       */
+      function setUploadLoading(isLoading) {
+        if (!els.uploadLoader) return;
+        if (isLoading) {
+          els.uploadLoader.classList.remove('hidden');
+        } else {
+          els.uploadLoader.classList.add('hidden');
+        }
+      }
+
+      /**
+       * Shows or hides the page rendering spinner overlay on the canvas stage.
+       */
+      function setRenderLoading(isLoading) {
+        if (!els.renderLoader) return;
+        if (isLoading) {
+          els.renderLoader.classList.remove('hidden');
+        } else {
+          els.renderLoader.classList.add('hidden');
+        }
+      }
+
+      /**
+       * Formats elapsed seconds into MM:SS or HH:MM:SS.
+       */
+      function formatDuration(totalSeconds) {
+        const sec = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+        const hours = Math.floor(sec / 3600);
+        const minutes = Math.floor((sec % 3600) / 60);
+        const seconds = sec % 60;
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        if (hours > 0) {
+          return `${String(hours).padStart(2, '0')}:${mm}:${ss}`;
+        }
+        return `${mm}:${ss}`;
+      }
+
+      /**
+       * Computes a responsive scale factor for fitting a PDF page inside the viewport stage
+       * or applying user-requested zoom levels smoothly.
+       */
+      function computeScale(page) {
+        if (!page || typeof page.getViewport !== 'function') {
+          return state.zoom || 1.0;
+        }
+
+        const unscaled = page.getViewport({ scale: 1, rotation: state.rotation || 0 });
+        const pageW = Math.max(1, unscaled.width);
+        const pageH = Math.max(1, unscaled.height);
+        state.basePageWidth = pageW;
+        state.basePageHeight = pageH;
+
+        const wrapperRect = els.pageWrapper ? els.pageWrapper.getBoundingClientRect() : null;
+        const availW = Math.max(200, (wrapperRect && wrapperRect.width ? wrapperRect.width : window.innerWidth) - 24);
+        const availH = Math.max(200, (wrapperRect && wrapperRect.height ? wrapperRect.height : window.innerHeight - 96) - 24);
+
+        const fitScale = Math.max(0.3, Math.min(3.5, Math.min(availW / pageW, availH / pageH)));
+        state.baseFitScale = fitScale;
+
+        if (state.fitFullPage) {
+          state.zoom = 1.0;
+          return Number(fitScale.toFixed(4));
+        }
+
+        const multiplier = Math.max(0.5, Math.min(4.0, Number(state.zoom) || 1.0));
+        return Number((fitScale * multiplier).toFixed(4));
+      }
+
+      /**
+       * Updates zoom readout labels in the bottom bar and legacy header.
+       */
+      function updateZoomUI() {
+        const pct = Math.round((state.fitFullPage ? 1 : (state.zoom || 1)) * 100);
+        if (els.bottomZoomLabel) {
+          els.bottomZoomLabel.textContent = state.fitFullPage ? 'Fit' : `${pct}%`;
+        }
+        if (els.zoomLabel) {
+          els.zoomLabel.textContent = `${pct}%`;
+        }
+      }
+
+      /**
+       * Applies smooth, glitch-free focal zoom: updates CSS dimensions instantaneously at 60fps
+       * and debounces high-DPI offscreen PDF.js re-rasterization so the canvas never flashes.
+       */
+      function setZoomLevel(nextZoom, options = {}) {
+        const clamped = Math.max(0.5, Math.min(4.0, Number(nextZoom) || 1.0));
+        const isFit = Boolean(options.fit) || Math.abs(clamped - 1.0) < 0.015;
+
+        const prevScale =
+          (state.baseFitScale || 1) * (state.fitFullPage ? 1.0 : (state.zoom || 1.0));
+
+        state.fitFullPage = isFit;
+        state.fitToWidth = false;
+        state.zoom = isFit ? 1.0 : clamped;
+        updateZoomUI();
+
+        if (!state.pdfDoc || !els.canvas || !els.pageWrapper || !state.basePageWidth || !state.basePageHeight) {
+          if (state.pdfDoc) {
+            renderPage(state.currentPage);
+          }
+          return;
+        }
+
+        const nextScale = (state.baseFitScale || 1) * (state.fitFullPage ? 1.0 : state.zoom);
+        const ratio = prevScale > 0 ? nextScale / prevScale : 1;
+
+        const wrapper = els.pageWrapper;
+        const rect = wrapper.getBoundingClientRect();
+        const focalX = typeof options.focalX === 'number' ? options.focalX : rect.width / 2;
+        const focalY = typeof options.focalY === 'number' ? options.focalY : rect.height / 2;
+
+        const contentX = wrapper.scrollLeft + focalX;
+        const contentY = wrapper.scrollTop + focalY;
+
+        const newCssW = Math.max(1, Math.round(state.basePageWidth * nextScale));
+        const newCssH = Math.max(1, Math.round(state.basePageHeight * nextScale));
+
+        if (state.zoomRafId) {
+          cancelAnimationFrame(state.zoomRafId);
+        }
+
+        state.zoomRafId = requestAnimationFrame(() => {
+          state.zoomRafId = null;
+          els.canvas.style.width = `${newCssW}px`;
+          els.canvas.style.height = `${newCssH}px`;
+
+          if (isFit) {
+            wrapper.scrollLeft = 0;
+            wrapper.scrollTop = 0;
+          } else {
+            wrapper.scrollLeft = Math.max(0, contentX * ratio - focalX);
+            wrapper.scrollTop = Math.max(0, contentY * ratio - focalY);
+          }
+        });
+
+        clearTimeout(state.zoomRenderTimer);
+        state.zoomRenderTimer = setTimeout(() => {
+          if (state.pdfDoc && state.step === 3) {
+            renderPage(state.currentPage, { isZoomRefinement: true });
+          }
+        }, 160);
+      }
+
+      /**
+       * Returns a high-DPI supersampling multiplier bounded safely for desktop & mobile GPUs.
+       */
+      function getHighQualityRenderMultiplier(cssWidth, cssHeight) {
+        const deviceDpr = window.devicePixelRatio || 1;
+        const targetDpr = Math.min(3.0, Math.max(2.0, deviceDpr * 1.5));
+        const maxEdge = 4096;
+        const maxPixels = 12500000;
+
+        const edgeBound = Math.min(
+          maxEdge / Math.max(1, cssWidth),
+          maxEdge / Math.max(1, cssHeight)
+        );
+        const areaBound = Math.sqrt(
+          maxPixels / Math.max(1, cssWidth * cssHeight)
+        );
+
+        return Math.max(1, Math.min(targetDpr, edgeBound, areaBound));
+      }
+
+      /**
+       * Splits a page range [startPage, endPage] into sequential sets of up to 5 pages.
+       */
+      function buildFivePageSets(startPage, endPage) {
+        const sets = [];
+        const s = Math.max(1, parseInt(startPage, 10) || 1);
+        const e = Math.max(s, parseInt(endPage, 10) || s);
+
+        for (let cursor = s; cursor <= e; cursor += 5) {
+          const setEnd = Math.min(e, cursor + 4);
+          const pages = [];
+          for (let p = cursor; p <= setEnd; p += 1) {
+            pages.push(p);
+          }
+          sets.push({
+            start: cursor,
+            end: setEnd,
+            pages,
+          });
+        }
+        return sets;
+      }
+
+      /**
+       * Finds which 5-page study set contains a given page number, or -1 if outside sets.
+       */
+      function findSetIndexForPage(pageNum) {
+        const sets = Array.isArray(state.pageSets) ? state.pageSets : [];
+        for (let i = 0; i < sets.length; i += 1) {
+          if (pageNum >= sets[i].start && pageNum <= sets[i].end) {
+            return i;
+          }
+        }
+        return -1;
+      }
+
+      /**
+       * Updates timer readouts and toggle button label.
+       */
+      function updateTimerUI() {
+        const formatted = formatDuration(state.elapsedSeconds || 0);
+        if (els.studyTimerDisplay) {
+          els.studyTimerDisplay.textContent = formatted;
+        }
+        if (els.minimalPageTimer) {
+          els.minimalPageTimer.textContent = formatted;
+        }
+        if (els.timerToggleBtn) {
+          els.timerToggleBtn.textContent = state.timerRunning ? 'Pause' : 'Resume';
+        }
+      }
+
+      /**
+       * Pauses or resumes the active study timer.
+       */
+      function toggleStudyTimer() {
+        state.timerRunning = !state.timerRunning;
+        if (state.timerRunning) {
+          state.lastTickAt = Date.now();
+        }
+        updateTimerUI();
+      }
+
+      let reminderAutoCloseTimer = null;
+
+      /**
+       * Shows the animated 5-minute Drink Water reminder card.
+       */
+      function triggerWaterReminder() {
+        if (!els.studyReminderToast) return;
+        clearTimeout(reminderAutoCloseTimer);
+
+        if (els.waterReminderVisual) els.waterReminderVisual.classList.remove('hidden');
+        if (els.breakReminderVisual) els.breakReminderVisual.classList.add('hidden');
+        if (els.studyReminderGlow) {
+          els.studyReminderGlow.className =
+            'pointer-events-none absolute -top-16 inset-x-0 h-32 bg-gradient-to-b from-sky-400/25 to-transparent blur-xl';
+        }
+        if (els.studyReminderBadge) {
+          els.studyReminderBadge.className =
+            'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-sky-50 text-sky-700';
+          els.studyReminderBadge.textContent = '5 Minute Check-In';
+        }
+        if (els.studyReminderTitle) {
+          els.studyReminderTitle.textContent = 'Time to Drink Water';
+        }
+        if (els.studyReminderText) {
+          els.studyReminderText.textContent =
+            'Take a refreshing sip of water to stay hydrated and keep your focus sharp.';
+        }
+        if (els.dismissReminderBtn) {
+          els.dismissReminderBtn.className =
+            'relative w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer touch-manipulation';
+          els.dismissReminderBtn.textContent = 'Hydrated & Ready';
+        }
+        if (els.studyReminderCard) {
+          els.studyReminderCard.classList.remove('reminder-card-out');
+          void els.studyReminderCard.offsetWidth;
+          els.studyReminderCard.classList.add('reminder-card-in');
+        }
+
+        els.studyReminderToast.classList.remove('hidden');
+        reminderAutoCloseTimer = setTimeout(() => {
+          hideStudyReminder();
+        }, 9000);
+      }
+
+      /**
+       * Shows the animated 30-minute Take a Break reminder card.
+       */
+      function triggerBreakReminder() {
+        if (!els.studyReminderToast) return;
+        clearTimeout(reminderAutoCloseTimer);
+
+        if (els.waterReminderVisual) els.waterReminderVisual.classList.add('hidden');
+        if (els.breakReminderVisual) els.breakReminderVisual.classList.remove('hidden');
+        if (els.studyReminderGlow) {
+          els.studyReminderGlow.className =
+            'pointer-events-none absolute -top-16 inset-x-0 h-32 bg-gradient-to-b from-amber-400/25 to-transparent blur-xl';
+        }
+        if (els.studyReminderBadge) {
+          els.studyReminderBadge.className =
+            'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-amber-50 text-amber-700';
+          els.studyReminderBadge.textContent = '30 Minute Milestone';
+        }
+        if (els.studyReminderTitle) {
+          els.studyReminderTitle.textContent = 'Time to Take a Break';
+        }
+        if (els.studyReminderText) {
+          els.studyReminderText.textContent =
+            'Stand up, stretch your shoulders, and rest your eyes for a couple of minutes.';
+        }
+        if (els.dismissReminderBtn) {
+          els.dismissReminderBtn.className =
+            'relative w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer touch-manipulation';
+          els.dismissReminderBtn.textContent = 'Back to Studying';
+        }
+        if (els.studyReminderCard) {
+          els.studyReminderCard.classList.remove('reminder-card-out');
+          void els.studyReminderCard.offsetWidth;
+          els.studyReminderCard.classList.add('reminder-card-in');
+        }
+
+        els.studyReminderToast.classList.remove('hidden');
+        reminderAutoCloseTimer = setTimeout(() => {
+          hideStudyReminder();
+        }, 12000);
+      }
+
+      /**
+       * Smoothly dismisses the active reminder overlay.
+       */
+      function hideStudyReminder() {
+        clearTimeout(reminderAutoCloseTimer);
+        if (!els.studyReminderToast || els.studyReminderToast.classList.contains('hidden')) return;
+        if (els.studyReminderCard) {
+          els.studyReminderCard.classList.remove('reminder-card-in');
+          els.studyReminderCard.classList.add('reminder-card-out');
+        }
+        setTimeout(() => {
+          if (els.studyReminderToast) {
+            els.studyReminderToast.classList.add('hidden');
+          }
+          if (els.studyReminderCard) {
+            els.studyReminderCard.classList.remove('reminder-card-out');
+          }
+        }, 210);
+      }
+
+      /**
+       * Resets and optionally starts the study timer interval (with 5m water & 30m break reminders).
+       */
+      function resetStudyTimer(autoStart = true) {
+        if (state.timerIntervalId) {
+          clearInterval(state.timerIntervalId);
+          state.timerIntervalId = null;
+        }
+        state.elapsedSeconds = 0;
+        state.lastWaterReminderMinute = 0;
+        state.lastWalkReminderMinute = 0;
+        state.timerRunning = Boolean(autoStart);
+        state.lastTickAt = Date.now();
+        updateTimerUI();
+
+        state.timerIntervalId = setInterval(() => {
+          if (!state.timerRunning || state.step !== 3) {
+            state.lastTickAt = Date.now();
+            return;
+          }
+          const now = Date.now();
+          const prev = state.lastTickAt || now;
+          const deltaSec = Math.max(1, Math.floor((now - prev) / 1000));
+          state.lastTickAt = now;
+          state.elapsedSeconds = (state.elapsedSeconds || 0) + deltaSec;
+          updateTimerUI();
+
+          const elapsedMinutes = Math.floor(state.elapsedSeconds / 60);
+          if (
+            elapsedMinutes > 0 &&
+            elapsedMinutes % 30 === 0 &&
+            elapsedMinutes !== state.lastWalkReminderMinute
+          ) {
+            state.lastWalkReminderMinute = elapsedMinutes;
+            state.lastWaterReminderMinute = elapsedMinutes;
+            triggerBreakReminder();
+          } else if (
+            elapsedMinutes > 0 &&
+            elapsedMinutes % 5 === 0 &&
+            elapsedMinutes !== state.lastWaterReminderMinute
+          ) {
+            state.lastWaterReminderMinute = elapsedMinutes;
+            triggerWaterReminder();
+          }
+        }, 1000);
+      }
+
+      /**
+       * Renders minimal progress dots for each 5-page study set at the top of the reading screen.
+       */
+      function renderTopSetsStrip() {
+        if (!els.topSetsTrack) return;
+        const sets = Array.isArray(state.pageSets) ? state.pageSets : [];
+        els.topSetsTrack.innerHTML = '';
+
+        sets.forEach((setObj, idx) => {
+          const isDone = Boolean(state.completedSets && state.completedSets[idx]);
+          const isActive = idx === state.activeSetIndex;
+
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.title = `Set ${idx + 1}: Pages ${setObj.start}–${setObj.end}`;
+          dot.setAttribute('aria-label', `Study set ${idx + 1}, pages ${setObj.start} to ${setObj.end}`);
+          dot.className = `rounded-full transition-all duration-200 cursor-pointer shrink-0 touch-manipulation ${
+            isDone
+              ? isActive
+                ? 'w-5 h-2.5 bg-emerald-500 ring-2 ring-emerald-500/25'
+                : 'w-2.5 h-2.5 bg-emerald-500 hover:bg-emerald-600'
+              : isActive
+                ? 'w-5 h-2.5 bg-indigo-600 ring-2 ring-indigo-600/25'
+                : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+          }`;
+          dot.addEventListener('click', () => {
+            state.activeSetIndex = idx;
+            renderPage(setObj.start);
+          });
+          els.topSetsTrack.appendChild(dot);
+        });
+      }
+
+      /**
+       * Renders the set cards inside the optional slide-over drawer.
+       */
+      function renderDrawerSetCards() {
+        if (!els.pageSetButtons) return;
+        const sets = Array.isArray(state.pageSets) ? state.pageSets : [];
+        els.pageSetButtons.innerHTML = '';
+
+        sets.forEach((setObj, idx) => {
+          const isDone = Boolean(state.completedSets && state.completedSets[idx]);
+          const isActive = idx === state.activeSetIndex;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-left transition cursor-pointer ${
+            isDone
+              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+              : isActive
+                ? 'bg-indigo-50 border-indigo-300 text-indigo-950'
+                : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-800'
+          }`;
+          btn.innerHTML = `
+            <div>
+              <span class="block text-xs font-semibold">Set ${idx + 1}</span>
+              <span class="block text-[11px] text-slate-500">Pages ${setObj.start} – ${setObj.end}</span>
+            </div>
+            <span class="text-xs font-semibold ${isDone ? 'text-emerald-600' : 'text-indigo-600'}">
+              ${isDone ? 'Completed' : 'Open'}
+            </span>
+          `;
+          btn.addEventListener('click', () => {
+            state.activeSetIndex = idx;
+            closePageSetsDrawer();
+            renderPage(setObj.start);
+          });
+          els.pageSetButtons.appendChild(btn);
+        });
+      }
+
+      /**
+       * Closes the slide-over sets drawer if open.
+       */
+      function closePageSetsDrawer() {
+        state.rangeSetsDrawerOpen = false;
+        if (els.pageSetsDrawer) {
+          els.pageSetsDrawer.classList.add('translate-x-full');
+        }
+        if (els.pageSetsBackdrop) {
+          els.pageSetsBackdrop.classList.add('hidden');
+        }
+      }
+
+      /**
+       * Hides the 5-page set completion celebration overlay.
+       */
+      function hideFivePageCelebration() {
+        if (!els.fivePageCelebration) return;
+        els.fivePageCelebration.classList.add('hidden');
+      }
+
+      /**
+       * Briefly displays the animated completion badge when finishing a 5-page set.
+       */
+      function celebrateFivePageCompletion(setIdx, setObj) {
+        if (!els.fivePageCelebration || !setObj) return;
+        if (state.congratulatedSets && state.congratulatedSets[setIdx]) return;
+        if (!state.congratulatedSets) state.congratulatedSets = {};
+        state.congratulatedSets[setIdx] = true;
+
+        els.fivePageCelebration.classList.remove('hidden');
+        setTimeout(() => {
+          hideFivePageCelebration();
+        }, 1250);
+      }
+
+      /**
+       * Updates saved textbook progress metadata in memory and localStorage.
+       */
+      function upsertTextbookRecord(customRecord = null, skipHomeRender = false) {
+        if (!Array.isArray(state.textbooks)) {
+          state.textbooks = [];
+        }
+
+        if (customRecord && customRecord.id) {
+          const idx = state.textbooks.findIndex((b) => b.id === customRecord.id);
+          if (idx >= 0) {
+            state.textbooks[idx] = { ...state.textbooks[idx], ...customRecord };
+          } else {
+            state.textbooks.unshift(customRecord);
+          }
+          saveTextbooksToStorage();
+          if (!skipHomeRender) renderHomeTextbooks();
+          return;
+        }
+
+        if (!state.pdfDoc || !state.fileName) return;
+
+        const bookId = state.activeTextbookId || `${state.filePath || state.fileName}::${state.totalPages || 0}`;
+        state.activeTextbookId = bookId;
+
+        const existingIdx = state.textbooks.findIndex((b) => b.id === bookId);
+        const existing = existingIdx >= 0 ? state.textbooks[existingIdx] : null;
+        const startPage = state.rangeStart || (existing && existing.startPage) || 1;
+        const currentPage = state.currentPage || startPage;
+        const studiedPages = Math.max(
+          existing ? existing.studiedPages || 0 : 0,
+          Math.max(0, currentPage - startPage + 1)
+        );
+
+        const updatedRecord = {
+          id: bookId,
+          title: state.fileName,
+          filePath: state.filePath || state.fileName,
+          totalPages: state.totalPages || (existing && existing.totalPages) || 0,
+          startPage,
+          pagesToStudy:
+            (els.pagesToStudyInput && parseInt(els.pagesToStudyInput.value, 10)) ||
+            (existing && existing.pagesToStudy) ||
+            5,
+          lastReadPage: currentPage,
+          studiedPages,
+          elapsedSeconds: Math.max(existing ? existing.elapsedSeconds || 0 : 0, state.elapsedSeconds || 0),
+          updatedAt: Date.now(),
+        };
+
+        if (existingIdx >= 0) {
+          state.textbooks[existingIdx] = { ...existing, ...updatedRecord };
+        } else {
+          state.textbooks.unshift(updatedRecord);
+        }
+
+        saveTextbooksToStorage();
+        if (!skipHomeRender) {
+          renderHomeTextbooks();
+        }
+      }
+
+      /**
+       * Renders a crisp 2x thumbnail preview of page 1 for a textbook cover icon.
+       */
+      async function renderTextbookCoverThumbnail(pdfDoc, canvasEl) {
+        if (!pdfDoc || !canvasEl || typeof pdfDoc.getPage !== 'function') return;
+        try {
+          const page = await pdfDoc.getPage(1);
+          const unscaled = page.getViewport({ scale: 1, rotation: 0 });
+          const targetW = 44;
+          const targetH = 58;
+          const scale = Math.min(targetW / Math.max(1, unscaled.width), targetH / Math.max(1, unscaled.height));
+          const dpr = 2;
+          const viewport = page.getViewport({ scale: scale * dpr, rotation: 0 });
+          const drawW = Math.max(1, Math.round(viewport.width / dpr));
+          const drawH = Math.max(1, Math.round(viewport.height / dpr));
+
+          canvasEl.width = Math.max(1, Math.round(viewport.width));
+          canvasEl.height = Math.max(1, Math.round(viewport.height));
+          canvasEl.style.width = `${drawW}px`;
+          canvasEl.style.height = `${drawH}px`;
+
+          const thumbCtx = canvasEl.getContext('2d');
+          if (!thumbCtx) return;
+          thumbCtx.imageSmoothingEnabled = true;
+          thumbCtx.imageSmoothingQuality = 'high';
+          thumbCtx.fillStyle = '#ffffff';
+          thumbCtx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+          await page.render({ canvasContext: thumbCtx, viewport }).promise;
+          if (typeof page.cleanup === 'function') {
+            page.cleanup();
+          }
+        } catch (thumbErr) {
+          console.warn('Could not render cover thumbnail:', thumbErr);
+        }
+      }
+
+      /**
+       * Opens a saved textbook using the Starting page and Number of pages to study inputs (or saved defaults).
+       */
+      function openSavedTextbook(book) {
+        if (!book) return;
+
+        const inputStartRaw = els.startPageInput ? parseInt(els.startPageInput.value, 10) : NaN;
+        const inputCountRaw = els.pagesToStudyInput ? parseInt(els.pagesToStudyInput.value, 10) : NaN;
+
+        const fallbackStart = Math.max(1, parseInt(book.lastReadPage || book.startPage || 1, 10) || 1);
+        const startPage = !Number.isNaN(inputStartRaw) && inputStartRaw >= 1 ? inputStartRaw : fallbackStart;
+        const pagesToStudy =
+          !Number.isNaN(inputCountRaw) && inputCountRaw >= 1
+            ? inputCountRaw
+            : Math.max(1, parseInt(book.pagesToStudy || 5, 10) || 5);
+
+        if (els.startPageInput) {
+          els.startPageInput.value = String(startPage);
+        }
+        if (els.pagesToStudyInput) {
+          els.pagesToStudyInput.value = String(pagesToStudy);
+        }
+
+        const cachedDoc = state.pdfDocsByKey && (state.pdfDocsByKey[book.id] || state.pdfDocsByKey[book.filePath]);
+        if (cachedDoc && typeof cachedDoc.getPage === 'function') {
+          activateLoadedPdfDocument(cachedDoc, book.title || 'Document.pdf', {
+            bookId: book.id,
+            filePath: book.filePath || book.title,
+            startPageOverride: startPage,
+            pagesToStudyOverride: pagesToStudy,
+          });
+          return;
+        }
+
+        const cachedBytes =
+          state.pdfSourcesByKey && (state.pdfSourcesByKey[book.id] || state.pdfSourcesByKey[book.filePath]);
+
+        if (cachedBytes && cachedBytes.byteLength > 0) {
+          loadPdfData(cachedBytes.slice(0), book.title || 'Document.pdf', {
+            bookId: book.id,
+            filePath: book.filePath || book.title,
+            startPageOverride: startPage,
+            pagesToStudyOverride: pagesToStudy,
+          });
+          return;
+        }
+
+        state.pendingResumeBook = {
+          ...book,
+          resumePage: startPage,
+          pagesToStudy,
+        };
+        if (els.fileInput) {
+          els.fileInput.click();
+        }
+      }
+
+      /**
+       * Renders saved textbook cards on the home screen with modern styling.
+       */
+      function renderHomeTextbooks() {
+        if (!els.textbooksHomeSection || !els.textbooksList) return;
+        const books = Array.isArray(state.textbooks) ? state.textbooks : [];
+
+        if (books.length === 0) {
+          els.textbooksHomeSection.classList.add('hidden');
+          els.textbooksList.innerHTML = '';
+          return;
+        }
+
+        els.textbooksHomeSection.classList.remove('hidden');
+
+        if (!els.textbooksSearchInput) {
+          const searchWrap = document.createElement('div');
+          searchWrap.className = 'relative';
+          searchWrap.innerHTML = `
+            <input
+              id="textbooks-search-input"
+              type="search"
+              placeholder="Search textbooks..."
+              aria-label="Search textbooks"
+              class="w-full px-3.5 py-2 rounded-xl border border-indigo-200/70 bg-white/85 focus:bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
+            />
+          `;
+          els.textbooksHomeSection.insertBefore(searchWrap, els.textbooksList);
+          els.textbooksSearchInput = document.getElementById('textbooks-search-input');
+          if (els.textbooksSearchInput) {
+            els.textbooksSearchInput.value = state.textbookSearchQuery || '';
+            els.textbooksSearchInput.addEventListener('input', (e) => {
+              state.textbookSearchQuery = (e.target && e.target.value) || '';
+              renderHomeTextbooks();
+            });
+          }
+        } else if (els.textbooksSearchInput.value !== (state.textbookSearchQuery || '')) {
+          els.textbooksSearchInput.value = state.textbookSearchQuery || '';
+        }
+
+        const query = (state.textbookSearchQuery || '').trim().toLowerCase();
+        const filteredBooks = query
+          ? books.filter((book) => {
+              const title = String(book.title || '').toLowerCase();
+              const path = String(book.filePath || '').toLowerCase();
+              return title.includes(query) || path.includes(query);
+            })
+          : books;
+
+        if (els.textbooksCountBadge) {
+          els.textbooksCountBadge.textContent = query
+            ? `${filteredBooks.length}/${books.length}`
+            : String(books.length);
+        }
+
+        els.textbooksList.innerHTML = '';
+
+        if (filteredBooks.length === 0) {
+          const emptySearch = document.createElement('p');
+          emptySearch.className = 'text-xs text-slate-400 text-center py-2';
+          emptySearch.textContent = 'No matching textbooks';
+          els.textbooksList.appendChild(emptySearch);
+          return;
+        }
+
+        filteredBooks.forEach((book) => {
+          const card = document.createElement('div');
+          card.role = 'button';
+          card.tabIndex = 0;
+          card.className =
+            'group w-full flex items-center gap-3 p-2.5 rounded-2xl border border-indigo-100/90 bg-gradient-to-r from-white via-indigo-50/55 to-violet-50/70 hover:from-indigo-50/80 hover:via-indigo-100/60 hover:to-violet-100/75 hover:border-indigo-300/80 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer text-left';
+
+          const coverWrap = document.createElement('div');
+          coverWrap.className =
+            'w-11 h-14 rounded-xl border border-indigo-200/70 bg-gradient-to-br from-indigo-50 to-violet-100/70 shadow-sm shrink-0 overflow-hidden flex items-center justify-center relative';
+
+          const cachedDoc =
+            (state.pdfDocsByKey && (state.pdfDocsByKey[book.id] || state.pdfDocsByKey[book.filePath])) || null;
+
+          if (cachedDoc) {
+            const thumbCanvas = document.createElement('canvas');
+            thumbCanvas.className = 'block w-full h-full object-cover';
+            coverWrap.appendChild(thumbCanvas);
+            renderTextbookCoverThumbnail(cachedDoc, thumbCanvas);
+          } else {
+            coverWrap.innerHTML = `
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            `;
+          }
+
+          const infoWrap = document.createElement('div');
+          infoWrap.className = 'flex-1 min-w-0';
+
+          const titleEl = document.createElement('p');
+          titleEl.className = 'text-xs font-semibold text-slate-800 group-hover:text-indigo-950 truncate transition-colors';
+          titleEl.textContent = book.title || 'Untitled PDF';
+
+          const metaEl = document.createElement('p');
+          metaEl.className = 'text-[11px] text-indigo-700/75 font-medium mt-0.5 truncate';
+          const latestPage = Math.max(1, parseInt(book.lastReadPage || book.startPage || 1, 10) || 1);
+          const totalLabel = book.totalPages ? ` of ${book.totalPages}` : '';
+          metaEl.textContent = `Latest page read: ${latestPage}${totalLabel}`;
+
+          infoWrap.appendChild(titleEl);
+          infoWrap.appendChild(metaEl);
+
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.title = 'Remove textbook';
+          removeBtn.setAttribute('aria-label', `Remove ${book.title || 'textbook'}`);
+          removeBtn.className =
+            'p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50/90 opacity-80 group-hover:opacity-100 transition cursor-pointer shrink-0';
+          removeBtn.innerHTML = `
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          `;
+          removeBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            state.textbooks = state.textbooks.filter((item) => item.id !== book.id);
+            saveTextbooksToStorage();
+            renderHomeTextbooks();
+          });
+
+          card.appendChild(coverWrap);
+          card.appendChild(infoWrap);
+          card.appendChild(removeBtn);
+
+          card.addEventListener('click', () => openSavedTextbook(book));
+          card.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault();
+              openSavedTextbook(book);
+            }
+          });
+
+          els.textbooksList.appendChild(card);
+        });
+      }
+
+      /**
+       * Updates bottom page indicator, studied pages count, and prev/next button states.
+       */
+      function updateNavigationUI() {
+        const current = state.currentPage || 1;
+        const total = state.totalPages || 1;
+        const studiedCount = Math.max(1, current - (state.rangeStart || 1) + 1);
+
+        if (els.studiedPagesCount) {
+          els.studiedPagesCount.textContent = String(studiedCount);
+        }
+        if (els.bottomPageIndicator) {
+          els.bottomPageIndicator.textContent = `${current} / ${total}`;
+        }
+        if (els.pageInput) {
+          els.pageInput.value = String(current);
+          els.pageInput.max = String(total);
+        }
+        if (els.pageCount) {
+          els.pageCount.textContent = String(total);
+        }
+        if (els.veryBottomPrevBtn) {
+          els.veryBottomPrevBtn.disabled = current <= 1;
+        }
+        if (els.veryBottomNextBtn) {
+          els.veryBottomNextBtn.disabled = current >= total;
+        }
+        if (els.prevPageBtn) {
+          els.prevPageBtn.disabled = current <= 1;
+        }
+        if (els.nextPageBtn) {
+          els.nextPageBtn.disabled = current >= total;
+        }
+      }
+
+      /**
+       * Marks the active page as visited and checks if its 5-page study set has been completed.
+       */
+      function recordPageStudyProgress(pageNum) {
+        if (!state.visitedPages) state.visitedPages = {};
+        state.visitedPages[pageNum] = true;
+
+        const setIdx = findSetIndexForPage(pageNum);
+        if (setIdx >= 0) {
+          state.activeSetIndex = setIdx;
+          const setObj = state.pageSets[setIdx];
+          if (setObj && Array.isArray(setObj.pages)) {
+            const allVisited = setObj.pages.every((p) => Boolean(state.visitedPages[p]));
+            if (allVisited && !state.completedSets[setIdx]) {
+              state.completedSets[setIdx] = true;
+              celebrateFivePageCompletion(setIdx, setObj);
+            }
+          }
+        }
+
+        renderTopSetsStrip();
+        renderDrawerSetCards();
+      }
+
+      /**
+       * Renders a PDF page onto an offscreen canvas first and swaps atomically onto #pdf-canvas
+       * so zooming and page transitions never flicker or glitch.
+       */
+      async function renderPage(pageNum, options = {}) {
+        if (!state.pdfDoc || !els.canvas || !ctx) return;
+
+        const total = state.totalPages || state.pdfDoc.numPages || 1;
+        const targetPage = Math.max(1, Math.min(total, parseInt(pageNum, 10) || 1));
+
+        if (state.rendering) {
+          state.pendingPage = targetPage;
+          if (options.isZoomRefinement) {
+            state.pendingZoomRerender = true;
+          }
+          return;
+        }
+
+        state.rendering = true;
+        state.currentPage = targetPage;
+        updateNavigationUI();
+        recordPageStudyProgress(targetPage);
+        upsertTextbookRecord(null, true);
+
+        if (!options.isZoomRefinement) {
+          setRenderLoading(true);
+        }
+
+        try {
+          const page = await state.pdfDoc.getPage(targetPage);
+          const scale = computeScale(page);
+          const cssViewport = page.getViewport({ scale, rotation: state.rotation || 0 });
+          const cssW = Math.max(1, Math.round(cssViewport.width));
+          const cssH = Math.max(1, Math.round(cssViewport.height));
+
+          const dpr = getHighQualityRenderMultiplier(cssW, cssH);
+          const renderViewport = page.getViewport({
+            scale: scale * dpr,
+            rotation: state.rotation || 0,
+          });
+
+          const offscreen = document.createElement('canvas');
+          offscreen.width = Math.max(1, Math.round(renderViewport.width));
+          offscreen.height = Math.max(1, Math.round(renderViewport.height));
+          const offCtx = offscreen.getContext('2d', { alpha: false });
+
+          offCtx.imageSmoothingEnabled = true;
+          offCtx.imageSmoothingQuality = 'high';
+          offCtx.fillStyle = '#ffffff';
+          offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+
+          const renderTask = page.render({
+            canvasContext: offCtx,
+            viewport: renderViewport,
+          });
+          state.currentRenderTask = renderTask;
+          await renderTask.promise;
+          state.currentRenderTask = null;
+
+          // Atomic swap onto visible canvas
+          els.canvas.width = offscreen.width;
+          els.canvas.height = offscreen.height;
+          els.canvas.style.width = `${cssW}px`;
+          els.canvas.style.height = `${cssH}px`;
+          ctx.drawImage(offscreen, 0, 0);
+          state.renderedScale = scale;
+
+          if (!options.isZoomRefinement && els.pageWrapper) {
+            els.pageWrapper.scrollTop = 0;
+            els.pageWrapper.scrollLeft = 0;
+          }
+
+          if (typeof page.cleanup === 'function') {
+            page.cleanup();
+          }
+        } catch (err) {
+          if (err && err.name !== 'RenderingCancelledException') {
+            console.error('Error rendering PDF page:', err);
+            showStatus('Could not render this page. Please try another page.');
+          }
+        } finally {
+          state.rendering = false;
+          setRenderLoading(false);
+
+          if (state.pendingPage !== null) {
+            const nextQueued = state.pendingPage;
+            const wasZoom = state.pendingZoomRerender;
+            state.pendingPage = null;
+            state.pendingZoomRerender = false;
+            renderPage(nextQueued, { isZoomRefinement: wasZoom });
+          }
+        }
+      }
+
+      /**
+       * Opens a PDF byte array using PDF.js with a fast timeout-guarded main-thread fallback
+       * so sandboxed iframes and strict mobile browsers never hang or fail on Web Workers.
+       */
+      async function openPdfWithFallback(pdfjsLib, rawBytes) {
+        const tryGetDoc = (disableWorker, timeoutMs) => {
+          return new Promise((resolve, reject) => {
+            let settled = false;
+            let loadingTask = null;
+
+            const timer = setTimeout(() => {
+              if (settled) return;
+              settled = true;
+              try {
+                if (loadingTask && typeof loadingTask.destroy === 'function') {
+                  loadingTask.destroy();
+                }
+              } catch (_) {
+                // Ignore cleanup errors on timed-out worker task
+              }
+              reject(new Error('PDF worker timed out'));
+            }, timeoutMs);
+
+            try {
+              // Always pass a fresh Uint8Array copy so worker transfer never detaches caller's buffer
+              const freshCopy = new Uint8Array(rawBytes.length);
+              freshCopy.set(rawBytes);
+
+              loadingTask = pdfjsLib.getDocument({
+                data: freshCopy,
+                disableWorker,
+                isEvalSupported: false,
+                useSystemFonts: true,
+              });
+
+              loadingTask.promise.then(
+                (doc) => {
+                  if (settled) return;
+                  settled = true;
+                  clearTimeout(timer);
+                  resolve(doc);
+                },
+                (err) => {
+                  if (settled) return;
+                  settled = true;
+                  clearTimeout(timer);
+                  reject(err);
+                }
+              );
+            } catch (syncErr) {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timer);
+              reject(syncErr);
+            }
+          });
+        };
+
+        // Sandboxed iframes frequently block cross-origin Web Workers; use in-thread mode directly if known
+        const isSandboxedFrame = (() => {
+          try {
+            return window.self !== window.top;
+          } catch (_) {
+            return true;
+          }
+        })();
+
+        if (window.__pdfjsDisableWorker || isSandboxedFrame) {
+          return tryGetDoc(true, 20000);
+        }
+
+        try {
+          return await tryGetDoc(false, 2500);
+        } catch (workerErr) {
+          console.warn('PDF.js worker mode unavailable, switching to direct mode:', workerErr);
+          window.__pdfjsDisableWorker = true;
+          return tryGetDoc(true, 20000);
+        }
+      }
+
+      /**
+       * Switches the UI into the active PDF reading stage for a loaded PDFDocumentProxy.
+       */
+      function activateLoadedPdfDocument(pdfDoc, fileName, options = {}) {
+        const totalPages = Math.max(1, pdfDoc.numPages || 1);
+        const rawStart =
+          typeof options.startPageOverride === 'number'
+            ? options.startPageOverride
+            : parseInt(els.startPageInput && els.startPageInput.value, 10) || 1;
+        const rawCount =
+          typeof options.pagesToStudyOverride === 'number'
+            ? options.pagesToStudyOverride
+            : parseInt(els.pagesToStudyInput && els.pagesToStudyInput.value, 10) || 5;
+
+        const startPage = Math.max(1, Math.min(totalPages, rawStart));
+        const pagesToStudy = Math.max(1, rawCount);
+        const endPage = Math.min(totalPages, startPage + pagesToStudy - 1);
+
+        if (els.startPageInput) els.startPageInput.value = String(startPage);
+        if (els.pagesToStudyInput) els.pagesToStudyInput.value = String(pagesToStudy);
+
+        const bookId = options.bookId || `${options.filePath || fileName}::${totalPages}`;
+
+        state.pdfDoc = pdfDoc;
+        state.fileName = fileName || 'Document.pdf';
+        state.filePath = options.filePath || fileName || 'Document.pdf';
+        state.activeTextbookId = bookId;
+        state.totalPages = totalPages;
+        state.currentPage = startPage;
+        state.rangeStart = startPage;
+        state.rangeEnd = endPage;
+        state.pageSets = buildFivePageSets(startPage, endPage);
+        state.completedSets = {};
+        state.visitedPages = {};
+        state.congratulatedSets = {};
+        state.activeSetIndex = 0;
+        state.fitFullPage = true;
+        state.fitToWidth = false;
+        state.zoom = 1.0;
+        state.rotation = 0;
+        state.step = 3;
+
+        if (!state.pdfDocsByKey) state.pdfDocsByKey = {};
+        state.pdfDocsByKey[bookId] = pdfDoc;
+        state.pdfDocsByKey[state.filePath] = pdfDoc;
+
+        if (els.docTitle) els.docTitle.textContent = state.fileName;
+        if (els.drawerDocName) els.drawerDocName.textContent = state.fileName;
+
+        // Transition views
+        if (els.dropzoneView) els.dropzoneView.classList.add('hidden');
+        if (els.canvasView) els.canvasView.classList.remove('hidden');
+
+        updateZoomUI();
+        renderTopSetsStrip();
+        renderDrawerSetCards();
+        resetStudyTimer(true);
+
+        upsertTextbookRecord(
+          {
+            id: bookId,
+            title: state.fileName,
+            filePath: state.filePath,
+            totalPages,
+            startPage,
+            pagesToStudy,
+            lastReadPage: startPage,
+            studiedPages: 1,
+            updatedAt: Date.now(),
+          },
+          true
+        );
+
+        renderPage(startPage);
+      }
+
+      /**
+       * Loads raw PDF binary data, parses it via PDF.js, caches the source bytes, and opens the viewer.
+       */
+      async function loadPdfData(arrayBufferOrUint8, fileName, options = {}) {
+        hideStatus();
+        setUploadLoading(true);
+
+        try {
+          const sourceBytes =
+            arrayBufferOrUint8 instanceof Uint8Array
+              ? arrayBufferOrUint8
+              : new Uint8Array(arrayBufferOrUint8);
+
+          if (!sourceBytes || sourceBytes.byteLength === 0) {
+            throw new Error('The selected PDF file is empty (0 bytes).');
+          }
+
+          if (!looksLikePdfBytes(sourceBytes)) {
+            throw new Error('The selected file is not a valid PDF document.');
+          }
+
+          const pdfjsLib = await waitForPdfJs();
+          const pdfDoc = await openPdfWithFallback(pdfjsLib, sourceBytes);
+
+          const totalPages = Math.max(1, pdfDoc.numPages || 1);
+          const filePath = options.filePath || fileName || 'Document.pdf';
+          const bookId = options.bookId || `${filePath}::${totalPages}`;
+
+          // Store an untouched copy in memory so reopening from Textbooks works instantly
+          const cachedCopy = new Uint8Array(sourceBytes.length);
+          cachedCopy.set(sourceBytes);
+          if (!state.pdfSourcesByKey) state.pdfSourcesByKey = {};
+          state.pdfSourcesByKey[bookId] = cachedCopy;
+          state.pdfSourcesByKey[filePath] = cachedCopy;
+
+          activateLoadedPdfDocument(pdfDoc, fileName, {
+            ...options,
+            bookId,
+            filePath,
+          });
+        } catch (err) {
+          console.error('Failed to open PDF:', err);
+          showStatus(
+            (err && err.message) ||
+              'Unable to open this PDF. It may be password-protected or corrupted.'
+          );
+        } finally {
+          setUploadLoading(false);
+        }
+      }
+
+      /**
+       * Handles a user-uploaded or dropped File object.
+       */
+      async function handleFileSelection(file) {
+        if (!file) return;
+        hideStatus();
+
+        const name = file.name || 'Document.pdf';
+        const mime = (file.type || '').toLowerCase();
+        const isLikelyPdf =
+          name.toLowerCase().endsWith('.pdf') ||
+          mime === 'application/pdf' ||
+          mime === 'application/x-pdf' ||
+          mime === '' ||
+          mime === 'application/octet-stream';
+
+        if (!isLikelyPdf) {
+          showStatus('Please choose a valid PDF (.pdf) file.');
+          return;
+        }
+
+        setUploadLoading(true);
+        try {
+          const buffer = await readFileAsArrayBuffer(file);
+          const pending = state.pendingResumeBook;
+          state.pendingResumeBook = null;
+
+          await loadPdfData(buffer, name, {
+            filePath: file.webkitRelativePath || name,
+            startPageOverride: pending ? pending.resumePage : undefined,
+            pagesToStudyOverride: pending ? pending.pagesToStudy : undefined,
+          });
+        } catch (err) {
+          setUploadLoading(false);
+          console.error('Error reading uploaded file:', err);
+          showStatus((err && err.message) || 'Could not read the selected PDF file.');
+        }
+      }
+
+      /**
+       * Returns from the PDF reading stage back to the home upload screen (saving progress).
+       */
+      function returnToHomeScreen() {
+        hideFivePageCelebration();
+        hideStudyReminder();
+        closePageSetsDrawer();
+
+        if (state.pdfDoc) {
+          upsertTextbookRecord(null, true);
+        }
+
+        if (state.timerIntervalId) {
+          clearInterval(state.timerIntervalId);
+          state.timerIntervalId = null;
+        }
+        state.timerRunning = false;
+        state.step = 1;
+
+        if (els.canvasView) els.canvasView.classList.add('hidden');
+        if (els.dropzoneView) els.dropzoneView.classList.remove('hidden');
+
+        renderHomeTextbooks();
+      }
+
+      /**
+       * Binds all interactive UI, keyboard, wheel, touch pinch, and drag-and-drop listeners.
+       */
+      function bindEventListeners() {
+        // 1. Native File Input Upload
+        if (els.fileInput) {
+          els.fileInput.addEventListener('change', (e) => {
+            const files = e.target && e.target.files;
+            const selected = files && files[0];
+            if (selected) {
+              handleFileSelection(selected);
+            }
+            // Reset input value so selecting the same file again still fires 'change'
+            try {
+              e.target.value = '';
+            } catch (_) {
+              // Ignore read-only value error in older browsers
+            }
+          });
+        }
+
+        // Keyboard activation on upload icon box
+        if (els.uploadIconBox) {
+          els.uploadIconBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              if (els.fileInput) els.fileInput.click();
+            }
+          });
+        }
+
+        // 2. Drag & Drop PDF anywhere onto window or dropzone card
+        ['dragenter', 'dragover'].forEach((evtName) => {
+          window.addEventListener(evtName, (e) => {
+            e.preventDefault();
+            if (els.dropzoneCard && state.step === 1) {
+              els.dropzoneCard.classList.add('border-indigo-500', 'bg-indigo-50/40', 'scale-[1.01]');
+            }
+          });
+        });
+
+        ['dragleave', 'drop'].forEach((evtName) => {
+          window.addEventListener(evtName, (e) => {
+            e.preventDefault();
+            if (els.dropzoneCard) {
+              els.dropzoneCard.classList.remove('border-indigo-500', 'bg-indigo-50/40', 'scale-[1.01]');
+            }
+          });
+        });
+
+        window.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          const file = dt && dt.files && dt.files[0];
+          if (file) {
+            handleFileSelection(file);
+          }
+        });
+
+        // 3. Top-right Back button
+        if (els.topRightBackBtn) {
+          els.topRightBackBtn.addEventListener('click', () => {
+            if (state.step === 3) {
+              returnToHomeScreen();
+            } else {
+              window.location.href = '/';
+            }
+          });
+        }
+
+        // 4. Bottom Navigation & Zoom Buttons
+        if (els.veryBottomPrevBtn) {
+          els.veryBottomPrevBtn.addEventListener('click', () => {
+            if (state.currentPage > 1) {
+              renderPage(state.currentPage - 1);
+            }
+          });
+        }
+        if (els.veryBottomNextBtn) {
+          els.veryBottomNextBtn.addEventListener('click', () => {
+            if (state.currentPage < state.totalPages) {
+              renderPage(state.currentPage + 1);
+            }
+          });
+        }
+        if (els.bottomZoomOutBtn) {
+          els.bottomZoomOutBtn.addEventListener('click', () => {
+            const current = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+            setZoomLevel(current - 0.25);
+          });
+        }
+        if (els.bottomZoomInBtn) {
+          els.bottomZoomInBtn.addEventListener('click', () => {
+            const current = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+            setZoomLevel(current + 0.25);
+          });
+        }
+        if (els.bottomZoomResetBtn) {
+          els.bottomZoomResetBtn.addEventListener('click', () => {
+            setZoomLevel(1.0, { fit: true });
+          });
+        }
+
+        // 5. Timer, Reminder, Status Banner, & Drawer controls
+        if (els.minimalPageTimer) {
+          els.minimalPageTimer.addEventListener('click', toggleStudyTimer);
+        }
+        if (els.timerToggleBtn) {
+          els.timerToggleBtn.addEventListener('click', toggleStudyTimer);
+        }
+        if (els.timerResetBtn) {
+          els.timerResetBtn.addEventListener('click', () => resetStudyTimer(true));
+        }
+        if (els.dismissStatusBtn) {
+          els.dismissStatusBtn.addEventListener('click', hideStatus);
+        }
+        if (els.dismissReminderBtn) {
+          els.dismissReminderBtn.addEventListener('click', hideStudyReminder);
+        }
+        if (els.closeSetsDrawerBtn) {
+          els.closeSetsDrawerBtn.addEventListener('click', closePageSetsDrawer);
+        }
+        if (els.pageSetsBackdrop) {
+          els.pageSetsBackdrop.addEventListener('click', closePageSetsDrawer);
+        }
+        if (els.drawerRotateBtn) {
+          els.drawerRotateBtn.addEventListener('click', () => {
+            state.rotation = ((state.rotation || 0) + 90) % 360;
+            renderPage(state.currentPage);
+          });
+        }
+
+        // 6. Smooth horizontal & vertical scrolling, drag-to-pan, and 60fps pinch/wheel zoom (no swipe page flips)
+        if (els.pageWrapper) {
+          let isMousePanning = false;
+          let panStartX = 0;
+          let panStartY = 0;
+          let panScrollLeft = 0;
+          let panScrollTop = 0;
+
+          els.pageWrapper.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || state.fitFullPage) return;
+            isMousePanning = true;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+            panScrollLeft = els.pageWrapper.scrollLeft;
+            panScrollTop = els.pageWrapper.scrollTop;
+            els.pageWrapper.style.cursor = 'grabbing';
+          });
+
+          window.addEventListener('mousemove', (e) => {
+            if (!isMousePanning || !els.pageWrapper) return;
+            const dx = e.clientX - panStartX;
+            const dy = e.clientY - panStartY;
+            els.pageWrapper.scrollLeft = panScrollLeft - dx;
+            els.pageWrapper.scrollTop = panScrollTop - dy;
+          });
+
+          window.addEventListener('mouseup', () => {
+            if (!isMousePanning) return;
+            isMousePanning = false;
+            if (els.pageWrapper) {
+              els.pageWrapper.style.cursor = '';
+            }
+          });
+
+          // Ctrl/Cmd + Wheel focal zoom
+          els.pageWrapper.addEventListener(
+            'wheel',
+            (e) => {
+              if (!e.ctrlKey && !e.metaKey) return;
+              e.preventDefault();
+              const rect = els.pageWrapper.getBoundingClientRect();
+              const focalX = e.clientX - rect.left;
+              const focalY = e.clientY - rect.top;
+              const current = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+              const factor = Math.exp(-e.deltaY * 0.004);
+              setZoomLevel(current * factor, { focalX, focalY });
+            },
+            { passive: false }
+          );
+
+          // Two-finger pinch zoom (single-finger horizontal/vertical scroll handled natively without page flips)
+          let pinchStartDist = 0;
+          let pinchStartZoom = 1.0;
+
+          const getTouchDistance = (touches) => {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.hypot(dx, dy);
+          };
+
+          els.pageWrapper.addEventListener(
+            'touchstart',
+            (e) => {
+              if (e.touches && e.touches.length === 2) {
+                pinchStartDist = getTouchDistance(e.touches);
+                pinchStartZoom = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+              }
+            },
+            { passive: true }
+          );
+
+          els.pageWrapper.addEventListener(
+            'touchmove',
+            (e) => {
+              if (e.touches && e.touches.length === 2 && pinchStartDist > 0) {
+                e.preventDefault();
+                const dist = getTouchDistance(e.touches);
+                const rect = els.pageWrapper.getBoundingClientRect();
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                const nextZoom = pinchStartZoom * (dist / pinchStartDist);
+                setZoomLevel(nextZoom, { focalX: midX, focalY: midY });
+              }
+            },
+            { passive: false }
+          );
+
+          els.pageWrapper.addEventListener(
+            'touchend',
+            (e) => {
+              if (!e.touches || e.touches.length < 2) {
+                pinchStartDist = 0;
+              }
+            },
+            { passive: true }
+          );
+        }
+
+        // 7. Keyboard navigation and zoom shortcuts
+        window.addEventListener('keydown', (e) => {
+          if (state.step !== 3) return;
+          const tag = (e.target && e.target.tagName) || '';
+          if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+          if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            if (state.fitFullPage && state.currentPage > 1) {
+              e.preventDefault();
+              renderPage(state.currentPage - 1);
+            }
+          } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+            if (state.fitFullPage && state.currentPage < state.totalPages) {
+              e.preventDefault();
+              renderPage(state.currentPage + 1);
+            }
+          } else if (e.key === '+' || e.key === '=') {
+            e.preventDefault();
+            const current = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+            setZoomLevel(current + 0.25);
+          } else if (e.key === '-') {
+            e.preventDefault();
+            const current = state.fitFullPage ? 1.0 : (state.zoom || 1.0);
+            setZoomLevel(current - 0.25);
+          } else if (e.key === '0') {
+            e.preventDefault();
+            setZoomLevel(1.0, { fit: true });
+          }
+        });
+
+        // 8. Responsive window resize re-fit
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+          if (state.step !== 3 || !state.pdfDoc) return;
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            renderPage(state.currentPage, { isZoomRefinement: true });
+          }, 150);
+        });
+      }
+
+      /**
+       * Initializes saved textbooks and binds all UI listeners.
+       */
+      function init() {
+        state.textbooks = loadSavedTextbooksFromStorage();
+        renderHomeTextbooks();
+        bindEventListeners();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

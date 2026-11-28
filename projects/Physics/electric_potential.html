@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Electrostatic Potential Scalar Surface: Interactive Guide</title>
+    <!-- Tailwind CSS for clean, responsive UI overlays -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <!-- MathJax (SVG output) for LaTeX in the guide -->
+    <script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' }, options: { enableMenu: false } };</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js r128 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/MaskPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <style>
+        /* Custom styles for full-viewport 3D canvas and smooth sliders */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            touch-action: none; /* Prevent default browser gestures on touch drag/pinch */
+        }
+
+        mjx-container[display] { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        #g-scroll { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+        /* Custom range sliders: filled track, round glowing thumb, value pill */
+        input.rng { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+        input.rng:focus { outline: none; }
+        input.rng::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg, #38bdf8 var(--p), #334155 var(--p)); box-shadow: inset 0 0 0 1px rgba(148,163,184,.18); }
+        input.rng::-moz-range-track { height: 6px; border-radius: 999px; background: #334155; }
+        input.rng::-moz-range-progress { height: 6px; border-radius: 999px; background: #38bdf8; }
+        input.rng::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; background: #f0f9ff; border: 3px solid #38bdf8; box-shadow: 0 0 0 4px rgba(56,189,248,.16), 0 2px 6px rgba(0,0,0,.5); transition: transform .12s ease, box-shadow .12s ease; }
+        input.rng::-moz-range-thumb { box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; background: #f0f9ff; border: 3px solid #38bdf8; box-shadow: 0 0 0 4px rgba(56,189,248,.16), 0 2px 6px rgba(0,0,0,.5); transition: transform .12s ease, box-shadow .12s ease; }
+        input.rng:hover::-webkit-slider-thumb { transform: scale(1.12); }
+        input.rng:active::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 0 0 7px rgba(56,189,248,.24), 0 2px 6px rgba(0,0,0,.5); }
+        input.rng:hover::-moz-range-thumb { transform: scale(1.12); }
+        input.rng:active::-moz-range-thumb { transform: scale(1.2); box-shadow: 0 0 0 7px rgba(56,189,248,.24), 0 2px 6px rgba(0,0,0,.5); }
+        input.rng:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(56,189,248,.38); }
+        input.rng:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 6px rgba(56,189,248,.38); }
+        input.rng:disabled { opacity: .4; cursor: not-allowed; }
+        .rng-val { min-width: 3.3rem; text-align: center; padding: .1rem .5rem; border-radius: 999px; background: rgba(14,165,233,.18); border: 1px solid rgba(56,189,248,.45); color: #bae6fd; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .dv-ov { display: block; font-size: .95rem; line-height: 1.75; color: #cbd5e1; }
+        .dv-ov p { margin: .5rem 0; }
+        .dv-ov b { color: #f0f9ff; }
+        .dv-ht { flex: 1; min-width: 0; line-height: 1.5; }
+        .dt-tt { flex: none; max-width: 70%; }
+        .dv-h mjx-container, .dt-t mjx-container { margin: 0 .1em !important; }
+        .dv-card p { font-size: .93rem; line-height: 1.75; color: #cbd5e1; }
+        mjx-container { color: inherit; }
+        mjx-container[jax="SVG"]:not([display]) { display: inline-block; vertical-align: baseline; }
+        mjx-container[jax="SVG"] > svg { max-width: none; }
+        mjx-container[display] { text-align: center; }
+        .dv-ov mjx-container[display], .dt-p mjx-container[display] { margin: .6rem 0 !important; padding: .5rem .4rem; border-radius: 10px; background: rgba(2,6,23,.6); border-left: 3px solid rgba(56,189,248,.7); }
+        .dv-card mjx-container[display] { font-size: 108%; }
+        .dv { counter-reset: s; margin-top: .9rem; }
+        .dv-topic { padding: .8rem 1rem; border-radius: 14px; border: 1px solid rgba(56,189,248,.45); background: linear-gradient(135deg, rgba(14,165,233,.22), rgba(99,102,241,.16)); }
+        .dv-topic small { display: block; font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; color: #7dd3fc; margin-bottom: .2rem; }
+        .dv-topic h3 { font-size: clamp(1rem, 3.6vw, 1.25rem); font-weight: 700; color: #f0f9ff; line-height: 1.25; }
+        .dv-card { margin-top: .7rem; padding: .75rem .9rem; border-radius: 14px; border: 1px solid rgba(100,116,139,.35); background: rgba(15,23,42,.65); }
+        .dv-card p { margin: .35rem 0; }
+        .dv-h { display: flex; align-items: center; gap: .6rem; font-size: .95rem; font-weight: 600; color: #e0f2fe; }
+        .dv-h::before { counter-increment: s; content: counter(s); flex: none; width: 1.65rem; height: 1.65rem; display: grid; place-items: center; border-radius: 999px; font-size: .78rem; color: #7dd3fc; background: rgba(14,165,233,.22); border: 1px solid rgba(56,189,248,.6); }
+        .dv-card mjx-container[display] { margin: .55rem 0 !important; padding: .5rem .4rem; border-radius: 10px; background: rgba(2,6,23,.6); border-left: 3px solid rgba(56,189,248,.7); }
+        .dv-res { border-color: rgba(251,191,36,.55); background: rgba(120,53,15,.2); }
+        .dv-res .dv-h::before { color: #fde68a; background: rgba(245,158,11,.25); border-color: rgba(251,191,36,.7); }
+        .dv-res mjx-container[display] { border-left-color: rgba(251,191,36,.8); }
+        body.film #poly-panel { display: none !important; }
+        /* Collapsible bottom dock: whole card folds down to one tiny symbol on the right */
+        .dock-top { display: flex; justify-content: flex-end; margin: -.2rem -.1rem -.35rem 0; }
+        .dock-toggle { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; padding: 0; border-radius: 999px; border: 1px solid rgba(100,116,139,.5); background: rgba(30,41,59,.85); color: #94a3b8; cursor: pointer; transition: color .15s, background .15s; -webkit-tap-highlight-color: transparent; }
+        .dock-toggle:hover { color: #e0f2fe; background: rgba(51,65,85,.95); }
+        .dock-toggle:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+        .dock-chev { transition: transform .2s ease; }
+        #g-dock.collapsed { left: auto !important; right: max(.75rem, env(safe-area-inset-right)); transform: none !important; width: auto !important; padding: .3rem; border-radius: 999px; }
+        #g-dock.collapsed > :not(.dock-top) { display: none !important; }
+        #g-dock.collapsed .dock-top { margin: 0; }
+        #g-dock.collapsed .dock-chev { transform: rotate(180deg); }
+        @media (prefers-reduced-motion: reduce) { .dock-chev { transition: none; } }
+        /* Top/Side view switcher: segmented control that works for touch and mouse */
+        .view-switch { top: max(.75rem, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: .25rem; padding: .25rem; border-radius: 1rem; background: rgba(15,23,42,.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(51,65,85,.7); box-shadow: 0 10px 25px rgba(0,0,0,.35); touch-action: manipulation; user-select: none; -webkit-user-select: none; max-width: calc(100vw - 7.5rem); }
+        .vbtn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.5rem; min-width: 2.75rem; padding: 0 .85rem; border-radius: .75rem; border: 1px solid rgba(51,65,85,.9); background: rgba(30,41,59,.9); color: #cbd5e1; font: 600 .8rem/1 Inter, sans-serif; white-space: nowrap; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: background .15s, color .15s, border-color .15s, transform .1s; }
+        .vbtn:hover { background: rgba(51,65,85,.95); }
+        .vbtn:active { transform: scale(.96); }
+        .vbtn:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+        .vbtn[aria-pressed="true"] { background: rgba(14,165,233,.28); border-color: rgba(56,189,248,.65); color: #e0f2fe; box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+        .vbtn svg { flex: none; }
+        @media (min-width: 640px) { .vbtn { padding: 0 1.1rem; font-size: .875rem; } .view-switch { top: max(1rem, env(safe-area-inset-top)); } }
+        @media (max-width: 380px) { .vlong { display: none; } .vbtn { padding: 0 .7rem; } }
+        @media (max-height: 480px) { .vbtn { min-height: 2.1rem; } }
+        @media (prefers-reduced-motion: reduce) { .vbtn { transition: none; } }
+        /* Details: lesson layout */
+        #g-mbody { counter-reset: p; }
+        .dt-hero { padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid rgba(56,189,248,.4); background: linear-gradient(135deg, rgba(14,165,233,.24), rgba(99,102,241,.2)); }
+        .dt-hero small { display: block; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: #7dd3fc; margin-bottom: .2rem; }
+        .dt-hero h3 { font-size: clamp(1.15rem, 4.6vw, 1.5rem); font-weight: 800; color: #f0f9ff; line-height: 1.2; }
+        .dt-hero p { margin-top: .45rem; color: #bae6fd; font-size: .95rem; line-height: 1.5; }
+        .dt-sec { margin-top: 1.3rem; }
+        .dt-t { display: flex; align-items: center; gap: .55rem; margin-bottom: .55rem; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7dd3fc; }
+        .dt-t::before { counter-increment: p; content: counter(p); flex: none; width: 1.4rem; height: 1.4rem; display: grid; place-items: center; border-radius: 999px; font-size: .72rem; letter-spacing: 0; color: #0c4a6e; background: #7dd3fc; }
+        .dt-t::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(56,189,248,.5), transparent); }
+        .dt-p { margin: .45rem 0; font-size: .95rem; line-height: 1.7; color: #cbd5e1; }
+        .dt-p b { color: #f0f9ff; }
+        .geo { padding: .75rem; border-radius: 14px; border: 1px solid rgba(100,116,139,.35); background: rgba(2,6,23,.55); }
+        .geo-svg { display: block; width: 100%; height: auto; max-height: 270px; }
+        .geo-read { margin-top: .6rem; min-height: 2.6em; text-align: center; font-size: .85rem; line-height: 1.45; color: #bae6fd; }
+        .dt-key { padding: .85rem 1rem; border-radius: 14px; border: 1px solid rgba(251,191,36,.55); background: rgba(120,53,15,.2); color: #fef3c7; text-align: center; font-size: 1rem; line-height: 1.6; }
+        .dt-key mjx-container { color: #fef3c7; }
+
+        /* Animate mode: cinematic overlays (captions, equations, vignette); hidden otherwise */
+        body.film > div.z-20 { display: none !important; }
+        body.film .nf { display: none !important; }
+        body:not(.film) #vig { display: none; }
+        #vig { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at 50% 42%, transparent 50%, rgba(3,6,14,.75) 100%), linear-gradient(to top, rgba(3,6,14,.8), transparent 40%); }
+        #veil { position: fixed; inset: 0; z-index: 25; background: #0b0f19; opacity: 0; pointer-events: none; }
+        #eq { position: fixed; left: 0; right: 0; bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 8.8rem); height: 0; z-index: 3; pointer-events: none; font-size: clamp(1.1rem, 3.6vw, 2.1rem); color: #f8fafc; }
+        #cap { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 5.6rem); width: min(92vw, 46rem); text-align: center; z-index: 3; pointer-events: none; font-size: clamp(.85rem, 2.5vw, 1.2rem); line-height: 1.35; color: #cbd5e1; text-shadow: 0 1px 12px rgba(0,0,0,.9); opacity: 0; transition: opacity .45s ease; }
+        .sc { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: .4em; }
+        .ln { opacity: 0; transform: translateY(14px); filter: blur(6px); transition: opacity 1.1s ease, transform 1.1s ease, filter 1.1s ease; }
+        .ln.on { opacity: 1; transform: none; filter: none; }
+        .ln.on.dim { opacity: .38; }
+        #eq mjx-container { margin: 0 !important; filter: drop-shadow(0 0 14px rgba(125,211,252,.5)); }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Three.js Canvas Container -->
+    <div id="canvas-container" aria-label="3D Electrostatic Potential Surface"></div>
+
+    <!-- Top View & Side View switcher (segmented control, safe-area aware) -->
+    <div id="view-switch" role="group" aria-label="Camera view" class="fixed z-20 view-switch">
+        <button id="top-view-btn" type="button" class="vbtn" aria-pressed="true">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="10" r="2.2" fill="currentColor"/></svg>
+            <span>Top<span class="vlong"> View</span></span>
+        </button>
+        <button id="side-view-btn" type="button" class="vbtn" aria-pressed="false">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M2.5 14.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 14c2.5 0 3-8 7-8s4.5 8 7 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Side<span class="vlong"> View</span></span>
+        </button>
+    </div>
+
+    <!-- Bottom dock: selected-charge bar on top, tools + guide controls below -->
+    <div id="g-dock" class="fixed left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 bg-slate-900/85 backdrop-blur-md border border-slate-700/70 p-2.5 rounded-2xl shadow-xl w-[94vw] max-w-2xl" style="bottom:max(1rem, env(safe-area-inset-bottom))">
+        <div class="nf dock-top"><button id="dock-toggle" type="button" aria-expanded="true" aria-controls="dock-rows" aria-label="Collapse controls" title="Collapse / expand controls" class="dock-toggle"><svg class="dock-chev" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+        <div id="sel-bar" class="nf hidden flex flex-col gap-1.5 px-3 py-2 rounded-xl bg-slate-800/80 border border-sky-400/40"><div class="flex items-center justify-between gap-2">
+            
+            <span class="text-xs font-semibold text-slate-300 whitespace-nowrap">Charge <span id="sel-label"></span><b id="sel-val" class="ml-1"></b></span>
+            <button id="sel-del" type="button" title="Delete selected charge (Del)" class="shrink-0 h-7 px-3 rounded-lg bg-rose-600/25 hover:bg-rose-600/40 active:scale-95 border border-rose-400/60 text-rose-200 text-xs font-semibold transition">&times; Delete</button></div>
+            <input id="sel-mag" type="range" min="0.2" max="4" step="0.1" value="1.8" aria-label="Magnitude of selected charge" class="rng">
+            
+        </div>
+        <div id="dock-rows" class="dock-rows"><div class="dock-rows-in">
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-x-4 gap-y-2">
+            <div class="nf flex flex-wrap items-center justify-center gap-2">
+                <span class="text-[10px] uppercase tracking-wider text-slate-500">Add</span>
+                <button id="add-pos-btn" type="button" aria-label="Positive charge" title="Positive charge" class="h-10 w-11 rounded-xl bg-rose-500/25 border border-rose-400/50 text-rose-200 text-xl font-bold leading-none transition">+</button>
+                <button id="add-neg-btn" type="button" aria-label="Negative charge" title="Negative charge" class="h-10 w-11 rounded-xl bg-blue-500/25 border border-blue-400/50 text-blue-200 text-xl font-bold leading-none transition">&minus;</button>
+                <button id="test-charge-btn" type="button" class="h-10 px-3 rounded-xl bg-amber-500/25 border border-amber-400/50 text-amber-200 text-xs sm:text-sm font-semibold transition">Test charge</button>
+                <button id="poly-btn" type="button" title="Arrange charges on the corners of a polygon" class="h-10 px-3 rounded-xl bg-violet-500/25 hover:bg-violet-500/35 active:scale-95 border border-violet-400/50 text-violet-200 text-xs sm:text-sm font-semibold transition">&#11039; Polygon</button>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <button id="g-prev" type="button" aria-label="Previous" class="h-10 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-300 text-xs sm:text-sm font-semibold transition disabled:opacity-40 disabled:pointer-events-none">&larr;<span class="hidden md:inline">&nbsp;Previous</span></button>
+                <button id="g-anim" type="button" class="h-10 px-3 rounded-xl bg-amber-500/25 hover:bg-amber-500/35 active:scale-95 border border-amber-400/50 text-amber-200 text-xs sm:text-sm font-semibold transition">&#9654; Animate</button>
+                <button id="g-anim-all" type="button" title="Play every animation in sequence" class="nf h-10 px-3 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 active:scale-95 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-semibold transition">&#9654;&#9654;<span class="hidden sm:inline">&nbsp;Play all</span></button>
+                <button id="g-details" type="button" class="nf h-10 px-3 rounded-xl bg-sky-500/25 hover:bg-sky-500/35 active:scale-95 border border-sky-400/50 text-sky-200 text-xs sm:text-sm font-semibold transition">Details</button>
+                <button id="g-next" type="button" aria-label="Next" class="h-10 px-3 rounded-xl bg-sky-500/25 hover:bg-sky-500/35 active:scale-95 border border-sky-400/50 text-sky-200 text-xs sm:text-sm font-semibold transition disabled:opacity-40 disabled:pointer-events-none"><span class="hidden md:inline">Next&nbsp;</span>&rarr;</button>
+            </div>
+        </div>
+        </div></div>
+    </div>
+
+    <div id="poly-panel" class="hidden fixed left-1/2 -translate-x-1/2 z-40 w-[96vw] max-w-xl max-h-[calc(100dvh-14rem)] overflow-y-auto flex flex-col gap-3 bg-slate-900/95 backdrop-blur-md border border-slate-700/70 rounded-2xl shadow-xl p-4" style="bottom:6rem"></div>
+
+    <!-- Details sheet: explanation + this step's controls (opens just above the bar, scene stays visible) -->
+    <div id="g-modal" class="hidden fixed left-1/2 -translate-x-1/2 z-40 w-[96vw] max-w-3xl max-h-[min(72vh,calc(100dvh-14rem))] flex flex-col bg-slate-900/95 backdrop-blur-md border border-slate-700/70 rounded-2xl shadow-xl p-4" style="bottom:6rem;user-select:text;-webkit-user-select:text">
+        <div class="flex items-center justify-between gap-3 mb-2">
+            <h2 id="g-mtitle" class="text-base font-semibold text-sky-200"></h2>
+            <button id="g-close" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold transition">Close</button>
+        </div>
+        <div id="g-scroll" class="overflow-y-auto min-h-0 flex-1 pr-1"><p id="g-line" class="text-sm text-amber-100/90 leading-snug mb-2"></p>
+        <div id="g-mbody" class="text-sm text-slate-300 leading-relaxed"></div></div>
+        <div class="mt-3 pt-3 border-t border-slate-700/70 flex flex-col gap-2">
+            <div id="g-controls" class="flex flex-col gap-2"></div>
+            <div id="g-read" class="text-xs font-medium text-amber-200/90 min-h-[1rem]"></div>
+        </div>
+    </div>
+
+    <!-- Brief hint / step label (top, fades out) -->
+    <a id="back-btn" href="/" aria-label="Back" title="Back" class="fixed z-30 h-10 min-w-10 px-3 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-slate-900/85 hover:bg-slate-800 backdrop-blur-md border border-slate-700/70 text-slate-200 text-sm font-semibold shadow-xl active:scale-95 transition" style="top:max(1rem, env(safe-area-inset-top)); right:max(.75rem, env(safe-area-inset-right))"><span aria-hidden="true">&larr;</span><span class="hidden sm:inline">Back</span></a>
+
+    <div id="toast" class="fixed left-1/2 -translate-x-1/2 z-30 pointer-events-none px-4 py-2 rounded-xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-xs sm:text-sm text-slate-200 shadow-xl text-center max-w-[92vw]" style="top:calc(max(1rem, env(safe-area-inset-top)) + 3.6rem);opacity:0;transition:opacity .3s ease"></div>
+
+    <div id="vig"></div>
+    <div id="eq"></div>
+    <div id="cap"></div>
+    <div id="veil"></div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            // =========================================================================
+            // 1. SIMULATION STATE & PHYSICS CONFIGURATION
+            // =========================================================================
+            // Wide surface with distance fog so it reads as an expansive / infinite plane
+            const DOMAIN_HALF = 45.0;
+            const SEGMENTS = 160; // lighter mesh so ramps and animations stay smooth
+            const MAX_HEIGHT = 7.5;
+            const MAX_CHARGES = 12;
+
+            // Short hint at the top of the screen that fades away by itself
+            let toastTimer = null;
+            function showToast(msg, ms) {
+                const el = document.getElementById('toast');
+                if (!el) return;
+                el.textContent = msg;
+                el.style.opacity = '1';
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => { el.style.opacity = '0'; }, ms || 2600);
+            }
+
+            const state = {
+                charges: [
+                    { id: 1, x: -3.0, y: 0.0, q: 1.8 },
+                    { id: 2, x: 3.0, y: 0.0, q: -1.8 }
+                ],
+                nextId: 3,
+                selectedId: 1,
+                placementMode: 'none', // 'none' | 'pos' | 'neg' | 'test'
+                viewMode: 'top', // 'top' | 'side'
+                testCharge: {
+                    active: false,
+                    x: 0.0,
+                    y: 4.5,
+                    vx: 0.0,
+                    vz: 0.0,
+                    q: 1.0
+                }
+            };
+
+            // Camera rig for Top View, Side View, and free mouse orbit/pan/zoom
+            const cameraRig = {
+                target: new THREE.Vector3(0, 0, 0),
+                radius: 24,
+                theta: 0,
+                phi: 0.001,
+                minRadius: 6,
+                maxRadius: 110,
+                minPhi: 0.001,
+                maxPhi: Math.PI - 0.05
+            };
+
+            // Interaction state for dragging charges or orbiting/panning camera
+            const pointerState = {
+                mode: 'none', // 'none' | 'drag-charge' | 'drag-test-charge' | 'orbit' | 'pan'
+                draggedChargeId: null,
+                lastX: 0,
+                lastY: 0,
+                pinchDist: null,
+                ndc: new THREE.Vector2(0, 0)
+            };
+
+            // =========================================================================
+            // 2. THREE.JS SCENE SETUP
+            // =========================================================================
+            let container, scene, camera, renderer;
+            let surfaceGeometry, surfaceMesh, deformationGridLines, contourLines, axesGroup;
+            let testChargeGroup = null;
+            const chargeMeshes = new Map();
+            const raycaster = new THREE.Raycaster();
+            const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const intersectPoint = new THREE.Vector3();
+
+            // Shared geometries and materials for charge spheres
+            const coreGeo = new THREE.SphereGeometry(0.42, 24, 24);
+            const capRingGeo = new THREE.RingGeometry(0.55, 0.72, 32);
+            capRingGeo.rotateX(-Math.PI / 2);
+
+            const posMat = new THREE.MeshStandardMaterial({
+                color: 0xf43f5e,
+                emissive: 0x9f1239,
+                emissiveIntensity: 0.35,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+
+            const negMat = new THREE.MeshStandardMaterial({
+                color: 0x3b82f6,
+                emissive: 0x1d4ed8,
+                emissiveIntensity: 0.35,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+
+            const posRingMat = new THREE.MeshBasicMaterial({
+                color: 0xfb7185,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            const negRingMat = new THREE.MeshBasicMaterial({
+                color: 0x60a5fa,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            function createSignSprite(isPositive) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+
+                ctx.clearRect(0, 0, 128, 128);
+                ctx.fillStyle = isPositive ? 'rgba(244, 63, 94, 0.92)' : 'rgba(59, 130, 246, 0.92)';
+                ctx.beginPath();
+                ctx.arc(64, 64, 40, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 68px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isPositive ? '+' : '−', 64, 67);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const material = new THREE.SpriteMaterial({
+                    map: texture,
+                    transparent: true,
+                    depthTest: false
+                });
+                const sprite = new THREE.Sprite(material);
+                sprite.scale.set(0.95, 0.95, 1);
+                sprite.renderOrder = 3;
+                return sprite;
+            }
+
+            // Build the test positive unit charge (+1) mesh so its motion on the surface is unmistakable
+            function createTestChargeMarker() {
+                const group = new THREE.Group();
+
+                const orbGeo = new THREE.SphereGeometry(0.34, 24, 24);
+                const orbMat = new THREE.MeshStandardMaterial({
+                    color: 0xfbbf24,
+                    emissive: 0xd97706,
+                    emissiveIntensity: 0.45,
+                    roughness: 0.25,
+                    metalness: 0.15
+                });
+                const orb = new THREE.Mesh(orbGeo, orbMat);
+                orb.userData.isTestCharge = true;
+                group.add(orb);
+
+                const haloGeo = new THREE.RingGeometry(0.46, 0.62, 32);
+                haloGeo.rotateX(-Math.PI / 2);
+                const haloMat = new THREE.MeshBasicMaterial({
+                    color: 0xfde047,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const halo = new THREE.Mesh(haloGeo, haloMat);
+                halo.userData.isTestCharge = true;
+                halo.position.y = 0.22;
+                group.add(halo);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 128, 128);
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
+                ctx.beginPath();
+                ctx.arc(64, 64, 42, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 54px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('+1', 64, 66);
+
+                const tex = new THREE.CanvasTexture(canvas);
+                const badgeMat = new THREE.SpriteMaterial({
+                    map: tex,
+                    transparent: true,
+                    depthTest: false
+                });
+                const badge = new THREE.Sprite(badgeMat);
+                badge.scale.set(0.95, 0.95, 1);
+                badge.position.y = 1.05;
+                badge.userData.isTestCharge = true;
+                badge.renderOrder = 4;
+                group.add(badge);
+
+                group.visible = false;
+                return group;
+            }
+
+            function syncTestChargeMarker() {
+                if (!testChargeGroup) return;
+                testChargeGroup.visible = state.testCharge.active;
+                if (!state.testCharge.active) return;
+
+                const { height } = evaluatePotential(state.testCharge.x, state.testCharge.y);
+                testChargeGroup.position.set(state.testCharge.x, height + 0.24, state.testCharge.y);
+            }
+
+            // Compute horizontal acceleration on the potential surface for a positive unit test charge (+1)
+            // Positive potential V creates a "hill" (repels +1 downhill along -grad(V));
+            // Negative potential V creates a "well" (attracts +1 downhill toward the well).
+            function evaluateTestChargeAcceleration(x, z) {
+                const eps = 1.25;
+                let ax = 0;
+                let az = 0;
+
+                for (let i = 0; i < state.charges.length; i++) {
+                    const ch = state.charges[i];
+                    const dx = x - ch.x;
+                    const dz = z - ch.y;
+                    const r2 = dx * dx + dz * dz + eps * eps;
+                    const invR3 = 1.0 / (r2 * Math.sqrt(r2));
+
+                    // Force on +1 test charge points away from +q (hill) and toward -q (well)
+                    const forceScale = 22.0 * state.testCharge.q * ch.q * invR3;
+                    ax += dx * forceScale;
+                    az += dz * forceScale;
+                }
+
+                return { ax, az };
+            }
+
+            function stepTestCharge(dt) {
+                if (!state.testCharge.active) return;
+                if (pointerState.mode === 'drag-test-charge') return;
+
+                const clampedDt = Math.min(dt, 0.033);
+                const subSteps = 3;
+                const h = clampedDt / subSteps;
+
+                for (let s = 0; s < subSteps; s++) {
+                    const { ax, az } = evaluateTestChargeAcceleration(state.testCharge.x, state.testCharge.y);
+
+                    // Semi-implicit Euler integration with mild damping for smooth visual motion
+                    state.testCharge.vx = (state.testCharge.vx + ax * h) * Math.pow(0.82, h);
+                    state.testCharge.vz = (state.testCharge.vz + az * h) * Math.pow(0.82, h);
+
+                    state.testCharge.x += state.testCharge.vx * h;
+                    state.testCharge.y += state.testCharge.vz * h;
+
+                    // Keep within playable domain bounds and bounce softly at boundary
+                    const bound = 15.0;
+                    if (state.testCharge.x > bound) {
+                        state.testCharge.x = bound;
+                        state.testCharge.vx *= -0.4;
+                    } else if (state.testCharge.x < -bound) {
+                        state.testCharge.x = -bound;
+                        state.testCharge.vx *= -0.4;
+                    }
+                    if (state.testCharge.y > bound) {
+                        state.testCharge.y = bound;
+                        state.testCharge.vz *= -0.4;
+                    } else if (state.testCharge.y < -bound) {
+                        state.testCharge.y = -bound;
+                        state.testCharge.vz *= -0.4;
+                    }
+                }
+
+                syncTestChargeMarker();
+            }
+
+            // Build reference horizontal (x, y) and vertical (z) axes obeying the right-hand rule
+            function createReferenceAxes() {
+                const group = new THREE.Group();
+                const axisLen = 20;
+                const heightLen = MAX_HEIGHT + 1.5;
+
+                // Right-hand rule:
+                // Let +x point along (+1, 0, 0) in Three.js world space,
+                // +y point along (0, 0, -1) in Three.js world space (horizontal plane),
+                // then (+1, 0, 0) x (0, 0, -1) = (0, +1, 0) = +z (vertical upward axis).
+                const dirX = new THREE.Vector3(1, 0, 0);
+                const dirY = new THREE.Vector3(0, 0, -1);
+                const dirZ = new THREE.Vector3(0, 1, 0);
+
+                function createAxisLabelSprite(text, colorHex) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    const ctx = canvas.getContext('2d');
+
+                    ctx.clearRect(0, 0, 128, 128);
+
+                    ctx.fillStyle = colorHex;
+                    ctx.font = 'italic bold 72px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(text, 64, 66);
+
+                    const texture = new THREE.CanvasTexture(canvas);
+                    const material = new THREE.SpriteMaterial({
+                        map: texture,
+                        transparent: true,
+                        depthTest: false
+                    });
+                    const sprite = new THREE.Sprite(material);
+                    sprite.scale.set(1.45, 1.45, 1);
+                    sprite.renderOrder = 4;
+                    return sprite;
+                }
+
+                function createArrowHead(colorHex, directionVec, tipPos) {
+                    const coneGeo = new THREE.ConeGeometry(0.42, 1.35, 24);
+                    const coneMat = new THREE.MeshStandardMaterial({
+                        color: colorHex,
+                        emissive: colorHex,
+                        emissiveIntensity: 0.25,
+                        roughness: 0.3,
+                        metalness: 0.1
+                    });
+                    const cone = new THREE.Mesh(coneGeo, coneMat);
+                    cone.position.copy(tipPos);
+                    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), directionVec.clone().normalize());
+                    return cone;
+                }
+
+                // Horizontal X axis (+x along +worldX)
+                const xColor = 0xf87171;
+                const xGeo = new THREE.BufferGeometry().setFromPoints([
+                    dirX.clone().multiplyScalar(-axisLen),
+                    dirX.clone().multiplyScalar(axisLen)
+                ]);
+                const xMat = new THREE.LineBasicMaterial({ color: xColor, transparent: true, opacity: 0.85 });
+                group.add(new THREE.Line(xGeo, xMat));
+                group.add(createArrowHead(xColor, dirX, dirX.clone().multiplyScalar(axisLen)));
+                const xLabel = createAxisLabelSprite('x', '#fca5a5');
+                xLabel.position.copy(dirX.clone().multiplyScalar(axisLen + 1.45)).add(new THREE.Vector3(0, 0.35, 0));
+                group.add(xLabel);
+
+                // Horizontal Y axis (+y along -worldZ so x x y = +z in right-handed coordinates)
+                const yPlaneColor = 0x38bdf8;
+                const yPlaneGeo = new THREE.BufferGeometry().setFromPoints([
+                    dirY.clone().multiplyScalar(-axisLen),
+                    dirY.clone().multiplyScalar(axisLen)
+                ]);
+                const yPlaneMat = new THREE.LineBasicMaterial({ color: yPlaneColor, transparent: true, opacity: 0.85 });
+                group.add(new THREE.Line(yPlaneGeo, yPlaneMat));
+                group.add(createArrowHead(yPlaneColor, dirY, dirY.clone().multiplyScalar(axisLen)));
+                const yPlaneLabel = createAxisLabelSprite('y', '#7dd3fc');
+                yPlaneLabel.position.copy(dirY.clone().multiplyScalar(axisLen + 1.45)).add(new THREE.Vector3(0, 0.35, 0));
+                group.add(yPlaneLabel);
+
+                // Vertical Z axis (+z along +worldY, obeying right-hand rule x cross y = z)
+                const zColor = 0x34d399;
+                const zGeo = new THREE.BufferGeometry().setFromPoints([
+                    dirZ.clone().multiplyScalar(-heightLen),
+                    dirZ.clone().multiplyScalar(heightLen)
+                ]);
+                const zMat = new THREE.LineBasicMaterial({ color: zColor, transparent: true, opacity: 0.9 });
+                group.add(new THREE.Line(zGeo, zMat));
+                group.add(createArrowHead(zColor, dirZ, dirZ.clone().multiplyScalar(heightLen)));
+                const zLabel = createAxisLabelSprite('z', '#6ee7b7');
+                zLabel.position.copy(dirZ.clone().multiplyScalar(heightLen + 1.45)).add(new THREE.Vector3(0.35, 0, 0));
+                group.add(zLabel);
+
+                return group;
+            }
+
+            // Build a stretched rubber-band grid with evenly spaced lines and tension shading
+            function buildDeformationGridGeometry(posAttr, gridSize) {
+                const linePositions = [];
+                const lineColors = [];
+                const step = 4; // Evenly spaced grid cells across the mesh for a neat layout
+                const maxLineIndex = gridSize - 1;
+
+                const neutralGridColor = new THREE.Color(0x94a3b8);
+                const posGridColor = new THREE.Color(0xfda4af);
+                const negGridColor = new THREE.Color(0x93c5fd);
+                const tempCol = new THREE.Color();
+
+                function pushVertexWithStrain(idx) {
+                    const vx = posAttr.getX(idx);
+                    const vy = posAttr.getY(idx) + 0.015;
+                    const vz = posAttr.getZ(idx);
+                    linePositions.push(vx, vy, vz);
+
+                    // Subtle strain tint based on local sheet displacement height
+                    const strain = Math.max(-1, Math.min(1, posAttr.getY(idx) / (MAX_HEIGHT * 0.65)));
+                    if (strain >= 0) {
+                        tempCol.copy(neutralGridColor).lerp(posGridColor, strain * 0.75);
+                    } else {
+                        tempCol.copy(neutralGridColor).lerp(negGridColor, (-strain) * 0.75);
+                    }
+                    lineColors.push(tempCol.r, tempCol.g, tempCol.b);
+                }
+
+                // Lines along X (constant Z row)
+                for (let row = 0; row < gridSize; row += step) {
+                    for (let col = 0; col < maxLineIndex; col++) {
+                        const iA = row * gridSize + col;
+                        const iB = iA + 1;
+                        pushVertexWithStrain(iA);
+                        pushVertexWithStrain(iB);
+                    }
+                }
+
+                // Lines along Z (constant X column)
+                for (let col = 0; col < gridSize; col += step) {
+                    for (let row = 0; row < maxLineIndex; row++) {
+                        const iA = row * gridSize + col;
+                        const iB = iA + gridSize;
+                        pushVertexWithStrain(iA);
+                        pushVertexWithStrain(iB);
+                    }
+                }
+
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
+                return geo;
+            }
+
+            function initThree() {
+                container = document.getElementById('canvas-container');
+                const width = container.clientWidth || window.innerWidth;
+                const height = container.clientHeight || window.innerHeight;
+
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x0b0f19);
+
+                camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 300);
+
+                renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+                renderer.setSize(width, height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                container.appendChild(renderer.domElement);
+
+                // Lighting for sculpted potential hills and valleys
+                const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.75);
+                scene.add(ambientLight);
+
+                const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+                keyLight.position.set(16, 28, 18);
+                scene.add(keyLight);
+
+                const rimLight = new THREE.DirectionalLight(0x93c5fd, 0.45);
+                rimLight.position.set(-18, 12, -16);
+                scene.add(rimLight);
+
+                // Reference X, Z, and vertical V axes
+                axesGroup = createReferenceAxes();
+                scene.add(axesGroup);
+
+                // Translucent stretched rubber-sheet surface underneath the deformed grid
+                surfaceGeometry = new THREE.PlaneGeometry(
+                    DOMAIN_HALF * 2,
+                    DOMAIN_HALF * 2,
+                    SEGMENTS,
+                    SEGMENTS
+                );
+                surfaceGeometry.rotateX(-Math.PI / 2);
+
+                const vertexCount = surfaceGeometry.attributes.position.count;
+                const colors = new Float32Array(vertexCount * 3);
+                surfaceGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+                const surfaceMaterial = new THREE.MeshStandardMaterial({
+                    vertexColors: true,
+                    roughness: 0.55,
+                    metalness: 0.05,
+                    transparent: true,
+                    opacity: 0.42,
+                    side: THREE.DoubleSide
+                });
+
+                surfaceMesh = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+                surfaceMesh.renderOrder = 0;
+                scene.add(surfaceMesh);
+
+                // Stretched rubber-band grid showing how the mesh strains around hills and wells
+                const gridMaterial = new THREE.LineBasicMaterial({
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.62
+                });
+                deformationGridLines = new THREE.LineSegments(new THREE.BufferGeometry(), gridMaterial);
+                deformationGridLines.renderOrder = 1;
+                scene.add(deformationGridLines);
+
+                // Equipotential contour line segments across the scalar surface
+                const contourMaterial = new THREE.LineBasicMaterial({
+                    color: 0xfef08a,
+                    transparent: true,
+                    opacity: 0.35
+                });
+                contourLines = new THREE.LineSegments(new THREE.BufferGeometry(), contourMaterial);
+                contourLines.renderOrder = 2;
+                scene.add(contourLines);
+
+                // Positive unit test charge (+1) marker
+                testChargeGroup = createTestChargeMarker();
+                scene.add(testChargeGroup);
+
+                syncChargeMarkers();
+                recomputeSurface();
+                syncTestChargeMarker();
+                setCameraView(state.viewMode);
+            }
+
+            // =========================================================================
+            // 3. ELECTROSTATIC POTENTIAL EVALUATION & SURFACE MESH UPDATE
+            // =========================================================================
+            function evaluatePotential(x, z) {
+                // Softened Coulomb potential V = sum(q_i / sqrt(r_i^2 + eps^2))
+                const eps = 1.25;
+                let potential = 0;
+
+                for (let i = 0; i < state.charges.length; i++) {
+                    const ch = state.charges[i];
+                    const dx = x - ch.x;
+                    const dz = z - ch.y;
+                    const distSoft = Math.sqrt(dx * dx + dz * dz + eps * eps);
+                    potential += ch.q / distSoft;
+                }
+
+                // Smoothly clamp extreme values into a pleasant hill/valley height range
+                const rawHeight = potential * 2.2;
+                const height = MAX_HEIGHT * Math.tanh(rawHeight / MAX_HEIGHT);
+
+                return { potential, height };
+            }
+
+            function recomputeSurface() {
+                if (!surfaceGeometry) return;
+
+                const posAttr = surfaceGeometry.attributes.position;
+                const colorAttr = surfaceGeometry.attributes.color;
+                const vertexCount = posAttr.count;
+                const heights = new Float32Array(vertexCount);
+
+                const negColor = new THREE.Color(0x2563eb);  // Deep valley blue
+                const zeroColor = new THREE.Color(0x1e293b); // Neutral plane slate
+                const posColor = new THREE.Color(0xe11d48);  // High hill crimson-rose
+                const tempColor = new THREE.Color();
+
+                for (let i = 0; i < vertexCount; i++) {
+                    const x = posAttr.getX(i);
+                    const z = posAttr.getZ(i);
+
+                    const { height } = evaluatePotential(x, z);
+                    posAttr.setY(i, height);
+                    heights[i] = height;
+
+                    const norm = Math.max(-1, Math.min(1, height / (MAX_HEIGHT * 0.72)));
+                    if (norm >= 0) {
+                        tempColor.copy(zeroColor).lerp(posColor, norm);
+                    } else {
+                        tempColor.copy(zeroColor).lerp(negColor, -norm);
+                    }
+                    colorAttr.setXYZ(i, tempColor.r, tempColor.g, tempColor.b);
+                }
+
+                posAttr.needsUpdate = true;
+                colorAttr.needsUpdate = true;
+                surfaceGeometry.computeVertexNormals();
+
+                const gridSize = SEGMENTS + 1;
+
+                // Update stretched rubber-band deformation grid lines
+                if (deformationGridLines) {
+                    deformationGridLines.geometry.dispose();
+                    deformationGridLines.geometry = buildDeformationGridGeometry(posAttr, gridSize);
+                }
+
+                rebuildContours(posAttr, heights, gridSize);
+
+                // Position charge spheres, top-view rings, and sign badges along the surface
+                state.charges.forEach((ch) => {
+                    const entry = chargeMeshes.get(ch.id);
+                    if (!entry) return;
+                    const { height } = evaluatePotential(ch.x, ch.y);
+                    const isPos = ch.q >= 0;
+
+                    // Keep negative charges visible at the bottom of potential wells from above
+                    const sphereY = isPos ? height + 0.22 : height + 0.18;
+                    entry.core.position.set(ch.x, sphereY, ch.y);
+
+                    // Elevate top-view indicator ring and badge slightly above the local height
+                    entry.ring.position.set(ch.x, Math.max(height + 0.35, 0.35), ch.y);
+                    entry.badge.position.set(ch.x, Math.max(height + 1.15, 1.15), ch.y);
+                });
+
+                syncTestChargeMarker();
+            }
+
+            // Keep magnitude slider focused on the currently selected charge
+            // Paint the filled part of every custom slider (centre of the thumb, not the raw percentage)
+            const paintRanges = () => document.querySelectorAll('input.rng').forEach((el) => {
+                const p = ((el.value - el.min) / (el.max - el.min)) * 100;
+                el.style.setProperty('--p', `calc(${p}% + ${(9 - p * 0.18).toFixed(2)}px)`);
+            });
+            let selKey = '';
+            const selCharge = () => state.charges.find((c) => c.id === state.selectedId) || state.charges[0];
+            function syncMagnitudeControls() {
+                const bar = document.getElementById('sel-bar');
+                if (!bar) return;
+                const c = selCharge(), key = c ? c.id + ':' + c.q.toFixed(2) : '-';
+                if (key === selKey) return;
+                selKey = key;
+                bar.classList.toggle('hidden', !c);
+                if (!c) return;
+                const v = document.getElementById('sel-val'), sl = document.getElementById('sel-mag');
+                document.getElementById('sel-label').textContent = '#' + c.id;
+                v.textContent = (c.q >= 0 ? '+' : '\u2212') + Math.abs(c.q).toFixed(1);
+                v.className = 'ml-1 ' + (c.q >= 0 ? 'text-rose-300' : 'text-blue-300');
+                if (document.activeElement !== sl) sl.value = Math.min(4, Math.max(0.2, Math.abs(c.q)));
+            }
+            // ---- Polygon arranger: charges on the corners of a regular polygon, signs in any order ----
+            const poly = { n: 4, r: 8, q: 1.8, signs: [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1] };
+            const polyEl = () => document.getElementById('poly-panel');
+            const polyPos = () => { polyEl().style.bottom = (window.innerHeight - document.getElementById('g-dock').getBoundingClientRect().top + 10) + 'px'; };
+            function polyPlace() {
+                const { n, r, q } = poly;
+                state.charges = poly.signs.slice(0, n).map((sg, i) => {
+                    const a = -Math.PI / 2 + (2 * Math.PI * i) / n;
+                    return { id: state.nextId++, x: +(r * Math.cos(a)).toFixed(3), y: +(r * Math.sin(a)).toFixed(3), q: sg * q };
+                });
+                state.selectedId = state.charges[0].id; state.placementMode = 'none';
+                syncPlacementButtons(); syncChargeMarkers(); syncMagnitudeControls(); recomputeSurface();
+                showToast('Placed ' + n + ' charges on the corners of a polygon.', 2200);
+            }
+            function polyPreview() {
+                const box = document.getElementById('poly-prev'), n = poly.n, C = 92, R = 66;
+                const pts = Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; return [C + R * Math.cos(a), C + R * Math.sin(a)]; });
+                box.innerHTML = `<svg viewBox='0 0 184 184' class='absolute inset-0 w-full h-full'><polygon points='${pts.map((p) => p.join(',')).join(' ')}' fill='rgba(56,189,248,.08)' stroke='rgba(125,211,252,.55)' stroke-width='1.5' stroke-dasharray='4 3'/></svg>`;
+                pts.forEach((p, i) => {
+                    const sg = poly.signs[i], b = document.createElement('button');
+                    b.type = 'button'; b.title = `Corner ${i + 1}: tap to flip its sign`;
+                    b.className = 'absolute -translate-x-1/2 -translate-y-1/2 h-7 w-7 rounded-full text-sm font-bold leading-none border-2 transition active:scale-90 ' + (sg > 0 ? 'bg-rose-500/40 border-rose-300 text-rose-50' : 'bg-blue-500/40 border-blue-300 text-blue-50');
+                    b.style.left = (p[0] / 184 * 100) + '%'; b.style.top = (p[1] / 184 * 100) + '%';
+                    b.textContent = sg > 0 ? '+' : '−';
+                    b.onclick = () => { poly.signs[i] *= -1; polyPreview(); };
+                    box.appendChild(b);
+                });
+            }
+            function initPolygon() {
+                const el = polyEl(), $ = (id) => document.getElementById(id);
+                const srow = (id, lab, min, max, st, v) => `<label class='flex items-center gap-3 text-xs font-medium text-slate-300 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60'><span class='min-w-[6.5rem] flex items-center justify-between gap-2 whitespace-nowrap'>${lab} <b id='${id}v' class='rng-val'></b></span><input id='${id}' type='range' min='${min}' max='${max}' step='${st}' value='${v}' class='rng'></label>`;
+                const pb = (id, t, c) => `<button id='${id}' type='button' class='flex-1 px-2 py-2 rounded-xl bg-${c}-500/25 hover:bg-${c}-500/35 active:scale-95 border border-${c}-400/50 text-${c}-200 text-xs font-semibold transition'>${t}</button>`;
+                el.innerHTML = `<div class='flex items-center justify-between gap-3'><h2 class='text-base font-semibold text-sky-200'>Arrange charges in a polygon</h2><button id='poly-close' type='button' class='px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold transition'>Close</button></div>`
+                    + `<div class='flex flex-col sm:flex-row gap-4 items-center'><div class='shrink-0 text-center'><div id='poly-prev' class='relative w-[184px] h-[184px] rounded-2xl bg-slate-800/60 border border-slate-700/60'></div><p class='text-[11px] text-slate-400 mt-1.5'>Tap a corner to flip its sign</p></div>`
+                    + `<div class='flex-1 w-full flex flex-col gap-2'>${srow('pn', 'Corners', 3, 12, 1, poly.n)}${srow('pr', 'Radius', 2, 14, 0.5, poly.r)}${srow('pq', 'Magnitude', 0.5, 4, 0.1, poly.q)}<div class='flex gap-2'>${pb('pp', 'All +', 'rose')}${pb('pm', 'All −', 'blue')}${pb('pa', 'Alternate', 'violet')}${pb('ps', 'Shuffle', 'amber')}</div></div></div>`
+                    + `<button id='poly-go' type='button' class='h-10 rounded-xl bg-sky-500/30 hover:bg-sky-500/40 active:scale-95 border border-sky-400/60 text-sky-100 text-sm font-semibold transition'>Place polygon (replaces current charges)</button>`;
+                const upd = () => { $('pnv').textContent = poly.n; $('prv').textContent = poly.r.toFixed(1); $('pqv').textContent = poly.q.toFixed(1); };
+                [['pn', 'n'], ['pr', 'r'], ['pq', 'q']].forEach(([id, k]) => $(id).addEventListener('input', (e) => { poly[k] = +e.target.value; upd(); if (k === 'n') polyPreview(); }));
+                const setAll = (f) => { poly.signs = poly.signs.map((_, i) => f(i)); polyPreview(); };
+                $('pp').onclick = () => setAll(() => 1);
+                $('pm').onclick = () => setAll(() => -1);
+                $('pa').onclick = () => setAll((i) => (i % 2 ? -1 : 1));
+                $('ps').onclick = () => setAll(() => (Math.random() < 0.5 ? -1 : 1));
+                $('poly-go').onclick = polyPlace;
+                $('poly-close').onclick = () => el.classList.add('hidden');
+                $('poly-btn').onclick = () => {
+                    if (el.classList.contains('hidden')) { $('g-modal').classList.add('hidden'); el.classList.remove('hidden'); polyPos(); } else el.classList.add('hidden');
+                };
+                new ResizeObserver(() => { if (!el.classList.contains('hidden')) polyPos(); }).observe($('g-dock'));
+                window.addEventListener('resize', () => { if (!el.classList.contains('hidden')) polyPos(); });
+                window.addEventListener('keydown', (e) => { if (e.key === 'Escape') el.classList.add('hidden'); });
+                upd(); polyPreview();
+            }
+            // ---- Details: interactive geometric intuition (cross-sections of the sheet) ----
+            const GEO = {
+                hill: [['q', 'Charge q', -3, 3, 0.1, 2], ['r', 'Distance r', 0, 8, 0.1, 4]],
+                slope: [['q', 'Charge q', -3, 3, 0.1, 2], ['r', 'Distance r', 0, 8, 0.1, 3]],
+                sample: [['n', 'Sample dots', 3, 40, 1, 8]],
+                sum: [['d', 'Separation', 0, 8, 0.1, 4], ['q2', 'Second charge', -3, 3, 0.1, -2]],
+                path: [['a', 'Start radius', 1, 6, 0.1, 2], ['b', 'End radius', 1, 6, 0.1, 5]]
+            };
+            const geoSteps = ['hill', 'slope', 'sample', 'sum', 'slope', 'path', 'hill'];
+            const geoHTML = (kind) => `<div class='geo' data-kind='${kind}'><svg viewBox='0 0 320 170' class='geo-svg' role='img' aria-label='Interactive geometric picture'></svg><div class='flex flex-col gap-2 mt-2'>${GEO[kind].map(([id, lab, min, max, st, v]) => `<label class='flex items-center gap-3 text-xs font-medium text-slate-300 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60'><span class='min-w-[8.5rem] flex items-center justify-between gap-2 whitespace-nowrap'>${lab} <b class='rng-val' data-v='${id}'></b></span><input data-g='${id}' type='range' min='${min}' max='${max}' step='${st}' value='${v}' class='rng'></label>`).join('')}</div><p class='geo-read'></p></div>`;
+            function geoDraw(kind, v, read) {
+                const E2 = 1.5625, V = (x, q) => q / Math.sqrt(x * x + E2);
+                const X = (x) => 160 + 17 * x, Y = (u) => 85 - 30 * Math.max(-2.7, Math.min(2.7, u));
+                const col = (q) => (q >= 0 ? '#fb7185' : '#60a5fa');
+                const curve = (f, c, w, dash) => { let d = ''; for (let x = -9; x <= 9.001; x += 0.25) d += (d ? 'L' : 'M') + X(x).toFixed(1) + ' ' + Y(f(x)).toFixed(1); return `<path d='${d}' fill='none' stroke='${c}' stroke-width='${w}' stroke-linecap='round' stroke-linejoin='round'${dash ? ` stroke-dasharray='${dash}'` : ''}/>`; };
+                const chg = (x, y, q) => `<circle cx='${x}' cy='${y}' r='9' fill='${col(q)}' fill-opacity='.35' stroke='${col(q)}' stroke-width='2'/><text x='${x}' y='${+y + 4}' text-anchor='middle' font-size='12' font-weight='700' fill='#fff'>${q >= 0 ? '+' : '−'}</text>`;
+                const base = `<line x1='8' x2='312' y1='85' y2='85' stroke='#475569'/>`;
+                const dot = (x, y) => `<circle cx='${x}' cy='${y}' r='5.5' fill='#fbbf24' stroke='#fff' stroke-width='1.5'/>`;
+                const txt = (x, y, s, a) => `<text x='${x}' y='${y}' text-anchor='${a || 'middle'}' font-size='11' font-weight='600' fill='#fde68a'>${s}</text>`;
+                if (kind === 'hill') {
+                    const f = (x) => V(x, v.q), px = X(v.r), py = Y(f(v.r));
+                    read.textContent = `At r = ${v.r.toFixed(1)} the height is V = ${f(v.r).toFixed(2)}. ${v.q >= 0 ? 'A positive charge makes a hill.' : 'A negative charge makes a pit.'}`;
+                    return base + curve(f, col(v.q), 3) + `<line x1='${px}' x2='${px}' y1='85' y2='${py}' stroke='#fbbf24' stroke-dasharray='4 3'/>` + dot(px, py) + txt(px, py + (f(v.r) >= 0 ? -10 : 19), 'V = ' + f(v.r).toFixed(2)) + chg(160, 85, v.q);
+                }
+                if (kind === 'slope') {
+                    const q = v.q, r = v.r, f = (x) => V(x, q), s = -q * r / Math.pow(r * r + E2, 1.5), px = X(r), py = Y(f(r));
+                    const m = (-30 * s) / 17, dx = 36 / Math.sqrt(1 + m * m), len = Math.max(-60, Math.min(60, -s * 170)), tx = px + len, d = Math.sign(len);
+                    read.textContent = `The slope here is ${s.toFixed(2)}, so the field is E = ${(-s).toFixed(2)}: ${Math.abs(s) < 0.005 ? 'flat ground, no push.' : 'the arrow points downhill, and is longer where the ground is steeper.'}`;
+                    return base + curve(f, col(q), 3) + `<line x1='${px - dx}' y1='${py - m * dx}' x2='${px + dx}' y2='${py + m * dx}' stroke='#fbbf24' stroke-width='2.5' stroke-linecap='round'/>` + dot(px, py) + (Math.abs(len) > 2 ? `<line x1='${px}' y1='148' x2='${tx}' y2='148' stroke='#4ade80' stroke-width='3.5' stroke-linecap='round'/><polygon points='${tx + d * 3},148 ${tx - d * 7},142 ${tx - d * 7},154' fill='#4ade80'/>` : '') + txt(px, 166, 'field E (arrow)') + chg(160, 85, q);
+                }
+                if (kind === 'sample') {
+                    const n = v.n, f = (x) => V(x, 2), pts = Array.from({ length: n }, (_, k) => { const x = -9 + (18 * k) / (n - 1); return [X(x), Y(f(x))]; });
+                    read.textContent = `${n} dots give ${n < 10 ? 'a rough outline' : n < 20 ? 'a recognisable shape' : 'a smooth surface'}. The real sheet uses 161 × 161 dots.`;
+                    return base + curve(f, '#64748b', 1.5, '4 4') + `<path d='${pts.map((p, k) => (k ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('')}' fill='none' stroke='#38bdf8' stroke-width='2'/>` + pts.map((p) => `<circle cx='${p[0].toFixed(1)}' cy='${p[1].toFixed(1)}' r='3.6' fill='#fbbf24'/>`).join('') + chg(160, 85, 2);
+                }
+                if (kind === 'sum') {
+                    const h = v.d / 2, f1 = (x) => V(x + h, 2), f2 = (x) => V(x - h, v.q2);
+                    read.textContent = `Dashed: each charge alone. White: their sum. ${v.q2 < -0.05 ? 'A hill and a pit partly cancel.' : v.q2 > 0.05 ? 'Two hills stack into a bigger one.' : 'Only one charge is left.'}`;
+                    return base + curve(f1, '#fb7185', 1.8, '5 3') + curve(f2, col(v.q2), 1.8, '5 3') + curve((x) => f1(x) + f2(x), '#f8fafc', 3.2) + chg(X(-h), 85, 2) + chg(X(h), 85, v.q2);
+                }
+                const cx = 160, cy = 85, k = 12, ra = v.a * k, rb = v.b * k, tA = (200 * Math.PI) / 180, tB = (340 * Math.PI) / 180;
+                const P = (r, t) => [(cx + r * Math.cos(t)).toFixed(1), (cy + r * Math.sin(t)).toFixed(1)];
+                const A = P(ra, tA), B = P(rb, tB), A2 = P(ra, tB), B2 = P(rb, tA), dV = V(v.b, 2) - V(v.a, 2);
+                read.textContent = `Every route from A to B gives the same change ΔV = ${dV.toFixed(2)}. Walking along a ring changes nothing; only the radial steps count.`;
+                let rings = '';
+                for (let m = 1; m <= 6; m++) rings += `<circle cx='${cx}' cy='${cy}' r='${m * k}' fill='none' stroke='#334155' stroke-width='1'/>`;
+                const pin = (p, t, dy) => `<circle cx='${p[0]}' cy='${p[1]}' r='5' fill='#fff'/>` + txt(p[0], +p[1] + dy, t);
+                return rings + `<path d='M${A} L${B}' stroke='#e2e8f0' stroke-width='1.5' stroke-dasharray='3 4' fill='none'/><path d='M${A} A${ra} ${ra} 0 0 1 ${A2} L${B}' stroke='#fbbf24' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M${A} L${B2} A${rb} ${rb} 0 0 1 ${B}' stroke='#22d3ee' stroke-width='3' stroke-dasharray='6 4' fill='none' stroke-linecap='round'/>` + chg(cx, cy, 2) + pin(A, 'A', 16) + pin(B, 'B', 16);
+            }
+            function bindGeo(root) {
+                const g = root.querySelector('.geo');
+                if (!g) return;
+                const svg = g.querySelector('svg'), read = g.querySelector('.geo-read');
+                const draw = () => {
+                    const v = {};
+                    g.querySelectorAll('input[data-g]').forEach((el) => { v[el.dataset.g] = +el.value; g.querySelector(`[data-v='${el.dataset.g}']`).textContent = (+el.value).toFixed(Number(el.step) < 1 ? 1 : 0); });
+                    svg.innerHTML = geoDraw(g.dataset.kind, v, read);
+                };
+                g.addEventListener('input', draw);
+                draw();
+            }
+            function setSelectedMagnitude(m) {
+                const c = selCharge();
+                if (!c || Number.isNaN(m)) return;
+                c.q = (c.q < 0 ? -1 : 1) * m;
+                syncChargeMarkers(); recomputeSurface(); syncMagnitudeControls();
+            }
+            function deleteSelectedCharge() {
+                const c = selCharge();
+                if (!c) return;
+                const i = state.charges.indexOf(c);
+                state.charges.splice(i, 1);
+                const n = state.charges[Math.min(i, state.charges.length - 1)];
+                state.selectedId = n ? n.id : 0;
+                syncChargeMarkers(); recomputeSurface(); syncMagnitudeControls();
+                showToast('Deleted charge #' + c.id + '.', 1600);
+            }
+            function syncMagnitudeControlsOld() {
+                const listEl = document.getElementById('charge-magnitudes-list');
+                if (!listEl) return;
+
+                const selectedCharge = state.charges.find(item => item.id === state.selectedId) || state.charges[0];
+                if (!selectedCharge) {
+                    listEl.replaceChildren();
+                    return;
+                }
+
+                const isPos = selectedCharge.q >= 0;
+                const mag = Math.abs(selectedCharge.q);
+                const signChar = isPos ? '+' : '−';
+
+                // Keep only a single row for the selected charge
+                let row = listEl.firstElementChild;
+                if (!row || Number(row.dataset.chargeId) !== selectedCharge.id) {
+                    listEl.replaceChildren();
+
+                    row = document.createElement('div');
+                    row.dataset.chargeId = String(selectedCharge.id);
+                    row.className = 'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl bg-slate-800 border border-sky-400/50 transition';
+
+                    const label = document.createElement('label');
+                    label.className = 'text-xs font-medium text-slate-300 whitespace-nowrap min-w-[6.5rem]';
+
+                    const valSpan = document.createElement('span');
+                    valSpan.className = 'font-semibold';
+                    label.append(`Charge #${selectedCharge.id}: `, valSpan);
+
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.min = '0.2';
+                    slider.max = '4.0';
+                    slider.step = '0.1';
+                    slider.className = 'w-full accent-sky-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg';
+
+                    slider.addEventListener('input', (e) => {
+                        const nextMag = parseFloat(e.target.value);
+                        if (Number.isNaN(nextMag)) return;
+                        const targetCharge = state.charges.find(item => item.id === selectedCharge.id);
+                        if (!targetCharge) return;
+
+                        const sign = targetCharge.q >= 0 ? 1 : -1;
+                        targetCharge.q = sign * nextMag;
+
+                        valSpan.textContent = `${targetCharge.q >= 0 ? '+' : '−'}${nextMag.toFixed(1)}`;
+                        recomputeSurface();
+                    });
+
+                    row.append(label, slider);
+                    listEl.appendChild(row);
+                }
+
+                const valSpan = row.querySelector('span');
+                const slider = row.querySelector('input[type="range"]');
+
+                if (valSpan) {
+                    valSpan.textContent = `${signChar}${mag.toFixed(1)}`;
+                    valSpan.className = isPos
+                        ? 'font-semibold text-rose-300'
+                        : 'font-semibold text-blue-300';
+                }
+                if (slider && document.activeElement !== slider) {
+                    slider.value = mag.toFixed(1);
+                }
+            }
+
+            // Extract equipotential contour segments using cell edge interpolation
+            function rebuildContours(posAttr, heights, gridSize) {
+                if (!contourLines) return;
+
+                // Cleanly spaced equipotential contour levels across hills and valleys
+                const levels = [];
+                const minLvl = -6.0;
+                const maxLvl = 6.0;
+                const step = 0.5;
+                for (let v = minLvl; v <= maxLvl + 1e-6; v += step) {
+                    const rounded = Math.round(v * 100) / 100;
+                    if (Math.abs(rounded) > 0.05) {
+                        levels.push(rounded);
+                    }
+                }
+
+                const segments = [];
+                const yLift = 0.025; // Slight offset above mesh to avoid z-fighting
+
+                // Solve for exact interpolation fraction t in [0, 1] along edge (p0 -> p1)
+                // where evaluatePotential(x, z).height equals `level`, using bisection
+                function findContourRootOnEdge(x0, z0, h0, x1, z1, h1, level) {
+                    const denom = h1 - h0;
+                    let lo = 0;
+                    let hi = 1;
+                    let mid = Math.abs(denom) < 1e-6 ? 0.5 : Math.max(0, Math.min(1, (level - h0) / denom));
+
+                    // Refine root with 8 bisection steps for sub-pixel curve accuracy
+                    const hAtLo = h0;
+                    for (let iter = 0; iter < 8; iter++) {
+                        const mx = x0 + (x1 - x0) * mid;
+                        const mz = z0 + (z1 - z0) * mid;
+                        const hMid = evaluatePotential(mx, mz).height;
+
+                        const sameSignWithLo = (hAtLo - level) * (hMid - level) <= 0;
+                        if (sameSignWithLo) {
+                            hi = mid;
+                        } else {
+                            lo = mid;
+                        }
+                        mid = 0.5 * (lo + hi);
+                    }
+
+                    return mid;
+                }
+
+                // Append a subdivided curve between two boundary points so curved contours
+                // follow the true potential surface instead of cutting straight chords across cells
+                function pushSubdividedSegment(ax, az, bx, bz, level) {
+                    const subSteps = 4;
+                    let prevX = ax;
+                    let prevZ = az;
+                    let prevY = evaluatePotential(prevX, prevZ).height + yLift;
+
+                    for (let s = 1; s <= subSteps; s++) {
+                        const u = s / subSteps;
+                        const sx = ax + (bx - ax) * u;
+                        const sz = az + (bz - az) * u;
+
+                        // Project intermediate point toward the exact iso-height `level` along the local gradient
+                        let px = sx;
+                        let pz = sz;
+                        const epsGrad = 0.02;
+                        for (let gIter = 0; gIter < 2; gIter++) {
+                            const hCur = evaluatePotential(px, pz).height;
+                            const err = hCur - level;
+                            if (Math.abs(err) < 1e-4) break;
+
+                            const hx = evaluatePotential(px + epsGrad, pz).height - hCur;
+                            const hz = evaluatePotential(px, pz + epsGrad).height - hCur;
+                            const gradSq = hx * hx + hz * hz;
+                            if (gradSq > 1e-12) {
+                                const scale = (err * epsGrad) / gradSq;
+                                px -= hx * scale;
+                                pz -= hz * scale;
+                            }
+                        }
+
+                        const py = evaluatePotential(px, pz).height + yLift;
+                        segments.push(prevX, prevY, prevZ, px, py, pz);
+                        prevX = px;
+                        prevY = py;
+                        prevZ = pz;
+                    }
+                }
+
+                const edgePts = [
+                    { x: 0, z: 0 },
+                    { x: 0, z: 0 },
+                    { x: 0, z: 0 },
+                    { x: 0, z: 0 }
+                ];
+
+                function setEdgePoint(outPt, x0, z0, h0, x1, z1, h1, level) {
+                    const t = findContourRootOnEdge(x0, z0, h0, x1, z1, h1, level);
+                    outPt.x = x0 + (x1 - x0) * t;
+                    outPt.z = z0 + (z1 - z0) * t;
+                }
+
+                for (let row = 0; row < gridSize - 1; row++) {
+                    for (let col = 0; col < gridSize - 1; col++) {
+                        const i0 = row * gridSize + col;
+                        const i1 = i0 + 1;
+                        const i2 = i0 + gridSize + 1;
+                        const i3 = i0 + gridSize;
+
+                        const x0 = posAttr.getX(i0), z0 = posAttr.getZ(i0), h0 = heights[i0];
+                        const x1 = posAttr.getX(i1), z1 = posAttr.getZ(i1), h1 = heights[i1];
+                        const x2 = posAttr.getX(i2), z2 = posAttr.getZ(i2), h2 = heights[i2];
+                        const x3 = posAttr.getX(i3), z3 = posAttr.getZ(i3), h3 = heights[i3];
+
+                        // Skip far outer border cells near the edge of the plane
+                        const cellRadius = Math.hypot((x0 + x2) * 0.5, (z0 + z2) * 0.5);
+                        if (cellRadius > DOMAIN_HALF * 0.96) continue;
+
+                        const cellMin = Math.min(h0, h1, h2, h3);
+                        const cellMax = Math.max(h0, h1, h2, h3);
+
+                        for (let l = 0; l < levels.length; l++) {
+                            const lvl = levels[l];
+                            if (lvl < cellMin || lvl > cellMax) continue;
+
+                            let mask = 0;
+                            if (h0 >= lvl) mask |= 1;
+                            if (h1 >= lvl) mask |= 2;
+                            if (h2 >= lvl) mask |= 4;
+                            if (h3 >= lvl) mask |= 8;
+
+                            if (mask === 0 || mask === 15) continue;
+
+                            const c0 = (mask & 1) !== 0;
+                            const c1 = (mask & 2) !== 0;
+                            const c2 = (mask & 4) !== 0;
+                            const c3 = (mask & 8) !== 0;
+
+                            // Edge indices: 0 = bottom (0->1), 1 = right (1->2), 2 = top (2->3), 3 = left (3->0)
+                            const has0 = c0 !== c1;
+                            const has1 = c1 !== c2;
+                            const has2 = c2 !== c3;
+                            const has3 = c3 !== c0;
+
+                            if (has0) setEdgePoint(edgePts[0], x0, z0, h0, x1, z1, h1, lvl);
+                            if (has1) setEdgePoint(edgePts[1], x1, z1, h1, x2, z2, h2, lvl);
+                            if (has2) setEdgePoint(edgePts[2], x2, z2, h2, x3, z3, h3, lvl);
+                            if (has3) setEdgePoint(edgePts[3], x3, z3, h3, x0, z0, h0, lvl);
+
+                            // Resolve 4-crossing saddle cases using bilinear center height to prevent branch swaps
+                            if (has0 && has1 && has2 && has3) {
+                                const cx = (x0 + x2) * 0.5;
+                                const cz = (z0 + z2) * 0.5;
+                                const hCenter = evaluatePotential(cx, cz).height;
+                                const centerAbove = hCenter >= lvl;
+
+                                if (centerAbove === c0) {
+                                    // Connect edge 0 to edge 3, and edge 1 to edge 2
+                                    pushSubdividedSegment(edgePts[0].x, edgePts[0].z, edgePts[3].x, edgePts[3].z, lvl);
+                                    pushSubdividedSegment(edgePts[1].x, edgePts[1].z, edgePts[2].x, edgePts[2].z, lvl);
+                                } else {
+                                    // Connect edge 0 to edge 1, and edge 2 to edge 3
+                                    pushSubdividedSegment(edgePts[0].x, edgePts[0].z, edgePts[1].x, edgePts[1].z, lvl);
+                                    pushSubdividedSegment(edgePts[2].x, edgePts[2].z, edgePts[3].x, edgePts[3].z, lvl);
+                                }
+                            } else {
+                                const active = [];
+                                if (has0) active.push(edgePts[0]);
+                                if (has1) active.push(edgePts[1]);
+                                if (has2) active.push(edgePts[2]);
+                                if (has3) active.push(edgePts[3]);
+
+                                if (active.length >= 2) {
+                                    pushSubdividedSegment(active[0].x, active[0].z, active[1].x, active[1].z, lvl);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                contourLines.geometry.dispose();
+                const nextGeo = new THREE.BufferGeometry();
+                nextGeo.setAttribute('position', new THREE.Float32BufferAttribute(segments, 3));
+                contourLines.geometry = nextGeo;
+            }
+
+            // =========================================================================
+            // 4. CHARGE MESH SYNCHRONIZATION
+            // =========================================================================
+            function syncChargeMarkers() {
+                const activeIds = new Set(state.charges.map(c => c.id));
+
+                // Remove stale charge meshes
+                for (const [id, entry] of chargeMeshes.entries()) {
+                    if (!activeIds.has(id)) {
+                        scene.remove(entry.core);
+                        scene.remove(entry.ring);
+                        scene.remove(entry.badge);
+                        if (entry.badge.material.map) {
+                            entry.badge.material.map.dispose();
+                        }
+                        entry.badge.material.dispose();
+                        chargeMeshes.delete(id);
+                    }
+                }
+
+                // Add or update active charge meshes
+                state.charges.forEach((ch) => {
+                    const isPos = ch.q >= 0;
+                    let entry = chargeMeshes.get(ch.id);
+                    if (!entry) {
+                        const core = new THREE.Mesh(coreGeo, isPos ? posMat : negMat);
+                        core.userData.chargeId = ch.id;
+
+                        const ring = new THREE.Mesh(capRingGeo, isPos ? posRingMat : negRingMat);
+                        ring.userData.chargeId = ch.id;
+                        ring.renderOrder = 2;
+
+                        const badge = createSignSprite(isPos);
+                        badge.userData.chargeId = ch.id;
+
+                        scene.add(core);
+                        scene.add(ring);
+                        scene.add(badge);
+                        entry = { core, ring, badge, isPos };
+                        chargeMeshes.set(ch.id, entry);
+                    } else {
+                        entry.core.material = isPos ? posMat : negMat;
+                        if (entry.isPos !== isPos) {
+                            scene.remove(entry.badge);
+                            if (entry.badge.material.map) {
+                                entry.badge.material.map.dispose();
+                            }
+                            entry.badge.material.dispose();
+                            const newBadge = createSignSprite(isPos);
+                            newBadge.userData.chargeId = ch.id;
+                            scene.add(newBadge);
+                            entry.badge = newBadge;
+                            entry.isPos = isPos;
+                        }
+                        entry.ring.material = isPos ? posRingMat : negRingMat;
+                    }
+                });
+            }
+
+            // =========================================================================
+            // 5. TOP VIEW & SIDE VIEW CAMERA + FREE MOUSE NAVIGATION + CHARGE DRAGGING
+            // =========================================================================
+            function applyCameraSpherical() {
+                cameraRig.phi = Math.max(
+                    cameraRig.minPhi,
+                    Math.min(cameraRig.maxPhi, cameraRig.phi)
+                );
+                cameraRig.radius = Math.max(
+                    cameraRig.minRadius,
+                    Math.min(cameraRig.maxRadius, cameraRig.radius)
+                );
+
+                const sinPhi = Math.sin(cameraRig.phi);
+                const x = cameraRig.target.x + cameraRig.radius * sinPhi * Math.sin(cameraRig.theta);
+                const y = cameraRig.target.y + cameraRig.radius * Math.cos(cameraRig.phi);
+                const z = cameraRig.target.z + cameraRig.radius * sinPhi * Math.cos(cameraRig.theta);
+
+                camera.position.set(x, y, z);
+                camera.lookAt(cameraRig.target);
+                syncViewButtons();
+            }
+
+            // Camera distance that keeps the same width of sheet in frame on wide screens, tall phones and tablets
+            function viewRadius() {
+                const aspect = camera && camera.aspect ? camera.aspect : 1.6;
+                const halfWidth = 12;                       // world units we always want visible sideways
+                const need = halfWidth / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect);
+                return Math.max(24, Math.min(cameraRig.maxRadius, need));
+            }
+
+            const VIEW_PRESETS = {
+                top:  { theta: 0, phi: 0.001 },
+                side: { theta: 0, phi: Math.PI / 2 - 0.06 }
+            };
+            let camTween = null;
+            let lastFitAspect = 0;
+
+            function cancelCameraTween() { camTween = null; }
+
+            // Highlight a button only while the camera really sits in that view (orbiting away clears both)
+            function syncViewButtons() {
+                const topBtn = document.getElementById('top-view-btn');
+                const sideBtn = document.getElementById('side-view-btn');
+                if (!topBtn || !sideBtn) return;
+                const wrap = (a) => Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
+                const near = (p) => Math.abs(cameraRig.phi - p.phi) < 0.03 && (p === VIEW_PRESETS.top || wrap(cameraRig.theta - p.theta) < 0.04)
+                    && cameraRig.target.lengthSq() < 0.25;
+                const isTop = near(VIEW_PRESETS.top), isSide = !isTop && near(VIEW_PRESETS.side);
+                topBtn.setAttribute('aria-pressed', String(isTop));
+                sideBtn.setAttribute('aria-pressed', String(isSide));
+            }
+
+            function setCameraView(mode, animated) {
+                state.viewMode = mode;
+                const p = VIEW_PRESETS[mode] || VIEW_PRESETS.top;
+                const to = { theta: p.theta, phi: p.phi, radius: viewRadius(), tx: 0, ty: 0, tz: 0 };
+                lastFitAspect = camera.aspect;
+
+                if (!animated || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    camTween = null;
+                    cameraRig.target.set(0, 0, 0);
+                    cameraRig.theta = to.theta; cameraRig.phi = to.phi; cameraRig.radius = to.radius;
+                    applyCameraSpherical();
+                    return;
+                }
+                // shortest way round for theta
+                let dTheta = to.theta - cameraRig.theta;
+                dTheta = Math.atan2(Math.sin(dTheta), Math.cos(dTheta));
+                camTween = {
+                    t: 0, dur: 0.55,
+                    from: { theta: cameraRig.theta, phi: cameraRig.phi, radius: cameraRig.radius, tx: cameraRig.target.x, ty: cameraRig.target.y, tz: cameraRig.target.z },
+                    dTheta, to
+                };
+            }
+
+            // advanced from the render loop
+            function stepCameraTween(dt) {
+                if (!camTween) return;
+                const tw = camTween;
+                tw.t = Math.min(1, tw.t + dt / tw.dur);
+                const k = tw.t < 0.5 ? 4 * tw.t ** 3 : 1 - Math.pow(-2 * tw.t + 2, 3) / 2; // easeInOutCubic
+                cameraRig.theta = tw.from.theta + tw.dTheta * k;
+                cameraRig.phi = tw.from.phi + (tw.to.phi - tw.from.phi) * k;
+                cameraRig.radius = tw.from.radius + (tw.to.radius - tw.from.radius) * k;
+                cameraRig.target.set(tw.from.tx * (1 - k), tw.from.ty * (1 - k), tw.from.tz * (1 - k));
+                applyCameraSpherical();
+                if (tw.t >= 1) camTween = null;
+            }
+
+            function orbitCamera(deltaX, deltaY) {
+                cancelCameraTween();
+                const rotateSpeed = 0.0055;
+                cameraRig.theta -= deltaX * rotateSpeed;
+                cameraRig.phi -= deltaY * rotateSpeed;
+                applyCameraSpherical();
+            }
+
+            function panCamera(deltaX, deltaY) {
+                cancelCameraTween();
+                const panSpeed = 0.0015 * cameraRig.radius;
+                const forward = new THREE.Vector3();
+                camera.getWorldDirection(forward);
+
+                const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+                const up = new THREE.Vector3().crossVectors(right, forward).normalize();
+
+                cameraRig.target.addScaledVector(right, -deltaX * panSpeed);
+                cameraRig.target.addScaledVector(up, deltaY * panSpeed);
+                applyCameraSpherical();
+            }
+
+            function setNDCFromClient(clientX, clientY) {
+                const rect = renderer.domElement.getBoundingClientRect();
+                pointerState.ndc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+                pointerState.ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+            }
+
+            function pickChargeAtNDC(ndcX, ndcY) {
+                raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+                const pickTargets = [];
+                for (const entry of chargeMeshes.values()) {
+                    pickTargets.push(entry.core, entry.ring, entry.badge);
+                }
+                const hits = raycaster.intersectObjects(pickTargets, false);
+                if (hits.length > 0) {
+                    return { type: 'charge', id: hits[0].object.userData.chargeId };
+                }
+
+                if (testChargeGroup && testChargeGroup.visible) {
+                    const testHits = raycaster.intersectObjects(testChargeGroup.children, false);
+                    if (testHits.length > 0) {
+                        return { type: 'test' };
+                    }
+                }
+                return null;
+            }
+
+            function moveDraggedCharge() {
+                if (pointerState.mode === 'drag-charge' && pointerState.draggedChargeId !== null) {
+                    raycaster.setFromCamera(pointerState.ndc, camera);
+                    if (raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
+                        const ch = state.charges.find(c => c.id === pointerState.draggedChargeId);
+                        if (ch) {
+                            ch.x = Math.max(-14, Math.min(14, intersectPoint.x));
+                            ch.y = Math.max(-14, Math.min(14, intersectPoint.z));
+                            recomputeSurface();
+                        }
+                    }
+                } else if (pointerState.mode === 'drag-test-charge' && state.testCharge.active) {
+                    raycaster.setFromCamera(pointerState.ndc, camera);
+                    if (raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
+                        state.testCharge.x = Math.max(-14, Math.min(14, intersectPoint.x));
+                        state.testCharge.y = Math.max(-14, Math.min(14, intersectPoint.z));
+                        state.testCharge.vx = 0;
+                        state.testCharge.vz = 0;
+                        syncTestChargeMarker();
+                    }
+                }
+            }
+
+            // Spawn the currently selected tool (+ charge, - charge, or +1 test charge) on the surface
+            function pickSurfaceSpawnPoint(ndcX, ndcY) {
+                raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+                if (surfaceMesh) {
+                    const hits = raycaster.intersectObject(surfaceMesh, false);
+                    if (hits.length > 0) {
+                        return {
+                            x: Math.max(-14, Math.min(14, hits[0].point.x)),
+                            z: Math.max(-14, Math.min(14, hits[0].point.z))
+                        };
+                    }
+                }
+                const fallbackPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                if (raycaster.ray.intersectPlane(fallbackPlane, intersectPoint)) {
+                    return {
+                        x: Math.max(-14, Math.min(14, intersectPoint.x)),
+                        z: Math.max(-14, Math.min(14, intersectPoint.z))
+                    };
+                }
+                return null;
+            }
+
+            function spawnSelectedToolAt(x, z) {
+                if (state.placementMode === 'pos' || state.placementMode === 'neg') {
+                    if (state.charges.length >= MAX_CHARGES) { showToast('That is the maximum: ' + MAX_CHARGES + ' charges.'); return; }
+                    const sign = state.placementMode === 'pos' ? 1 : -1;
+                    const id = state.nextId++;
+                    state.charges.push({ id, x, y: z, q: sign * 1.8 });
+                    state.selectedId = id;
+                    syncChargeMarkers();
+                    syncMagnitudeControls();
+                    recomputeSurface();
+                } else if (state.placementMode === 'test') {
+                    state.testCharge.active = true;
+                    state.testCharge.x = x;
+                    state.testCharge.y = z;
+                    state.testCharge.vx = 0.0;
+                    state.testCharge.vz = 0.0;
+                    syncTestChargeMarker();
+                }
+            }
+
+            function attachEvents() {
+                const domElem = renderer.domElement;
+
+                domElem.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                domElem.addEventListener('mousedown', (e) => {
+                    pointerState.lastX = e.clientX;
+                    pointerState.lastY = e.clientY;
+                    setNDCFromClient(e.clientX, e.clientY);
+
+                    if (e.button === 0) {
+                        const hit = filmActive ? null : pickChargeAtNDC(pointerState.ndc.x, pointerState.ndc.y);
+                        if (hit && hit.type === 'charge') {
+                            state.selectedId = hit.id;
+                            syncMagnitudeControls();
+                            pointerState.mode = 'drag-charge';
+                            pointerState.draggedChargeId = hit.id;
+                            const ch = state.charges.find(c => c.id === hit.id);
+                            const { height } = evaluatePotential(ch.x, ch.y);
+                            dragPlane.setFromNormalAndCoplanarPoint(
+                                new THREE.Vector3(0, 1, 0),
+                                new THREE.Vector3(0, height, 0)
+                            );
+                            domElem.style.cursor = 'grabbing';
+                        } else if (hit && hit.type === 'test') {
+                            pointerState.mode = 'drag-test-charge';
+                            pointerState.draggedChargeId = null;
+                            state.testCharge.vx = 0;
+                            state.testCharge.vz = 0;
+                            const { height } = evaluatePotential(state.testCharge.x, state.testCharge.y);
+                            dragPlane.setFromNormalAndCoplanarPoint(
+                                new THREE.Vector3(0, 1, 0),
+                                new THREE.Vector3(0, height, 0)
+                            );
+                            domElem.style.cursor = 'grabbing';
+                        } else if (state.placementMode !== 'none') {
+                            const spawnPt = pickSurfaceSpawnPoint(pointerState.ndc.x, pointerState.ndc.y);
+                            if (spawnPt) {
+                                spawnSelectedToolAt(spawnPt.x, spawnPt.z);
+                            }
+                            pointerState.mode = 'none';
+                            domElem.style.cursor = 'crosshair';
+                        } else {
+                            pointerState.mode = 'orbit';
+                            domElem.style.cursor = 'move';
+                        }
+                    } else if (e.button === 2 || e.button === 1) {
+                        pointerState.mode = 'pan';
+                        domElem.style.cursor = 'all-scroll';
+                    }
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    const dx = e.clientX - pointerState.lastX;
+                    const dy = e.clientY - pointerState.lastY;
+                    pointerState.lastX = e.clientX;
+                    pointerState.lastY = e.clientY;
+                    setNDCFromClient(e.clientX, e.clientY);
+
+                    if (pointerState.mode === 'drag-charge' || pointerState.mode === 'drag-test-charge') {
+                        moveDraggedCharge();
+                    } else if (pointerState.mode === 'orbit') {
+                        orbitCamera(dx, dy);
+                    } else if (pointerState.mode === 'pan') {
+                        panCamera(dx, dy);
+                    } else {
+                        const hoverHit = pickChargeAtNDC(pointerState.ndc.x, pointerState.ndc.y);
+                        if (hoverHit) {
+                            domElem.style.cursor = 'grab';
+                        } else if (state.placementMode !== 'none') {
+                            domElem.style.cursor = 'crosshair';
+                        } else {
+                            domElem.style.cursor = 'grab';
+                        }
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    pointerState.mode = 'none';
+                    pointerState.draggedChargeId = null;
+                    domElem.style.cursor = state.placementMode !== 'none' ? 'crosshair' : 'default';
+                });
+
+                domElem.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    cancelCameraTween();
+                    const zoomFactor = 1 + e.deltaY * 0.0012;
+                    cameraRig.radius *= zoomFactor;
+                    applyCameraSpherical();
+                }, { passive: false });
+
+                domElem.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 1) {
+                        const t = e.touches[0];
+                        pointerState.lastX = t.clientX;
+                        pointerState.lastY = t.clientY;
+                        pointerState.pinchDist = null;
+                        setNDCFromClient(t.clientX, t.clientY);
+                        const hit = filmActive ? null : pickChargeAtNDC(pointerState.ndc.x, pointerState.ndc.y);
+                        if (hit && hit.type === 'charge') {
+                            state.selectedId = hit.id;
+                            syncMagnitudeControls();
+                            pointerState.mode = 'drag-charge';
+                            pointerState.draggedChargeId = hit.id;
+                            const ch = state.charges.find(c => c.id === hit.id);
+                            const { height } = evaluatePotential(ch.x, ch.y);
+                            dragPlane.setFromNormalAndCoplanarPoint(
+                                new THREE.Vector3(0, 1, 0),
+                                new THREE.Vector3(0, height, 0)
+                            );
+                        } else if (hit && hit.type === 'test') {
+                            pointerState.mode = 'drag-test-charge';
+                            pointerState.draggedChargeId = null;
+                            state.testCharge.vx = 0;
+                            state.testCharge.vz = 0;
+                            const { height } = evaluatePotential(state.testCharge.x, state.testCharge.y);
+                            dragPlane.setFromNormalAndCoplanarPoint(
+                                new THREE.Vector3(0, 1, 0),
+                                new THREE.Vector3(0, height, 0)
+                            );
+                        } else if (state.placementMode !== 'none') {
+                            const spawnPt = pickSurfaceSpawnPoint(pointerState.ndc.x, pointerState.ndc.y);
+                            if (spawnPt) {
+                                spawnSelectedToolAt(spawnPt.x, spawnPt.z);
+                            }
+                            pointerState.mode = 'none';
+                        } else {
+                            pointerState.mode = 'orbit';
+                        }
+                    } else if (e.touches.length === 2) {
+                        const dx = e.touches[0].clientX - e.touches[1].clientX;
+                        const dy = e.touches[0].clientY - e.touches[1].clientY;
+                        pointerState.pinchDist = Math.hypot(dx, dy);
+                        pointerState.lastX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
+                        pointerState.lastY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
+                        pointerState.mode = 'pan';
+                    }
+                }, { passive: true });
+
+                domElem.addEventListener('touchmove', (e) => {
+                    if (e.touches.length === 1) {
+                        const t = e.touches[0];
+                        const dx = t.clientX - pointerState.lastX;
+                        const dy = t.clientY - pointerState.lastY;
+                        pointerState.lastX = t.clientX;
+                        pointerState.lastY = t.clientY;
+                        setNDCFromClient(t.clientX, t.clientY);
+
+                        if (pointerState.mode === 'drag-charge' || pointerState.mode === 'drag-test-charge') {
+                            moveDraggedCharge();
+                        } else if (pointerState.mode === 'orbit') {
+                            orbitCamera(dx, dy);
+                        }
+                    } else if (e.touches.length === 2) {
+                        const dxPinch = e.touches[0].clientX - e.touches[1].clientX;
+                        const dyPinch = e.touches[0].clientY - e.touches[1].clientY;
+                        const dist = Math.hypot(dxPinch, dyPinch);
+
+                        const midX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
+                        const midY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
+                        const panDx = midX - pointerState.lastX;
+                        const panDy = midY - pointerState.lastY;
+                        pointerState.lastX = midX;
+                        pointerState.lastY = midY;
+
+                        if (pointerState.pinchDist && dist > 0) {
+                            cameraRig.radius *= pointerState.pinchDist / dist;
+                        }
+                        pointerState.pinchDist = dist;
+                        panCamera(panDx, panDy);
+                    }
+                }, { passive: true });
+
+                domElem.addEventListener('touchend', (e) => {
+                    if (e.touches.length === 0) {
+                        pointerState.mode = 'none';
+                        pointerState.draggedChargeId = null;
+                        pointerState.pinchDist = null;
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    if (!renderer || !camera) return;
+                    const w = container.clientWidth || window.innerWidth;
+                    const h = container.clientHeight || window.innerHeight;
+                    camera.aspect = w / h;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(w, h);
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                    // rotating the phone / resizing the window: re-frame the sheet, but ignore tiny toolbar-height jitters
+                    if (!filmActive && Math.abs(camera.aspect - lastFitAspect) > 0.2) {
+                        lastFitAspect = camera.aspect;
+                        cameraRig.radius = viewRadius();
+                        applyCameraSpherical();
+                    }
+                });
+            }
+
+            // =========================================================================
+            // 6. BUTTON ACTIONS (+ CHARGE / - CHARGE / TOP VIEW / SIDE VIEW)
+            // =========================================================================
+            function syncPlacementButtons() {
+                const posBtn = document.getElementById('add-pos-btn');
+                const negBtn = document.getElementById('add-neg-btn');
+                const testBtn = document.getElementById('test-charge-btn');
+
+                const base = 'h-10 rounded-xl active:scale-95 font-semibold transition ';
+                const sym = 'w-11 text-xl font-bold leading-none ';
+                const txt = 'px-3 text-xs sm:text-sm ';
+
+                if (posBtn) {
+                    posBtn.className = base + sym + (state.placementMode === 'pos'
+                        ? 'bg-rose-500/40 border-2 border-rose-300 text-rose-100'
+                        : 'bg-rose-500/25 hover:bg-rose-500/35 border border-rose-400/50 text-rose-200');
+                }
+
+                if (negBtn) {
+                    negBtn.className = base + sym + (state.placementMode === 'neg'
+                        ? 'bg-blue-500/40 border-2 border-blue-300 text-blue-100'
+                        : 'bg-blue-500/25 hover:bg-blue-500/35 border border-blue-400/50 text-blue-200');
+                }
+
+                if (testBtn) {
+                    testBtn.className = base + txt + (state.placementMode === 'test'
+                        ? 'bg-amber-400/40 border-2 border-amber-200 text-amber-100'
+                        : state.testCharge.active
+                            ? 'bg-amber-400/30 hover:bg-amber-400/40 border border-amber-300 text-amber-100'
+                            : 'bg-amber-500/25 hover:bg-amber-500/35 border border-amber-400/50 text-amber-200');
+                }
+
+                if (renderer && renderer.domElement) {
+                    renderer.domElement.style.cursor = state.placementMode !== 'none' ? 'crosshair' : 'default';
+                }
+            }
+
+            function selectPlacementMode(mode) {
+                state.placementMode = state.placementMode === mode ? 'none' : mode;
+                syncPlacementButtons();
+            }
+
+            function bindUI() {
+                document.getElementById('top-view-btn').addEventListener('click', () => setCameraView('top', true));
+                document.getElementById('side-view-btn').addEventListener('click', () => setCameraView('side', true));
+                document.getElementById('add-pos-btn').addEventListener('click', () => selectPlacementMode('pos'));
+                document.getElementById('add-neg-btn').addEventListener('click', () => selectPlacementMode('neg'));
+                document.getElementById('test-charge-btn').addEventListener('click', () => selectPlacementMode('test'));
+                document.getElementById('sel-mag').addEventListener('input', (e) => setSelectedMagnitude(parseFloat(e.target.value)));
+                document.getElementById('sel-del').addEventListener('click', deleteSelectedCharge);
+                document.addEventListener('input', paintRanges);
+                initPolygon();
+                paintRanges();
+                window.addEventListener('keydown', (e) => {
+                    if ((e.key === 'Delete' || e.key === 'Backspace') && e.target.tagName !== 'INPUT' && !document.body.classList.contains('film')) { e.preventDefault(); deleteSelectedCharge(); }
+                });
+
+                syncMagnitudeControls();
+                syncPlacementButtons();
+            }
+
+            // =========================================================================
+            // 7. ANIMATION LOOP & INITIALIZATION
+            // =========================================================================
+            let lastFrameTime = performance.now();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const now = performance.now();
+                const dt = (now - lastFrameTime) / 1000;
+                lastFrameTime = now;
+
+                stepCameraTween(Math.min(dt, 0.05));
+                stepTestCharge(dt);
+                if (guideTickFn) guideTickFn(dt);
+                if (guideRender) guideRender(); else renderer.render(scene, camera);
+            }
+
+            // =========================================================================
+            // 8. INTERACTIVE GUIDE + PER-STEP ANIMATION (film) LAYER
+            // =========================================================================
+            let guideTickFn = null, guideRender = null, filmActive = false;
+
+            function initGuide() {
+                const $ = (id) => document.getElementById(id);
+                const G = new THREE.Group();
+                scene.add(G);
+                const K = 2.2, defaults = [[-3, 0, 1.8], [3, 0, -1.8]];
+                const V = (x, z) => evaluatePotential(x, z).potential;
+                const H = (x, z) => evaluatePotential(x, z).height;
+                const ez = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+                const sg = (t, a, b) => ez((t - a) / (b - a));
+                const clampP = (v) => Math.max(-13.5, Math.min(13.5, v));
+                const MT = [];
+                const reg = (m, o) => { m.transparent = true; m.opacity = o; MT.push([m, o]); return m; };
+                // Round dots (a textured circle) instead of the default square points
+                const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 32, 30, 0, Math.PI * 2); g.fill(); return new THREE.CanvasTexture(c); })();
+                const dotMat = (size) => new THREE.PointsMaterial({ size, map: dotTex, vertexColors: true, transparent: true, alphaTest: 0.05, depthTest: false, depthWrite: false });
+
+                const mk = (Type, c, n, o = 1) => {
+                    const g = new THREE.BufferGeometry();
+                    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+                    const l = new Type(g, reg(new THREE.LineBasicMaterial({ color: c, depthTest: false }), o));
+                    l.renderOrder = 5; l.frustumCulled = false; G.add(l);
+                    return l;
+                };
+                const put = (l, pts) => { const a = l.geometry.attributes.position; pts.forEach((p, i) => a.setXYZ(i, p[0], p[1], p[2])); a.needsUpdate = true; };
+                const orb = (c, r = 0.3) => {
+                    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 20), reg(new THREE.MeshBasicMaterial({ color: c, depthTest: false }), 1));
+                    m.renderOrder = 6; G.add(m);
+                    return m;
+                };
+                const arrowPts = (x, y, z, dx, dz, len) => {
+                    const tx = x + dx * len, tz = z + dz * len, h = 0.35, w = 0.17;
+                    return [[x, y, z], [tx, y, tz], [tx - dx * h - dz * w, y, tz - dz * h + dx * w], [tx, y, tz], [tx - dx * h + dz * w, y, tz - dz * h - dx * w]];
+                };
+                const trail = (l, h, p, n) => { h.push(p); if (h.length > n) h.shift(); put(l, Array.from({ length: n }, (_, i) => h[Math.min(i, h.length - 1)])); };
+                // Arrow field of -grad(V), laid out on a 13x13 grid around (ox, oz) with spacing sp
+                const field = (line, reveal, k = 1, ox = 0, oz = 0, sp = 2) => {
+                    const a = line.geometry.attributes.position, A = a.array; let o = 0;
+                    const sgm = (x1, y1, z1, x2, y2, z2) => { A[o++] = x1; A[o++] = y1; A[o++] = z1; A[o++] = x2; A[o++] = y2; A[o++] = z2; };
+                    for (let i = -6; i <= 6; i++) for (let j = -6; j <= 6; j++) {
+                        const x = ox + sp * i, z = oz + sp * j, e = evaluateTestChargeAcceleration(x, z), m = Math.hypot(e.ax, e.az) || 1;
+                        const dx = e.ax / m, dz = e.az / m, L = Math.min(1.5, 0.25 + 0.55 * Math.log(1 + m)) * ez((reveal - Math.hypot(x - ox, z - oz)) / 3) * k;
+                        const tx = x + dx * L, tz = z + dz * L, y0 = H(x, z) + 0.2, y1 = H(tx, tz) + 0.2, f = Math.min(1, L / 0.5), hd = 0.4 * f, w = 0.18 * f;
+                        sgm(x, y0, z, tx, y1, tz);
+                        sgm(tx, y1, tz, tx - dx * hd - dz * w, y1, tz - dz * hd + dx * w);
+                        sgm(tx, y1, tz, tx - dx * hd + dz * w, y1, tz - dz * hd - dx * w);
+                    }
+                    a.needsUpdate = true;
+                };
+                const clearG = () => {
+                    MT.length = 0;
+                    while (G.children.length) { const o = G.children[0]; G.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }
+                };
+                const restore = () => {
+                    surfaceMesh.material.opacity = 0.42; contourLines.material.opacity = 0.35; surfaceMesh.visible = true; deformationGridLines.visible = true; contourLines.visible = true;
+                };
+                const setCharges = (list) => {
+                    state.charges = list.map((c, i) => ({ id: i + 1, x: c[0], y: c[1], q: c[2] }));
+                    state.nextId = list.length + 1; state.selectedId = 1; state.placementMode = 'none';
+                    syncPlacementButtons(); syncChargeMarkers(); syncMagnitudeControls(); recomputeSurface();
+                };
+                // The charge you last clicked, dragged or placed
+                const sel = () => state.charges.find((c) => c.id === state.selectedId) || state.charges[0];
+                const scaleCharge = (id, s) => { const e = chargeMeshes.get(id); if (e) { e.core.scale.setScalar(s); e.ring.scale.setScalar(s); e.badge.visible = s > 0.6; } };
+                const drop = (x, z) => { Object.assign(state.testCharge, { active: true, x, y: z, vx: 0, vz: 0 }); syncTestChargeMarker(); };
+                const view = (th, ph, r) => {
+                    cameraRig.target.set(0, 0, 0);
+                    cameraRig.theta = th; cameraRig.phi = ph; cameraRig.radius = r;
+                    applyCameraSpherical();
+                };
+                const sl = (id, lab, min, max, st, v) => `<label class="flex items-center gap-3 text-xs font-medium text-slate-300 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60"><span class="min-w-[8.5rem] flex items-center justify-between gap-2 whitespace-nowrap">${lab} <b id="${id}v" class="rng-val"></b></span><input id="${id}" type="range" min="${min}" max="${max}" step="${st}" value="${v}" class="rng"></label>`;
+                const bt = (id, lab, c) => `<button id="${id}" type="button" class="flex-1 px-3 py-2 rounded-xl bg-${c}-500/25 hover:bg-${c}-500/35 active:scale-95 border border-${c}-400/50 text-${c}-200 text-xs font-semibold transition">${lab}</button>`;
+                const row = (...b) => `<div class="flex gap-2">${b.join('')}</div>`;
+                const rd = (id, d = 1) => { const v = +$(id).value; $(id + 'v').textContent = v.toFixed(d); return v; };
+                const sn = (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2);
+                const f2 = (v) => v.toFixed(2);
+                const sub = (n) => String(n).replace(/\d/g, (d) => '₀₁₂₃₄₅₆₇₈₉'[+d]);
+
+                // ---- Cinematic atmosphere (only while a step is animating) ----------------------
+                const fog = new THREE.FogExp2(0x0b0f19, 0.0075);
+                const dp = new Float32Array(900);
+                for (let i = 0; i < 300; i++) { const a = Math.random() * 6.283, r = 8 + Math.random() * 55; dp.set([r * Math.cos(a), -6 + Math.random() * 38, r * Math.sin(a)], i * 3); }
+                const dg = new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.BufferAttribute(dp, 3));
+                const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x9db8ff, size: 0.22, transparent: true, opacity: 0.55, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+                dust.visible = false; scene.add(dust);
+                let comp = null;
+                if (THREE.EffectComposer && THREE.UnrealBloomPass && THREE.RenderPass) {
+                    comp = new THREE.EffectComposer(renderer);
+                    comp.addPass(new THREE.RenderPass(scene, camera));
+                    comp.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.65, 0.6, 0.3));
+                }
+
+                let S = {}, cur = 0, T = 0, film = false, userCam = false, ready = false, capK = -2, capTxt = '';
+                let sc = null, ctx = null, U = null, eqLines = [], eqTok = 0;
+                const fitView = () => {
+                    const w = window.innerWidth, h = window.innerHeight;
+                    if (film) camera.setViewOffset(w, h, 0, h * 0.16, w, h); // lift the scene above captions/equations
+                    if (comp) comp.setSize(w, h);
+                };
+                window.addEventListener('resize', fitView);
+
+                // ---- The user's own configuration, captured when an animation starts -----------
+                const snap = () => ({ cs: state.charges.map((c) => ({ ...c })), tc: { ...state.testCharge }, sel: state.selectedId, next: state.nextId });
+                const unsnap = () => {
+                    if (!U) return;
+                    state.charges = U.cs.map((c) => ({ ...c })); state.nextId = U.next; state.selectedId = U.sel;
+                    Object.assign(state.testCharge, U.tc, { vx: 0, vz: 0 });
+                    chargeMeshes.forEach((e) => { e.core.scale.setScalar(1); e.ring.scale.setScalar(1); e.badge.visible = true; });
+                    syncChargeMarkers(); recomputeSurface(); syncTestChargeMarker();
+                    U = null;
+                };
+                // Everything the animations need to know about your charges
+                const buildCtx = () => {
+                    const cs = U.cs, n = cs.length;
+                    const np = cs.filter((c) => c.q >= 0).length, nn = n - np;
+                    let cx = 0, cz = 0; cs.forEach((c) => { cx += c.x / n; cz += c.y / n; });
+                    const ext = Math.max(0, ...cs.map((c) => Math.hypot(c.x - cx, c.y - cz)));
+                    const main = cs.reduce((a, c) => (Math.abs(c.q) > Math.abs(a.q) + 1e-9 ? c : a), cs[0]); // strongest charge
+                    let dir = [1, 0];
+                    const others = cs.filter((c) => c !== main);
+                    if (others.length) {
+                        let ox = 0, oz = 0, w = 0;
+                        others.forEach((c) => { const a = Math.abs(c.q) + 0.1; ox += c.x * a; oz += c.y * a; w += a; });
+                        ox /= w; oz /= w;
+                        const L = Math.hypot(main.x - ox, main.y - oz);
+                        if (L > 0.3) dir = [(main.x - ox) / L, (main.y - oz) / L]; // away from the others: cleanest 1/r look
+                    }
+                    const fr = Math.min(2.4, Math.max(1, (ext + 8) / 11)); // zoom factor that frames all charges
+                    const tc = U.tc.active ? [clampP(U.tc.x), clampP(U.tc.y)] : null;
+                    return { cs, n, np, nn, cx, cz, ext, main, dir, fr, tc };
+                };
+
+                // Keeps a slider and the selected charge's value in step, both ways
+                const bindSel = (id) => {
+                    const el = $(id), c = sel();
+                    el.disabled = !c;
+                    if (!c) { S.sid = null; return null; }
+                    const v = +el.value;
+                    if (S.sid !== c.id) { S.sid = c.id; el.value = c.q.toFixed(1); S.sv = +el.value; S.cq = c.q; }
+                    else if (v !== S.sv) { S.sv = v; S.cq = v; c.q = v; syncChargeMarkers(); recomputeSurface(); }
+                    else if (c.q !== S.cq) { S.cq = c.q; el.value = c.q.toFixed(1); S.sv = +el.value; }
+                    rd(id);
+                    return c;
+                };
+                const NONE = 'No charges yet: press + or − at the bottom, then tap the sheet to place one.';
+
+                // ---- Interactive steps (sliders, probes, readouts) ------------------------------
+                // They work on whatever charges you have built; nothing is reset when you move between steps.
+                                // ---- Detailed derivations shown in the Details sheet (one entry per step) ----
+                const R = String.raw;
+                const DERIV = [
+                    { topic: 'The electrostatic potential of a point charge', s: [
+                        [R`Start from Coulomb’s law`, R`<p>A source charge \(q\) pushes a test charge \(q_0\) at distance \(r\) with</p>\[\vec F=\frac{k\,q\,q_0}{r^{2}}\,\hat r,\qquad k=\frac{1}{4\pi\varepsilon_0}\]<p>Dividing out \(q_0\) gives the field, which belongs to \(q\) alone:</p>\[\vec E=\frac{\vec F}{q_0}=\frac{kq}{r^{2}}\,\hat r\]`],
+                        [R`Work to bring \(q_0\) in from infinity`, R`<p>Move \(q_0\) slowly from \(\infty\) to radius \(r\). We must cancel the field’s force, so our force is \(-\vec F\), and \(d\vec l=dr'\,\hat r\):</p>\[W=-\int_{\infty}^{r}\vec F\cdot d\vec l=-kqq_0\int_{\infty}^{r}\frac{dr'}{r'^{2}}\]<p>The integral is elementary:</p>\[\int_{\infty}^{r}\frac{dr'}{r'^{2}}=\left[-\frac{1}{r'}\right]_{\infty}^{r}=-\frac{1}{r}\quad\Longrightarrow\quad W=\frac{kqq_0}{r}\]`],
+                        [R`Divide out the test charge`, R`<p>The work is stored as potential energy, \(U=W\). Dividing by \(q_0\) removes the test charge:</p>\[V(r)=\frac{U}{q_0}=\frac{kq}{r}\]<p>\(V\) is one number per point (a scalar), and \(V\to0\) at infinity by construction.</p>`],
+                        [R`Read the sign`, R`<p>If \(q>0\) then \(V>0\): a hill. If \(q<0\) then \(V<0\): a well. Doubling \(|q|\) doubles the height, and far away \(V\to0\), so the sheet flattens.</p>`],
+                        [R`Sandbox version and the yellow marker`, R`<p>At \(r=0\) the formula blows up, so the sandbox softens it with \(\varepsilon=1.25\) and sets \(k=1\):</p>\[V=\frac{q}{\sqrt{r^{2}+\varepsilon^{2}}}\]<p>The marker sits at \(r=4\), so</p>\[V=\frac{q}{\sqrt{4^{2}+1.25^{2}}}=\frac{q}{\sqrt{17.5625}}\approx 0.239\,q\]<p>Sliding \(q\) through zero therefore carries the marker through zero.</p>`] ] },
+                    { topic: R`Potential energy \(U=q_0V\) and the force on a test charge`, s: [
+                        [R`Why divide by \(q_0\)?`, R`<p>Work done on the test charge is proportional to \(q_0\), so</p>\[U=q_0V\]<p>Doubling \(q_0\) doubles \(U\) but leaves \(V\) unchanged: \(V\) describes the source, \(U\) describes the pair.</p>`],
+                        [R`Recover Coulomb’s force from energy`, R`<p>Force is the downhill slope of potential energy. With \(U=q_0kq/r\):</p>\[F=-\frac{dU}{dr}=-q_0kq\,\frac{d}{dr}\!\left(\frac{1}{r}\right)=\frac{kqq_0}{r^{2}}\]<p>This is exactly Coulomb’s law, so nothing was lost by switching to energy.</p>`],
+                        [R`Force in terms of the field`, R`<p>Combining \(\vec F=q_0\vec E\) with the line above,</p>\[\vec E=-\frac{dV}{dr}\,\hat r\]<p>so the arrow points downhill, with length equal to the slope.</p>`],
+                        [R`Release the +1 charge`, R`<p>With no friction, mechanical energy is conserved:</p>\[\tfrac12 m v^{2}+q_0V=\text{const}\;\Longrightarrow\;\tfrac12 m v^{2}=q_0\,(V_{\text{start}}-V)\]<p>The charge rolls downhill, trading potential energy for motion.</p>`] ] },
+                    { topic: 'Building the surface from samples', s: [
+                        [R`Pick a grid point`, R`<p>At a point \((x,z)\), the distance to charge \(i\) (at \((x_i,z_i)\)) is</p>\[r_i=\sqrt{(x-x_i)^{2}+(z-z_i)^{2}}\]`],
+                        [R`Each charge’s contribution`, R`<p>Using the softened point-charge potential,</p>\[V_i=\frac{k\,q_i}{\sqrt{r_i^{2}+\varepsilon^{2}}}\]`],
+                        [R`Add the contributions`, R`\[V(x,z)=\sum_{i=1}^{N}V_i=\sum_{i=1}^{N}\frac{k\,q_i}{\sqrt{r_i^{2}+\varepsilon^{2}}}\]`],
+                        [R`Convert the number to a height`, R`<p>The dot is placed at height proportional to \(V\), smoothly capped so tall peaks stay on screen:</p>\[h\approx 2.2\,V\quad(\text{small }V),\qquad |h|\le h_{\max}\ \text{via}\ \tanh\]`],
+                        [R`Repeat over the whole grid`, R`<p>The real sheet evaluates the same sum at every vertex:</p>\[161\times161=25{,}921\ \text{evaluations}\]<p>Few dots give a rough outline; many dots fill in the smooth surface.</p>`] ] },
+                    { topic: 'Superposition: why potentials simply add', s: [
+                        [R`Forces are linear`, R`<p>Coulomb forces from several charges add as vectors, so the net force on \(q_0\) is</p>\[\vec F_{\text{tot}}=\sum_i\vec F_i\]`],
+                        [R`Integrate the sum`, R`<p>The work integral is linear too, so it splits into one piece per charge:</p>\[U=-\int_{\infty}^{P}\vec F_{\text{tot}}\cdot d\vec l=\sum_i\left(-\int_{\infty}^{P}\vec F_i\cdot d\vec l\right)=\sum_i U_i\]`],
+                        [R`Divide by \(q_0\)`, R`\[V=\sum_i\frac{U_i}{q_0}=\sum_i\frac{kq_i}{r_i}\]<p>Each charge builds its own red or blue step, and the white stem is their total.</p>`],
+                        [R`Worked example (default scene)`, R`<p>Charges \(+1.8\) at \((-3,0)\) and \(-1.8\) at \((3,0)\). At the origin both are at \(r=3\), and \(\sqrt{3^{2}+1.25^{2}}=3.25\):</p>\[V(0,0)=\frac{1.8}{3.25}-\frac{1.8}{3.25}=0\]<p>Equal and opposite charges cancel on their mid-plane.</p>`],
+                        [R`Why one scalar sheet is enough`, R`<p>Adding \(V\) is plain arithmetic. Adding \(\vec E\) needs a vector sum, component by component:</p>\[\vec E=\sum_i\vec E_i=\Big(\sum_i E_{x,i},\ \sum_i E_{z,i}\Big)\]<p>So we sum numbers first and take the slope afterwards.</p>`] ] },
+                    { topic: 'The electric field is the negative gradient of V', s: [
+                        [R`A small step on the sheet`, R`<p>Moving by \(d\vec l=(dx,dz)\) changes the height by</p>\[dV=\frac{\partial V}{\partial x}\,dx+\frac{\partial V}{\partial z}\,dz=\nabla V\cdot d\vec l\]`],
+                        [R`Compare with the energy change`, R`<p>The field does work \(q_0\vec E\cdot d\vec l\), which lowers \(U\): \(q_0\,dV=-q_0\,\vec E\cdot d\vec l\). Cancelling \(q_0\),</p>\[dV=-\vec E\cdot d\vec l\quad\Longrightarrow\quad\vec E=-\nabla V\]`],
+                        [R`Check with a point charge`, R`<p>Let \(s=x^{2}+z^{2}+\varepsilon^{2}\), so \(V=kq\,s^{-1/2}\). Then</p>\[\frac{\partial V}{\partial x}=kq\left(-\tfrac12\right)s^{-3/2}(2x)=-\frac{kq\,x}{s^{3/2}}\]<p>and the same for \(z\), giving</p>\[\vec E=\frac{kq\,(x,\,z)}{(x^{2}+z^{2}+\varepsilon^{2})^{3/2}}\ \xrightarrow{\ \varepsilon\to0\ }\ \frac{kq}{r^{2}}\,\hat r\]<p>which is Coulomb’s field again.</p>`],
+                        [R`Equipotentials`, R`<p>Along a contour \(V\) is constant, so</p>\[dV=0\;\Longrightarrow\;\vec E\cdot d\vec l=0\]<p>\(\vec E\) is perpendicular to every contour and points steeply downhill. Contour spacing \(\Delta s\) at voltage step \(\Delta V\) gives</p>\[|\vec E|\approx\frac{\Delta V}{\Delta s}\]<p>so closer lines mean a stronger field.</p>`] ] },
+                    { topic: 'Potential difference and path independence', s: [
+                        [R`Work along a path`, R`<p>To carry \(q_0\) from \(A\) to \(B\) we cancel the field’s force:</p>\[W_{A\to B}=-q_0\int_A^B\vec E\cdot d\vec l\]`],
+                        [R`Use \(\vec E=-\nabla V\)`, R`\[W=q_0\int_A^B\nabla V\cdot d\vec l=q_0\int_A^B dV=q_0\,\big[V\big]_A^B\]<p>The integrand is an exact differential, so the integral depends on the end points only.</p>`],
+                        [R`The result`, R`\[\Delta U=q_0\,(V_B-V_A)=q_0\,\Delta V\]`],
+                        [R`Closed loops`, R`<p>If \(B=A\) then \(\Delta V=0\), hence</p>\[\oint\vec E\cdot d\vec l=0\;\Longrightarrow\;\nabla\times\vec E=0\]<p>by Stokes’ theorem. This also follows from \(\nabla\times\nabla V=0\). A detour therefore ends at the same \(\Delta V\).</p>`],
+                        [R`Reading the sign`, R`<p>\(\Delta V>0\): climbing a hill costs work. \(\Delta V<0\): sliding down returns it.</p>`] ] },
+                    { topic: 'The complete chain, from charge to energy', s: [
+                        [R`Sources set the potential`, R`\[V(x,z)=\sum_i\frac{k\,q_i}{\sqrt{r_i^{2}+\varepsilon^{2}}}\]`],
+                        [R`The sheet is a plot of \(V\)`, R`<p>Height is proportional to \(V\): hills for \(q>0\), wells for \(q<0\).</p>`],
+                        [R`Slope gives the field`, R`\[\vec E=-\nabla V\]`],
+                        [R`Differences give energy and force`, R`\[\Delta U=q_0\,\Delta V,\qquad\vec F=q_0\vec E\]`],
+                        [R`Try it: scaling the charges`, R`<p>Everything is linear in the charges. Select a charge and drag its slider (or press <b>Delete</b>) to check:</p>\[q_i\to\lambda q_i\;\Longrightarrow\;V\to\lambda V,\quad\vec E\to\lambda\vec E,\quad\Delta U\to\lambda\,\Delta U\]`] ] }
+                ];
+                const LEARN = [
+                    { big: R`A charge reshapes the space around it, like a heavy ball on a stretched trampoline.`, words: [R`Picture a stretched rubber sheet. A <b>positive</b> charge pushes it up into a hill; a <b>negative</b> charge pulls it down into a pit. The height of the sheet at any spot is the <b>potential</b> \(V\): the energy a unit charge would carry if you placed it right there.`, R`Far away the sheet is flat, so \(V\approx0\). Close to the charge it gets steep. Make the charge twice as big and the hill becomes twice as tall.`], key: R`Potential is height: \(V=\dfrac{kq}{r}\), tall near the charge and flat far away.` },
+                    { big: R`A test charge on the hill feels a push, and the push is just how steep the hill is.`, words: [R`Place a small test charge \(q_0\) on the sheet. Like a marble on a slope, it wants to roll downhill. The energy it stores is \(U=q_0V\): the higher it sits, the more energy it holds.`, R`Let it go and that stored energy turns into motion. So there are two ways to say one thing: <b>energy is height</b>, and <b>force is slope</b>.`], key: R`Energy is height times the test charge: \(U=q_0V\). The force is the downhill slope.` },
+                    { big: R`The computer builds the whole sheet by measuring the height one dot at a time.`, words: [R`For every dot on a grid it asks each charge, <i>how much do you raise this spot?</i>, and adds up the answers. Then the dot is lifted to that height.`, R`A few dots only sketch a rough outline. With many dots, the neighbours join up into a smooth surface. That is all the 3D sheet is: many tiny measurements of \(V\) placed side by side.`], key: R`The surface is just \(V\) measured at many points and joined up.` },
+                    { big: R`Several charges? Just add their hills and pits together.`, words: [R`Each charge makes its own hill or pit, as if the others were not there. The real sheet is the sum of all of them: a hill plus a pit partly cancel, and two hills stack into a taller one.`, R`Heights are plain numbers, so adding them is easy. That is why we work with potential first: there are no arrows to add.`], key: R`Total potential is the sum of each charge’s potential: \(V=\sum_i V_i\).` },
+                    { big: R`The field arrow points straight downhill, and is longer where the sheet is steeper.`, words: [R`Contour lines join points of equal height, just like on a hiking map. The field always crosses them at right angles, along the steepest way down.`, R`Where the lines crowd together the slope is steep, so the field is strong. Where they spread out, the ground is gentle and the field is weak.`], key: R`\(\vec E=-\nabla V\): the field is the steepness of the sheet, pointing downhill.` },
+                    { big: R`Moving between two points costs the same energy, whichever route you take.`, words: [R`Think of climbing a hill. The energy you spend depends on how much higher you end up, not on the winding path you took. Walking along a contour line costs nothing, because you stay at the same height.`, R`In the picture, rings are equal-height lines. Arcs along a ring add zero; only the straight steps across rings change the energy.`], key: R`\(\Delta U=q_0\,(V_B-V_A)\): only the start and end heights matter.` },
+                    { big: R`You now have the whole chain: charges make \(V\), the slope of \(V\) gives \(\vec E\), and differences in \(V\) give energy.`, words: [R`Everything here is <b>linear</b>. Double every charge and every height, every field arrow and every energy doubles too.`, R`Now play: add, resize and delete charges (or place a polygon), and watch the same simple rules work every time.`], key: R`Charges \(\to\) potential \(\to\) field \(\to\) energy: one chain, the same rules everywhere.` }
+                ];
+                const sec = (t, b) => `<section class='dt-sec'><h4 class='dt-t'><span class='dt-tt'>${t}</span></h4>${b}</section>`;
+                const deriv = (i, s) => {
+                    const L = LEARN[i], D = DERIV[i];
+                    return `<section class='dt-hero'><small>Step ${i + 1} of ${steps.length}</small><h3>${s.t}</h3><p>${L.big}</p></section>`
+                        + sec('The idea, in plain words', L.words.map((p) => `<p class='dt-p'>${p}</p>`).join(''))
+                        + sec('See the geometry (drag the sliders)', geoHTML(geoSteps[i]))
+                        + sec('What you see on screen', `<div class='dv-ov'>${s.det}</div>`)
+                        + sec('The maths, step by step', `<div class='dv'><div class='dv-topic'><small>Derivation</small><h3>${D.topic}</h3></div>${D.s.map(([h, b], k, a) => `<section class='dv-card${k === a.length - 1 ? ' dv-res' : ''}'><h4 class='dv-h'><span class='dv-ht'>${h}</span></h4>${b}</section>`).join('')}</div>`)
+                        + sec('Remember', `<div class='dt-key'>${L.key}</div>`);
+                };
+                const derivOld = (i, s) => `<div class="dv-ov">${s.det}</div><div class="dv"><div class="dv-topic"><small>Derivation · Step ${i + 1} of ${steps.length}</small><h3>${DERIV[i].topic}</h3></div>${DERIV[i].s.map(([h, b], k, a) => `<section class="dv-card${k === a.length - 1 ? ' dv-res' : ''}"><h4 class="dv-h"><span class="dv-ht">${h}</span></h4>${b}</section>`).join('')}</div>`;
+
+                const steps = [
+                    {
+                        t: 'Charges bend the sheet',
+                        line: 'Empty space is a flat sheet (V = 0); a charge q lifts it into a hill (+) or digs a well (−).',
+                        det: `<p>Picture a stretchy sheet lying flat. Above every point of space we plot one number, the <b>electrostatic potential</b> \\(V\\), as a height. With no charges, \\(V=0\\) everywhere and the sheet stays flat.</p><p>A point charge \\(q\\) lifts the sheet into a hill if \\(q>0\\) and digs a well if \\(q<0\\). Larger \\(|q|\\) means a taller hill or a deeper well. The sheet is simply a picture of one number per point.</p><p>Click or drag a charge to select it, then slide its \\(q\\) through zero and watch the yellow marker (4 units from it) rise and fall. Sandbox units: distances are grid units and \\(k=1\\).</p>`,
+                        ui: sl('q', 'Selected q', -4, 4, 0.1, 0),
+                        setup() { view(0.7, 1.0, 26); S.l = mk(THREE.Line, 0xfde047, 2); S.o = orb(0xfde047, 0.28); S.sid = null; },
+                        tick() {
+                            const c = bindSel('q');
+                            S.l.visible = S.o.visible = !!c;
+                            if (!c) return NONE;
+                            const mx = c.x + 4, mz = c.y, h = H(mx, mz);
+                            put(S.l, [[mx, 0, mz], [mx, h, mz]]); S.o.position.set(mx, h, mz);
+                            return `Marker, 4 units from the selected charge: V = ${sn(V(mx, mz))} (that charge alone gives ${sn(c.q / Math.sqrt(17.5625))})`;
+                        }
+                    },
+                    {
+                        t: 'Energy per unit charge',
+                        line: 'Potential is energy per unit charge, \\(V=U/q_0\\): a bigger test charge stores more energy but sees the same V.',
+                        det: `<p>Bring a small test charge \\(q_0\\) in from far away to a point. The work you do is stored as potential energy \\(U\\). Doubling \\(q_0\\) doubles \\(U\\), so we divide it out:</p>\\[V=\\frac{U}{q_0}\\qquad\\Rightarrow\\qquad U=q_0V\\]<p>For a point charge \\(V=\\dfrac{kq}{r}\\). The sandbox softens the centre slightly, \\(r\\to\\sqrt{r^2+\\varepsilon^2}\\), and sets \\(k=1\\). The force on the test charge is \\(F=q_0E\\), pointing downhill.</p><p>Change \\(q_0\\): the arrow and \\(U\\) scale, but \\(V\\) does not. Press <em>Release</em> and the +1 charge rolls downhill, trading \\(U\\) for motion. The probe sits at distance \\(r\\) from the selected charge.</p>`,
+                        ui: sl('r', 'Distance r', 1.5, 12, 0.1, 5) + sl('q0', 'Test charge q₀', 1, 3, 1, 1) + row(bt('rel', 'Release the +1 charge', 'amber')),
+                        setup() {
+                            view(0.7, 1.0, 26);
+                            S.p = orb(0xfbbf24); S.l = mk(THREE.Line, 0xfbbf24, 2); S.ar = mk(THREE.Line, 0xffffff, 5);
+                        },
+                        bind() {
+                            $('rel').onclick = () => {
+                                const c = sel(); if (!c) return;
+                                const t = state.testCharge;
+                                t.active = !t.active; t.x = c.x + (+$('r').value); t.y = c.y; t.vx = t.vz = 0;
+                                syncTestChargeMarker(); syncPlacementButtons();
+                            };
+                        },
+                        tick() {
+                            const c = sel();
+                            S.p.visible = S.l.visible = S.ar.visible = !!c;
+                            if (!c) return NONE;
+                            const t = state.testCharge, on = t.active, r = rd('r');
+                            const q0 = on ? (rd('q0', 0), 1) : rd('q0', 0);
+                            const x = on ? t.x : c.x + r, z = on ? t.y : c.y, h = H(x, z), v = V(x, z);
+                            S.p.visible = !on; S.p.position.set(x, h + 0.3, z);
+                            put(S.l, [[x, 0, z], [x, h, z]]);
+                            const a = evaluateTestChargeAcceleration(x, z), m = Math.hypot(a.ax, a.az) || 1;
+                            put(S.ar, arrowPts(x, h + 0.35, z, a.ax / m, a.az / m, Math.min(4, 0.3 + 0.9 * q0 * m)));
+                            $('rel').textContent = on ? 'Put the charge back' : 'Release the +1 charge';
+                            return `V = ${v.toFixed(2)} · U = q₀V = ${(q0 * v).toFixed(2)} (q₀ = ${q0}) · V is the same for any q₀`;
+                        }
+                    },
+                    {
+                        t: 'Point by point',
+                        line: 'Evaluate \\(V=\\sum kq_i/r_i\\) on a grid of points and lift each to height V; more points trace out the sheet.',
+                        det: `<p>The surface is built from one rule: at every point \\((x,z)\\) add up each charge's contribution,</p>\\[V(x,z)=\\sum_i \\frac{k\\,q_i}{\\sqrt{r_i^2+\\varepsilon^2}}\\]<p>Each dot is one evaluation of that sum, lifted to a height proportional to \\(V\\) (the sandbox uses height \\(=2.2\\,V\\), smoothly capped with \\(\\tanh\\)). Few samples give a rough outline; a dense grid (the real sheet uses 161×161 points) fills in the smooth surface.</p><p>Drag the slider and replay the sweep. Hide the sheet to see only the samples.</p>`,
+                        ui: sl('n', 'Samples per side', 3, 25, 1, 9) + row(bt('rp', 'Replay sweep', 'sky'), bt('sf', 'Hide sheet', 'amber')),
+                        setup() { view(0.7, 1.0, 30); surfaceMesh.material.opacity = 0.2; S.n = 0; S.c = 0; S.sig = ''; },
+                        bind() {
+                            $('rp').onclick = () => { S.c = 0; };
+                            $('sf').onclick = () => {
+                                surfaceMesh.visible = !surfaceMesh.visible; deformationGridLines.visible = surfaceMesh.visible;
+                                $('sf').textContent = surfaceMesh.visible ? 'Hide sheet' : 'Show sheet';
+                            };
+                        },
+                        tick(dt) {
+                            const n = rd('n', 0), sig = state.charges.map((c) => [c.x, c.y, c.q].join()).join('|');
+                            if (n !== S.n || sig !== S.sig) {
+                                if (n !== S.n) S.c = 0;
+                                S.n = n; S.sig = sig;
+                                if (S.pts) { G.remove(S.pts); S.pts.geometry.dispose(); S.pts.material.dispose(); }
+                                const half = Math.min(18, Math.max(12, ...state.charges.map((c) => Math.max(Math.abs(c.x), Math.abs(c.y)) + 4)));
+                                const pos = [], col = [];
+                                for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                                    const x = -half + 2 * half * i / (n - 1), z = -half + 2 * half * j / (n - 1), h = H(x, z);
+                                    pos.push(x, h, z); col.push(...(h >= 0 ? [0.98, 0.44, 0.52] : [0.38, 0.64, 0.98]));
+                                }
+                                const g = new THREE.BufferGeometry();
+                                g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                                g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+                                S.pts = new THREE.Points(g, dotMat(0.6));
+                                S.pts.renderOrder = 5; S.pts.frustumCulled = false; G.add(S.pts);
+                            }
+                            S.c = Math.min(n * n, S.c + dt * n * n / 2.5);
+                            S.pts.geometry.setDrawRange(0, Math.floor(S.c));
+                            surfaceMesh.material.opacity = 0.2 + 0.22 * (S.c / (n * n)); // the sheet fills in as points are placed
+                            return `${n}×${n} grid: ${Math.floor(S.c)} / ${n * n} points placed, each at height ∝ V(x, z)`;
+                        }
+                    },
+                    {
+                        t: 'Potentials add',
+                        line: 'Potentials just add: each charge makes its own V, and the sheet height is the sum \\(V_1+V_2+\\dots\\)',
+                        det: `<p>Potentials are plain numbers, so they simply add. Each charge makes its own potential at the probe point, and the total is the sum:</p>\\[V=V_1+V_2+\\dots=\\sum_i\\frac{kq_i}{r_i}\\]<p>The red and blue segments stack like steps: red climbs for a positive charge, blue descends for a negative one, and the stack ends on the surface (the white stem is the total). This is why a single scalar sheet describes any number of charges, unlike the vector field \\(\\vec E\\), which must be added direction by direction.</p><p>Move the probe, or drag a charge in the scene.</p>`,
+                        ui: sl('px', 'Probe x', -10, 10, 0.1, 0) + sl('pz', 'Probe z', -8, 8, 0.1, 2),
+                        setup() {
+                            view(0.5, 1.15, 24);
+                            S.ls = Array.from({ length: MAX_CHARGES }, () => mk(THREE.Line, 0xfb7185, 2));
+                            S.sum = mk(THREE.Line, 0xffffff, 2); S.o = orb(0xffffff, 0.26);
+                        },
+                        tick() {
+                            const x = rd('px'), z = rd('pz'), cs = state.charges; let cum = 0; const parts = [];
+                            S.ls.forEach((l, i) => {
+                                const c = cs[i]; l.visible = !!c;
+                                if (!c) return;
+                                const v = c.q / Math.sqrt((x - c.x) ** 2 + (z - c.y) ** 2 + 1.5625), h = K * v;
+                                put(l, [[x, cum, z], [x, cum + h, z]]); l.material.color.set(v >= 0 ? 0xfb7185 : 0x60a5fa);
+                                cum += h; parts.push(`V${sub(i + 1)} = ${sn(v)}`);
+                            });
+                            S.sum.visible = !!cs.length;
+                            put(S.sum, [[x + 0.25, 0, z], [x + 0.25, cum, z]]);
+                            S.o.position.set(x, H(x, z), z);
+                            if (!cs.length) return NONE;
+                            return `${parts.join(', ')} → V = ΣVᵢ = ${sn(V(x, z))}`;
+                        }
+                    },
+                    {
+                        t: 'Slope is force',
+                        line: 'The slope is the field: \\(\\vec E=-\\nabla V\\) points straight downhill, crossing equipotential lines at right angles.',
+                        det: `<p>The steepness of the sheet is the electric field. The field is the negative gradient of the potential,</p>\\[\\vec E=-\\nabla V\\]<p>so a positive charge is pushed straight downhill with a strength equal to the slope. The arrows show \\(-\\nabla V\\). The yellow lines are <b>equipotentials</b>, curves of constant \\(V\\), like contour lines on a hill. Moving along one costs no work, so \\(\\vec E\\) always crosses them at right angles, and closer lines mean a steeper slope.</p><p>Toggle the layers, then drop a +1 charge and watch it follow the arrows.</p>`,
+                        ui: row(bt('tcn', 'Contours on', 'amber'), bt('ta', 'Arrows on', 'amber'), bt('dr', 'Drop a +1 charge', 'sky')),
+                        setup() { setCameraView('top'); S.ar = mk(THREE.LineSegments, 0xfbbf24, 1014, 0.95); S.arOn = S.ctOn = true; },
+                        bind() {
+                            $('tcn').onclick = () => { S.ctOn = !S.ctOn; $('tcn').textContent = 'Contours ' + (S.ctOn ? 'on' : 'off'); };
+                            $('ta').onclick = () => { S.arOn = !S.arOn; $('ta').textContent = 'Arrows ' + (S.arOn ? 'on' : 'off'); };
+                            $('dr').onclick = () => {
+                                const a = Math.random() * 6.283, r = 5 + Math.random() * 5;
+                                Object.assign(state.testCharge, { active: true, x: r * Math.cos(a), y: r * Math.sin(a), vx: 0, vz: 0 });
+                                syncTestChargeMarker(); syncPlacementButtons();
+                            };
+                        },
+                        tick() {
+                            const a = S.ar.geometry.attributes.position, A = a.array; let o = 0;
+                            const seg = (x1, y1, z1, x2, y2, z2) => { A[o++] = x1; A[o++] = y1; A[o++] = z1; A[o++] = x2; A[o++] = y2; A[o++] = z2; };
+                            for (let i = -6; i <= 6; i++) for (let j = -6; j <= 6; j++) {
+                                const x = 2 * i, z = 2 * j, e = evaluateTestChargeAcceleration(x, z), m = Math.hypot(e.ax, e.az) || 1;
+                                const dx = e.ax / m, dz = e.az / m, L = Math.min(1.5, 0.25 + 0.55 * Math.log(1 + m));
+                                const tx = x + dx * L, tz = z + dz * L, y0 = H(x, z) + 0.2, y1 = H(tx, tz) + 0.2;
+                                seg(x, y0, z, tx, y1, tz);
+                                seg(tx, y1, tz, tx - dx * 0.4 - dz * 0.18, y1, tz - dz * 0.4 + dx * 0.18);
+                                seg(tx, y1, tz, tx - dx * 0.4 + dz * 0.18, y1, tz - dz * 0.4 - dx * 0.18);
+                            }
+                            a.needsUpdate = true; S.ar.visible = S.arOn; contourLines.visible = S.ctOn;
+                            if (!state.charges.length) return NONE;
+                            return 'Arrows: −∇V (downhill). Yellow lines: equipotentials, always at right angles to the arrows.';
+                        }
+                    },
+                    {
+                        t: 'Work between points',
+                        line: 'Moving a +1 charge from A to B costs \\(\\Delta V=V_B-V_A\\) of work, whatever route you take.',
+                        det: `<p>Carrying a charge \\(q_0\\) from \\(A\\) to \\(B\\) changes its potential energy by</p>\\[\\Delta U=q_0\\,(V_B-V_A)=q_0\\,\\Delta V\\]<p>so \\(\\Delta V\\) is the work per unit charge you must supply. Because \\(\\vec E\\) is conservative (\\(\\nabla\\times\\vec E=0\\)), the result depends only on the end points, not on the route.</p><p>Move B, press <em>Carry</em>, then switch to the detour: the running total ends at the same \\(\\Delta V\\). Climbing a hill costs work (\\(\\Delta V>0\\)); sliding down returns it.</p>`,
+                        ui: sl('bx', 'B x', -10, 10, 0.1, 8) + sl('bz', 'B z', -8, 8, 0.1, -3) + row(bt('cr', 'Carry +1 charge A→B', 'amber'), bt('pt', 'Path: straight', 'sky')),
+                        setup() {
+                            view(0.6, 1.05, 26);
+                            S.path = mk(THREE.Line, 0xffffff, 41, 0.8); S.A = orb(0x4ade80); S.B = orb(0xf472b6); S.c = orb(0xfbbf24, 0.24);
+                            S.c.visible = false; S.s = -1; S.det = false;
+                        },
+                        bind() {
+                            $('cr').onclick = () => { S.s = 0; };
+                            $('pt').onclick = () => { S.det = !S.det; $('pt').textContent = 'Path: ' + (S.det ? 'detour' : 'straight'); };
+                        },
+                        tick(dt) {
+                            const A = [-8, 4], bx = rd('bx'), bz = rd('bz');
+                            const P = (s) => [A[0] + (bx - A[0]) * s, A[1] + (bz - A[1]) * s + (S.det ? 6 * Math.sin(Math.PI * s) : 0)];
+                            const pts = [];
+                            for (let i = 0; i <= 40; i++) { const p = P(i / 40); pts.push([p[0], H(p[0], p[1]) + 0.15, p[1]]); }
+                            put(S.path, pts);
+                            S.A.position.set(A[0], H(A[0], A[1]) + 0.3, A[1]); S.B.position.set(bx, H(bx, bz) + 0.3, bz);
+                            const va = V(A[0], A[1]), vb = V(bx, bz); let run = '';
+                            if (S.s >= 0) {
+                                S.s = Math.min(1, S.s + dt / 3.5);
+                                const p = P(S.s); S.c.visible = true; S.c.position.set(p[0], H(p[0], p[1]) + 0.3, p[1]);
+                                run = ` · carried so far: ${sn(V(p[0], p[1]) - va)}`;
+                            }
+                            return `A (green) V = ${va.toFixed(2)}, B (pink) V = ${vb.toFixed(2)} → ΔV = W per +1 charge = ${sn(vb - va)}${run}`;
+                        }
+                    },
+                    {
+                        t: 'Your turn',
+                        line: 'Add charges, drag them, change their size, drop the Test charge, and orbit the sheet: everything is live.',
+                        det: `<p>You now have the whole picture: charges set the potential \\(V=\\sum kq_i/r_i\\), the sheet plots \\(V\\) as height, its slope gives \\(\\vec E=-\\nabla V\\), and energy changes are \\(q_0\\,\\Delta V\\).</p><p>Everything is live: use <b>+</b> and <b>−</b> at the bottom to add charges, drag them around, resize the selected one below, and drop the <b>Test charge</b>. Switch Top/Side view, and orbit, pan and zoom.</p><p>Then press <b>Animate</b>: the explanation plays out for exactly the charges you built.</p>`,
+                        ui: sl('qs', 'Selected q', -4, 4, 0.1, 1.8) + row(bt('rs', 'Reset to the original scene', 'sky')),
+                        setup() { setCameraView('top'); S.sid = null; },
+                        bind() {
+                            $('rs').onclick = () => {
+                                setCharges(defaults); state.testCharge.active = false; syncTestChargeMarker(); syncPlacementButtons(); setCameraView('top');
+                            };
+                        },
+                        tick() {
+                            const c = bindSel('qs');
+                            return c ? 'Drag a charge to move it; this slider resizes the selected one.' : NONE;
+                        }
+                    }
+                ];
+
+                // ---- Animated versions of each step: built from YOUR charges --------------------
+                // Each entry takes the context of the charges you made and returns a scene.
+                // cam keys: [time, theta, phi, radius, targetX, targetZ, followWeight]
+                const scenes = [
+                    // 1. Your charges bend the flat sheet; V falls off as 1/r
+                    (C) => {
+                        const cs = C.cs, n = C.n, m = C.main, d = C.dir, st = Math.min(1, 3.6 / n), s = n > 1 ? 's' : '';
+                        const kind = C.np && C.nn ? 'mix' : C.nn ? 'neg' : 'pos';
+                        const grow = kind === 'pos' ? `Add your positive charge${s} and ${n > 1 ? 'each one lifts' : 'it lifts'} the sheet into a hill.`
+                            : kind === 'neg' ? `Add your negative charge${s} and ${n > 1 ? 'each one digs' : 'it digs'} the sheet into a well.`
+                            : 'Add your charges: positive ones lift the sheet into hills, negative ones dig wells.';
+                        const away = m.q >= 0 ? 'Move away from the main charge and the sheet gets lower: V shrinks as the distance r grows.'
+                            : 'Move away from the main charge and the well fills in: V shrinks toward zero as the distance r grows.';
+                        return {
+                            len: 20.5,
+                            cam: [[0, 1.2, 1.25, 40, 0, 0, 0], [2, 0.9, 1.15, 30, 0, 0, 0], [6, 0.6, 1.05, 22, 0, 0, 0], [8, 0.5, 1.0, 10, 0, 0, 1], [14, 0.4, 1.0, 12, 0, 0, 1], [17, 0.0, 1.15, 24, 0, 0, 0], [20.5, -0.15, 1.15, 26, 0, 0, 0]],
+                            foc: () => S.o.position,
+                            cap: [[0.5, 'An empty space is a flat sheet: the potential V is zero everywhere.'], [1.4, grow], [7.8, 'The height of the sheet at any spot is the potential V at that spot.'], [10.0, away], [15.5, 'Closer means a bigger |V|, farther means smaller: V = kq/r (k is just a fixed constant).']],
+                            eq: [[0.8, 'V=0'], [10.4, 'V\\propto\\dfrac{1}{r}'], [15.8, 'V=\\dfrac{k\\,q}{r}']],
+                            setup() {
+                                state.charges.forEach((c) => { c.q = 0; scaleCharge(c.id, 0.001); });
+                                recomputeSurface();
+                                S.l = mk(THREE.Line, 0xfde047, 2); S.o = orb(0xfde047, 0.28); S.pr = mk(THREE.Line, 0xfde047, 60, 0.9); S.q = cs.map(() => 0);
+                            },
+                            tick(t) {
+                                let dirty = false;
+                                state.charges.forEach((c, i) => {
+                                    const a = 1.2 + i * st, q = cs[i].q * sg(t, a + 0.3, a + 2.8);
+                                    scaleCharge(c.id, Math.max(0.001, sg(t, a, a + 1)));
+                                    if (q !== S.q[i]) { S.q[i] = q; c.q = q; dirty = true; }
+                                });
+                                if (dirty) recomputeSurface();
+                                const mx = 3.2 + 9 * sg(t, 10, 16), px = m.x + d[0] * mx, pz = m.y + d[1] * mx, h = H(px, pz), pts = [];
+                                put(S.l, [[px, 0, pz], [px, h, pz]]); S.o.position.set(px, h + 0.05, pz);
+                                for (let i = 0; i < 60; i++) { const r = Math.min(mx, 1.5 + 12.5 * i / 59), x = m.x + d[0] * r, z = m.y + d[1] * r; pts.push([x, H(x, z) + 0.08, z]); }
+                                put(S.pr, pts);
+                            }
+                        };
+                    },
+                    // 2. Energy per unit charge: three test charges, one potential
+                    (C) => {
+                        const m = C.main, d = C.dir, neg = m.q < 0;
+                        const Pt = (t) => { const R = 12 - 8 * sg(t, 1, 8) + (t > 9 ? 1.4 * Math.sin((t - 9) * 0.9) : 0); return [m.x + d[0] * R, m.y + d[1] * R]; };
+                        return {
+                            len: 24,
+                            cam: [[0, 0.6, 1.0, 26, 0, 0, 0], [3.5, 0.8, 1.0, 12, 0, 0, 1], [8, 1.2, 1.05, 16, 0, 0, 1], [12, 1.8, 1.0, 15, 0, 0, 0], [16, 2.4, 0.9, 13, 0, 0, 0], [20, 3.0, 1.1, 22, 0, 0, 0], [24, 3.4, 1.0, 26, 0, 0, 0]],
+                            foc: () => S.p[0].o.position,
+                            cap: [
+                                [0.6, 'Take a tiny test charge and carry it toward the main charge, the strongest one you made.'],
+                                [4.0, neg ? 'It is pulled in, so the field does the work for you: the stored energy U (cyan bars) drops below zero.' : 'It is pushed back, so you must do work. That work is stored as energy U (cyan bars): the closer, the more.'],
+                                [8.5, 'The white arrows are the push (force) on each charge: a bigger test charge is pushed harder.'],
+                                [12.0, 'Test charges of size 1, 2 and 3 store 1×, 2× and 3× the energy: U = q₀V.'],
+                                [16.0, 'Divide each energy by its charge and all three give the same number. That number is V.'],
+                                [20.0, C.n > 1 ? 'So V is energy per unit of charge, and it is the sum of kq/r over all your charges.' : 'So V is energy per unit of charge, and around a point charge V = kq/r.']],
+                            eq: [[12.4, 'U=q_0\\,V'], [16.4, 'V=\\dfrac{U}{q_0}'], [20.4, 'V=\\sum_i\\dfrac{k\\,q_i}{r_i}']],
+                            setup() {
+                                S.p = [1, 2, 3].map((q0) => ({ q0, o: orb([0xfbbf24, 0xf472b6, 0x67e8f9][q0 - 1], 0.16 + 0.07 * q0), v: mk(THREE.Line, 0xfde68a, 2), u: mk(THREE.Line, 0x67e8f9, 2), a: mk(THREE.Line, 0xffffff, 5) }));
+                            },
+                            tick(t) {
+                                const P = Pt(t), h = H(P[0], P[1]), v = V(P[0], P[1]), e = evaluateTestChargeAcceleration(P[0], P[1]), mg = Math.hypot(e.ax, e.az) || 1;
+                                S.p.forEach((p, k) => {
+                                    const a = t * 0.9 + k * 2.0944, x = P[0] + 0.6 * Math.cos(a), z = P[1] + 0.6 * Math.sin(a), ox = -Math.sin(a) * 0.3, oz = Math.cos(a) * 0.3;
+                                    p.o.position.set(x, h + 0.2, z);
+                                    put(p.v, [[x, 0, z], [x, h, z]]);
+                                    put(p.u, [[x + ox, 0, z + oz], [x + ox, K * v * p.q0, z + oz]]);
+                                    put(p.a, arrowPts(x, h + 0.35, z, e.ax / mg, e.az / mg, Math.min(3.5, 0.3 + 0.9 * p.q0 * mg)));
+                                });
+                            }
+                        };
+                    },
+                    // 3. Building the surface point by point
+                    (C) => {
+                        const m = C.main, half = Math.min(20, Math.max(12, C.ext + 8)), t0 = [4, 8.6, 13];
+                        return {
+                            len: 23,
+                            cam: [[0, 2.4, 1.0, 26, 0, 0, 0], [1.5, 2.6, 0.95, 13, m.x - C.cx, m.y - C.cz, 0], [4, 3.0, 1.05, 26, 0, 0, 0], [9, 3.1, 0.8, 30, 0, 0, 0], [14, 3.5, 0.95, 22, 0, 0, 0], [19, 3.9, 1.05, 32, 0, 0, 0], [23, 4.3, 1.1, 34, 0, 0, 0]],
+                            cap: [
+                                [0.4, C.n > 1 ? 'Here are your charges. Where does the shape of the sheet come from?' : 'Here is your charge. Where does the shape of the sheet come from?'],
+                                [4.0, 'To build the surface, pick a few spots on the floor and work out V at each one.'],
+                                [6.6, 'At every spot, add up the potential of each charge, then lift the dot up to that height.'],
+                                [8.8, 'More spots give a clearer shape...'],
+                                [13.2, '...and with very many spots the dots trace out the whole smooth sheet.'],
+                                [18.5, 'That sheet is the potential surface: hills where V is positive, wells where V is negative.']],
+                            eq: [[7.0, 'V(x,z)=\\sum_i \\dfrac{k\\,q_i}{r_i}'], [14.0, '(x,z)\\;\\longmapsto\\;V']],
+                            setup() {
+                                S.ph = -1; surfaceMesh.material.opacity = 0.06;
+                                deformationGridLines.visible = false; contourLines.visible = false;
+                                state.charges.forEach((c) => scaleCharge(c.id, 0.001));
+                            },
+                            build(n) {
+                                if (S.pts) { G.remove(S.pts); S.pts.geometry.dispose(); S.pts.material.dispose(); }
+                                const pos = new Float32Array(n * n * 3), col = new Float32Array(n * n * 3); let k = 0; S.hh = [];
+                                for (let i = 0; i < n; i++) for (let j = 0; j < n; j++, k++) {
+                                    const x = C.cx - half + 2 * half * i / (n - 1), z = C.cz - half + 2 * half * j / (n - 1), h = H(x, z);
+                                    pos.set([x, 0, z], k * 3); col.set(h >= 0 ? [0.98, 0.44, 0.52] : [0.38, 0.64, 0.98], k * 3); S.hh.push(h);
+                                }
+                                const g = new THREE.BufferGeometry();
+                                g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+                                S.pts = new THREE.Points(g, reg(dotMat(n < 10 ? 0.9 : n < 20 ? 0.6 : 0.42), 0.95));
+                                S.pts.renderOrder = 5; S.pts.frustumCulled = false; G.add(S.pts); S.n = n;
+                            },
+                            tick(t) {
+                                state.charges.forEach((c, i) => scaleCharge(c.id, Math.max(0.001, sg(t, 0.3 + 0.25 * i, 1.4 + 0.25 * i))));
+                                const ph = t >= t0[2] ? 2 : t >= t0[1] ? 1 : t >= t0[0] ? 0 : -1;
+                                if (ph !== S.ph && ph >= 0) { S.ph = ph; this.build([7, 13, 25][ph]); }
+                                if (S.pts) {
+                                    const n = S.n, Y = S.pts.geometry.attributes.position;
+                                    for (let k = 0; k < n * n; k++) Y.setY(k, S.hh[k] * ez((t - t0[S.ph] - 0.9 * Math.floor(k / n) / (n - 1)) / 1.1));
+                                    Y.needsUpdate = true;
+                                }
+                                const u = sg(t, 14, 18), show = t > 14;
+                                surfaceMesh.material.opacity = 0.06 + 0.16 * sg(t, 4, 12) + 0.2 * u; // sheet becomes visible as the dots appear
+                                deformationGridLines.visible = show; contourLines.visible = show; contourLines.material.opacity = 0.35 * u;
+                            }
+                        };
+                    },
+                    // 4. Superposition: stacked contributions land on the surface
+                    (C) => {
+                        const n = C.n, ax = Math.max(7.5, C.ext + 3.5), az = Math.max(4.5, C.ext * 0.7 + 2.5);
+                        const terms = n === 1 ? 'V₁' : n === 2 ? 'V₁ + V₂' : n === 3 ? 'V₁ + V₂ + V₃' : `V₁ + V₂ + … + V${sub(n)}`;
+                        const tx = n === 1 ? 'V=V_1' : n === 2 ? 'V=V_1+V_2' : n === 3 ? 'V=V_1+V_2+V_3' : `V=V_1+V_2+\\dots+V_{${n}}`;
+                        return {
+                            len: 21,
+                            cam: [[0, 0.5, 1.1, 25, 0, 0, 0], [3.5, 0.7, 1.0, 10, 0, 0, 1], [8, 1.1, 0.95, 9, 0, 0, 1], [12, 1.5, 1.0, 18, 0, 0, 0.3], [17, 1.9, 1.15, 26, 0, 0, 0], [21, 2.2, 1.15, 28, 0, 0, 0]],
+                            foc: () => S.o.position,
+                            cap: [
+                                [0.6, n > 1 ? `With your ${n} charges, every spot feels all of them at the same time.` : 'Every spot feels the charge. Add more charges and their potentials will pile up.'],
+                                [4.0, 'Each charge makes its own potential at the probe: red lifts up (positive), blue pushes down (negative).'],
+                                [8.0, n > 1 ? `Stack the pieces end to end: the top is the total V = ${terms} (the white line).` : 'The white line is the total potential V at the probe.'],
+                                [13.0, 'Potentials are just numbers, so they simply add, however many charges there are.'],
+                                [17.5, 'That is why a single sheet can describe any number of charges.']],
+                            eq: [[4.5, 'V_i=\\dfrac{k\\,q_i}{r_i}'], [8.4, tx], [13.4, 'V=\\sum_i V_i']],
+                            setup() {
+                                S.ls = state.charges.map(() => mk(THREE.Line, 0xfb7185, 2));
+                                S.sum = mk(THREE.Line, 0xffffff, 2); S.o = orb(0xffffff, 0.24); S.tr = mk(THREE.Line, 0xffffff, 90, 0.7); S.h = [];
+                            },
+                            tick(t) {
+                                const x = C.cx + ax * Math.sin(0.4 * t), z = C.cz + az * Math.sin(0.65 * t + 0.8); let cum = 0;
+                                S.ls.forEach((l, i) => {
+                                    const c = state.charges[i];
+                                    const v = c.q / Math.sqrt((x - c.x) ** 2 + (z - c.y) ** 2 + 1.5625), h = K * v;
+                                    put(l, [[x, cum, z], [x, cum + h, z]]); l.material.color.set(v >= 0 ? 0xfb7185 : 0x60a5fa); cum += h;
+                                });
+                                put(S.sum, [[x + 0.25, 0, z], [x + 0.25, cum, z]]);
+                                const y = H(x, z); S.o.position.set(x, y, z); trail(S.tr, S.h, [x, y + 0.1, z], 90);
+                            }
+                        };
+                    },
+                    // 5. Slope is force; equipotentials; a +1 charge rolls downhill (from your Test charge if you placed one)
+                    (C) => {
+                        const own = !!C.tc, p = C.tc || [clampP(C.cx + 8), clampP(C.cz + 6)];
+                        const rolls = own ? 'Your +1 test charge is let go from where you put it, and it slides downhill.'
+                            : C.np && C.nn ? 'Drop a +1 charge and it rolls downhill: away from the hills, toward the wells.'
+                            : C.np ? 'Drop a +1 charge and it rolls downhill, away from the hills (like charges repel).'
+                            : 'Drop a +1 charge and it rolls downhill into the wells (opposite charges attract).';
+                        const gr = 14 * Math.min(1.7, C.fr), sp = 2 * Math.min(1.7, C.fr);
+                        return {
+                            len: 24,
+                            cam: [[0, 0.8, 1.15, 30, 0, 0, 0], [3, 0.6, 1.0, 16, 0, 0, 1], [7, 0.3, 0.7, 22, 0, 0, 0.3], [11, 0.2, 0.6, 11, 0, 0, 0], [15, 0.1, 0.25, 26, 0, 0, 0], [19, 0, 0.08, 22, 0, 0, 0], [24, 0, 0.08, 24, 0, 0, 0]],
+                            foc: () => new THREE.Vector3(state.testCharge.x, 0, state.testCharge.y),
+                            cap: [[0.6, 'Look at the slope of the sheet: a charge placed on it wants to slide downhill.'], [3.0, rolls], [7.5, 'The arrows show the downhill push at every spot: the electric field E = −∇V (minus the slope of V).'], [11.5, 'Steeper slope means longer arrows: a stronger push.'], [15.0, 'The pale lines join points at equal height. They are called equipotentials, like contour lines on a map.'], [19.0, 'Arrows always cross those lines at right angles, because sliding along a line is neither up nor down.']],
+                            eq: [[7.8, '\\vec{E}=-\\nabla V'], [11.8, 'E_x=-\\dfrac{\\partial V}{\\partial x}'], [19.4, '\\vec{E}\\perp\\{V=c\\}']],
+                            setup() {
+                                S.ar = mk(THREE.LineSegments, 0xfbbf24, 1014, 0.95); S.tr = mk(THREE.Line, 0xfff7ae, 80, 0.85); S.tr.visible = false; S.h = []; S.d = false;
+                                Object.assign(state.testCharge, { active: false, x: p[0], y: p[1], vx: 0, vz: 0 });
+                            },
+                            tick(t) {
+                                field(S.ar, gr * sg(t, 1, 5), 1, C.cx, C.cz, sp);
+                                contourLines.material.opacity = 0.35 + 0.5 * sg(t, 2, 6) + 0.08 * Math.sin(t * 2);
+                                if (!S.d && t > 3) { S.d = true; S.tr.visible = true; drop(p[0], p[1]); }
+                                if (S.d && state.testCharge.active) { const c = state.testCharge; trail(S.tr, S.h, [c.x, H(c.x, c.y) + 0.25, c.y], 80); }
+                            }
+                        };
+                    },
+                    // 6. Work between two points is path independent (points chosen around your strongest charge)
+                    (C) => {
+                        const m = C.main, base = Math.atan2(C.dir[1], C.dir[0]);
+                        let best = null; // pick the start/end pair with the clearest climb
+                        for (let k = 0; k < 12; k++) {
+                            const a = base + k * Math.PI / 6, b = a + 1.92;
+                            const A0 = [m.x + 11 * Math.cos(a), m.y + 11 * Math.sin(a)], B0 = [m.x + 3.8 * Math.cos(b), m.y + 3.8 * Math.sin(b)];
+                            const dv0 = V(B0[0], B0[1]) - V(A0[0], A0[1]);
+                            if (!best || Math.abs(dv0) > Math.abs(best.dv) + 1e-9) best = { A: A0, B: B0, dv: dv0 };
+                        }
+                        const A = best.A, B = best.B, dv = best.dv, va = V(A[0], A[1]), vb = V(B[0], B[1]);
+                        const ab = [B[0] - A[0], B[1] - A[1]], L = Math.hypot(ab[0], ab[1]) || 1, mid = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
+                        let pd = [-ab[1] / L, ab[0] / L];
+                        if (pd[0] * (mid[0] - m.x) + pd[1] * (mid[1] - m.y) < 0) pd = [-pd[0], -pd[1]]; // detour bulges away from the charge
+                        const P1 = (s) => [A[0] + ab[0] * s, A[1] + ab[1] * s];
+                        const P2 = (s) => { const p = P1(s), w = 6 * Math.sin(Math.PI * s); return [p[0] + pd[0] * w, p[1] + pd[1] * w]; };
+                        return {
+                            len: 26,
+                            cam: [[0, 0.3, 1.1, 28, 0, 0, 0], [2, 0.6, 1.0, 14, 0, 0, 1], [6.5, 0.9, 1.0, 16, 0, 0, 1], [8, 1.0, 0.95, 12, B[0] - C.cx, B[1] - C.cz, 0], [10.5, 1.3, 1.0, 15, 0, 0, 1], [15.5, 1.6, 0.95, 26, 0, 0, 0], [21, 1.8, 1.05, 30, 0, 0, 0], [26, 2.0, 1.1, 28, 0, 0, 0]],
+                            foc: () => S.c.position,
+                            cap: [
+                                [0.6, 'Now carry a +1 charge from the green point A to the orange point B.'],
+                                [2.2, dv >= 0 ? 'Going uphill costs work, and the work you do equals how much V rises.' : 'Going downhill gives energy back: the work done equals the change in V (negative here).'],
+                                [7.2, 'The gold bar is the change: ΔV = V_B − V_A, the work needed for each unit of charge.'],
+                                [10.2, 'Now take the long way round, along the pink path...'],
+                                [15.5, '...and the change is exactly the same. Only the start and end matter, not the route.'],
+                                [20.0, 'So the work per unit charge is ΔV, and a full loop gains or loses nothing.']],
+                            eq: [[7.4, '\\Delta V=V_B-V_A'], [9.0, `V_B-V_A=${f2(vb)}-(${f2(va)})=${f2(dv)}`], [12.0, 'W=q_0\\,\\Delta V'], [19.8, '\\oint \\vec{E}\\cdot d\\vec{\\ell}=0']],
+                            setup() {
+                                S.pa = mk(THREE.Line, 0xe2e8f0, 41, 0.85); S.pb = mk(THREE.Line, 0xf472b6, 41, 0.85); S.gh = mk(THREE.Line, 0x94a3b8, 2, 0.6);
+                                S.A = orb(0x4ade80); S.B = orb(0xfb923c); S.c = orb(0xfbbf24, 0.26); S.m = mk(THREE.Line, 0xfde047, 2); S.br = mk(THREE.Line, 0xfde047, 2);
+                            },
+                            tick(t) {
+                                const ln = (P) => Array.from({ length: 41 }, (_, i) => { const p = P(i / 40); return [p[0], H(p[0], p[1]) + 0.15, p[1]]; });
+                                put(S.pa, ln(P1)); put(S.pb, ln(P2));
+                                const hA = H(A[0], A[1]), hB = H(B[0], B[1]);
+                                S.A.position.set(A[0], hA + 0.3, A[1]); S.B.position.set(B[0], hB + 0.3, B[1]);
+                                const p = t < 7.8 ? P1(sg(t, 2, 7)) : t < 9.8 ? P1(1 - sg(t, 7.8, 9.8)) : P2(sg(t, 10, 15));
+                                const hp = H(p[0], p[1]); S.c.position.set(p[0], hp + 0.3, p[1]);
+                                put(S.m, [[p[0], hA, p[1]], [p[0], hp, p[1]]]);
+                                S.gh.visible = t > 6; put(S.gh, [[A[0], hA, A[1]], [B[0], hA, B[1]]]);
+                                S.br.visible = t > 7; put(S.br, [[B[0], hA, B[1]], [B[0], hB, B[1]]]);
+                            }
+                        };
+                    },
+                    // 7. Finale
+                    (C) => {
+                        const own = !!C.tc, p = C.tc || [clampP(C.cx - 8), clampP(C.cz - 6)], s = C.n > 1 ? 's' : '';
+                        const gr = 16 * Math.min(1.7, C.fr), sp = 2 * Math.min(1.7, C.fr);
+                        return {
+                            len: 21,
+                            cam: [[0, 2.0, 1.15, 30, 0, 0, 0], [5, 2.6, 1.0, 22, 0, 0, 0], [9, 3.2, 0.9, 40, 0, 0, 0], [14, 4.0, 1.05, 28, 0, 0, 0], [21, 4.8, 1.12, 34, 0, 0, 0]],
+                            cap: [[1.0, `Your ${C.n} charge${s} set the potential V at every point: add up their kq/r.`], [4.5, 'V is drawn as height, which gives a surface of hills and wells.'], [8.0, 'The slope of that surface is the push on a charge: E = −∇V.'], [11.5, 'The climb between two points is the work per unit charge: ΔV.'], [15.5, 'Hills, wells, slopes and heights: that is electrostatic potential. Try dragging a charge!']],
+                            eq: [[1.0, 'V=\\sum_i\\dfrac{k\\,q_i}{r_i}'], [8.2, '\\vec{E}=-\\nabla V'], [11.8, '\\Delta U=q_0\\,\\Delta V']],
+                            setup() {
+                                S.ar = mk(THREE.LineSegments, 0xfbbf24, 1014, 0.7); S.d = false;
+                                Object.assign(state.testCharge, { active: false, x: p[0], y: p[1], vx: 0, vz: 0 });
+                            },
+                            tick(t) {
+                                field(S.ar, gr * sg(t, 0.5, 4), 0.8, C.cx, C.cz, sp);
+                                contourLines.material.opacity = 0.6 + 0.1 * Math.sin(t * 1.6);
+                                if (!S.d && t > 1.5) { S.d = true; drop(p[0], p[1]); }
+                            }
+                        };
+                    }
+                ];
+
+                const eqEl = $('eq'), capEl = $('cap'), veil = $('veil'), sheet = $('g-modal'), dock = $('g-dock');
+                // Equations for the scene that is about to play (some contain numbers from your charges)
+                const buildEq = (s) => {
+                    eqEl.innerHTML = '';
+                    const d = document.createElement('div'); d.className = 'sc';
+                    eqLines = s.eq.map((e) => { const l = document.createElement('div'); l.className = 'ln'; l.textContent = '\\(\\displaystyle ' + e[1] + '\\)'; d.appendChild(l); return l; });
+                    eqEl.appendChild(d);
+                    ready = false;
+                    const tok = ++eqTok;
+                    const run = () => {
+                        const M = window.MathJax;
+                        if (M && M.typesetPromise) M.typesetPromise([eqEl]).then(() => { if (tok === eqTok) ready = true; }).catch(() => {});
+                        else setTimeout(run, 250);
+                    };
+                    run();
+                };
+                const tex = (el, n = 0) => {
+                    const M = window.MathJax;
+                    if (M && M.typesetPromise && M.startup && M.startup.promise) { if (el.getClientRects().length) M.startup.promise = M.startup.promise.then(() => { if (M.typesetClear) M.typesetClear([el]); return M.typesetPromise([el]); }).catch((e) => console.warn('MathJax:', e)); }
+                    else if (n < 40) setTimeout(() => tex(el, n + 1), 250);
+                };
+                const camAt = (keys, t) => {
+                    let i = 0;
+                    while (i < keys.length - 2 && t > keys[i + 1][0]) i++;
+                    const a = keys[i], b = keys[i + 1], u = Math.min(1, Math.max(0, (t - a[0]) / (b[0] - a[0]))), w = 0.5 * u + 0.5 * ez(u);
+                    return a.slice(1, 7).map((v, k) => (v || 0) + ((b[k + 1] || 0) - (v || 0)) * w);
+                };
+
+                // ---- Modes ---------------------------------------------------------------------
+                const placeSheet = () => { sheet.style.bottom = (window.innerHeight - dock.getBoundingClientRect().top + 10) + 'px'; };
+                const openM = () => { polyEl().classList.add('hidden'); sheet.classList.remove('hidden'); placeSheet(); tex(sheet); };
+                const closeM = () => { sheet.classList.add('hidden'); };
+                // ---- Collapsible bottom dock ----
+                let dockCollapsed = false;
+                const applyDock = () => {
+                    dock.classList.toggle('collapsed', dockCollapsed);
+                    $('dock-toggle').setAttribute('aria-expanded', String(!dockCollapsed));
+                    $('dock-toggle').setAttribute('aria-label', dockCollapsed ? 'Expand controls' : 'Collapse controls');
+                    if (dockCollapsed) { polyEl().classList.add('hidden'); }
+                    placeSheet();
+                };
+                $('dock-toggle').onclick = () => { dockCollapsed = !dockCollapsed; applyDock(); };
+                // an animation needs the Stop button, so open the dock whenever one starts
+                new MutationObserver(() => { if (document.body.classList.contains('film') && dockCollapsed) { dockCollapsed = false; applyDock(); } }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+                applyDock();
+                const leaveFilm = () => {
+                    film = false; filmActive = false; userCam = false; guideRender = null; sc = null; ctx = null;
+                    document.body.classList.remove('film');
+                    scene.fog = null; dust.visible = false; camera.clearViewOffset(); fitView();
+                    eqLines.forEach((el) => el.classList.remove('on', 'dim')); eqEl.innerHTML = ''; eqLines = [];
+                    capEl.style.opacity = 0; capK = -2; $('g-anim').innerHTML = '&#9654; Animate';
+                    unsnap(); syncPlacementButtons();
+                };
+                let playAll = false; // true while 'Play all' is running every step back to back
+                const go = (i, quiet) => {
+                    if (i < 0 || i >= steps.length) return;
+                    const replay = film; // moving between steps while an animation plays keeps it playing
+                    if (film) leaveFilm();
+                    clearG(); restore(); S = {}; cur = i;
+                    const s = steps[i];
+                    s.setup();
+                    $('g-controls').innerHTML = s.ui;
+                    if (s.bind) s.bind();
+                    $('g-line').innerHTML = s.line;
+                    $('g-mtitle').textContent = `${i + 1}/${steps.length} · ${s.t}`;
+                    $('g-mbody').innerHTML = deriv(i, s); bindGeo($('g-mbody')); $('g-scroll').scrollTop = 0;
+                    $('g-prev').disabled = i === 0;
+                    $('g-next').disabled = i === steps.length - 1;
+                    tex(sheet);
+                    if (!quiet) showToast(`${i + 1}/${steps.length} · ${s.t}`, 2200);
+                    if (replay) startFilm();
+                };
+                const startFilm = () => {
+                    if (!state.charges.length) {
+                        showToast('Add a + or − charge first, then press Animate.');
+                        ['add-pos-btn', 'add-neg-btn'].forEach((id) => $(id).animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 450, iterations: 2 }));
+                        return;
+                    }
+                    closeM(); state.placementMode = 'none'; syncPlacementButtons();
+                    U = snap(); ctx = buildCtx(); sc = scenes[cur](ctx); // the scene is built from the charges you made
+                    state.testCharge.active = false; state.testCharge.vx = state.testCharge.vz = 0; syncTestChargeMarker();
+                    film = true; filmActive = true; T = 0; userCam = false; S = {}; capK = -2;
+                    document.body.classList.add('film'); $('g-anim').innerHTML = '&#9632; Stop';
+                    scene.fog = fog; dust.visible = true; guideRender = comp ? () => comp.render() : null;
+                    fitView(); veil.style.transition = ''; veil.style.opacity = 1;
+                    clearG(); restore(); buildEq(sc); sc.setup();
+                };
+                const stopFilm = () => {
+                    playAll = false;
+                    leaveFilm();
+                    veil.style.transition = 'none'; veil.style.opacity = 1; void veil.offsetWidth;
+                    veil.style.transition = 'opacity .7s ease'; veil.style.opacity = 0;
+                    setTimeout(() => { veil.style.transition = ''; }, 800);
+                    go(cur, true);
+                };
+
+                $('g-prev').onclick = () => go(cur - 1);
+                $('g-next').onclick = () => go(cur + 1);
+                $('g-anim').onclick = () => (film ? stopFilm() : startFilm());
+                $('g-anim-all').onclick = () => {
+                    if (film) { stopFilm(); return; }
+                    go(0, true); playAll = true; startFilm();
+                    if (!film) playAll = false; // nothing to animate yet (no charges)
+                };
+                $('g-details').onclick = () => (sheet.classList.contains('hidden') ? openM() : closeM());
+                $('g-close').onclick = closeM;
+                window.addEventListener('wheel', () => { userCam = true; }, { passive: true });
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeM();
+                    else if (e.target.tagName !== 'INPUT') { if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); }
+                });
+
+                // Keep the Details sheet just above the button bar
+                new ResizeObserver(() => { if (!sheet.classList.contains('hidden')) placeSheet(); }).observe(dock);
+                window.addEventListener('resize', () => { if (!sheet.classList.contains('hidden')) placeSheet(); });
+
+                guideTickFn = (dt) => {
+                    try {
+                        if (!film) {
+                            syncMagnitudeControls(); paintRanges(); const r = steps[cur].tick(dt);
+                            if (r !== S.r) { S.r = r; $('g-read').textContent = r; }
+                            return;
+                        }
+                        T += dt;
+                        const out = sc.len - T;
+                        if (T >= sc.len) { if (playAll && cur < steps.length - 1) go(cur + 1); else stopFilm(); return; }
+                        if (pointerState.mode === 'orbit' || pointerState.mode === 'pan') userCam = true;
+                        if (!userCam) {
+                            const c = camAt(sc.cam, T);
+                            c[2] *= ctx.fr; c[3] += ctx.cx; c[4] += ctx.cz; // frame all of your charges
+                            const f = sc.foc ? c[5] : 0, fp = f ? sc.foc() : null;
+                            cameraRig.theta = c[0]; cameraRig.phi = c[1]; cameraRig.radius = c[2];
+                            cameraRig.target.set(c[3] * (1 - f) + (fp ? fp.x * f : 0), fp ? fp.y * f : 0, c[4] * (1 - f) + (fp ? fp.z * f : 0));
+                            applyCameraSpherical();
+                        }
+                        sc.tick(T, dt);
+                        const alpha = ez(T / 0.8) * ez(out / 0.8);
+                        MT.forEach((m) => { m[0].opacity = m[1] * alpha; });
+                        veil.style.opacity = Math.max(1 - ez(T / 0.9), 1 - ez(out / 0.8));
+                        dust.rotation.y += dt * 0.012;
+                        let ci = -1;
+                        sc.cap.forEach((c, i) => { if (T >= c[0]) ci = i; });
+                        if (out < 0.7) ci = -1;
+                        if (cur * 100 + ci !== capK) {
+                            capK = cur * 100 + ci; capEl.style.opacity = 0; capTxt = ci >= 0 ? sc.cap[ci][1] : '';
+                            setTimeout(() => { if (film) { capEl.textContent = capTxt; capEl.style.opacity = capTxt ? 1 : 0; } }, 450);
+                        }
+                        if (ready) {
+                            let last = -1;
+                            eqLines.forEach((el, li) => { const on = T >= sc.eq[li][0] && out > 0.7; el.classList.toggle('on', on); if (on) last = li; });
+                            eqLines.forEach((el, li) => el.classList.toggle('dim', li < last - 1));
+                        }
+                    } catch (err) { console.error('Guide tick failed:', err); }
+                };
+                go(0, true);
+            }
+
+            window.onload = function () {
+                try {
+                    initThree();
+                    bindUI();
+                    attachEvents();
+                    initGuide();
+                    animate();
+                } catch (err) {
+                    console.error('Failed to initialize scalar surface:', err);
+                }
+            };
+        })();
+    </script>
+</body>
+</html>

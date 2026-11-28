@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fourier Coefficients: Derivation & Interactive Graphs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX for crisp LaTeX rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .serif-doc {
+      font-family: 'Newsreader', Georgia, serif;
+    }
+    .katex-display {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.35rem 0;
+    }
+    input[type="range"] {
+      accent-color: #18181b;
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-zinc-900 antialiased selection:bg-zinc-900 selection:text-white">
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-8 py-10 sm:py-16 space-y-12">
+
+    <!-- Top Right Back Button -->
+    <div class="flex justify-end -mb-6">
+      <a href="/" class="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-700 bg-white hover:bg-stone-100 border border-stone-200 px-3.5 py-2 rounded-xl shadow-sm transition-colors">
+        <span aria-hidden="true">&larr;</span> Back
+      </a>
+    </div>
+
+    <!-- Section 1: LaTeX Derivation -->
+    <article class="bg-white border border-stone-200 rounded-2xl p-6 sm:p-10 shadow-sm space-y-6 serif-doc text-[17px] leading-relaxed">
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-950 border-b border-stone-200 pb-4">
+        Derivation of the Fourier Series Coefficients
+      </h1>
+
+      <p>
+        Consider a piecewise smooth periodic function $f(x)$ with period $2L$ defined on the interval $[-L, L]$. Its trigonometric Fourier series representation is written as:
+      </p>
+
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2">
+        $$f(x) = a_0 + \sum_{n=1}^{\infty} \left[ a_n \cos\left(\frac{n\pi x}{L}\right) + b_n \sin\left(\frac{n\pi x}{L}\right) \right]$$
+      </div>
+
+      <h2 class="text-xl font-semibold text-zinc-900 pt-2">1. Orthogonality of Trigonometric Functions</h2>
+      <p>
+        For any positive integers $m, n \in \mathbb{Z}^+$, integrating products of harmonics over a full period $[-L, L]$ yields the orthogonality relations:
+      </p>
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2 space-y-1">
+        $$\int_{-L}^{L} \cos\left(\frac{n\pi x}{L}\right) dx = 0, \qquad \int_{-L}^{L} \sin\left(\frac{n\pi x}{L}\right) dx = 0$$
+        $$\int_{-L}^{L} \cos\left(\frac{m\pi x}{L}\right)\sin\left(\frac{n\pi x}{L}\right) dx = 0 \quad \forall\, m, n$$
+        $$\int_{-L}^{L} \cos\left(\frac{m\pi x}{L}\right)\cos\left(\frac{n\pi x}{L}\right) dx = \int_{-L}^{L} \sin\left(\frac{m\pi x}{L}\right)\sin\left(\frac{n\pi x}{L}\right) dx = \begin{cases} 0 & \text{if } m \neq n \\ L & \text{if } m = n \end{cases}$$
+      </div>
+
+      <h2 class="text-xl font-semibold text-zinc-900 pt-2">2. Derivation of $a_0$ (Mean Value)</h2>
+      <p>
+        Integrate both sides of the Fourier series across $[-L, L]$, assuming term-by-term integration is valid:
+      </p>
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2">
+        $$\int_{-L}^{L} f(x)\,dx = \int_{-L}^{L} a_0\,dx + \sum_{n=1}^{\infty} \left[ a_n \underbrace{\int_{-L}^{L} \cos\left(\frac{n\pi x}{L}\right) dx}_{0} + b_n \underbrace{\int_{-L}^{L} \sin\left(\frac{n\pi x}{L}\right) dx}_{0} \right]$$
+        $$\int_{-L}^{L} f(x)\,dx = 2L\,a_0 \implies \boxed{a_0 = \frac{1}{2L} \int_{-L}^{L} f(x)\,dx}$$
+      </div>
+
+      <h2 class="text-xl font-semibold text-zinc-900 pt-2">3. Derivation of $a_m$ (Cosine Coefficients)</h2>
+      <p>
+        Multiply both sides by $\cos\left(\frac{m\pi x}{L}\right)$ for a fixed integer $m \ge 1$ and integrate from $-L$ to $L$:
+      </p>
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2">
+        $$\begin{aligned}
+        \int_{-L}^{L} f(x)\cos\left(\frac{m\pi x}{L}\right) dx &= a_0 \underbrace{\int_{-L}^{L} \cos\left(\frac{m\pi x}{L}\right) dx}_{0} + \sum_{n=1}^{\infty} a_n \underbrace{\int_{-L}^{L} \cos\left(\frac{n\pi x}{L}\right)\cos\left(\frac{m\pi x}{L}\right) dx}_{L\,\delta_{nm}} \\
+        &\quad + \sum_{n=1}^{\infty} b_n \underbrace{\int_{-L}^{L} \sin\left(\frac{n\pi x}{L}\right)\cos\left(\frac{m\pi x}{L}\right) dx}_{0}
+        \end{aligned}$$
+        $$\int_{-L}^{L} f(x)\cos\left(\frac{m\pi x}{L}\right) dx = a_m L \implies \boxed{a_n = \frac{1}{L} \int_{-L}^{L} f(x)\cos\left(\frac{n\pi x}{L}\right) dx}$$
+      </div>
+
+      <h2 class="text-xl font-semibold text-zinc-900 pt-2">4. Derivation of $b_m$ (Sine Coefficients)</h2>
+      <p>
+        Similarly, multiply both sides by $\sin\left(\frac{m\pi x}{L}\right)$ for $m \ge 1$ and integrate over $[-L, L]$:
+      </p>
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2">
+        $$\begin{aligned}
+        \int_{-L}^{L} f(x)\sin\left(\frac{m\pi x}{L}\right) dx &= a_0 \underbrace{\int_{-L}^{L} \sin\left(\frac{m\pi x}{L}\right) dx}_{0} + \sum_{n=1}^{\infty} a_n \underbrace{\int_{-L}^{L} \cos\left(\frac{n\pi x}{L}\right)\sin\left(\frac{m\pi x}{L}\right) dx}_{0} \\
+        &\quad + \sum_{n=1}^{\infty} b_n \underbrace{\int_{-L}^{L} \sin\left(\frac{n\pi x}{L}\right)\sin\left(\frac{m\pi x}{L}\right) dx}_{L\,\delta_{nm}}
+        \end{aligned}$$
+        $$\int_{-L}^{L} f(x)\sin\left(\frac{m\pi x}{L}\right) dx = b_m L \implies \boxed{b_n = \frac{1}{L} \int_{-L}^{L} f(x)\sin\left(\frac{n\pi x}{L}\right) dx}$$
+      </div>
+    </article>
+
+    <!-- Section 2: Interactive Graph 1 — Orthogonality Integral Visualizer -->
+    <section class="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200 pb-4">
+        <h2 class="serif-doc text-xl sm:text-2xl font-semibold text-zinc-950">
+          Graph I: Orthogonality Integral $\int_{-\pi}^{\pi} \phi_m(x)\psi_n(x)\,dx$
+        </h2>
+        <div id="ortho-result" class="font-mono text-sm bg-zinc-900 text-white px-3 py-1.5 rounded-lg self-start sm:self-auto">
+          Area = π (3.142)
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-2">
+          <label for="ortho-type" class="block font-medium text-zinc-700">Basis Pair</label>
+          <select id="ortho-type" class="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-zinc-900 focus:outline-none">
+            <option value="cos-cos">cos(mx) · cos(nx)</option>
+            <option value="sin-sin">sin(mx) · sin(nx)</option>
+            <option value="sin-cos">sin(mx) · cos(nx)</option>
+          </select>
+        </div>
+
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between font-medium text-zinc-700">
+            <label for="ortho-m">Harmonic $m$</label>
+            <span id="ortho-m-val" class="font-mono">2</span>
+          </div>
+          <input id="ortho-m" type="range" min="1" max="8" value="2" class="w-full cursor-pointer" />
+        </div>
+
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between font-medium text-zinc-700">
+            <label for="ortho-n">Harmonic $n$</label>
+            <span id="ortho-n-val" class="font-mono">2</span>
+          </div>
+          <input id="ortho-n" type="range" min="1" max="8" value="2" class="w-full cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="w-full h-64 sm:h-72 relative">
+        <canvas id="orthoCanvas" class="w-full h-full rounded-xl border border-stone-200 bg-stone-50/50 block"></canvas>
+      </div>
+    </section>
+
+    <!-- Section 3: Interactive Graph 2 — Partial Sum Reconstruction -->
+    <section class="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200 pb-4">
+        <h2 class="serif-doc text-xl sm:text-2xl font-semibold text-zinc-950">
+          Graph II: Partial Sum $S_N(x) = a_0 + \sum_{n=1}^{N} \left[a_n\cos(nx) + b_n\sin(nx)\right]$
+        </h2>
+        <div id="coeff-readout" class="font-mono text-xs sm:text-sm bg-stone-100 border border-stone-200 text-zinc-800 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+          a₀ = 0.000, a_N = 0.000, b_N = 1.273
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-2">
+          <label for="wave-type" class="block font-medium text-zinc-700">Target Periodic Function $f(x)$ on $[-\pi, \pi]$</label>
+          <select id="wave-type" class="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-zinc-900 focus:outline-none">
+            <option value="square">Square Wave: sgn(x)</option>
+            <option value="sawtooth">Sawtooth Wave: x / π</option>
+            <option value="triangle">Triangle Wave: 1 - 2|x|/π</option>
+            <option value="rectified">Full-Wave Rectified: |sin(x)|</option>
+          </select>
+        </div>
+
+        <div class="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between font-medium text-zinc-700">
+            <label for="harmonics-n">Number of Harmonics $N$</label>
+            <span id="harmonics-n-val" class="font-mono">3</span>
+          </div>
+          <input id="harmonics-n" type="range" min="1" max="40" value="3" class="w-full cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="w-full h-64 sm:h-72 relative">
+        <canvas id="seriesCanvas" class="w-full h-full rounded-xl border border-stone-200 bg-stone-50/50 block"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Render all LaTeX formulas cleanly using KaTeX
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+
+      // --- Canvas High-DPI Helper ---
+      function setupCanvas(canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        return { ctx, width: rect.width, height: rect.height };
+      }
+
+      // Draw coordinate grid on [-pi, pi]
+      function drawAxes(ctx, w, h, yMax) {
+        const padX = 36;
+        const padY = 24;
+        const plotW = w - padX * 2;
+        const plotH = h - padY * 2;
+        const midY = padY + plotH / 2;
+        const midX = padX + plotW / 2;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Subtle vertical grid lines at -pi, -pi/2, 0, pi/2, pi
+        ctx.strokeStyle = "#e7e5e4";
+        ctx.lineWidth = 1;
+        const ticks = [
+          { pos: 0, label: "-π" },
+          { pos: 0.25, label: "-π/2" },
+          { pos: 0.5, label: "0" },
+          { pos: 0.75, label: "π/2" },
+          { pos: 1, label: "π" }
+        ];
+
+        ctx.fillStyle = "#71717a";
+        ctx.font = "11px Inter, sans-serif";
+        ctx.textAlign = "center";
+
+        ticks.forEach(t => {
+          const x = padX + t.pos * plotW;
+          ctx.beginPath();
+          ctx.moveTo(x, padY);
+          ctx.lineTo(x, h - padY);
+          ctx.stroke();
+          ctx.fillText(t.label, x, h - 7);
+        });
+
+        // Main X and Y axes
+        ctx.strokeStyle = "#a1a1aa";
+        ctx.lineWidth = 1.25;
+        ctx.beginPath();
+        ctx.moveTo(padX, midY);
+        ctx.lineTo(w - padX, midY);
+        ctx.moveTo(midX, padY);
+        ctx.lineTo(midX, h - padY);
+        ctx.stroke();
+
+        // Y-axis max/min labels
+        ctx.textAlign = "right";
+        ctx.fillText(`+${yMax}`, padX - 6, padY + 4);
+        ctx.fillText(`-${yMax}`, padX - 6, h - padY);
+
+        return { padX, padY, plotW, plotH, midX, midY, yMax };
+      }
+
+      // --- Graph 1: Orthogonality Visualizer ---
+      const orthoTypeEl = document.getElementById("ortho-type");
+      const orthoMEl = document.getElementById("ortho-m");
+      const orthoNEl = document.getElementById("ortho-n");
+      const orthoMVal = document.getElementById("ortho-m-val");
+      const orthoNVal = document.getElementById("ortho-n-val");
+      const orthoResult = document.getElementById("ortho-result");
+      const orthoCanvas = document.getElementById("orthoCanvas");
+
+      function renderOrthoGraph() {
+        const type = orthoTypeEl.value;
+        const m = parseInt(orthoMEl.value, 10);
+        const n = parseInt(orthoNEl.value, 10);
+        orthoMVal.textContent = m;
+        orthoNVal.textContent = n;
+
+        const { ctx, width, height } = setupCanvas(orthoCanvas);
+        const g = drawAxes(ctx, width, height, 1.2);
+
+        const evalProduct = (x) => {
+          if (type === "cos-cos") return Math.cos(m * x) * Math.cos(n * x);
+          if (type === "sin-sin") return Math.sin(m * x) * Math.sin(n * x);
+          return Math.sin(m * x) * Math.cos(n * x);
+        };
+
+        const steps = 600;
+        const dx = (2 * Math.PI) / steps;
+
+        // Fill positive and negative shaded regions to show net area cancellation
+        for (let i = 0; i < steps; i++) {
+          const x1 = -Math.PI + i * dx;
+          const x2 = x1 + dx;
+          const y1 = evalProduct(x1);
+          const y2 = evalProduct(x2);
+          const yAvg = (y1 + y2) / 2;
+
+          const px1 = g.padX + (i / steps) * g.plotW;
+          const px2 = g.padX + ((i + 1) / steps) * g.plotW;
+          const py = g.midY - (yAvg / g.yMax) * (g.plotH / 2);
+
+          ctx.fillStyle = yAvg >= 0 ? "rgba(16, 185, 129, 0.25)" : "rgba(244, 63, 94, 0.25)";
+          ctx.fillRect(px1, Math.min(g.midY, py), px2 - px1 + 0.5, Math.abs(g.midY - py));
+        }
+
+        // Plot product curve
+        ctx.strokeStyle = "#18181b";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+          const x = -Math.PI + i * dx;
+          const y = evalProduct(x);
+          const px = g.padX + (i / steps) * g.plotW;
+          const py = g.midY - (y / g.yMax) * (g.plotH / 2);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Update exact integral value badge
+        const isEqual = (type === "cos-cos" || type === "sin-sin") && m === n;
+        if (isEqual) {
+          orthoResult.textContent = "Area = π (3.142)";
+          orthoResult.className = "font-mono text-sm bg-emerald-700 text-white px-3 py-1.5 rounded-lg self-start sm:self-auto";
+        } else {
+          orthoResult.textContent = "Area = 0.000";
+          orthoResult.className = "font-mono text-sm bg-zinc-900 text-white px-3 py-1.5 rounded-lg self-start sm:self-auto";
+        }
+      }
+
+      // --- Graph 2: Fourier Series Partial Sum Visualizer ---
+      const waveTypeEl = document.getElementById("wave-type");
+      const harmonicsNEl = document.getElementById("harmonics-n");
+      const harmonicsNVal = document.getElementById("harmonics-n-val");
+      const coeffReadout = document.getElementById("coeff-readout");
+      const seriesCanvas = document.getElementById("seriesCanvas");
+
+      // Exact analytical Fourier coefficients on [-pi, pi]
+      function getFourierCoeffs(type, N) {
+        let a0 = 0;
+        const an = new Array(N + 1).fill(0);
+        const bn = new Array(N + 1).fill(0);
+
+        if (type === "square") {
+          // f(x) = sgn(x): odd function, b_n = 4/(n*pi) for odd n
+          for (let n = 1; n <= N; n++) {
+            if (n % 2 === 1) bn[n] = 4 / (n * Math.PI);
+          }
+        } else if (type === "sawtooth") {
+          // f(x) = x / pi: odd function, b_n = 2*(-1)^(n+1) / (n*pi)
+          for (let n = 1; n <= N; n++) {
+            bn[n] = (2 * Math.pow(-1, n + 1)) / (n * Math.PI);
+          }
+        } else if (type === "triangle") {
+          // f(x) = 1 - 2|x|/pi: even function, a_n = 8 / (n^2 * pi^2) for odd n
+          for (let n = 1; n <= N; n++) {
+            if (n % 2 === 1) an[n] = 8 / (n * n * Math.PI * Math.PI);
+          }
+        } else if (type === "rectified") {
+          // f(x) = |sin(x)|: even function, a0 = 2/pi, a_n = -4 / (pi*(n^2 - 1)) for even n
+          a0 = 2 / Math.PI;
+          for (let n = 2; n <= N; n += 2) {
+            an[n] = -4 / (Math.PI * (n * n - 1));
+          }
+        }
+
+        return { a0, an, bn };
+      }
+
+      function evalTargetWave(type, x) {
+        if (type === "square") return x >= 0 ? 1 : -1;
+        if (type === "sawtooth") return x / Math.PI;
+        if (type === "triangle") return 1 - (2 * Math.abs(x)) / Math.PI;
+        if (type === "rectified") return Math.abs(Math.sin(x));
+        return 0;
+      }
+
+      function renderSeriesGraph() {
+        const type = waveTypeEl.value;
+        const N = parseInt(harmonicsNEl.value, 10);
+        harmonicsNVal.textContent = N;
+
+        const { a0, an, bn } = getFourierCoeffs(type, N);
+        coeffReadout.textContent = `a₀ = ${a0.toFixed(3)},  a_${N} = ${an[N].toFixed(3)},  b_${N} = ${bn[N].toFixed(3)}`;
+
+        const { ctx, width, height } = setupCanvas(seriesCanvas);
+        const g = drawAxes(ctx, width, height, 1.4);
+
+        const steps = 600;
+        const dx = (2 * Math.PI) / steps;
+
+        // 1. Draw target function f(x) (dashed)
+        ctx.strokeStyle = "#a1a1aa";
+        ctx.lineWidth = 1.75;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+          const x = -Math.PI + i * dx;
+          const y = evalTargetWave(type, x);
+          const px = g.padX + (i / steps) * g.plotW;
+          const py = g.midY - (y / g.yMax) * (g.plotH / 2);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 2. Draw Fourier partial sum S_N(x) (solid dark line)
+        ctx.strokeStyle = "#18181b";
+        ctx.lineWidth = 2.25;
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+          const x = -Math.PI + i * dx;
+          let sum = a0;
+          for (let n = 1; n <= N; n++) {
+            if (an[n] !== 0) sum += an[n] * Math.cos(n * x);
+            if (bn[n] !== 0) sum += bn[n] * Math.sin(n * x);
+          }
+          const px = g.padX + (i / steps) * g.plotW;
+          const py = g.midY - (sum / g.yMax) * (g.plotH / 2);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+
+      // Event Listeners
+      [orthoTypeEl, orthoMEl, orthoNEl].forEach(el => el.addEventListener("input", renderOrthoGraph));
+      [waveTypeEl, harmonicsNEl].forEach(el => el.addEventListener("input", renderSeriesGraph));
+
+      window.addEventListener("resize", () => {
+        renderOrthoGraph();
+        renderSeriesGraph();
+      });
+
+      // Initial render
+      renderOrthoGraph();
+      renderSeriesGraph();
+    });
+  </script>
+</body>
+</html>

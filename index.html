@@ -26,6 +26,41 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
+    <!-- Define profile image error fallback early before body <img> elements parse -->
+    <script>
+        const PROFILE_FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0284c7"/>
+                        <stop offset="100%" stop-color="#0f172a"/>
+                    </linearGradient>
+                </defs>
+                <rect width="200" height="200" fill="url(#bg)"/>
+                <circle cx="100" cy="76" r="34" fill="#e0f2fe" opacity="0.92"/>
+                <path d="M42 178c6-34 30-52 58-52s52 18 58 52" fill="#e0f2fe" opacity="0.92"/>
+                <text x="100" y="190" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#7dd3fc">AS • IOE</text>
+            </svg>`
+        );
+
+        window.handleProfileImgError = function(imgEl) {
+            if (!imgEl) return;
+            const step = parseInt(imgEl.dataset.fallbackStep || '0', 10);
+            const fallbackSources = [
+                './profile.png',
+                './assets/profile.jpg',
+                'https://unavatar.io/linkedin/aayam-shrestha-824186448',
+                PROFILE_FALLBACK_SVG
+            ];
+            if (step < fallbackSources.length) {
+                imgEl.dataset.fallbackStep = String(step + 1);
+                imgEl.src = fallbackSources[step];
+            } else {
+                imgEl.onerror = null;
+            }
+        };
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -697,39 +732,6 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // ================= PROFILE IMAGE FALLBACK HANDLER =================
-        const PROFILE_FALLBACK_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
-            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                <defs>
-                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#0284c7"/>
-                        <stop offset="100%" stop-color="#0f172a"/>
-                    </linearGradient>
-                </defs>
-                <rect width="200" height="200" fill="url(#bg)"/>
-                <circle cx="100" cy="76" r="34" fill="#e0f2fe" opacity="0.92"/>
-                <path d="M42 178c6-34 30-52 58-52s52 18 58 52" fill="#e0f2fe" opacity="0.92"/>
-                <text x="100" y="190" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#7dd3fc">AS • IOE</text>
-            </svg>`
-        );
-
-        function handleProfileImgError(imgEl) {
-            if (!imgEl) return;
-            const step = parseInt(imgEl.dataset.fallbackStep || '0', 10);
-            const fallbackSources = [
-                './profile.png',
-                './assets/profile.jpg',
-                'https://unavatar.io/linkedin/aayam-shrestha-824186448',
-                PROFILE_FALLBACK_SVG
-            ];
-            if (step < fallbackSources.length) {
-                imgEl.dataset.fallbackStep = String(step + 1);
-                imgEl.src = fallbackSources[step];
-            } else {
-                imgEl.onerror = null;
-            }
-        }
-
         // ================= ABOUT ME & OVERLAY CONTROLS =================
         function openAboutMeExperience() {
             const overlay = document.getElementById('about-me-overlay');
@@ -1578,6 +1580,12 @@
                         latex: "\\int_0^1 x^{-x}\\,dx = \\sum_{n=1}^{\\infty} n^{-n}",
                         keywords: "sophomore's dream integral from 0 to 1 of x^-x dx sum of n^-n bernoulli series gamma function",
                         url: "./projects/Math/sophomores_dream.html",
+                        subnodes: []
+                    },
+                    {
+                        name: "Fourier Coefficients 〰️",
+                        keywords: "fourier coefficients fourier series harmonic analysis orthogonal functions trigonometric expansion a_n b_n c_n",
+                        url: "./projects/Math/fourier_coefficients.html",
                         subnodes: []
                     }
                 ]
